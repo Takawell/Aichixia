@@ -37,12 +37,13 @@ const CopyableCode = ({ text }: { text: string }) => {
         fontWeight: "600",
         userSelect: "all",
         transition: "background-color 0.3s ease",
+        fontSize: 14,
       }}
       title={copied ? "Copied!" : "Click to copy"}
-      onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#b2dfdb")}
-      onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#e0f2f1")}
+      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#b2dfdb")}
+      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#e0f2f1")}
     >
-      <code style={{ fontSize: 14 }}>{text}</code>
+      <code>{text}</code>
       <FaCopy size={14} />
     </div>
   );
@@ -113,6 +114,7 @@ const Row = ({
         transition: "all 0.3s ease",
         cursor: "pointer",
         userSelect: "none",
+        wordBreak: "break-word",
       }}
       onClick={() => {
         navigator.clipboard.writeText(path);
@@ -127,9 +129,10 @@ const Row = ({
           alignItems: "center",
           marginBottom: 10,
           justifyContent: "space-between",
+          flexWrap: "wrap",
         }}
       >
-        <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
+        <div style={{ display: "flex", gap: 14, alignItems: "center", flexGrow: 1, minWidth: 0 }}>
           <code
             style={{
               padding: "5px 14px",
@@ -140,6 +143,7 @@ const Row = ({
               color: "white",
               letterSpacing: 1,
               userSelect: "none",
+              flexShrink: 0,
             }}
           >
             {method}
@@ -153,8 +157,9 @@ const Row = ({
               color: "#a7ffeb",
               fontWeight: 600,
               userSelect: "all",
+              overflowWrap: "break-word",
               flexGrow: 1,
-              overflowWrap: "anywhere",
+              minWidth: 0,
             }}
           >
             {path}
@@ -162,9 +167,7 @@ const Row = ({
         </div>
         <StatusBadge active={active} label={active ? "Active" : "Inactive"} />
       </div>
-      <div style={{ fontSize: 15, lineHeight: 1.5, color: "#37474f" }}>
-        {desc}
-      </div>
+      <div style={{ fontSize: 15, lineHeight: 1.5, color: "#37474f" }}>{desc}</div>
     </div>
   );
 };
@@ -175,7 +178,7 @@ export default function Docs() {
       style={{
         maxWidth: 900,
         margin: "48px auto",
-        padding: "0 24px 64px",
+        padding: "0 20px 64px",
         fontFamily: "'Poppins', sans-serif",
         background: "#fff",
         color: "#263238",
@@ -203,6 +206,7 @@ export default function Docs() {
             alignItems: "center",
             gap: 18,
             letterSpacing: "0.07em",
+            flexWrap: "wrap",
           }}
         >
           <FaBookOpen size={52} />
@@ -216,15 +220,32 @@ export default function Docs() {
               fontWeight: 700,
               fontSize: 18,
               color: "#4caf50",
-              animation: "pulseGreen 2.5s infinite",
               userSelect: "none",
             }}
+            title="API status"
           >
-            <FaCheckCircle /> API is Active
+            <span
+              style={{
+                display: "inline-block",
+                width: 12,
+                height: 12,
+                borderRadius: "50%",
+                backgroundColor: "#4caf50",
+                boxShadow: "0 0 6px #4caf50cc",
+                animation: "blinkGreen 1.5s infinite",
+              }}
+            />
+            API is Active
             <style>{`
-              @keyframes pulseGreen {
-                0%, 100% { text-shadow: 0 0 8px #4caf50aa; }
-                50% { text-shadow: 0 0 20px #4caf50ff; }
+              @keyframes blinkGreen {
+                0%, 100% { opacity: 1; box-shadow: 0 0 6px #4caf50cc; }
+                50% { opacity: 0.3; box-shadow: 0 0 12px #4caf50ff; }
+              }
+              @media (max-width: 600px) {
+                h1 {
+                  font-size: 36px !important;
+                  gap: 10px !important;
+                }
               }
             `}</style>
           </span>
@@ -311,7 +332,7 @@ export default function Docs() {
             display: "flex",
             alignItems: "center",
             gap: 12,
-            color: "#00796b",
+            color: "#004d40",
             userSelect: "none",
           }}
         >
@@ -322,24 +343,24 @@ export default function Docs() {
         <pre
           style={{
             whiteSpace: "pre-wrap",
-            background: "#e0f2f1",
-            color: "#004d40",
+            background: "#004d40",
+            color: "#a7ffeb",
             padding: 20,
             borderRadius: 16,
-            fontSize: 15,
+            fontSize: 14,
             overflowX: "auto",
-            boxShadow: "0 6px 18px rgba(0,121,107,0.3)",
-            userSelect: "all",
-            cursor: "pointer",
-            fontFamily: "'Fira Code', monospace",
+            fontFamily: "'Fira Mono', monospace",
           }}
           onClick={() => {
-            navigator.clipboard.writeText(
-              `curl -X POST "$HOST/api/chat" \\\n  -H "Content-Type: application/json" \\\n  -d '{\n    "message": "Recommend me some isekai anime",\n    "persona": "friendly"\n  }'`
-            );
+            navigator.clipboard.writeText(`curl -X POST "$HOST/api/chat" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "message": "Recommend me some isekai anime",
+    "persona": "friendly"
+  }'`);
             alert("Curl command copied!");
           }}
-          title="Click to copy curl command"
+          title="Click to copy cURL command"
         >
           {`curl -X POST "$HOST/api/chat" \\
   -H "Content-Type: application/json" \\
@@ -356,7 +377,7 @@ export default function Docs() {
           style={{
             fontSize: 30,
             fontWeight: 700,
-            marginBottom: 16,
+            marginBottom: 12,
             display: "flex",
             alignItems: "center",
             gap: 12,
@@ -367,15 +388,13 @@ export default function Docs() {
           <FaStickyNote />
           Notes
         </h2>
-        <ul style={{ fontSize: 16, lineHeight: 1.8, color: "#455a64" }}>
+        <ul style={{ fontSize: 16, lineHeight: 1.75, color: "#455a64", paddingLeft: 24 }}>
           <li>
-            Make sure{" "}
-            <CopyableCode text="GEMINI_API_KEY" /> is set in Vercel (Production/Preview/Development).
+            Make sure <CopyableCode text="GEMINI_API_KEY" /> is set in Vercel (Production/Preview/Development).
           </li>
           <li>All AniList endpoints are public and don’t require an API key.</li>
           <li>
-            Use{" "}
-            <CopyableCode text="/api/chat" /> for natural language; intent will auto-route to AniList/Gemini.
+            Use <CopyableCode text="/api/chat" /> for natural language; intent will auto-route to AniList/Gemini.
           </li>
         </ul>
       </section>
@@ -383,18 +402,14 @@ export default function Docs() {
       {/* Footer */}
       <footer
         style={{
-          marginTop: 80,
+          marginTop: 64,
           textAlign: "center",
-          color: "#90a4ae",
+          color: "#789262",
           fontSize: 14,
           userSelect: "none",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          gap: 10,
         }}
       >
-        <FaTerminal size={18} />
+        <FaTerminal style={{ verticalAlign: "middle", marginRight: 6 }} />
         © {new Date().getFullYear()} Aichixia — Anime-first AI Assistant.
       </footer>
     </main>
