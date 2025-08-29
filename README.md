@@ -34,11 +34,10 @@ This separation allows Aichiow to stay fast and user-friendly, while Aichixia en
 ---
 
 ## 🛠️ Built With
-- Next.js API Routes  
-- TypeScript  
-- AniList GraphQL  
-- MangaDex API  
-- AI Assistant Layer  
+**- Next.js API Routes**  
+**- TypeScript**
+**- [gemini ai](https://aistudio.google.com/)**
+**- [AniList GraphQL](https://docs.anilist.co/)**      
 
 ---
 
