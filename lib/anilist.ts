@@ -1,6 +1,3 @@
-// lib/anilist.ts
-// AniList GraphQL public client — super lengkap, no API key needed.
-
 export const ANILIST_API = "https://graphql.anilist.co";
 
 export async function gql(query: string, variables?: Record<string, any>) {
@@ -17,7 +14,7 @@ export async function gql(query: string, variables?: Record<string, any>) {
 }
 
 // ─── Types ───────────────────────────────────────────
-export type MediaType = "ANIME" | "MANGA";
+export type MediaType = "ANIME" | "MANGA" | "MANHWA" | "LIGHT_NOVEL";
 export type MediaFormat = "TV" | "TV_SHORT" | "MOVIE" | "SPECIAL" | "OVA" | "ONA" | "MUSIC" | "MANGA" | "NOVEL" | "ONE_SHOT";
 export type MediaStatus = "FINISHED" | "RELEASING" | "NOT_YET_RELEASED" | "CANCELLED" | "HIATUS";
 export type MediaSeason = "WINTER" | "SPRING" | "SUMMER" | "FALL";
