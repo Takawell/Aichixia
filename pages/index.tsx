@@ -11,54 +11,57 @@ const Row = ({ method, path, desc }: { method: string; path: string; desc: strin
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        border: "1px solid #3b82f6",
+        border: hovered ? "2px solid #4f46e5" : "1px solid #e0e7ff",
         padding: 20,
-        borderRadius: 12,
+        borderRadius: 14,
         marginBottom: 20,
-        background: hovered ? "#1e40af" : "#111827",
+        background: hovered ? "#eef2ff" : "#ffffff",
         boxShadow: hovered
-          ? "0 0 15px 3px rgba(59,130,246,0.6)"
-          : "0 2px 10px rgba(0,0,0,0.4)",
-        color: "#e0e7ff",
-        transition: "all 0.3s ease",
+          ? "0 10px 20px rgba(79, 70, 229, 0.3)"
+          : "0 2px 6px rgba(0,0,0,0.07)",
+        color: "#1e293b",
+        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         cursor: "pointer",
+        userSelect: "none",
       }}
+      onClick={() => {
+        navigator.clipboard.writeText(path);
+        alert("Path copied to clipboard!");
+      }}
+      title="Click to copy path"
     >
-      <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 8 }}>
+      <div style={{ display: "flex", gap: 14, alignItems: "center", marginBottom: 8 }}>
         <code
           style={{
-            padding: "4px 12px",
+            padding: "5px 14px",
             borderRadius: 8,
-            background: "#2563eb",
+            background: "#c7d2fe",
             fontWeight: 700,
             fontSize: 14,
-            color: "#e0e7ff",
-            userSelect: "none",
+            color: "#3730a3",
             letterSpacing: 1,
+            userSelect: "none",
           }}
         >
           {method}
         </code>
         <code
           style={{
-            padding: "4px 12px",
+            padding: "5px 14px",
             borderRadius: 8,
-            background: "#3b82f6",
+            background: "#6366f1",
             fontSize: 14,
-            color: "#dbeafe",
+            color: "white",
+            fontWeight: 600,
             userSelect: "all",
-            fontWeight: "600",
-          }}
-          title="Click to copy"
-          onClick={() => {
-            navigator.clipboard.writeText(path);
-            alert("Path copied to clipboard!");
+            flexGrow: 1,
+            overflowWrap: "anywhere",
           }}
         >
           {path}
         </code>
       </div>
-      <div style={{ fontSize: 15, lineHeight: 1.4 }}>{desc}</div>
+      <div style={{ fontSize: 15, lineHeight: 1.5, color: "#334155" }}>{desc}</div>
     </div>
   );
 };
@@ -68,76 +71,81 @@ export default function Docs() {
     <main
       style={{
         maxWidth: 900,
-        margin: "40px auto",
-        padding: "0 24px 48px",
+        margin: "48px auto",
+        padding: "0 24px 64px",
         fontFamily: "'Poppins', sans-serif",
-        background: "#000000",
-        color: "#d1d5db",
+        background: "#ffffff",
+        color: "#334155",
         minHeight: "100vh",
+        userSelect: "text",
       }}
     >
       <header
         style={{
-          marginBottom: 48,
+          marginBottom: 56,
           textAlign: "center",
-          borderBottom: "2px solid #3b82f6",
-          paddingBottom: 16,
+          borderBottom: "3px solid #4f46e5",
+          paddingBottom: 20,
           userSelect: "none",
         }}
       >
         <h1
           style={{
-            fontSize: 48,
+            fontSize: 52,
             fontWeight: 900,
-            color: "#3b82f6",
+            color: "#4f46e5",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            gap: 12,
+            gap: 16,
+            letterSpacing: "0.05em",
           }}
         >
-          <FaBookOpen size={48} />
+          <FaBookOpen size={50} />
           Aichixia API Docs
         </h1>
         <p
           style={{
-            color: "#9ca3af",
+            color: "#64748b",
             fontSize: 18,
-            maxWidth: 650,
-            margin: "8px auto 0",
+            maxWidth: 680,
+            margin: "12px auto 0",
             fontWeight: 500,
+            lineHeight: 1.6,
           }}
         >
           Public endpoints for anime & AI chat. Deployed on{" "}
-          <span style={{ fontWeight: 700, color: "#3b82f6" }}>Vercel</span>, no extra backend needed.
+          <span style={{ fontWeight: 700, color: "#4338ca" }}>Vercel</span>, no extra backend needed.
         </p>
       </header>
 
       {/* Auth Section */}
-      <section style={{ marginBottom: 40 }}>
+      <section style={{ marginBottom: 48 }}>
         <h2
           style={{
-            fontSize: 28,
+            fontSize: 30,
             fontWeight: 700,
-            marginBottom: 12,
+            marginBottom: 14,
             display: "flex",
             alignItems: "center",
-            gap: 10,
-            color: "#2563eb",
+            gap: 12,
+            color: "#4338ca",
             userSelect: "none",
           }}
         >
-          <FaKey /> Auth
+          <FaKey />
+          Auth
         </h2>
-        <p style={{ fontSize: 16, color: "#9ca3af" }}>
+        <p style={{ fontSize: 16, color: "#475569", lineHeight: 1.6 }}>
           AniList endpoints don’t require API keys. For chat, set{" "}
           <code
             style={{
-              background: "#1e40af",
-              padding: "4px 8px",
+              background: "#e0e7ff",
+              padding: "5px 10px",
               borderRadius: 6,
               fontWeight: 700,
               userSelect: "all",
+              color: "#4338ca",
             }}
           >
             GEMINI_API_KEY
@@ -147,20 +155,21 @@ export default function Docs() {
       </section>
 
       {/* Anime Section */}
-      <section style={{ marginBottom: 40 }}>
+      <section style={{ marginBottom: 48 }}>
         <h2
           style={{
-            fontSize: 28,
+            fontSize: 30,
             fontWeight: 700,
-            marginBottom: 20,
+            marginBottom: 24,
             display: "flex",
             alignItems: "center",
-            gap: 10,
-            color: "#3b82f6",
+            gap: 12,
+            color: "#6366f1",
             userSelect: "none",
           }}
         >
-          <FaFilm /> Anime
+          <FaFilm />
+          Anime
         </h2>
         <Row method="GET" path={`${base}/api/anime/search?q=naruto&type=ANIME`} desc="Search anime/manga (type: ANIME|MANGA, q required)" />
         <Row method="GET" path={`${base}/api/anime/1?type=ANIME`} desc="Media detail by ID" />
@@ -174,33 +183,36 @@ export default function Docs() {
       </section>
 
       {/* Chat Section */}
-      <section style={{ marginBottom: 40 }}>
+      <section style={{ marginBottom: 48 }}>
         <h2
           style={{
-            fontSize: 28,
+            fontSize: 30,
             fontWeight: 700,
-            marginBottom: 20,
+            marginBottom: 24,
             display: "flex",
             alignItems: "center",
-            gap: 10,
-            color: "#2563eb",
+            gap: 12,
+            color: "#4338ca",
             userSelect: "none",
           }}
         >
-          <FaComments /> Chat
+          <FaComments />
+          Chat
         </h2>
         <Row method="POST" path={`${base}/api/chat`} desc="Unified chat endpoint (intent routing: AniList or Gemini)" />
         <pre
           style={{
             whiteSpace: "pre-wrap",
-            background: "#1e293b",
-            color: "#bfdbfe",
+            background: "#eef2ff",
+            color: "#4338ca",
             padding: 20,
-            borderRadius: 14,
-            fontSize: 14,
+            borderRadius: 16,
+            fontSize: 15,
             overflowX: "auto",
-            boxShadow: "0 0 20px 2px rgba(59, 130, 246, 0.5)",
+            boxShadow: "0 6px 18px rgba(99, 102, 241, 0.3)",
             userSelect: "all",
+            cursor: "pointer",
+            fontFamily: "'Fira Code', monospace",
           }}
           onClick={() => {
             navigator.clipboard.writeText(
@@ -220,31 +232,33 @@ export default function Docs() {
       </section>
 
       {/* Notes Section */}
-      <section style={{ marginBottom: 40 }}>
+      <section style={{ marginBottom: 48 }}>
         <h2
           style={{
-            fontSize: 28,
+            fontSize: 30,
             fontWeight: 700,
-            marginBottom: 12,
+            marginBottom: 16,
             display: "flex",
             alignItems: "center",
-            gap: 10,
-            color: "#3b82f6",
+            gap: 12,
+            color: "#6366f1",
             userSelect: "none",
           }}
         >
-          <FaStickyNote /> Notes
+          <FaStickyNote />
+          Notes
         </h2>
-        <ul style={{ fontSize: 16, lineHeight: 1.7, color: "#9ca3af" }}>
+        <ul style={{ fontSize: 16, lineHeight: 1.8, color: "#475569" }}>
           <li>
             Make sure{" "}
             <code
               style={{
-                background: "#1e40af",
-                padding: "4px 8px",
+                background: "#e0e7ff",
+                padding: "5px 10px",
                 borderRadius: 6,
                 fontWeight: 700,
                 userSelect: "all",
+                color: "#4338ca",
               }}
             >
               GEMINI_API_KEY
@@ -256,11 +270,12 @@ export default function Docs() {
             Use{" "}
             <code
               style={{
-                background: "#1e40af",
-                padding: "4px 8px",
+                background: "#e0e7ff",
+                padding: "5px 10px",
                 borderRadius: 6,
                 fontWeight: 700,
                 userSelect: "all",
+                color: "#4338ca",
               }}
             >
               /api/chat
@@ -275,16 +290,16 @@ export default function Docs() {
         style={{
           marginTop: 80,
           textAlign: "center",
-          color: "#64748b",
+          color: "#94a3b8",
           fontSize: 14,
           userSelect: "none",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          gap: 8,
+          gap: 10,
         }}
       >
-        <FaTerminal size={16} />
+        <FaTerminal size={18} />
         © {new Date().getFullYear()} Aichixia — Anime-first AI Assistant.
       </footer>
     </main>
