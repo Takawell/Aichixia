@@ -1,149 +1,128 @@
-import React, { useState, createContext, useContext } from "react";
-import { Copy, ChevronDown, ChevronUp } from "lucide-react";
+import React from "react";
+import { Terminal, Sparkles, Globe } from "lucide-react";
 
 const base = "";
 
-type Lang = "en" | "id";
-const LangContext = createContext<[Lang, (val: Lang) => void]>(["en", () => {}]);
-
-const Row = ({
-  method,
-  path,
-  desc,
-}: {
-  method: string;
-  path: string;
-  desc: { en: string; id: string };
-}) => {
-  const [copied, setCopied] = useState(false);
-  const [lang] = useContext(LangContext);
-
-  const copy = async () => {
-    await navigator.clipboard.writeText(path);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
-  };
-
-  return (
-    <div className="mb-4 rounded-lg border border-slate-700 bg-slate-800 p-4 shadow">
-      <div className="flex items-center gap-2 mb-2">
-        <span className="px-2 py-1 rounded bg-slate-700 text-slate-200 text-xs font-mono">
-          {method}
-        </span>
-        <code className="px-2 py-1 rounded bg-indigo-900 text-indigo-300 font-mono">
-          {path}
-        </code>
-        <button
-          onClick={copy}
-          className="ml-auto text-slate-400 hover:text-white text-sm"
-        >
-          {copied ? "Copied!" : <Copy className="h-4 w-4 inline" />}
-        </button>
-      </div>
-      <p className="text-slate-300 text-sm">{desc[lang]}</p>
+const Row = ({ method, path, desc }: { method: string; path: string; desc: string }) => (
+  <div
+    style={{
+      border: "1px solid #1f2937",
+      padding: 16,
+      borderRadius: 12,
+      marginBottom: 12,
+      background: "#111827",
+    }}
+  >
+    <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 6 }}>
+      <code
+        style={{
+          padding: "2px 8px",
+          borderRadius: 8,
+          background: "#f59e0b",
+          color: "#000",
+          fontWeight: 600,
+        }}
+      >
+        {method}
+      </code>
+      <code
+        style={{
+          padding: "2px 8px",
+          borderRadius: 8,
+          background: "#1e293b",
+          color: "#f8fafc",
+        }}
+      >
+        {path}
+      </code>
     </div>
-  );
-};
+    <div style={{ color: "#d1d5db", fontSize: 14 }}>{desc}</div>
+  </div>
+);
 
 export default function Docs() {
-  const [lang, setLang] = useState<Lang>("en");
-  const [open, setOpen] = useState(true);
-
   return (
-    <LangContext.Provider value={[lang, setLang]}>
-      <main className="min-h-screen bg-slate-900 text-white max-w-4xl mx-auto p-6 font-sans">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold">Aichixia API Docs</h1>
-          <div className="flex gap-2">
-            <button
-              className={`px-3 py-1 rounded ${
-                lang === "en"
-                  ? "bg-indigo-600 text-white"
-                  : "bg-slate-700 text-slate-300"
-              }`}
-              onClick={() => setLang("en")}
-            >
-              EN
-            </button>
-            <button
-              className={`px-3 py-1 rounded ${
-                lang === "id"
-                  ? "bg-indigo-600 text-white"
-                  : "bg-slate-700 text-slate-300"
-              }`}
-              onClick={() => setLang("id")}
-            >
-              ID
-            </button>
-          </div>
-        </div>
-
-        <p className="text-slate-400 mb-6">
-          {lang === "en"
-            ? "Public endpoints for anime & chat. Deployable on Vercel, no backend needed."
-            : "Endpoint publik untuk anime & chat. Bisa deploy di Vercel tanpa backend tambahan."}
+    <main
+      style={{
+        maxWidth: 900,
+        margin: "40px auto",
+        padding: "0 16px",
+        fontFamily: "ui-sans-serif, system-ui",
+        color: "#f9fafb",
+        background: "#000",
+      }}
+    >
+      <header style={{ textAlign: "center", marginBottom: 32 }}>
+        <h1 style={{ fontSize: 40, fontWeight: 800, display: "flex", gap: 8, justifyContent: "center" }}>
+          <Sparkles size={32} color="#f59e0b" /> Aichixia API Docs
+        </h1>
+        <p style={{ color: "#9ca3af", marginTop: 8, fontSize: 16 }}>
+          Public endpoints for <span style={{ color: "#38bdf8" }}>Anime</span> &{" "}
+          <span style={{ color: "#a78bfa" }}>Chat AI</span>. Powered by Vercel.
         </p>
+      </header>
 
-        {/* Anime Section */}
-        <section>
-          <button
-            className="flex items-center justify-between w-full text-lg font-semibold py-2"
-            onClick={() => setOpen(!open)}
-          >
-            {lang === "en" ? "Anime Endpoints" : "Endpoint Anime"}
-            {open ? <ChevronUp /> : <ChevronDown />}
-          </button>
-          {open && (
-            <div className="mt-2">
-              <Row
-                method="GET"
-                path={`${base}/api/anime/search?q=naruto&type=ANIME`}
-                desc={{
-                  en: "Search anime/manga (q required, type: ANIME|MANGA).",
-                  id: "Cari anime/manga (q wajib, type: ANIME|MANGA).",
-                }}
-              />
-              <Row
-                method="GET"
-                path={`${base}/api/anime/trending`}
-                desc={{
-                  en: "Current trending anime.",
-                  id: "Anime trending saat ini.",
-                }}
-              />
-            </div>
-          )}
-        </section>
+      <section>
+        <h2 style={{ fontSize: 24, fontWeight: 700, margin: "24px 0 12px", color: "#f59e0b" }}>
+          <Globe size={20} style={{ display: "inline", marginRight: 6 }} /> Auth
+        </h2>
+        <p style={{ color: "#d1d5db", lineHeight: 1.6 }}>
+          AniList endpoints are public and need no API key. For chat, set{" "}
+          <code style={{ background: "#1f2937", padding: "2px 6px", borderRadius: 6 }}>GEMINI_API_KEY</code>{" "}
+          in Project Settings → Environment Variables.
+        </p>
+      </section>
 
-        {/* Chat Section */}
-        <section className="mt-6">
-          <h2 className="text-xl font-semibold mb-2">
-            {lang === "en" ? "Chat" : "Chat"}
-          </h2>
-          <Row
-            method="POST"
-            path={`${base}/api/chat`}
-            desc={{
-              en: "Unified chat endpoint (AniList + Gemini).",
-              id: "Endpoint chat terpadu (AniList + Gemini).",
-            }}
-          />
+      <section>
+        <h2 style={{ fontSize: 24, fontWeight: 700, margin: "32px 0 12px", color: "#38bdf8" }}>Anime</h2>
+        <Row method="GET" path={`${base}/api/anime/search?q=naruto&type=ANIME`} desc="Search anime/manga (type: ANIME|MANGA, q required)" />
+        <Row method="GET" path={`${base}/api/anime/1?type=ANIME`} desc="Media details by ID" />
+        <Row method="GET" path={`${base}/api/anime/trending`} desc="Current trending anime" />
+        <Row method="GET" path={`${base}/api/anime/seasonal?season=SUMMER&year=2025`} desc="Seasonal list by season & year" />
+        <Row method="GET" path={`${base}/api/anime/airing`} desc="Airing schedules" />
+        <Row method="GET" path={`${base}/api/anime/recommendations?id=1`} desc="Recommendations by media ID" />
+        <Row method="GET" path={`${base}/api/anime/genre?genre=Action&type=ANIME`} desc="Top by genre (ANIME|MANGA)" />
+        <Row method="GET" path={`${base}/api/character/1`} desc="Character details by ID" />
+        <Row method="GET" path={`${base}/api/staff/1`} desc="Staff details by ID" />
+      </section>
 
-          <pre className="bg-slate-800 text-slate-100 text-sm p-4 rounded-lg overflow-x-auto mt-4">
-{`curl -X POST "$HOST/api/chat" \\
+      <section>
+        <h2 style={{ fontSize: 24, fontWeight: 700, margin: "32px 0 12px", color: "#a78bfa" }}>Chat</h2>
+        <Row method="POST" path={`${base}/api/chat`} desc="Unified chat endpoint (intent routing: AniList or Gemini)" />
+        <pre
+          style={{
+            whiteSpace: "pre-wrap",
+            background: "#0b1020",
+            color: "#f8fafc",
+            padding: 16,
+            borderRadius: 12,
+            overflow: "auto",
+            fontSize: 14,
+          }}
+        >{`
+curl -X POST "$HOST/api/chat" \\
   -H "Content-Type: application/json" \\
   -d '{
-    "message": "Rekomendasi anime isekai dong",
+    "message": "Recommend me an isekai anime",
     "persona": "friendly"
-  }'`}
-          </pre>
-        </section>
+  }'
+        `}</pre>
+      </section>
 
-        <footer className="mt-10 text-sm text-slate-500">
-          © {new Date().getFullYear()} Aichixia — Anime-first AI Assistant.
-        </footer>
-      </main>
-    </LangContext.Provider>
+      <section>
+        <h2 style={{ fontSize: 24, fontWeight: 700, margin: "32px 0 12px", color: "#f59e0b" }}>Notes</h2>
+        <ul style={{ color: "#d1d5db", lineHeight: 1.7 }}>
+          <li>Make sure <code>GEMINI_API_KEY</code> is set in Vercel (Production/Preview/Development).</li>
+          <li>All AniList endpoints are public, no key required.</li>
+          <li>
+            Use <code>/api/chat</code> for natural language queries: intent auto-routes to AniList/Gemini.
+          </li>
+        </ul>
+      </section>
+
+      <footer style={{ marginTop: 40, textAlign: "center", color: "#6b7280" }}>
+        © {new Date().getFullYear()} Aichixia — Anime-first AI Assistant.
+      </footer>
+    </main>
   );
 }
