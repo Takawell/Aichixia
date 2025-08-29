@@ -3,7 +3,10 @@ export const ANILIST_API = "https://graphql.anilist.co";
 export async function gql(query: string, variables?: Record<string, any>) {
   const res = await fetch(ANILIST_API, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "Accept": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
     body: JSON.stringify({ query, variables }),
   });
   if (!res.ok) {
@@ -14,9 +17,32 @@ export async function gql(query: string, variables?: Record<string, any>) {
 }
 
 // ─── Types ───────────────────────────────────────────
-export type MediaType = "ANIME" | "MANGA" | "MANHWA" | "LIGHT_NOVEL";
-export type MediaFormat = "TV" | "TV_SHORT" | "MOVIE" | "SPECIAL" | "OVA" | "ONA" | "MUSIC" | "MANGA" | "NOVEL" | "ONE_SHOT";
-export type MediaStatus = "FINISHED" | "RELEASING" | "NOT_YET_RELEASED" | "CANCELLED" | "HIATUS";
+export type MediaType =
+  | "ANIME"
+  | "MANGA"
+  | "MANHWA"
+  | "MANHUA"
+  | "LIGHT_NOVEL";
+
+export type MediaFormat =
+  | "TV"
+  | "TV_SHORT"
+  | "MOVIE"
+  | "SPECIAL"
+  | "OVA"
+  | "ONA"
+  | "MUSIC"
+  | "MANGA"
+  | "NOVEL"
+  | "ONE_SHOT";
+
+export type MediaStatus =
+  | "FINISHED"
+  | "RELEASING"
+  | "NOT_YET_RELEASED"
+  | "CANCELLED"
+  | "HIATUS";
+
 export type MediaSeason = "WINTER" | "SPRING" | "SUMMER" | "FALL";
 
 export interface Title {
@@ -52,10 +78,25 @@ export interface Media {
   bannerImage?: string | null;
 }
 
+// ─── Helpers ─────────────────────────────────────────
+
+function mapType(type?: MediaType): "ANIME" | "MANGA" | undefined {
+  if (!type) return undefined;
+  if (type === "ANIME") return "ANIME";
+  if (["MANGA", "MANHWA", "MANHUA"].includes(type)) return "MANGA";
+  if (type === "LIGHT_NOVEL") return "MANGA"; // formatnya akan NOVEL
+  return undefined;
+}
+
 // ─── Queries ─────────────────────────────────────────
 
-// Search by text
-export async function searchMedia(type: MediaType, search: string, page = 1, perPage = 10) {
+// Search
+export async function searchMedia(
+  type: MediaType,
+  search: string,
+  page = 1,
+  perPage = 10
+) {
   const query = `
     query ($search: String, $page: Int, $perPage: Int, $type: MediaType) {
       Page(page: $page, perPage: $perPage) {
@@ -80,7 +121,7 @@ export async function searchMedia(type: MediaType, search: string, page = 1, per
       }
     }
   `;
-  return gql(query, { search, page, perPage, type });
+  return gql(query, { search, page, perPage, type: mapType(type) });
 }
 
 // Detail by ID
@@ -136,7 +177,7 @@ export async function getMediaById(id: number, type?: MediaType) {
       }
     }
   `;
-  return gql(query, { id, type });
+  return gql(query, { id, type: mapType(type) });
 }
 
 // Trending
@@ -159,7 +200,12 @@ export async function getTrending(page = 1, perPage = 10) {
 }
 
 // Seasonal
-export async function getSeasonal(season: MediaSeason, year: number, page = 1, perPage = 10) {
+export async function getSeasonal(
+  season: MediaSeason,
+  year: number,
+  page = 1,
+  perPage = 10
+) {
   const query = `
     query ($season: MediaSeason, $year: Int, $page: Int, $perPage: Int) {
       Page(page: $page, perPage: $perPage) {
@@ -177,7 +223,7 @@ export async function getSeasonal(season: MediaSeason, year: number, page = 1, p
   return gql(query, { season, year, page, perPage });
 }
 
-// Airing schedule (recent/ongoing)
+// Airing schedule
 export async function getAiringSchedule(page = 1, perPage = 10) {
   const query = `
     query ($page: Int, $perPage: Int) {
@@ -235,7 +281,7 @@ export async function getStaffById(id: number) {
   return gql(query, { id });
 }
 
-// Recommendations by media ID
+// Recommendations
 export async function getRecommendationsForMedia(id: number) {
   const query = `
     query ($id: Int) {
@@ -258,7 +304,12 @@ export async function getRecommendationsForMedia(id: number) {
 }
 
 // Top by Genre
-export async function getTopByGenre(genre: string, type: MediaType = "ANIME", page = 1, perPage = 10) {
+export async function getTopByGenre(
+  genre: string,
+  type: MediaType = "ANIME",
+  page = 1,
+  perPage = 10
+) {
   const query = `
     query ($genre: String, $type: MediaType, $page: Int, $perPage: Int) {
       Page(page: $page, perPage: $perPage) {
@@ -271,7 +322,7 @@ export async function getTopByGenre(genre: string, type: MediaType = "ANIME", pa
       }
     }
   `;
-  return gql(query, { genre, type, page, perPage });
+  return gql(query, { genre, type: mapType(type), page, perPage });
 }
 
 export default {
