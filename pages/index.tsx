@@ -1,26 +1,27 @@
 import React from "react";
-import { Terminal, Sparkles, Globe } from "lucide-react";
+import { BookOpen, MessageSquare, Terminal } from "lucide-react";
 
 const base = "";
 
 const Row = ({ method, path, desc }: { method: string; path: string; desc: string }) => (
   <div
     style={{
-      border: "1px solid #1f2937",
+      border: "1px solid #e5e7eb",
       padding: 16,
       borderRadius: 12,
-      marginBottom: 12,
-      background: "#111827",
+      marginBottom: 16,
+      background: "#ffffff",
+      boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
     }}
   >
     <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 6 }}>
       <code
         style={{
           padding: "2px 8px",
-          borderRadius: 8,
-          background: "#f59e0b",
-          color: "#000",
+          borderRadius: 6,
+          background: "#f3f4f6",
           fontWeight: 600,
+          fontSize: 13,
         }}
       >
         {method}
@@ -28,15 +29,16 @@ const Row = ({ method, path, desc }: { method: string; path: string; desc: strin
       <code
         style={{
           padding: "2px 8px",
-          borderRadius: 8,
-          background: "#1e293b",
-          color: "#f8fafc",
+          borderRadius: 6,
+          background: "#eef2ff",
+          fontSize: 13,
+          color: "#4f46e5",
         }}
       >
         {path}
       </code>
     </div>
-    <div style={{ color: "#d1d5db", fontSize: 14 }}>{desc}</div>
+    <div style={{ color: "#374151", fontSize: 14 }}>{desc}</div>
   </div>
 );
 
@@ -46,81 +48,95 @@ export default function Docs() {
       style={{
         maxWidth: 900,
         margin: "40px auto",
-        padding: "0 16px",
+        padding: "0 20px",
         fontFamily: "ui-sans-serif, system-ui",
-        color: "#f9fafb",
-        background: "#000",
+        background: "#ffffff",
       }}
     >
-      <header style={{ textAlign: "center", marginBottom: 32 }}>
-        <h1 style={{ fontSize: 40, fontWeight: 800, display: "flex", gap: 8, justifyContent: "center" }}>
-          <Sparkles size={32} color="#f59e0b" /> Aichixia API Docs
+      <header style={{ marginBottom: 32, textAlign: "center" }}>
+        <h1 style={{ fontSize: 40, fontWeight: 800, marginBottom: 8, color: "#111827" }}>
+          <BookOpen size={36} style={{ display: "inline", marginRight: 10, color: "#4f46e5" }} />
+          Aichixia API Docs
         </h1>
-        <p style={{ color: "#9ca3af", marginTop: 8, fontSize: 16 }}>
-          Public endpoints for <span style={{ color: "#38bdf8" }}>Anime</span> &{" "}
-          <span style={{ color: "#a78bfa" }}>Chat AI</span>. Powered by Vercel.
+        <p style={{ color: "#6b7280", fontSize: 16 }}>
+          Public endpoints for anime & AI chat. Deployed on{" "}
+          <span style={{ fontWeight: 600, color: "#111827" }}>Vercel</span>, no extra backend needed.
         </p>
       </header>
 
+      {/* Auth Section */}
       <section>
-        <h2 style={{ fontSize: 24, fontWeight: 700, margin: "24px 0 12px", color: "#f59e0b" }}>
-          <Globe size={20} style={{ display: "inline", marginRight: 6 }} /> Auth
+        <h2 style={{ fontSize: 24, fontWeight: 700, margin: "24px 0 12px", color: "#111827" }}>
+          🔑 Auth
         </h2>
-        <p style={{ color: "#d1d5db", lineHeight: 1.6 }}>
-          AniList endpoints are public and need no API key. For chat, set{" "}
-          <code style={{ background: "#1f2937", padding: "2px 6px", borderRadius: 6 }}>GEMINI_API_KEY</code>{" "}
-          in Project Settings → Environment Variables.
+        <p style={{ color: "#374151", fontSize: 15 }}>
+          AniList endpoints don’t require API keys.  
+          For chat, set <code style={{ background: "#f3f4f6", padding: "2px 6px", borderRadius: 4 }}>GEMINI_API_KEY</code>{" "}
+          in <b>Vercel Project Settings → Environment Variables</b>.
         </p>
       </section>
 
+      {/* Anime Section */}
       <section>
-        <h2 style={{ fontSize: 24, fontWeight: 700, margin: "32px 0 12px", color: "#38bdf8" }}>Anime</h2>
+        <h2 style={{ fontSize: 24, fontWeight: 700, margin: "32px 0 16px", color: "#111827" }}>
+          🎬 Anime
+        </h2>
         <Row method="GET" path={`${base}/api/anime/search?q=naruto&type=ANIME`} desc="Search anime/manga (type: ANIME|MANGA, q required)" />
-        <Row method="GET" path={`${base}/api/anime/1?type=ANIME`} desc="Media details by ID" />
-        <Row method="GET" path={`${base}/api/anime/trending`} desc="Current trending anime" />
+        <Row method="GET" path={`${base}/api/anime/1?type=ANIME`} desc="Media detail by ID" />
+        <Row method="GET" path={`${base}/api/anime/trending`} desc="Trending anime now" />
         <Row method="GET" path={`${base}/api/anime/seasonal?season=SUMMER&year=2025`} desc="Seasonal list by season & year" />
         <Row method="GET" path={`${base}/api/anime/airing`} desc="Airing schedules" />
         <Row method="GET" path={`${base}/api/anime/recommendations?id=1`} desc="Recommendations by media ID" />
         <Row method="GET" path={`${base}/api/anime/genre?genre=Action&type=ANIME`} desc="Top by genre (ANIME|MANGA)" />
-        <Row method="GET" path={`${base}/api/character/1`} desc="Character details by ID" />
-        <Row method="GET" path={`${base}/api/staff/1`} desc="Staff details by ID" />
+        <Row method="GET" path={`${base}/api/character/1`} desc="Character detail by ID" />
+        <Row method="GET" path={`${base}/api/staff/1`} desc="Staff detail by ID" />
       </section>
 
+      {/* Chat Section */}
       <section>
-        <h2 style={{ fontSize: 24, fontWeight: 700, margin: "32px 0 12px", color: "#a78bfa" }}>Chat</h2>
+        <h2 style={{ fontSize: 24, fontWeight: 700, margin: "32px 0 16px", color: "#111827" }}>
+          💬 Chat
+        </h2>
         <Row method="POST" path={`${base}/api/chat`} desc="Unified chat endpoint (intent routing: AniList or Gemini)" />
         <pre
           style={{
             whiteSpace: "pre-wrap",
-            background: "#0b1020",
+            background: "#0f172a",
             color: "#f8fafc",
             padding: 16,
             borderRadius: 12,
+            fontSize: 13,
             overflow: "auto",
-            fontSize: 14,
           }}
-        >{`
-curl -X POST "$HOST/api/chat" \\
+        >{`curl -X POST "$HOST/api/chat" \\
   -H "Content-Type: application/json" \\
   -d '{
-    "message": "Recommend me an isekai anime",
+    "message": "Recommend me some isekai anime",
     "persona": "friendly"
-  }'
-        `}</pre>
+  }'`}</pre>
       </section>
 
+      {/* Notes Section */}
       <section>
-        <h2 style={{ fontSize: 24, fontWeight: 700, margin: "32px 0 12px", color: "#f59e0b" }}>Notes</h2>
-        <ul style={{ color: "#d1d5db", lineHeight: 1.7 }}>
-          <li>Make sure <code>GEMINI_API_KEY</code> is set in Vercel (Production/Preview/Development).</li>
-          <li>All AniList endpoints are public, no key required.</li>
+        <h2 style={{ fontSize: 24, fontWeight: 700, margin: "32px 0 12px", color: "#111827" }}>
+          📝 Notes
+        </h2>
+        <ul style={{ color: "#374151", lineHeight: 1.7, fontSize: 15 }}>
           <li>
-            Use <code>/api/chat</code> for natural language queries: intent auto-routes to AniList/Gemini.
+            Make sure <code style={{ background: "#f3f4f6", padding: "2px 6px", borderRadius: 4 }}>GEMINI_API_KEY</code> is
+            set in Vercel (Production/Preview/Development).
+          </li>
+          <li>All AniList endpoints are public and don’t require an API key.</li>
+          <li>
+            Use <code style={{ background: "#f3f4f6", padding: "2px 6px", borderRadius: 4 }}>/api/chat</code> for natural
+            language; intent will auto-route to AniList/Gemini.
           </li>
         </ul>
       </section>
 
-      <footer style={{ marginTop: 40, textAlign: "center", color: "#6b7280" }}>
+      {/* Footer */}
+      <footer style={{ marginTop: 50, textAlign: "center", color: "#6b7280", fontSize: 14 }}>
+        <Terminal size={14} style={{ display: "inline", marginRight: 6 }} />
         © {new Date().getFullYear()} Aichixia — Anime-first AI Assistant.
       </footer>
     </main>
