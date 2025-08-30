@@ -30,8 +30,8 @@ const CopyableCode = ({ text }: { text: string }) => {
         alignItems: "center",
         gap: 6,
         cursor: "pointer",
-        background: "#1e293b",
-        color: "#38f8d5",
+        background: "#f1f5f9",
+        color: "#0284c7",
         padding: "4px 10px",
         borderRadius: 6,
         fontWeight: "600",
@@ -88,13 +88,13 @@ const Row = ({
   return (
     <div
       style={{
-        border: "1px solid #334155",
+        border: "1px solid #e2e8f0",
         padding: 20,
         borderRadius: 14,
         marginBottom: 20,
-        background: "#0f172a",
-        boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
-        color: "#e2e8f0",
+        background: "#ffffff",
+        boxShadow: "0 4px 16px rgba(0,0,0,0.06)",
+        color: "#334155",
         transition: "all 0.3s ease",
         wordBreak: "break-word",
       }}
@@ -130,7 +130,7 @@ const Row = ({
               background: "#38bdf8",
               fontWeight: 700,
               fontSize: 14,
-              color: "#0f172a",
+              color: "white",
               letterSpacing: 1,
               userSelect: "none",
               flexShrink: 0,
@@ -142,9 +142,9 @@ const Row = ({
             style={{
               padding: "5px 14px",
               borderRadius: 10,
-              background: "#1e293b",
+              background: "#f1f5f9",
               fontSize: 14,
-              color: "#38f8d5",
+              color: "#0284c7",
               fontWeight: 600,
               overflowWrap: "break-word",
               flexGrow: 1,
@@ -156,7 +156,7 @@ const Row = ({
         </div>
         <StatusBadge active={active} label={active ? "Active" : "Inactive"} />
       </div>
-      <div style={{ fontSize: 15, lineHeight: 1.5, color: "#94a3b8" }}>
+      <div style={{ fontSize: 15, lineHeight: 1.5, color: "#64748b" }}>
         {desc}
       </div>
     </div>
@@ -171,8 +171,8 @@ export default function Docs() {
         margin: "48px auto",
         padding: "0 20px 64px",
         fontFamily: "'Poppins', sans-serif",
-        background: "#0a0f1c",
-        color: "#e2e8f0",
+        background: "#f9fafb",
+        color: "#334155",
         minHeight: "100vh",
       }}
     >
@@ -188,7 +188,7 @@ export default function Docs() {
           style={{
             fontSize: 52,
             fontWeight: 900,
-            color: "#38f8d5",
+            color: "#0284c7",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
@@ -201,7 +201,7 @@ export default function Docs() {
         </h1>
         <p
           style={{
-            color: "#94a3b8",
+            color: "#64748b",
             fontSize: 18,
             maxWidth: 700,
             margin: "12px auto 0",
@@ -224,7 +224,7 @@ export default function Docs() {
             display: "flex",
             alignItems: "center",
             gap: 12,
-            color: "#38bdf8",
+            color: "#0284c7",
           }}
         >
           <FaFilm />
@@ -256,7 +256,7 @@ export default function Docs() {
             display: "flex",
             alignItems: "center",
             gap: 12,
-            color: "#38bdf8",
+            color: "#0284c7",
           }}
         >
           <FaComments />
@@ -275,13 +275,13 @@ export default function Docs() {
             display: "flex",
             alignItems: "center",
             gap: 12,
-            color: "#38bdf8",
+            color: "#0284c7",
           }}
         >
           <FaStickyNote />
           Notes
         </h2>
-        <ul style={{ fontSize: 16, lineHeight: 1.75, color: "#94a3b8", paddingLeft: 24 }}>
+        <ul style={{ fontSize: 16, lineHeight: 1.75, color: "#475569", paddingLeft: 24 }}>
           <li>AniList endpoints are public and don’t need an API key.</li>
           <li><CopyableCode text="GEMINI_API_KEY" /> is required for <CopyableCode text="/api/chat" />.</li>
           <li>Categories: <b>anime</b>, <b>manga</b>, <b>manhwa</b>, <b>manhua</b>, <b>ln</b>.</li>
@@ -292,7 +292,7 @@ export default function Docs() {
         style={{
           marginTop: 64,
           textAlign: "center",
-          color: "#64748b",
+          color: "#94a3b8",
           fontSize: 14,
         }}
       >
