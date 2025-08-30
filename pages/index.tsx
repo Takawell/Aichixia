@@ -49,13 +49,7 @@ const CopyableCode = ({ text }: { text: string }) => {
   );
 };
 
-const StatusBadge = ({
-  active,
-  label,
-}: {
-  active: boolean;
-  label: string;
-}) => (
+const StatusBadge = ({ active, label }: { active: boolean; label: string }) => (
   <span
     style={{
       display: "inline-flex",
@@ -68,9 +62,7 @@ const StatusBadge = ({
       borderRadius: 12,
       fontSize: 13,
       userSelect: "none",
-      boxShadow: active
-        ? "0 0 8px #4caf50aa"
-        : "0 0 8px #ef5350aa",
+      boxShadow: active ? "0 0 8px #4caf50aa" : "0 0 8px #ef5350aa",
       animation: active ? "pulseGreen 2s infinite" : "none",
     }}
   >
@@ -132,7 +124,15 @@ const Row = ({
           flexWrap: "wrap",
         }}
       >
-        <div style={{ display: "flex", gap: 14, alignItems: "center", flexGrow: 1, minWidth: 0 }}>
+        <div
+          style={{
+            display: "flex",
+            gap: 14,
+            alignItems: "center",
+            flexGrow: 1,
+            minWidth: 0,
+          }}
+        >
           <code
             style={{
               padding: "5px 14px",
@@ -167,7 +167,9 @@ const Row = ({
         </div>
         <StatusBadge active={active} label={active ? "Active" : "Inactive"} />
       </div>
-      <div style={{ fontSize: 15, lineHeight: 1.5, color: "#37474f" }}>{desc}</div>
+      <div style={{ fontSize: 15, lineHeight: 1.5, color: "#37474f" }}>
+        {desc}
+      </div>
     </div>
   );
 };
@@ -241,12 +243,6 @@ export default function Docs() {
                 0%, 100% { opacity: 1; box-shadow: 0 0 6px #4caf50cc; }
                 50% { opacity: 0.3; box-shadow: 0 0 12px #4caf50ff; }
               }
-              @media (max-width: 600px) {
-                h1 {
-                  font-size: 36px !important;
-                  gap: 10px !important;
-                }
-              }
             `}</style>
           </span>
         </h1>
@@ -260,8 +256,8 @@ export default function Docs() {
             lineHeight: 1.6,
           }}
         >
-          Public endpoints for anime & AI chat. Deployed on{" "}
-          <span style={{ fontWeight: 700, color: "#004d40" }}>Vercel</span>, no extra backend needed.
+          Centralized API for anime, manga, manhwa, manhua, and light novels.
+          Fully powered by AniList + Gemini AI. No extra backend needed.
         </p>
       </header>
 
@@ -283,13 +279,13 @@ export default function Docs() {
           Auth
         </h2>
         <p style={{ fontSize: 16, color: "#455a64", lineHeight: 1.6 }}>
-          AniList endpoints don’t require API keys. For chat, set{" "}
+          AniList endpoints don’t require API keys. For AI chat, set{" "}
           <CopyableCode text="GEMINI_API_KEY" /> in{" "}
           <b>Vercel Project Settings → Environment Variables</b>.
         </p>
       </section>
 
-      {/* Anime Section */}
+      {/* AniList Section */}
       <section style={{ marginBottom: 48 }}>
         <h2
           style={{
@@ -300,26 +296,89 @@ export default function Docs() {
             alignItems: "center",
             gap: 12,
             color: "#004d40",
-            userSelect: "none",
           }}
         >
           <FaFilm />
-          Anime
+          AniList Endpoints
         </h2>
         <Row
           method="GET"
-          path={`${base}/api/anime/search?q=naruto&type=ANIME`}
-          desc="Search anime/manga (type: ANIME|MANGA, q required)"
+          path={`${base}/api/aichixia?category=anime&action=search&search=naruto`}
+          desc="Search anime by title"
           active
         />
-        <Row method="GET" path={`${base}/api/anime/1?type=ANIME`} desc="Media detail by ID" active />
-        <Row method="GET" path={`${base}/api/anime/trending`} desc="Trending anime now" active />
-        <Row method="GET" path={`${base}/api/anime/seasonal?season=SUMMER&year=2025`} desc="Seasonal list by season & year" active />
-        <Row method="GET" path={`${base}/api/anime/airing`} desc="Airing schedules" active />
-        <Row method="GET" path={`${base}/api/anime/recommendations?id=1`} desc="Recommendations by media ID" active />
-        <Row method="GET" path={`${base}/api/anime/genre?genre=Action&type=ANIME`} desc="Top by genre (ANIME|MANGA)" active />
-        <Row method="GET" path={`${base}/api/character/1`} desc="Character detail by ID" active />
-        <Row method="GET" path={`${base}/api/staff/1`} desc="Staff detail by ID" active />
+        <Row
+          method="GET"
+          path={`${base}/api/aichixia?category=manga&action=search&search=one piece`}
+          desc="Search manga by title"
+          active
+        />
+        <Row
+          method="GET"
+          path={`${base}/api/aichixia?category=manhwa&action=search&search=solo leveling`}
+          desc="Search manhwa by title"
+          active
+        />
+        <Row
+          method="GET"
+          path={`${base}/api/aichixia?category=manhua&action=search&search=the kings avatar`}
+          desc="Search manhua by title"
+          active
+        />
+        <Row
+          method="GET"
+          path={`${base}/api/aichixia?category=ln&action=search&search=overlord`}
+          desc="Search light novels by title"
+          active
+        />
+        <Row
+          method="GET"
+          path={`${base}/api/aichixia?category=anime&action=detail&id=1`}
+          desc="Get media detail by ID"
+          active
+        />
+        <Row
+          method="GET"
+          path={`${base}/api/aichixia?action=trending`}
+          desc="Trending anime & manga"
+          active
+        />
+        <Row
+          method="GET"
+          path={`${base}/api/aichixia?category=anime&action=seasonal&season=SPRING&year=2025`}
+          desc="Seasonal anime list"
+          active
+        />
+        <Row
+          method="GET"
+          path={`${base}/api/aichixia?action=airing`}
+          desc="Airing schedule"
+          active
+        />
+        <Row
+          method="GET"
+          path={`${base}/api/aichixia?category=anime&action=recommendations&id=1`}
+          desc="Recommendations by media ID"
+          active
+        />
+        <Row
+          method="GET"
+          path={`${base}/api/aichixia?category=manhwa&action=top-genre&genre=Action`}
+          desc="Top titles by genre"
+          active
+        />
+        <Row
+          method="GET"
+          path={`${base}/api/aichixia?action=character&id=1`}
+          desc="Character detail by ID"
+          active
+        />
+        <Row
+          method="GET"
+          path={`${base}/api/aichixia?action=staff&id=1`}
+          desc="Staff detail by ID"
+          active
+        />
       </section>
 
       {/* Chat Section */}
@@ -333,42 +392,17 @@ export default function Docs() {
             alignItems: "center",
             gap: 12,
             color: "#004d40",
-            userSelect: "none",
           }}
         >
           <FaComments />
           Chat
         </h2>
-        <Row method="POST" path={`${base}/api/chat`} desc="Unified chat endpoint (intent routing: AniList or Gemini)" active />
-        <pre
-          style={{
-            whiteSpace: "pre-wrap",
-            background: "#004d40",
-            color: "#a7ffeb",
-            padding: 20,
-            borderRadius: 16,
-            fontSize: 14,
-            overflowX: "auto",
-            fontFamily: "'Fira Mono', monospace",
-          }}
-          onClick={() => {
-            navigator.clipboard.writeText(`curl -X POST "$HOST/api/chat" \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "message": "Recommend me some isekai anime",
-    "persona": "friendly"
-  }'`);
-            alert("Curl command copied!");
-          }}
-          title="Click to copy cURL command"
-        >
-          {`curl -X POST "$HOST/api/chat" \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "message": "Recommend me some isekai anime",
-    "persona": "friendly"
-  }'`}
-        </pre>
+        <Row
+          method="POST"
+          path={`${base}/api/chat`}
+          desc="AI-powered chat (routes automatically to AniList or Gemini)"
+          active
+        />
       </section>
 
       {/* Notes Section */}
@@ -382,24 +416,33 @@ export default function Docs() {
             alignItems: "center",
             gap: 12,
             color: "#004d40",
-            userSelect: "none",
           }}
         >
           <FaStickyNote />
           Notes
         </h2>
-        <ul style={{ fontSize: 16, lineHeight: 1.75, color: "#455a64", paddingLeft: 24 }}>
+        <ul
+          style={{
+            fontSize: 16,
+            lineHeight: 1.75,
+            color: "#455a64",
+            paddingLeft: 24,
+          }}
+        >
           <li>
-            Make sure <CopyableCode text="GEMINI_API_KEY" /> is set in Vercel (Production/Preview/Development).
+            All AniList endpoints are public and don’t need an API key.
           </li>
-          <li>All AniList endpoints are public and don’t require an API key.</li>
           <li>
-            Use <CopyableCode text="/api/chat" /> for natural language; intent will auto-route to AniList/Gemini.
+            <CopyableCode text="GEMINI_API_KEY" /> is required for{" "}
+            <CopyableCode text="/api/chat" />.
+          </li>
+          <li>
+            Categories: <b>anime</b>, <b>manga</b>, <b>manhwa</b>,{" "}
+            <b>manhua</b>, <b>ln</b> (light novel).
           </li>
         </ul>
       </section>
 
-      {/* Footer */}
       <footer
         style={{
           marginTop: 64,
