@@ -210,7 +210,7 @@ export default function Docs() {
           }}
         >
           Centralized API for anime, manga, manhwa, manhua, and light novels.  
-          Powered by AniList + AI Assistant.
+          Powered by AniList + Gemini AI.
         </p>
       </header>
 
@@ -228,7 +228,7 @@ export default function Docs() {
           }}
         >
           <FaFilm />
-          AniList Endpoints
+          Aichixia Endpoints
         </h2>
 
         <Row method="GET" path={`${base}/api/aichixia?category=anime&action=search`} desc="Search anime" />
