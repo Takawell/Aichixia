@@ -9,20 +9,16 @@ export async function gql(query: string, variables?: Record<string, any>) {
     },
     body: JSON.stringify({ query, variables }),
   });
+
   if (!res.ok) {
     const txt = await res.text();
     throw new Error(`[AniList] ${res.status} ${res.statusText}: ${txt}`);
   }
+
   return res.json();
 }
 
-// ─── Types ───────────────────────────────────────────
-export type MediaType =
-  | "ANIME"
-  | "MANGA"
-  | "MANHWA"
-  | "MANHUA"
-  | "LIGHT_NOVEL";
+export type MediaType = "ANIME" | "MANGA" | "MANHWA" | "MANHUA" | "LIGHT_NOVEL";
 
 export type MediaFormat =
   | "TV"
@@ -78,17 +74,14 @@ export interface Media {
   bannerImage?: string | null;
 }
 
-// ─── Helpers ─────────────────────────────────────────
-
 function mapType(type?: MediaType): "ANIME" | "MANGA" | undefined {
   if (!type) return undefined;
   if (type === "ANIME") return "ANIME";
-  if (["MANGA", "MANHWA", "MANHUA"].includes(type)) return "MANGA";
-  if (type === "LIGHT_NOVEL") return "MANGA"; // formatnya akan NOVEL
+  if (["MANGA", "MANHWA", "MANHUA", "LIGHT_NOVEL"].includes(type)) {
+    return "MANGA";
+  }
   return undefined;
 }
-
-// ─── Queries ─────────────────────────────────────────
 
 // Search
 export async function searchMedia(
@@ -101,7 +94,11 @@ export async function searchMedia(
     query ($search: String, $page: Int, $perPage: Int, $type: MediaType) {
       Page(page: $page, perPage: $perPage) {
         pageInfo { total currentPage lastPage hasNextPage perPage }
-        media(search: $search, type: $type, sort: [SEARCH_MATCH, POPULARITY_DESC]) {
+        media(
+          search: $search,
+          type: $type,
+          sort: [SEARCH_MATCH, POPULARITY_DESC]
+        ) {
           id
           title { romaji english native }
           coverImage { extraLarge large medium color }
@@ -209,7 +206,12 @@ export async function getSeasonal(
   const query = `
     query ($season: MediaSeason, $year: Int, $page: Int, $perPage: Int) {
       Page(page: $page, perPage: $perPage) {
-        media(type: ANIME, season: $season, seasonYear: $year, sort: POPULARITY_DESC) {
+        media(
+          type: ANIME,
+          season: $season,
+          seasonYear: $year,
+          sort: POPULARITY_DESC
+        ) {
           id
           title { romaji english }
           coverImage { large }
@@ -313,7 +315,11 @@ export async function getTopByGenre(
   const query = `
     query ($genre: String, $type: MediaType, $page: Int, $perPage: Int) {
       Page(page: $page, perPage: $perPage) {
-        media(genre_in: [$genre], type: $type, sort: [SCORE_DESC, POPULARITY_DESC]) {
+        media(
+          genre_in: [$genre],
+          type: $type,
+          sort: [SCORE_DESC, POPULARITY_DESC]
+        ) {
           id
           title { romaji english }
           coverImage { large }
