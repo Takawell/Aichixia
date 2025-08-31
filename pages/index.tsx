@@ -264,7 +264,7 @@ export default function Docs() {
           <FaComments />
           Chat
         </h2>
-        <Row method="POST" path={`${base}/api/chat`} desc="AI-powered anime assistant (requires GEMINI_API_KEY)" />
+        <Row method="POST" path={`${base}/api/chat`} desc="AI-powered anime assistant" />
       </section>
 
       {/* Notes */}
@@ -284,8 +284,6 @@ export default function Docs() {
           Notes
         </h2>
         <ul style={{ fontSize: 16, lineHeight: 1.75, color: "#475569", paddingLeft: 24 }}>
-          <li>AniList endpoints are public and don’t need an API key.</li>
-          <li><CopyableCode text="GEMINI_API_KEY" /> is required for <CopyableCode text="/api/chat" />.</li>
           <li>Categories: <b>anime</b>, <b>manga</b>, <b>manhwa</b>, <b>manhua</b>, <b>ln</b>.</li>
           <li><b>Required parameters:</b>  
             <ul>
