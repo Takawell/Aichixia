@@ -231,19 +231,21 @@ export default function Docs() {
           Aichixia Endpoints
         </h2>
 
-        <Row method="GET" path={`${base}/api/aichixia?category=anime&action=search`} desc="Search anime" />
-        <Row method="GET" path={`${base}/api/aichixia?category=manga&action=search`} desc="Search manga" />
-        <Row method="GET" path={`${base}/api/aichixia?category=manhwa&action=search`} desc="Search manhwa" />
-        <Row method="GET" path={`${base}/api/aichixia?category=manhua&action=search`} desc="Search manhua" />
-        <Row method="GET" path={`${base}/api/aichixia?category=ln&action=search`} desc="Search light novels" />
-        <Row method="GET" path={`${base}/api/aichixia?category=anime&action=detail`} desc="Media detail by ID" />
+        <Row method="GET" path={`${base}/api/aichixia?category=anime&action=search&query={text}`} desc="Search anime (requires query)" />
+        <Row method="GET" path={`${base}/api/aichixia?category=manga&action=search&query={text}`} desc="Search manga (requires query)" />
+        <Row method="GET" path={`${base}/api/aichixia?category=manhwa&action=search&query={text}`} desc="Search manhwa (requires query)" />
+        <Row method="GET" path={`${base}/api/aichixia?category=manhua&action=search&query={text}`} desc="Search manhua (requires query)" />
+        <Row method="GET" path={`${base}/api/aichixia?category=ln&action=search&query={text}`} desc="Search light novels (requires query)" />
+
+        <Row method="GET" path={`${base}/api/aichixia?category=anime&action=detail&id={value}`} desc="Media detail by ID (requires id)" />
+
         <Row method="GET" path={`${base}/api/aichixia?action=trending`} desc="Trending anime & manga" />
         <Row method="GET" path={`${base}/api/aichixia?category=anime&action=seasonal`} desc="Seasonal anime list" />
         <Row method="GET" path={`${base}/api/aichixia?action=airing`} desc="Airing schedule" />
-        <Row method="GET" path={`${base}/api/aichixia?category=anime&action=recommendations`} desc="Recommendations" />
-        <Row method="GET" path={`${base}/api/aichixia?category=manhwa&action=top-genre`} desc="Top by genre" />
-        <Row method="GET" path={`${base}/api/aichixia?action=character`} desc="Character detail" />
-        <Row method="GET" path={`${base}/api/aichixia?action=staff`} desc="Staff detail" />
+        <Row method="GET" path={`${base}/api/aichixia?category=anime&action=recommendations&id={value}`} desc="Recommendations (requires id)" />
+        <Row method="GET" path={`${base}/api/aichixia?category=manhwa&action=top-genre&genre={name}`} desc="Top by genre (requires genre)" />
+        <Row method="GET" path={`${base}/api/aichixia?action=character&id={value}`} desc="Character detail (requires id)" />
+        <Row method="GET" path={`${base}/api/aichixia?action=staff&id={value}`} desc="Staff detail (requires id)" />
       </section>
 
       {/* Chat Section */}
@@ -262,7 +264,7 @@ export default function Docs() {
           <FaComments />
           Chat
         </h2>
-        <Row method="POST" path={`${base}/api/chat`} desc="AI-powered anime assistant" />
+        <Row method="POST" path={`${base}/api/chat`} desc="AI-powered anime assistant (requires GEMINI_API_KEY)" />
       </section>
 
       {/* Notes */}
@@ -285,6 +287,13 @@ export default function Docs() {
           <li>AniList endpoints are public and don’t need an API key.</li>
           <li><CopyableCode text="GEMINI_API_KEY" /> is required for <CopyableCode text="/api/chat" />.</li>
           <li>Categories: <b>anime</b>, <b>manga</b>, <b>manhwa</b>, <b>manhua</b>, <b>ln</b>.</li>
+          <li><b>Required parameters:</b>  
+            <ul>
+              <li><code>id</code> → for <b>detail</b>, <b>character</b>, <b>staff</b>, <b>recommendations</b></li>
+              <li><code>query</code> → for <b>search</b></li>
+              <li><code>genre</code> → for <b>top-genre</b></li>
+            </ul>
+          </li>
         </ul>
       </section>
 
