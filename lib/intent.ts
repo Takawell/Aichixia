@@ -1,4 +1,3 @@
-// lib/intent.ts
 export type IntentType =
   | "search_anime"
   | "search_manga"
@@ -14,7 +13,7 @@ export type IntentType =
 export type IntentResult = {
   intent: IntentType;
   query?: string;
-  target?: "anilist" | "gemini";
+  target?: "anilist" | "ai";
 };
 
 export function detectIntent(message: string): IntentResult {
@@ -45,21 +44,30 @@ export function detectIntent(message: string): IntentResult {
     return { intent: "seasonal_search", query: message, target: "anilist" };
   }
   if (/\bhalo\b|\bhai\b|\bapa kabar\b|\bhello\b|\bhi\b|\bmakasih\b|\bthanks\b/.test(text)) {
-    return { intent: "smalltalk", target: "gemini" };
+    return { intent: "smalltalk", target: "ai" };
   }
-  return { intent: "unknown", query: message, target: "gemini" };
+  return { intent: "unknown", query: message, target: "ai" };
 }
 
 export async function routeByIntent(
   message: string,
   handlers: {
-    aiHandler: (msg: string) => Promise<any>;
+    openaiHandler: (msg: string) => Promise<any>;
+    geminiHandler: (msg: string) => Promise<any>;
     anilistHandler: (query: string, type: IntentType) => Promise<any>;
   }
 ) {
   const intent = detectIntent(message);
+
   if (intent.target === "anilist" && intent.query) {
     return handlers.anilistHandler(intent.query, intent.intent);
   }
-  return handlers.aiHandler(message);
+
+  // Prioritize OpenAI, fallback to Gemini
+  try {
+    return await handlers.openaiHandler(message);
+  } catch (err) {
+    console.warn("[Intent] OpenAI failed, falling back to Gemini:", err);
+    return handlers.geminiHandler(message);
+  }
 }
