@@ -1,8 +1,29 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { routeByIntent, IntentType } from "@/lib/intent";
-import anilist from "@/lib/anilist";
 import { chatGemini } from "@/lib/ai";
 import { chatOpenAI } from "@/lib/openai";
+import anilist from "@/lib/anilist";
+
+async function askAI(
+  provider: "openai" | "gemini",
+  msg: string,
+  history: any[],
+  persona?: string
+) {
+  const hist = Array.isArray(history) ? [...history] : [];
+  hist.unshift({
+    role: "system",
+    content: persona
+      ? `You are ${persona}, a cheerful anime girl assistant who explains with energy and cuteness.`
+      : `You are Aichixia, a cheerful anime girl AI assistant.`,
+  });
+  hist.push({ role: "user", content: msg });
+
+  if (provider === "openai") {
+    return chatOpenAI(hist as any);
+  } else {
+    return chatGemini(hist as any);
+  }
+}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
@@ -20,90 +41,38 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: "Message is required" });
     }
 
-    const result = await routeByIntent(message, {
-      openaiHandler: async (msg: string) => {
-        const hist = Array.isArray(history) ? [...history] : [];
-        hist.unshift({
-          role: "system",
-          content: persona
-            ? `You are ${persona}, a cheerful anime girl assistant who explains with energy and cuteness.`
-            : `You are Aichixia, a cheerful anime girl AI assistant.`,
-        });
-        hist.push({ role: "user", content: msg });
-        const { reply } = await chatOpenAI(hist as any);
-        return { type: "ai", reply, provider: "openai" };
-      },
+    let data: any = null;
+    let aiMessage = message;
 
-      geminiHandler: async (msg: string) => {
-        const hist = Array.isArray(history) ? [...history] : [];
-        hist.unshift({
-          role: "system",
-          content: persona
-            ? `You are ${persona}, a cheerful anime girl assistant who explains with energy and cuteness.`
-            : `You are Aichixia, a cheerful anime girl AI assistant.`,
-        });
-        hist.push({ role: "user", content: msg });
-        const { reply } = await chatGemini(hist as any);
-        return { type: "ai", reply, provider: "gemini" };
-      },
+    if (/trending|populer/i.test(message)) {
+      data = await anilist.getTrending();
+      aiMessage = `Here is AniList trending anime data: ${JSON.stringify(
+        data
+      )}. Please summarize it for the user in your cute anime-girl style.`;
+    } else if (/character|karakter/i.test(message)) {
+      const name = message.replace(/character|karakter/gi, "").trim();
+      if (name) {
+        data = await anilist.searchMedia("ANIME", name);
+        aiMessage = `Here is AniList search result for character/anime "${name}": ${JSON.stringify(
+          data
+        )}. Please explain it cutely to the user.`;
+      }
+    }
 
-      anilistHandler: async (query: string, type: IntentType) => {
-        let data: any = {};
-        switch (type) {
-          case "search_anime":
-            data = await anilist.searchMedia("ANIME", query);
-            break;
-          case "search_manga":
-          case "search_manhwa":
-          case "search_lightnovel":
-            data = await anilist.searchMedia("MANGA", query);
-            break;
-          case "character_info": {
-            const num = parseInt(query, 10);
-            if (!isNaN(num)) {
-              data = await anilist.getCharacterById(num);
-            } else {
-              data = await anilist.searchMedia("ANIME", query);
-            }
-            break;
-          }
-          case "genre_search":
-            data = await anilist.getTopByGenre(query);
-            break;
-          case "seasonal_search": {
-            const s = /winter|spring|summer|fall/i.exec(query)?.[0]?.toUpperCase() as any;
-            const y = parseInt((/\b(20\d{2})\b/.exec(query)?.[1] ?? ""), 10);
-            if (s && y) data = await anilist.getSeasonal(s, y);
-            else data = await anilist.getTrending();
-            break;
-          }
-          case "recommendation":
-            data = await anilist.getTrending();
-            break;
-          default:
-            data = {};
-        }
+    // 🪄 Try OpenAI first, fallback Gemini
+    let reply: string;
+    let provider: "openai" | "gemini" = "openai";
+    try {
+      const result = await askAI("openai", aiMessage, history || [], persona);
+      reply = result.reply;
+    } catch (err) {
+      console.warn("[Chat] OpenAI failed, fallback Gemini:", err);
+      provider = "gemini";
+      const result = await askAI("gemini", aiMessage, history || [], persona);
+      reply = result.reply;
+    }
 
-        const hist = [
-          {
-            role: "system",
-            content: persona
-              ? `You are ${persona}, a cheerful anime girl assistant who loves anime and explains info in a cute way.`
-              : `You are Aichixia, a cheerful anime girl AI assistant. Answer in a friendly anime-girl style.`,
-          },
-          {
-            role: "user",
-            content: `Here is AniList data: ${JSON.stringify(data)}. Please summarize it for the user in your style.`,
-          },
-        ];
-
-        const { reply } = await chatOpenAI(hist as any);
-
-        return { type: "ai+anilist", reply, data };
-      },
-    });
-
-    return res.status(200).json(result);
+    return res.status(200).json({ type: data ? "ai+anilist" : "ai", reply, data, provider });
   } catch (err: any) {
     console.error("[API Chat] Error:", err);
     return res.status(500).json({ error: err.message || "Internal server error" });
