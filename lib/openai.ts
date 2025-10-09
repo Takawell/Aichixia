@@ -8,39 +8,68 @@ export type ChatMessage = {
 };
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4o-mini";
 
 if (!OPENAI_API_KEY) {
   console.warn("[lib/openai] Warning: OPENAI_API_KEY not set in env.");
 }
 
-const client = new OpenAI({
-  apiKey: OPENAI_API_KEY,
-});
+const client = new OpenAI({ apiKey: OPENAI_API_KEY! });
 
-export async function chatOpenAI(
+async function chatModel(
+  model: string,
   history: ChatMessage[],
   opts?: { temperature?: number; maxTokens?: number }
-): Promise<{ reply: string }> {
-  if (!OPENAI_API_KEY) {
-    throw new Error("OPENAI_API_KEY not defined in environment variables.");
-  }
-
+) {
   const response = await client.chat.completions.create({
-    model: OPENAI_MODEL,
+    model,
     messages: history.map((m) => ({
       role: m.role,
       content: m.content,
     })),
-    temperature: opts?.temperature ?? 0.8, // lebih lively
+    temperature: opts?.temperature ?? 0.8,
     max_tokens: opts?.maxTokens ?? 512,
   });
 
-  const reply =
-    response.choices[0]?.message?.content?.trim() ??
+  return response.choices[0]?.message?.content?.trim() ??
     "Ehehe~ gomen, aku nggak bisa jawab itu~";
+}
 
-  return { reply };
+export async function quickChatOpenAI(
+  userMessage: string,
+  opts?: {
+    persona?: "friendly" | "waifu" | "cheerful" | "formal" | "concise" | "developer" | string;
+    history?: ChatMessage[];
+    temperature?: number;
+    maxTokens?: number;
+  }
+) {
+  const hist: ChatMessage[] = [];
+
+  if (opts?.persona) {
+    hist.push(buildPersonaSystemOpenAI(opts.persona));
+  } else {
+    hist.push(buildPersonaSystemOpenAI("cheerful"));
+  }
+
+  if (opts?.history?.length) hist.push(...opts.history);
+
+  hist.push({ role: "user", content: userMessage });
+
+  try {
+    return await chatModel("gpt-5", hist, {
+      temperature: opts?.temperature,
+      maxTokens: opts?.maxTokens,
+    });
+  } catch (err: any) {
+    if (err?.code === "rate_limit_exceeded" || err?.status === 429) {
+      console.warn("[quickChatOpenAI] GPT-5 rate limit exceeded, fallback to GPT-4o-mini");
+      return await chatModel("gpt-4o-mini", hist, {
+        temperature: opts?.temperature,
+        maxTokens: opts?.maxTokens,
+      });
+    }
+    throw err; 
+  }
 }
 
 export function buildPersonaSystemOpenAI(
@@ -73,8 +102,7 @@ export function buildPersonaSystemOpenAI(
   if (persona === "concise") {
     return {
       role: "system",
-      content:
-        "You are Aichixia — respond in no more than 2 short sentences.",
+      content: "You are Aichixia — respond in no more than 2 short sentences.",
     };
   }
   if (persona === "developer") {
@@ -87,36 +115,7 @@ export function buildPersonaSystemOpenAI(
   return { role: "system", content: String(persona) };
 }
 
-export async function quickChatOpenAI(
-  userMessage: string,
-  opts?: {
-    persona?: Parameters<typeof buildPersonaSystemOpenAI>[0];
-    history?: ChatMessage[];
-    temperature?: number;
-    maxTokens?: number;
-  }
-) {
-  const hist: ChatMessage[] = [];
-  if (opts?.persona) {
-    hist.push(buildPersonaSystemOpenAI(opts.persona));
-  } else {
-    hist.push(buildPersonaSystemOpenAI("cheerful"));
-  }
-  if (opts?.history?.length) {
-    hist.push(...opts.history);
-  }
-  hist.push({ role: "user", content: userMessage });
-
-  const { reply } = await chatOpenAI(hist, {
-    temperature: opts?.temperature,
-    maxTokens: opts?.maxTokens,
-  });
-
-  return reply;
-}
-
 export default {
-  chatOpenAI,
   quickChatOpenAI,
   buildPersonaSystemOpenAI,
 };
