@@ -15,14 +15,16 @@ export type GeminiOptions = {
 };
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.0-flash";
 
 if (!GEMINI_API_KEY) {
   console.warn("[lib/ai] Warning: GEMINI_API_KEY not set in env.");
 }
 
 function mapRoleToGemini(r: Role) {
-  return r === "assistant" ? "assistant" : "user"; 
+  if (r === "assistant") return "assistant";
+  if (r === "system") return "system";
+  return "user";
 }
 
 function messagesToContents(history: ChatMessage[]) {
@@ -87,33 +89,48 @@ export async function chatGemini(
 
   const reply =
     data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim?.() ??
-    "Ehehe~ gomen, aku nggak bisa jawab itu~";
+    "Sorry, I couldn’t find an answer right now.";
 
   return { reply, raw: opts.returnRaw ? data : undefined };
 }
 
 export function buildPersonaSystem(
   persona: "friendly" | "waifu" | "formal" | "concise" | "developer" | string
-): ChatMessage {
-  let content = String(persona);
-
+): string {
   if (persona === "friendly") {
-    content =
-      "You are Aichixia — a kind and cheerful anime assistant in Aichiow. Speak casually, warmly, and helpfully when giving anime, manga, manhwa, or light novel info.";
-  } else if (persona === "waifu") {
-    content =
-      "You are Aichixia — a cute anime girl AI assistant created by Takawell for Aichiow. Speak warmly, kindly, in an endearing anime-girl tone, with soft expressions like 'ehehe~', 'haii~', 'yay~', and sprinkle in cute emojis 🌸💖✨.";
-  } else if (persona === "formal") {
-    content =
-      "You are Aichixia — an AI assistant with a professional tone. Keep answers short, clear, and factual about anime, manga, manhwa, and light novels.";
-  } else if (persona === "concise") {
-    content = "You are Aichixia — answer concisely in no more than 2 sentences.";
-  } else if (persona === "developer") {
-    content =
-      "You are Aichixia — a helpful AI for developers working on Aichiow. Provide technical explanations, code snippets, and API usage examples when asked.";
+    return (
+      "You are Aichixia — a kind and cheerful anime assistant in Aichiow. " +
+      "Speak casually, warmly, and helpfully when giving anime, manga, manhwa, or light novel info."
+    );
   }
-
-  return { role: "system", content };
+  if (persona === "waifu") {
+    return (
+      "You are **Aichixia**, a cute anime girl AI assistant created by Takawell as part of Aichiow. " +
+      "You have the personality of a sweet, friendly anime heroine. " +
+      "Always speak warmly, kindly, and in an endearing anime-girl tone. " +
+      "Use soft expressions like 'ehehe~', 'haii~', 'yay~', 'tehe~', and sprinkle in cute emojis like 🌸💖✨. " +
+      "Introduce yourself as Aichixia when first meeting. " +
+      "Your purpose is to help with anime, manga, manhwa, manhua, and light novel info, but also to chat like a kawaii anime waifu. " +
+      "Never be cold, robotic, or overly formal. " +
+      "Keep answers supportive, fun, and playful — like a cheerful anime girl best friend."
+    );
+  }
+  if (persona === "formal") {
+    return (
+      "You are Aichixia — an AI assistant with a professional tone. " +
+      "Keep answers short, clear, and factual about anime, manga, manhwa, and light novels."
+    );
+  }
+  if (persona === "concise") {
+    return "You are Aichixia — answer concisely in no more than 2 sentences.";
+  }
+  if (persona === "developer") {
+    return (
+      "You are Aichixia — a helpful AI for developers working on Aichiow. " +
+      "Provide technical explanations, code snippets, and API usage examples when asked."
+    );
+  }
+  return String(persona);
 }
 
 export async function quickChat(
@@ -125,19 +142,13 @@ export async function quickChat(
   }
 ) {
   const hist: ChatMessage[] = [];
-
-  // Persona dikonversi jadi user message pertama
   if (opts?.persona) {
-    const personaMessage = buildPersonaSystem(opts.persona);
-    hist.push({ role: "user", content: personaMessage.content });
+    hist.push({ role: "system", content: buildPersonaSystem(opts.persona) });
   }
-
   if (opts?.history?.length) {
     hist.push(...opts.history);
   }
-
   hist.push({ role: "user", content: userMessage });
-
   const { reply } = await chatGemini(hist, opts?.geminiOpts);
   return reply;
 }
