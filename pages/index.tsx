@@ -79,11 +79,13 @@ const Row = ({
   path,
   desc,
   active = true,
+  overrideLabel,
 }: {
   method: string;
   path: string;
   desc: string;
   active?: boolean;
+  overrideLabel?: string;
 }) => {
   return (
     <div
@@ -154,7 +156,7 @@ const Row = ({
             {path}
           </code>
         </div>
-        <StatusBadge active={active} label={active ? "Active" : "Inactive"} />
+        <StatusBadge active={active} label={overrideLabel ?? (active ? "Active" : "Inactive")} />
       </div>
       <div style={{ fontSize: 15, lineHeight: 1.5, color: "#64748b" }}>
         {desc}
@@ -214,7 +216,6 @@ export default function Docs() {
         </p>
       </header>
 
-      {/* AniList Section */}
       <section style={{ marginBottom: 48 }}>
         <h2
           style={{
@@ -245,10 +246,15 @@ export default function Docs() {
         <Row method="GET" path={`${base}/api/aichixia?category=anime&action=recommendations&id={value}`} desc="Recommendations (requires id)" />
         <Row method="GET" path={`${base}/api/aichixia?category=manhwa&action=top-genre&genre={name}`} desc="Top by genre (requires genre)" />
         <Row method="GET" path={`${base}/api/aichixia?action=character&id={value}`} desc="Character detail (requires id)" />
-        <Row method="GET" path={`${base}/api/aichixia?action=staff&id={value}`} desc="Staff detail (requires id)" />
+        <Row
+          method="GET"
+          path={`${base}/api/aichixia?action=staff&id={value}`}
+          desc="Staff detail (requires id)"
+          active={false}
+          overrideLabel="Maintenance"
+        />
       </section>
-
-      {/* Chat Section */}
+      
       <section style={{ marginBottom: 48 }}>
         <h2
           style={{
@@ -267,7 +273,6 @@ export default function Docs() {
         <Row method="POST" path={`${base}/api/chat`} desc="AI-powered anime assistant" />
       </section>
 
-      {/* Notes */}
       <section>
         <h2
           style={{
