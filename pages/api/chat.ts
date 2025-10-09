@@ -44,7 +44,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     let data: any = null;
     let aiMessage = message;
 
-    // anilist integration
+    // AniList Integration
     if (/trending|populer/i.test(message)) {
       data = await anilist.getTrending();
       aiMessage = `Here is AniList trending anime data: ${JSON.stringify(data)}. Summarize it cutely for the user.`;
