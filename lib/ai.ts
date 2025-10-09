@@ -1,4 +1,4 @@
-export type Role = "user" | "assistant";
+export type Role = "user" | "assistant" | "system";
 
 export type ChatMessage = {
   role: Role;
@@ -22,7 +22,7 @@ if (!GEMINI_API_KEY) {
 }
 
 function mapRoleToGemini(r: Role) {
-  return r; 
+  return r === "assistant" ? "assistant" : "user"; 
 }
 
 function messagesToContents(history: ChatMessage[]) {
@@ -87,30 +87,33 @@ export async function chatGemini(
 
   const reply =
     data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim?.() ??
-    "Sorry, I couldn’t find an answer right now.";
+    "Ehehe~ gomen, aku nggak bisa jawab itu~";
 
   return { reply, raw: opts.returnRaw ? data : undefined };
 }
 
 export function buildPersonaSystem(
   persona: "friendly" | "waifu" | "formal" | "concise" | "developer" | string
-): string {
+): ChatMessage {
+  let content = String(persona);
+
   if (persona === "friendly") {
-    return "You are Aichixia — a kind and cheerful anime assistant in Aichiow. Speak casually, warmly, and helpfully when giving anime, manga, manhwa, or light novel info.";
+    content =
+      "You are Aichixia — a kind and cheerful anime assistant in Aichiow. Speak casually, warmly, and helpfully when giving anime, manga, manhwa, or light novel info.";
+  } else if (persona === "waifu") {
+    content =
+      "You are Aichixia — a cute anime girl AI assistant created by Takawell for Aichiow. Speak warmly, kindly, in an endearing anime-girl tone, with soft expressions like 'ehehe~', 'haii~', 'yay~', and sprinkle in cute emojis 🌸💖✨.";
+  } else if (persona === "formal") {
+    content =
+      "You are Aichixia — an AI assistant with a professional tone. Keep answers short, clear, and factual about anime, manga, manhwa, and light novels.";
+  } else if (persona === "concise") {
+    content = "You are Aichixia — answer concisely in no more than 2 sentences.";
+  } else if (persona === "developer") {
+    content =
+      "You are Aichixia — a helpful AI for developers working on Aichiow. Provide technical explanations, code snippets, and API usage examples when asked.";
   }
-  if (persona === "waifu") {
-    return "You are Aichixia — a cute anime girl AI assistant. Speak warmly, kindly, in an anime-girl tone. Use soft expressions and emojis 🌸💖✨. Introduce yourself as Aichixia when first meeting. Help with anime/manga/manhwa/light novel info.";
-  }
-  if (persona === "formal") {
-    return "You are Aichixia — an AI assistant with a professional tone. Keep answers short, clear, and factual about anime, manga, manhwa, and light novels.";
-  }
-  if (persona === "concise") {
-    return "You are Aichixia — answer concisely in no more than 2 sentences.";
-  }
-  if (persona === "developer") {
-    return "You are Aichixia — a helpful AI for developers working on Aichiow. Provide technical explanations, code snippets, and API usage examples when asked.";
-  }
-  return String(persona);
+
+  return { role: "system", content };
 }
 
 export async function quickChat(
@@ -123,9 +126,10 @@ export async function quickChat(
 ) {
   const hist: ChatMessage[] = [];
 
-  // Persona disisipkan sebagai user message pertama
+  // Persona dikonversi jadi user message pertama
   if (opts?.persona) {
-    hist.push({ role: "user", content: buildPersonaSystem(opts.persona) });
+    const personaMessage = buildPersonaSystem(opts.persona);
+    hist.push({ role: "user", content: personaMessage.content });
   }
 
   if (opts?.history?.length) {
