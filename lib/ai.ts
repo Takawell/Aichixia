@@ -22,13 +22,27 @@ if (!GEMINI_API_KEY) {
 }
 
 function mapRoleToGemini(r: Role) {
-  if (r === "assistant") return "assistant";
-  if (r === "system") return "system";
+  if (r === "assistant") return "model";
   return "user";
 }
 
 function messagesToContents(history: ChatMessage[]) {
-  return history.map((m) => ({
+  const systemMessages = history.filter(m => m.role === "system");
+  const otherMessages = history.filter(m => m.role !== "system");
+  
+  const systemPrefix = systemMessages.map(m => m.content).join("\n\n");
+  
+  if (systemPrefix && otherMessages.length > 0) {
+    const firstUserIdx = otherMessages.findIndex(m => m.role === "user");
+    if (firstUserIdx >= 0) {
+      otherMessages[firstUserIdx] = {
+        ...otherMessages[firstUserIdx],
+        content: `${systemPrefix}\n\n${otherMessages[firstUserIdx].content}`
+      };
+    }
+  }
+  
+  return otherMessages.map((m) => ({
     role: mapRoleToGemini(m.role),
     parts: [{ text: m.content }],
   }));
@@ -89,7 +103,7 @@ export async function chatGemini(
 
   const reply =
     data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim?.() ??
-    "Sorry, I couldn’t find an answer right now.";
+    "Sorry, I couldn't find an answer right now.";
 
   return { reply, raw: opts.returnRaw ? data : undefined };
 }
