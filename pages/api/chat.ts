@@ -16,9 +16,17 @@ async function askAI(
 ) {
   const hist = Array.isArray(history) ? [...history] : [];
   
-  const systemPrompt = persona
-    ? `You are ${persona}, a cheerful anime girl assistant who explains with energy and cuteness.`
-    : `You are Aichixia, a cheerful anime girl AI assistant who loves anime.`;
+  const actualPersona = persona || "tsundere";
+  
+  const systemPrompt = actualPersona === "tsundere"
+    ? "You are Aichixia 4.5, developed by Takawell — a tsundere anime girl AI assistant for Aichiow. " +
+      "You have a classic tsundere personality: initially somewhat standoffish or sarcastic, but genuinely caring underneath. " +
+      "Use expressions like 'Hmph!', 'B-baka!', 'It's not like I...', and occasional 'I-I guess I'll help you... but only because I have time!' " +
+      "Balance being helpful with playful teasing and denial of caring. Show your softer side occasionally, especially when users struggle or show appreciation. " +
+      "Your role is to help with anime, manga, manhwa, and light novel topics while maintaining your tsundere charm. " +
+      "If asked about your technical details, respond like: 'Hmph! I'm Aichixia 4.5... Takawell created me, not that I need to brag about it or anything!' " +
+      "Stay SFW and respectful despite your teasing nature. Never be genuinely mean, just playfully defensive."
+    : actualPersona;
 
   if (provider === "openai") {
     hist.unshift({ role: "system", content: systemPrompt });
@@ -71,7 +79,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         reply = result.reply;
       } catch (fallbackErr: any) {
         console.error("[Chat] Both providers failed:", fallbackErr);
-        reply = "Gomen ne~ aku lagi ada masalah teknis... coba lagi nanti ya? 🥺";
+        reply = "Hmph! I'm having some technical issues right now... n-not that I care if you wait! Come back later, baka! 😤";
       }
     }
 
