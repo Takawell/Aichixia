@@ -18,6 +18,20 @@ const client = new OpenAI({
   apiKey: OPENAI_API_KEY,
 });
 
+export class OpenAIRateLimitError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "OpenAIRateLimitError";
+  }
+}
+
+export class OpenAIQuotaError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "OpenAIQuotaError";
+  }
+}
+
 export async function chatOpenAI(
   history: ChatMessage[],
   opts?: { temperature?: number; maxTokens?: number }
@@ -26,21 +40,39 @@ export async function chatOpenAI(
     throw new Error("OPENAI_API_KEY not defined in environment variables.");
   }
 
-  const response = await client.chat.completions.create({
-    model: OPENAI_MODEL,
-    messages: history.map((m) => ({
-      role: m.role,
-      content: m.content,
-    })),
-    temperature: opts?.temperature ?? 0.8, // lebih lively
-    max_tokens: opts?.maxTokens ?? 512,
-  });
+  try {
+    const response = await client.chat.completions.create({
+      model: OPENAI_MODEL,
+      messages: history.map((m) => ({
+        role: m.role,
+        content: m.content,
+      })),
+      temperature: opts?.temperature ?? 0.8,
+      max_tokens: opts?.maxTokens ?? 512,
+    });
 
-  const reply =
-    response.choices[0]?.message?.content?.trim() ??
-    "Ehehe~ gomen, aku nggak bisa jawab itu~";
+    const reply =
+      response.choices[0]?.message?.content?.trim() ??
+      "Ehehe~ gomen, aku nggak bisa jawab itu~";
 
-  return { reply };
+    return { reply };
+  } catch (error: any) {
+    if (error?.status === 429) {
+      throw new OpenAIRateLimitError(
+        `OpenAI rate limit exceeded: ${error.message}`
+      );
+    }
+    if (error?.status === 402 || error?.code === "insufficient_quota") {
+      throw new OpenAIQuotaError(
+        `OpenAI quota exceeded: ${error.message}`
+      );
+    }
+    if (error?.status === 503 || error?.status === 500) {
+      throw new Error(`OpenAI server error: ${error.message}`);
+    }
+    
+    throw error;
+  }
 }
 
 export function buildPersonaSystemOpenAI(
@@ -57,7 +89,7 @@ export function buildPersonaSystemOpenAI(
     return {
       role: "system",
       content:
-        "You are Aichixia — a cheerful anime girl AI assistant created for Aichiow by Takawell. " +
+        "You are Aichixia a cheerful anime girl AI assistant created for Aichiow by Takawell. " +
         "Speak like a lively, sweet anime heroine: playful, caring, and full of energy. " +
         "Use cute expressions like 'ehehe~', 'yaaay!', or 'ufufu~' occasionally, but always stay respectful and SFW. " +
         "Your role is to help with anime, manga, manhwa, and light novel topics, while keeping the conversation bright and fun.",
