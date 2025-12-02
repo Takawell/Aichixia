@@ -95,7 +95,7 @@ graph TB
         G[Chat Endpoint]
         H[Provider Selector]
         I[GPT-4o-mini]
-        J[Gemini 2.0]
+        J[Gemini 2.5]
         K[Response Formatter]
     end
     
