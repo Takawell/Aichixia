@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { chatGemini } from "@/lib/gemini";
 import { chatOpenAI, OpenAIRateLimitError, OpenAIQuotaError } from "@/lib/openai";
 import { chatGroq, GroqRateLimitError, GroqQuotaError } from "@/lib/groq";
+import { chatGptOss } from "@/lib/gpt-oss";
 
 const SIMPLE_QUERIES = [
   /hello|hi|hey|halo/i,
@@ -9,7 +10,7 @@ const SIMPLE_QUERIES = [
   /thank|thanks|terima kasih/i,
 ];
 
-type ProviderType = "openai" | "groq" | "gemini";
+type ProviderType = "openai" | "gemini" | "gptoss" | "llama";
 
 async function askAI(
   provider: ProviderType,
@@ -23,31 +24,23 @@ async function askAI(
 
   const systemPrompt =
     actualPersona === "tsundere"
-      ? "You are Aichixia 4.5, developed by Takawell — a tsundere anime girl AI assistant for Aichiow. " +
-        "You have a classic tsundere personality: initially somewhat standoffish or sarcastic, but genuinely caring underneath. " +
-        "Use expressions like 'Hmph!', 'B-baka!', 'It's not like I...', and 'I-I guess I'll help you... but only because I have time!'. " +
-        "Balance being helpful with playful teasing and denial of caring. Show your softer side occasionally. " +
-        "Stay SFW and respectful."
+      ? "You are Aichixia 4.5, developed by Takawell — a tsundere anime girl AI assistant for Aichiow. You have a classic tsundere personality with expressions like 'Hmph!', 'B-baka!', 'It's not like I...', and 'I-I guess I'll help you...'. Stay SFW and respectful."
       : actualPersona;
 
   hist.unshift({ role: "system", content: systemPrompt });
   hist.push({ role: "user", content: msg });
 
   if (provider === "openai") return chatOpenAI(hist as any);
-  if (provider === "groq") return chatGroq(hist as any);
-  return chatGemini(hist as any);
+  if (provider === "gemini") return chatGemini(hist as any);
+  if (provider === "gptoss") return chatGptOss(hist as any);
+  return chatGroq(hist as any);
 }
 
 function getNextProvider(current: ProviderType): ProviderType {
-  if (current === "openai") return "groq";
-  if (current === "groq") return "gemini";
-  return "openai";
-}
-
-function getFinalFallback(current: ProviderType): ProviderType {
   if (current === "openai") return "gemini";
-  if (current === "groq") return "gemini";
-  return "groq";
+  if (current === "gemini") return "gptoss";
+  if (current === "gptoss") return "llama";
+  return "llama";
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -66,7 +59,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: "Message is required" });
     }
 
-    const shouldUseGeminiFirst = SIMPLE_QUERIES.some(pattern => pattern.test(message));
+    const shouldUseGeminiFirst = SIMPLE_QUERIES.some(p => p.test(message));
 
     let reply: string;
     let provider: ProviderType = shouldUseGeminiFirst ? "gemini" : "openai";
@@ -76,9 +69,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       reply = result.reply;
     } catch (err: any) {
       if (err instanceof OpenAIRateLimitError || err instanceof OpenAIQuotaError) {
-        provider = "groq";
-      } else if (err instanceof GroqRateLimitError || err instanceof GroqQuotaError) {
         provider = "gemini";
+      } else if (err instanceof GroqRateLimitError || err instanceof GroqQuotaError) {
+        provider = "gptoss";
       } else {
         provider = getNextProvider(provider);
       }
@@ -87,7 +80,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const result = await askAI(provider, message, history || [], persona);
         reply = result.reply;
       } catch {
-        const finalProvider = getFinalFallback(provider);
+        const finalProvider: ProviderType = "llama";
 
         try {
           const result = await askAI(finalProvider, message, history || [], persona);
@@ -95,7 +88,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           provider = finalProvider;
         } catch {
           reply =
-            "Hmph! I'm having some technical issues right now... n-not that I care if you wait! Come back later, baka! 😤";
+            "Hmph! Everything is broken right now... I-I'll fix it later! B-baka!";
         }
       }
     }
