@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { chatGemini } from "@/lib/ai";
 import { chatOpenAI, OpenAIRateLimitError, OpenAIQuotaError } from "@/lib/openai";
+import { chatGroq, GroqRateLimitError, GroqQuotaError } from "@/lib/groq";
 
 const SIMPLE_QUERIES = [
   /hello|hi|hey|halo/i,
@@ -9,7 +10,7 @@ const SIMPLE_QUERIES = [
 ];
 
 async function askAI(
-  provider: "openai" | "gemini",
+  provider: "openai" | "groq" | "gemini",
   msg: string,
   history: any[],
   persona?: string
@@ -28,13 +29,14 @@ async function askAI(
       "Stay SFW and respectful despite your teasing nature. Never be genuinely mean, just playfully defensive."
     : actualPersona;
 
+  hist.unshift({ role: "system", content: systemPrompt });
+  hist.push({ role: "user", content: msg });
+
   if (provider === "openai") {
-    hist.unshift({ role: "system", content: systemPrompt });
-    hist.push({ role: "user", content: msg });
     return chatOpenAI(hist as any);
+  } else if (provider === "groq") {
+    return chatGroq(hist as any);
   } else {
-    hist.unshift({ role: "system", content: systemPrompt });
-    hist.push({ role: "user", content: msg });
     return chatGemini(hist as any);
   }
 }
@@ -58,28 +60,39 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const shouldUseGeminiFirst = SIMPLE_QUERIES.some(pattern => pattern.test(message));
 
     let reply: string;
-    let provider: "openai" | "gemini" = shouldUseGeminiFirst ? "gemini" : "openai";
+    let provider: "openai" | "groq" | "gemini" = shouldUseGeminiFirst ? "gemini" : "openai";
     
     try {
       const result = await askAI(provider, message, history || [], persona);
       reply = result.reply;
     } catch (err: any) {
-      if (err instanceof OpenAIRateLimitError) {
-        console.warn("[Chat] OpenAI rate limit hit, fallback to Gemini");
-      } else if (err instanceof OpenAIQuotaError) {
-        console.warn("[Chat] OpenAI quota exceeded, fallback to Gemini");
+      if (err instanceof OpenAIRateLimitError || err instanceof OpenAIQuotaError) {
+        console.warn("[Chat] OpenAI error, fallback to Groq:", err.message);
+        provider = "groq";
+      } else if (err instanceof GroqRateLimitError || err instanceof GroqQuotaError) {
+        console.warn("[Chat] Groq error, fallback to Gemini:", err.message);
+        provider = "gemini";
       } else {
         console.warn("[Chat] Primary provider error, fallback:", err.message);
+        provider = provider === "openai" ? "groq" : provider === "groq" ? "gemini" : "openai";
       }
-      
-      provider = provider === "openai" ? "gemini" : "openai";
       
       try {
         const result = await askAI(provider, message, history || [], persona);
         reply = result.reply;
       } catch (fallbackErr: any) {
-        console.error("[Chat] Both providers failed:", fallbackErr);
-        reply = "Hmph! I'm having some technical issues right now... n-not that I care if you wait! Come back later, baka! 😤";
+        console.warn("[Chat] Second provider failed, trying final fallback:", fallbackErr.message);
+        
+        const finalProvider = provider === "openai" ? "gemini" : provider === "groq" ? "gemini" : "groq";
+        
+        try {
+          const result = await askAI(finalProvider, message, history || [], persona);
+          reply = result.reply;
+          provider = finalProvider;
+        } catch (finalErr: any) {
+          console.error("[Chat] All providers failed");
+          reply = "Hmph! I'm having some technical issues right now... n-not that I care if you wait! Come back later, baka! 😤";
+        }
       }
     }
 
