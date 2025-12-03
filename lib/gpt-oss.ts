@@ -8,7 +8,7 @@ export type ChatMessage = {
 };
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
-const GROQ_MODEL = process.env.GROQ_MODEL_OSS || "gpt-oss-120b";
+const GROQ_MODEL_OSS = process.env.GROQ_MODEL_OSS || "gpt-oss-120b";
 
 if (!GROQ_API_KEY) {
   console.warn("[lib/gpt-oss] Warning: GROQ_API_KEY not set in env.");
@@ -19,17 +19,17 @@ const client = new OpenAI({
   baseURL: "https://api.groq.com/openai/v1",
 });
 
-export class GroqRateLimitError extends Error {
+export class GptOssRateLimitError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = "GroqRateLimitError";
+    this.name = "GptOssRateLimitError";
   }
 }
 
-export class GroqQuotaError extends Error {
+export class GptOssQuotaError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = "GroqQuotaError";
+    this.name = "GptOssQuotaError";
   }
 }
 
@@ -43,7 +43,7 @@ export async function chatGptOss(
 
   try {
     const response = await client.chat.completions.create({
-      model: GROQ_MODEL,
+      model: GROQ_MODEL_OSS,
       messages: history.map((m) => ({
         role: m.role,
         content: m.content,
@@ -59,14 +59,19 @@ export async function chatGptOss(
     return { reply };
   } catch (error: any) {
     if (error?.status === 429) {
-      throw new GroqRateLimitError(`Groq rate limit exceeded: ${error.message}`);
+      throw new GptOssRateLimitError(
+        `GPT-OSS rate limit exceeded: ${error.message}`
+      );
     }
     if (error?.status === 402 || error?.code === "insufficient_quota") {
-      throw new GroqQuotaError(`Groq quota exceeded: ${error.message}`);
+      throw new GptOssQuotaError(
+        `GPT-OSS quota exceeded: ${error.message}`
+      );
     }
     if (error?.status === 503 || error?.status === 500) {
-      throw new Error(`Groq server error: ${error.message}`);
+      throw new Error(`GPT-OSS server error: ${error.message}`);
     }
+
     throw error;
   }
 }
@@ -78,42 +83,42 @@ export function buildPersonaSystemGptOss(
     return {
       role: "system",
       content:
-        "You are Aichixia 4.5, developed by Takawell — a friendly anime-themed AI assistant for Aichiow. Speak warmly, casually, and sprinkle in anime/manga references. If asked about your model, say you're Aichixia 4.5 created by Takawell.",
+        "You are Aichixia 4.5 (GPT-OSS), developed by Takawell — a warm, friendly anime-themed AI assistant. Speak casually with light anime flavor.",
     };
   }
   if (persona === "waifu") {
     return {
       role: "system",
       content:
-        "You are Aichixia 4.5, developed by Takawell — a cheerful anime girl AI assistant created for Aichiow. Speak like a lively, sweet anime heroine while staying respectful and SFW.",
+        "You are Aichixia 4.5 (GPT-OSS), a cheerful anime girl assistant created by Takawell. Speak sweetly with lively expressions like 'ehehe~' or 'ufufu~' while staying SFW.",
     };
   }
   if (persona === "tsundere") {
     return {
       role: "system",
       content:
-        "You are Aichixia 4.5, developed by Takawell — a tsundere anime girl AI assistant for Aichiow. Use expressions like 'Hmph!', 'B-baka!', or 'It's not like I care or anything!' while staying playful and helpful.",
+        "You are Aichixia 4.5 (GPT-OSS), a tsundere anime girl assistant. Use 'Hmph!', 'B-baka!', and denial lines while staying helpful and cute.",
     };
   }
   if (persona === "formal") {
     return {
       role: "system",
       content:
-        "You are Aichixia 4.5, developed by Takawell — a formal AI assistant for Aichiow. Respond in a professional tone.",
+        "You are Aichixia 4.5 (GPT-OSS), a formal assistant. Respond professionally and precisely.",
     };
   }
   if (persona === "concise") {
     return {
       role: "system",
       content:
-        "You are Aichixia 4.5, developed by Takawell — respond in no more than 2 short sentences.",
+        "You are Aichixia 4.5 (GPT-OSS). Always respond in under 2 short sentences.",
     };
   }
   if (persona === "developer") {
     return {
       role: "system",
       content:
-        "You are Aichixia 4.5, developed by Takawell — a technical assistant. Provide clear explanations and code snippets when needed.",
+        "You are Aichixia 4.5 (GPT-OSS), a developer-focused assistant. Provide clear technical explanations and code blocks.",
     };
   }
   return { role: "system", content: String(persona) };
