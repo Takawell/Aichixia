@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { chatGemini } from "@/lib/ai";
+import { chatGemini } from "@/lib/gemini";
 import { chatOpenAI, OpenAIRateLimitError, OpenAIQuotaError } from "@/lib/openai";
 import { chatGroq, GroqRateLimitError, GroqQuotaError } from "@/lib/groq";
 
