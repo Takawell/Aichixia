@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { chatGemini } from "@/lib/gemini";
 import { chatOpenAI, OpenAIRateLimitError, OpenAIQuotaError } from "@/lib/openai";
 import { chatGroq, GroqRateLimitError, GroqQuotaError } from "@/lib/groq";
-import { chatGptOss } from "@/lib/gpt-oss";
+import { chatGptOss, GptOssRateLimitError, GptOssQuotaError } from "@/lib/gpt-oss";
 
 const SIMPLE_QUERIES = [
   /hello|hi|hey|halo/i,
@@ -30,10 +30,10 @@ async function askAI(
   hist.unshift({ role: "system", content: systemPrompt });
   hist.push({ role: "user", content: msg });
 
-  if (provider === "openai") return chatOpenAI(hist as any);
-  if (provider === "gemini") return chatGemini(hist as any);
-  if (provider === "gptoss") return chatGptOss(hist as any);
-  return chatGroq(hist as any);
+  if (provider === "openai") return chatOpenAI(hist);
+  if (provider === "gemini") return chatGemini(hist);
+  if (provider === "gptoss") return chatGptOss(hist);
+  return chatGroq(hist);
 }
 
 function getNextProvider(current: ProviderType): ProviderType {
@@ -70,9 +70,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     } catch (err: any) {
       if (err instanceof OpenAIRateLimitError || err instanceof OpenAIQuotaError) {
         provider = "gemini";
-      } else if (err instanceof GroqRateLimitError || err instanceof GroqQuotaError) {
+      } 
+      else if (err instanceof GroqRateLimitError || err instanceof GroqQuotaError) {
         provider = "gptoss";
-      } else {
+      }
+      else if (err instanceof GptOssRateLimitError || err instanceof GptOssQuotaError) {
+        provider = "llama";
+      }
+      else {
         provider = getNextProvider(provider);
       }
 
@@ -80,15 +85,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const result = await askAI(provider, message, history || [], persona);
         reply = result.reply;
       } catch {
-        const finalProvider: ProviderType = "llama";
+        const fallback: ProviderType = "llama";
 
         try {
-          const result = await askAI(finalProvider, message, history || [], persona);
+          const result = await askAI(fallback, message, history || [], persona);
           reply = result.reply;
-          provider = finalProvider;
+          provider = fallback;
         } catch {
-          reply =
-            "Hmph! Everything is broken right now... I-I'll fix it later! B-baka!";
+          reply = "Hmph! Everything is broken right now... I-I'll fix it later! B-baka!";
         }
       }
     }
