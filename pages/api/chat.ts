@@ -9,8 +9,10 @@ const SIMPLE_QUERIES = [
   /thank|thanks|terima kasih/i,
 ];
 
+type ProviderType = "openai" | "groq" | "gemini";
+
 async function askAI(
-  provider: "openai" | "groq" | "gemini",
+  provider: ProviderType,
   msg: string,
   history: any[],
   persona?: string
@@ -60,7 +62,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const shouldUseGeminiFirst = SIMPLE_QUERIES.some(pattern => pattern.test(message));
 
     let reply: string;
-    let provider: "openai" | "groq" | "gemini" = shouldUseGeminiFirst ? "gemini" : "openai";
+    let provider: ProviderType = shouldUseGeminiFirst ? "gemini" : "openai";
     
     try {
       const result = await askAI(provider, message, history || [], persona);
@@ -74,7 +76,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         provider = "gemini";
       } else {
         console.warn("[Chat] Primary provider error, fallback:", err.message);
-        provider = provider === "openai" ? "groq" : provider === "groq" ? "gemini" : "openai";
+        const nextProvider: ProviderType = provider === "openai" ? "groq" : provider === "groq" ? "gemini" : "openai";
+        provider = nextProvider;
       }
       
       try {
@@ -83,7 +86,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       } catch (fallbackErr: any) {
         console.warn("[Chat] Second provider failed, trying final fallback:", fallbackErr.message);
         
-        const finalProvider = provider === "openai" ? "gemini" : provider === "groq" ? "gemini" : "groq";
+        const finalProvider: ProviderType = provider === "openai" ? "gemini" : provider === "groq" ? "gemini" : "groq";
         
         try {
           const result = await askAI(finalProvider, message, history || [], persona);
