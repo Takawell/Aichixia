@@ -11,7 +11,7 @@ const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const GROQ_MODEL = process.env.GROQ_MODEL_OSS || "gpt-oss-120b";
 
 if (!GROQ_API_KEY) {
-  console.warn("[lib/groq] Warning: GROQ_API_KEY not set in env.");
+  console.warn("[lib/gpt-oss] Warning: GROQ_API_KEY not set in env.");
 }
 
 const client = new OpenAI({
@@ -33,7 +33,7 @@ export class GroqQuotaError extends Error {
   }
 }
 
-export async function chatGroq(
+export async function chatGptOss(
   history: ChatMessage[],
   opts?: { temperature?: number; maxTokens?: number }
 ): Promise<{ reply: string }> {
@@ -59,24 +59,19 @@ export async function chatGroq(
     return { reply };
   } catch (error: any) {
     if (error?.status === 429) {
-      throw new GroqRateLimitError(
-        `Groq rate limit exceeded: ${error.message}`
-      );
+      throw new GroqRateLimitError(`Groq rate limit exceeded: ${error.message}`);
     }
     if (error?.status === 402 || error?.code === "insufficient_quota") {
-      throw new GroqQuotaError(
-        `Groq quota exceeded: ${error.message}`
-      );
+      throw new GroqQuotaError(`Groq quota exceeded: ${error.message}`);
     }
     if (error?.status === 503 || error?.status === 500) {
       throw new Error(`Groq server error: ${error.message}`);
     }
-
     throw error;
   }
 }
 
-export function buildPersonaSystemGroq(
+export function buildPersonaSystemGptOss(
   persona: "friendly" | "waifu" | "tsundere" | "formal" | "concise" | "developer" | string
 ): ChatMessage {
   if (persona === "friendly") {
@@ -124,10 +119,10 @@ export function buildPersonaSystemGroq(
   return { role: "system", content: String(persona) };
 }
 
-export async function quickChatGroq(
+export async function quickChatGptOss(
   userMessage: string,
   opts?: {
-    persona?: Parameters<typeof buildPersonaSystemGroq>[0];
+    persona?: Parameters<typeof buildPersonaSystemGptOss>[0];
     history?: ChatMessage[];
     temperature?: number;
     maxTokens?: number;
@@ -135,16 +130,16 @@ export async function quickChatGroq(
 ) {
   const hist: ChatMessage[] = [];
   if (opts?.persona) {
-    hist.push(buildPersonaSystemGroq(opts.persona));
+    hist.push(buildPersonaSystemGptOss(opts.persona));
   } else {
-    hist.push(buildPersonaSystemGroq("tsundere"));
+    hist.push(buildPersonaSystemGptOss("tsundere"));
   }
   if (opts?.history?.length) {
     hist.push(...opts.history);
   }
   hist.push({ role: "user", content: userMessage });
 
-  const { reply } = await chatGroq(hist, {
+  const { reply } = await chatGptOss(hist, {
     temperature: opts?.temperature,
     maxTokens: opts?.maxTokens,
   });
@@ -153,7 +148,7 @@ export async function quickChatGroq(
 }
 
 export default {
-  chatGroq,
-  quickChatGroq,
-  buildPersonaSystemGroq,
+  chatGptOss,
+  quickChatGptOss,
+  buildPersonaSystemGptOss,
 };
