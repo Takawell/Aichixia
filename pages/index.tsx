@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   FaBookOpen,
-  FaKey,
   FaFilm,
   FaComments,
   FaStickyNote,
@@ -10,69 +9,38 @@ import {
   FaTimesCircle,
   FaCopy,
 } from "react-icons/fa";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const base = "https://aichixia.vercel.app";
 
 const CopyableCode = ({ text }: { text: string }) => {
   const [copied, setCopied] = useState(false);
-
-  const copyToClipboard = () => {
+  const copy = () => {
     navigator.clipboard.writeText(text);
     setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
+    setTimeout(() => setCopied(false), 1200);
   };
-
   return (
-    <div
-      onClick={copyToClipboard}
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 6,
-        cursor: "pointer",
-        background: "#f1f5f9",
-        color: "#0284c7",
-        padding: "4px 10px",
-        borderRadius: 6,
-        fontWeight: "600",
-        userSelect: "all",
-        transition: "background-color 0.3s ease",
-        fontSize: 14,
-      }}
-      title={copied ? "Copied!" : "Click to copy"}
+    <button
+      onClick={copy}
+      className="inline-flex items-center gap-2 bg-slate-200 dark:bg-slate-800 text-sky-600 dark:text-sky-300 px-3 py-1.5 rounded-md font-semibold text-sm active:scale-95 transition"
     >
-      <code>{text}</code>
+      <code className="truncate max-w-[160px]">{text}</code>
       <FaCopy size={14} />
-    </div>
+    </button>
   );
 };
 
-const StatusBadge = ({ active, label }: { active: boolean; label: string }) => (
-  <span
-    style={{
-      display: "inline-flex",
-      alignItems: "center",
-      gap: 6,
-      background: active ? "#22c55e" : "#ef4444",
-      color: "white",
-      fontWeight: "700",
-      padding: "3px 10px",
-      borderRadius: 12,
-      fontSize: 13,
-      userSelect: "none",
-      boxShadow: active ? "0 0 12px #22c55eaa" : "0 0 12px #ef4444aa",
-      animation: active ? "pulseGreen 2s infinite" : "none",
-    }}
-  >
-    {active ? <FaCheckCircle /> : <FaTimesCircle />} {label}
-    <style>{`
-      @keyframes pulseGreen {
-        0%, 100% { box-shadow: 0 0 12px #22c55eaa; }
-        50% { box-shadow: 0 0 22px #22c55eff; }
-      }
-    `}</style>
-  </span>
-);
+const StatusBadge = ({ active, label }: { active: boolean; label: string }) => {
+  return (
+    <span
+      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-white text-xs font-bold shadow 
+      ${active ? "bg-green-500 animate-pulse" : "bg-red-500"}`}
+    >
+      {active ? <FaCheckCircle /> : <FaTimesCircle />} {label}
+    </span>
+  );
+};
 
 const Row = ({
   method,
@@ -87,147 +55,48 @@ const Row = ({
   active?: boolean;
   overrideLabel?: string;
 }) => {
+  const copy = () => navigator.clipboard.writeText(path);
   return (
     <div
-      style={{
-        border: "1px solid #e2e8f0",
-        padding: 20,
-        borderRadius: 14,
-        marginBottom: 20,
-        background: "#ffffff",
-        boxShadow: "0 4px 16px rgba(0,0,0,0.06)",
-        color: "#334155",
-        transition: "all 0.3s ease",
-        wordBreak: "break-word",
-      }}
-      onClick={() => {
-        navigator.clipboard.writeText(path);
-        alert("API path copied!");
-      }}
-      title="Click to copy API path"
+      onClick={copy}
+      className="border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl p-5 mb-5 shadow-sm hover:shadow-md cursor-pointer transition"
     >
-      <div
-        style={{
-          display: "flex",
-          gap: 14,
-          alignItems: "center",
-          marginBottom: 10,
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            gap: 14,
-            alignItems: "center",
-            flexGrow: 1,
-            minWidth: 0,
-          }}
-        >
-          <code
-            style={{
-              padding: "5px 14px",
-              borderRadius: 10,
-              background: "#38bdf8",
-              fontWeight: 700,
-              fontSize: 14,
-              color: "white",
-              letterSpacing: 1,
-              userSelect: "none",
-              flexShrink: 0,
-            }}
-          >
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          <span className="px-4 py-1.5 bg-sky-400 text-white rounded-lg font-bold text-sm tracking-wider whitespace-nowrap">
             {method}
-          </code>
-          <code
-            style={{
-              padding: "5px 14px",
-              borderRadius: 10,
-              background: "#f1f5f9",
-              fontSize: 14,
-              color: "#0284c7",
-              fontWeight: 600,
-              overflowWrap: "break-word",
-              flexGrow: 1,
-              minWidth: 0,
-            }}
-          >
+          </span>
+          <span className="px-4 py-1.5 bg-slate-200 dark:bg-slate-700 text-sky-600 dark:text-sky-300 rounded-lg text-sm font-semibold truncate flex-1">
             {path}
-          </code>
+          </span>
         </div>
         <StatusBadge active={active} label={overrideLabel ?? (active ? "Active" : "Inactive")} />
       </div>
-      <div style={{ fontSize: 15, lineHeight: 1.5, color: "#64748b" }}>
-        {desc}
-      </div>
+      <p className="text-slate-600 dark:text-slate-300 text-sm">{desc}</p>
     </div>
   );
 };
 
 export default function Docs() {
   return (
-    <main
-      style={{
-        maxWidth: 900,
-        margin: "48px auto",
-        padding: "0 20px 64px",
-        fontFamily: "'Poppins', sans-serif",
-        background: "#f9fafb",
-        color: "#334155",
-        minHeight: "100vh",
-      }}
-    >
-      <header
-        style={{
-          marginBottom: 56,
-          textAlign: "center",
-          borderBottom: "3px solid #38bdf8",
-          paddingBottom: 20,
-        }}
-      >
-        <h1
-          style={{
-            fontSize: 52,
-            fontWeight: 900,
-            color: "#0284c7",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            gap: 18,
-            letterSpacing: "0.07em",
-          }}
-        >
-          <FaBookOpen size={52} />
+    <main className="max-w-4xl mx-auto px-5 py-10 min-h-screen bg-slate-100 dark:bg-slate-900 transition">
+      <div className="flex justify-end mb-6">
+        <ThemeToggle />
+      </div>
+
+      <header className="text-center mb-14 border-b-4 border-sky-400 pb-6">
+        <h1 className="text-5xl font-black text-sky-600 dark:text-sky-300 flex items-center justify-center gap-4 tracking-wider">
+          <FaBookOpen size={48} />
           Aichixia API Docs
         </h1>
-        <p
-          style={{
-            color: "#64748b",
-            fontSize: 18,
-            maxWidth: 700,
-            margin: "12px auto 0",
-            fontWeight: 400,
-            lineHeight: 1.6,
-          }}
-        >
-          Centralized API for anime, manga, manhwa, manhua, and light novels.  
+        <p className="text-slate-600 dark:text-slate-300 text-lg max-w-2xl mx-auto mt-4">
+          Centralized API for anime, manga, manhwa, manhua, and light novels.
           Powered by AniList + Gemini AI.
         </p>
       </header>
 
-      <section style={{ marginBottom: 48 }}>
-        <h2
-          style={{
-            fontSize: 28,
-            fontWeight: 700,
-            marginBottom: 24,
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
-            color: "#0284c7",
-          }}
-        >
+      <section className="mb-14">
+        <h2 className="text-3xl font-bold text-sky-600 dark:text-sky-300 mb-6 flex items-center gap-3">
           <FaFilm />
           Aichixia Endpoints
         </h2>
@@ -246,70 +115,39 @@ export default function Docs() {
         <Row method="GET" path={`${base}/api/aichixia?category=anime&action=recommendations&id={value}`} desc="Recommendations (requires id)" />
         <Row method="GET" path={`${base}/api/aichixia?category=manhwa&action=top-genre&genre={name}`} desc="Top by genre (requires genre)" />
         <Row method="GET" path={`${base}/api/aichixia?action=character&id={value}`} desc="Character detail (requires id)" />
-        <Row
-          method="GET"
-          path={`${base}/api/aichixia?action=staff&id={value}`}
-          desc="Staff detail (requires id)"
-          active={false}
-          overrideLabel="Maintenance"
-        />
+        <Row method="GET" path={`${base}/api/aichixia?action=staff&id={value}`} desc="Staff detail (requires id)" active={false} overrideLabel="Maintenance" />
       </section>
-      
-      <section style={{ marginBottom: 48 }}>
-        <h2
-          style={{
-            fontSize: 28,
-            fontWeight: 700,
-            marginBottom: 24,
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
-            color: "#0284c7",
-          }}
-        >
+
+      <section className="mb-14">
+        <h2 className="text-3xl font-bold text-sky-600 dark:text-sky-300 mb-6 flex items-center gap-3">
           <FaComments />
           Chat
         </h2>
         <Row method="POST" path={`${base}/api/chat`} desc="AI-powered anime assistant" />
       </section>
 
-      <section>
-        <h2
-          style={{
-            fontSize: 28,
-            fontWeight: 700,
-            marginBottom: 12,
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
-            color: "#0284c7",
-          }}
-        >
+      <section className="">
+        <h2 className="text-3xl font-bold text-sky-600 dark:text-sky-300 mb-4 flex items-center gap-3">
           <FaStickyNote />
           Notes
         </h2>
-        <ul style={{ fontSize: 16, lineHeight: 1.75, color: "#475569", paddingLeft: 24 }}>
-          <li>Categories: <b>anime</b>, <b>manga</b>, <b>manhwa</b>, <b>manhua</b>, <b>ln</b>.</li>
-          <li><b>Required parameters:</b>  
-            <ul>
-              <li><code>id</code> → for <b>detail</b>, <b>character</b>, <b>staff</b>, <b>recommendations</b></li>
-              <li><code>query</code> → for <b>search</b></li>
-              <li><code>genre</code> → for <b>top-genre</b></li>
+        <ul className="text-slate-700 dark:text-slate-300 space-y-2 text-sm ml-6 list-disc">
+          <li>Categories: anime, manga, manhwa, manhua, ln.</li>
+          <li>Required parameters:
+            <ul className="ml-6 list-disc">
+              <li><code>id</code> → detail, character, staff, recommendations</li>
+              <li><code>query</code> → search</li>
+              <li><code>genre</code> → top-genre</li>
             </ul>
           </li>
         </ul>
       </section>
 
-      <footer
-        style={{
-          marginTop: 64,
-          textAlign: "center",
-          color: "#94a3b8",
-          fontSize: 14,
-        }}
-      >
-        <FaTerminal style={{ verticalAlign: "middle", marginRight: 6 }} />
-        © {new Date().getFullYear()} Aichixia — Anime-first AI Assistant.
+      <footer className="text-center mt-16 text-slate-500 dark:text-slate-400 text-sm">
+        <div className="flex justify-center items-center gap-2">
+          <FaTerminal />
+          © {new Date().getFullYear()} Aichixia Anime-first AI Assistant.
+        </div>
       </footer>
     </main>
   );
