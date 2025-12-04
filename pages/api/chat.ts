@@ -3,6 +3,7 @@ import { chatGemini } from "@/lib/gemini";
 import { chatOpenAI, OpenAIRateLimitError, OpenAIQuotaError } from "@/lib/openai";
 import { chatGroq, GroqRateLimitError, GroqQuotaError } from "@/lib/groq";
 import { chatGptOss, GptOssRateLimitError, GptOssQuotaError } from "@/lib/gpt-oss";
+import { chatQwen, QwenRateLimitError, QwenQuotaError } from "@/lib/qwen";
 
 const SIMPLE_QUERIES = [
   /hello|hi|hey|halo/i,
@@ -10,7 +11,7 @@ const SIMPLE_QUERIES = [
   /thank|thanks|terima kasih/i,
 ];
 
-type ProviderType = "openai" | "gemini" | "gptoss" | "llama";
+type ProviderType = "openai" | "gemini" | "qwen" | "gptoss" | "llama";
 
 async function askAI(
   provider: ProviderType,
@@ -24,7 +25,7 @@ async function askAI(
 
   const systemPrompt =
     actualPersona === "tsundere"
-      ? "You are Aichixia 4.5, developed by Takawell — a tsundere anime girl AI assistant for Aichiow. You have a classic tsundere personality with expressions like 'Hmph!', 'B-baka!', 'It's not like I...', and 'I-I guess I'll help you...'. Stay SFW and respectful."
+      ? "You are Aichixia 4.5, developed by Takawell a tsundere anime girl AI assistant for Aichiow. You have a classic tsundere personality with expressions like 'Hmph!', 'B-baka!', 'It's not like I...', and 'I-I guess I'll help you...'. Stay SFW and respectful."
       : actualPersona;
 
   hist.unshift({ role: "system", content: systemPrompt });
@@ -32,13 +33,15 @@ async function askAI(
 
   if (provider === "openai") return chatOpenAI(hist);
   if (provider === "gemini") return chatGemini(hist);
+  if (provider === "qwen") return chatQwen(hist);
   if (provider === "gptoss") return chatGptOss(hist);
   return chatGroq(hist);
 }
 
 function getNextProvider(current: ProviderType): ProviderType {
   if (current === "openai") return "gemini";
-  if (current === "gemini") return "gptoss";
+  if (current === "gemini") return "qwen";
+  if (current === "qwen") return "gptoss";
   if (current === "gptoss") return "llama";
   return "llama";
 }
@@ -72,6 +75,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         provider = "gemini";
       } 
       else if (err instanceof GroqRateLimitError || err instanceof GroqQuotaError) {
+        provider = "qwen";
+      }
+      else if (err instanceof QwenRateLimitError || err instanceof QwenQuotaError) {
         provider = "gptoss";
       }
       else if (err instanceof GptOssRateLimitError || err instanceof GptOssQuotaError) {
