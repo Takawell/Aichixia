@@ -10,6 +10,7 @@ import {
   FaCopy,
   FaRocket,
   FaChevronRight,
+  FaBrain,
 } from "react-icons/fa";
 import ThemeToggle from "@/components/ThemeToggle";
 import Link from "next/link";
@@ -112,7 +113,7 @@ export default function Docs() {
             </h1>
           </div>
           <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base lg:text-lg max-w-2xl mx-auto leading-relaxed px-4">
-            Centralized API for anime, manga, manhwa, manhua, and light novels. Powered by AniList + Gemini AI.
+            Centralized API for anime, manga, manhwa, manhua, and light novels. Powered by AniList database with multi-provider AI intelligence.
           </p>
           
           <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center items-center px-4">
@@ -151,12 +152,12 @@ export default function Docs() {
           <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-md border border-slate-200 dark:border-slate-700 hover:shadow-lg transition-shadow">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-                <FaComments className="text-purple-600 dark:text-purple-400" size={24} />
+                <FaBrain className="text-purple-600 dark:text-purple-400" size={24} />
               </div>
-              <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">AI Powered</h3>
+              <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">Multi-AI</h3>
             </div>
             <p className="text-slate-600 dark:text-slate-400 text-sm">
-              Smart recommendations and conversations powered by Gemini AI
+              Smart fallback system with OpenAI, Gemini, Qwen, GPT-OSS, and Llama
             </p>
           </div>
 
@@ -209,7 +210,28 @@ export default function Docs() {
               AI Chat
             </h2>
           </div>
-          <Row method="POST" path={`${base}/api/chat`} desc="AI-powered anime assistant with conversation memory" />
+          <Row method="POST" path={`${base}/api/chat`} desc="Tsundere AI assistant with multi-provider fallback (OpenAI → Gemini → Qwen → GPT-OSS → Llama)" />
+          
+          <div className="mt-6 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-5">
+            <h3 className="text-sm font-bold text-purple-800 dark:text-purple-300 mb-3 flex items-center gap-2">
+              <FaBrain size={16} />
+              AI Provider Chain
+            </h3>
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              <span className="px-3 py-1 bg-blue-500 text-white rounded-full font-semibold">OpenAI</span>
+              <FaChevronRight className="text-slate-400" size={10} />
+              <span className="px-3 py-1 bg-indigo-500 text-white rounded-full font-semibold">Gemini</span>
+              <FaChevronRight className="text-slate-400" size={10} />
+              <span className="px-3 py-1 bg-purple-500 text-white rounded-full font-semibold">Qwen</span>
+              <FaChevronRight className="text-slate-400" size={10} />
+              <span className="px-3 py-1 bg-pink-500 text-white rounded-full font-semibold">GPT-OSS</span>
+              <FaChevronRight className="text-slate-400" size={10} />
+              <span className="px-3 py-1 bg-rose-500 text-white rounded-full font-semibold">Llama</span>
+            </div>
+            <p className="text-xs text-slate-600 dark:text-slate-400 mt-3">
+              Automatic fallback ensures 99.9% uptime with intelligent provider switching on rate limits or quota exhaustion
+            </p>
+          </div>
         </section>
 
         <section className="mb-12">
@@ -252,6 +274,10 @@ export default function Docs() {
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-sky-500 mt-1">•</span>
+                <span><strong className="text-slate-900 dark:text-slate-100">Chat Persona:</strong> Default is tsundere, or send custom persona in POST body</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-sky-500 mt-1">•</span>
                 <span><strong className="text-slate-900 dark:text-slate-100">Rate Limit:</strong> Please be respectful with API usage</span>
               </li>
             </ul>
@@ -262,9 +288,9 @@ export default function Docs() {
           <div className="flex flex-col items-center gap-3 text-slate-500 dark:text-slate-400 text-sm">
             <div className="flex items-center gap-2">
               <FaTerminal size={16} />
-              <span>© {new Date().getFullYear()} Aichixia Anime-first AI Assistant</span>
+              <span>© {new Date().getFullYear()} Aichixia - Anime-first AI Assistant</span>
             </div>
-            <p className="text-xs">By Takawell</p>
+            <p className="text-xs">BY TAKAWELL</p>
           </div>
         </footer>
       </div>
