@@ -13,14 +13,6 @@ const SIMPLE_QUERIES = [
 
 type ProviderType = "openai" | "gemini" | "qwen" | "gptoss" | "llama";
 
-const FALLBACK_CHAIN: Record<ProviderType, ProviderType[]> = {
-  openai: ["gemini", "qwen", "gptoss", "llama"],
-  gemini: ["qwen", "gptoss", "llama", "openai"],
-  qwen: ["gptoss", "llama", "openai", "gemini"],
-  gptoss: ["llama", "openai", "gemini", "qwen"],
-  llama: ["openai", "gemini", "qwen", "gptoss"],
-};
-
 async function askAI(
   provider: ProviderType,
   msg: string,
@@ -46,31 +38,18 @@ async function askAI(
   return chatGroq(hist);
 }
 
-async function tryWithFallback(
-  startProvider: ProviderType,
-  message: string,
-  history: any[],
-  persona?: string
-): Promise<{ reply: string; provider: ProviderType }> {
-  const providers = [startProvider, ...FALLBACK_CHAIN[startProvider]];
-  const attemptedProviders = new Set<ProviderType>();
+function getNextProvider(current: ProviderType): ProviderType {
+  if (current === "openai") return "gemini";
+  if (current === "gemini") return "qwen";
+  if (current === "qwen") return "gptoss";
+  if (current === "gptoss") return "llama";
+  return "llama";
+}
 
-  for (const provider of providers) {
-    if (attemptedProviders.has(provider)) continue;
-    attemptedProviders.add(provider);
-
-    try {
-      console.log(`🔄 Trying provider: ${provider}`);
-      const result = await askAI(provider, message, history, persona);
-      console.log(`✅ Success with: ${provider}`);
-      return { reply: result.reply, provider };
-    } catch (err: any) {
-      console.log(`❌ Failed with ${provider}:`, err.message);
-      continue;
-    }
-  }
-
-  throw new Error("All providers failed");
+function getFallbackChain(startProvider: ProviderType): ProviderType[] {
+  const allProviders: ProviderType[] = ["openai", "gemini", "qwen", "gptoss", "llama"];
+  const startIndex = allProviders.indexOf(startProvider);
+  return [...allProviders.slice(startIndex), ...allProviders.slice(0, startIndex)];
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -79,48 +58,62 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const { message, history, persona, selectedProvider } = req.body as {
+    const { message, history, persona, preferredModel } = req.body as {
       message: string;
       history?: { role: "user" | "assistant" | "system"; content: string }[];
       persona?: string;
-      selectedProvider?: ProviderType;
+      preferredModel?: ProviderType;
     };
 
     if (!message || typeof message !== "string") {
       return res.status(400).json({ error: "Message is required" });
     }
 
-    let startProvider: ProviderType;
-    
-    if (selectedProvider) {
-      startProvider = selectedProvider;
+    let reply: string;
+    let provider: ProviderType;
+
+    if (preferredModel && ["openai", "gemini", "qwen", "gptoss", "llama"].includes(preferredModel)) {
+      provider = preferredModel;
     } else {
       const shouldUseGeminiFirst = SIMPLE_QUERIES.some(p => p.test(message));
-      startProvider = shouldUseGeminiFirst ? "gemini" : "openai";
+      provider = shouldUseGeminiFirst ? "gemini" : "openai";
     }
 
-    try {
-      const { reply, provider } = await tryWithFallback(
-        startProvider,
-        message,
-        history || [],
-        persona
-      );
+    const fallbackChain = getFallbackChain(provider);
+    let lastError: any = null;
 
-      return res.status(200).json({ 
-        type: "ai", 
-        reply, 
-        provider,
-        requestedProvider: selectedProvider || "auto" 
-      });
-    } catch (err: any) {
-      return res.status(500).json({ 
-        type: "ai",
-        reply: "Hmph! Everything is broken right now... I-I'll fix it later! B-baka!",
-        provider: null,
-        error: "All providers failed"
-      });
+    for (const currentProvider of fallbackChain) {
+      try {
+        const result = await askAI(currentProvider, message, history || [], persona);
+        reply = result.reply;
+        provider = currentProvider;
+        break;
+      } catch (err: any) {
+        lastError = err;
+        
+        if (
+          err instanceof OpenAIRateLimitError || 
+          err instanceof OpenAIQuotaError ||
+          err instanceof GroqRateLimitError || 
+          err instanceof GroqQuotaError ||
+          err instanceof QwenRateLimitError || 
+          err instanceof QwenQuotaError ||
+          err instanceof GptOssRateLimitError || 
+          err instanceof GptOssQuotaError
+        ) {
+          continue;
+        } else {
+          continue;
+        }
+      }
     }
+
+    if (!reply!) {
+      reply = "Hmph! Everything is broken right now... I-I'll fix it later! B-baka!";
+      provider = "llama";
+    }
+
+    return res.status(200).json({ type: "ai", reply, provider });
   } catch (err: any) {
     return res.status(500).json({ error: err.message || "Internal server error" });
   }
