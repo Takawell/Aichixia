@@ -38,10 +38,12 @@ async function askAI(
   return chatGroq(hist);
 }
 
-function getFallbackChain(startProvider: ProviderType): ProviderType[] {
-  const allProviders: ProviderType[] = ["openai", "gemini", "qwen", "gptoss", "llama"];
-  const startIndex = allProviders.indexOf(startProvider);
-  return [...allProviders.slice(startIndex), ...allProviders.slice(0, startIndex)];
+function getNextProvider(current: ProviderType): ProviderType {
+  if (current === "openai") return "gemini";
+  if (current === "gemini") return "qwen";
+  if (current === "qwen") return "gptoss";
+  if (current === "gptoss") return "llama";
+  return "llama";
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -50,49 +52,59 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const { message, history, persona, preferredModel } = req.body as {
+    const { message, history, persona } = req.body as {
       message: string;
       history?: { role: "user" | "assistant" | "system"; content: string }[];
       persona?: string;
-      preferredModel?: ProviderType;
     };
 
     if (!message || typeof message !== "string") {
       return res.status(400).json({ error: "Message is required" });
     }
 
-    let reply: string = "";
-    let usedProvider: ProviderType;
+    const shouldUseGeminiFirst = SIMPLE_QUERIES.some(p => p.test(message));
 
-    if (preferredModel && ["openai", "gemini", "qwen", "gptoss", "llama"].includes(preferredModel)) {
-      usedProvider = preferredModel;
-    } else {
-      const shouldUseGeminiFirst = SIMPLE_QUERIES.some(p => p.test(message));
-      usedProvider = shouldUseGeminiFirst ? "gemini" : "openai";
-    }
+    let reply: string;
+    let provider: ProviderType = shouldUseGeminiFirst ? "gemini" : "openai";
 
-    const fallbackChain = getFallbackChain(usedProvider);
+    try {
+      const result = await askAI(provider, message, history || [], persona);
+      reply = result.reply;
+    } catch (err: any) {
+      if (err instanceof OpenAIRateLimitError || err instanceof OpenAIQuotaError) {
+        provider = "gemini";
+      } 
+      else if (err instanceof GroqRateLimitError || err instanceof GroqQuotaError) {
+        provider = "qwen";
+      }
+      else if (err instanceof QwenRateLimitError || err instanceof QwenQuotaError) {
+        provider = "gptoss";
+      }
+      else if (err instanceof GptOssRateLimitError || err instanceof GptOssQuotaError) {
+        provider = "llama";
+      }
+      else {
+        provider = getNextProvider(provider);
+      }
 
-    for (const currentProvider of fallbackChain) {
       try {
-        const result = await askAI(currentProvider, message, history || [], persona);
+        const result = await askAI(provider, message, history || [], persona);
         reply = result.reply;
-        usedProvider = currentProvider;
-        break;
-      } catch (err: any) {
-        console.error(`[Provider ${currentProvider}] Error:`, err.message || err);
-        continue;
+      } catch {
+        const fallback: ProviderType = "llama";
+
+        try {
+          const result = await askAI(fallback, message, history || [], persona);
+          reply = result.reply;
+          provider = fallback;
+        } catch {
+          reply = "Hmph! Everything is broken right now... I-I'll fix it later! B-baka!";
+        }
       }
     }
 
-    if (!reply || reply === "") {
-      reply = "Hmph! Everything is broken right now... I-I'll fix it later! B-baka!";
-      usedProvider = fallbackChain[fallbackChain.length - 1];
-    }
-
-    return res.status(200).json({ type: "ai", reply, provider: usedProvider });
+    return res.status(200).json({ type: "ai", reply, provider });
   } catch (err: any) {
-    console.error("[Handler] Critical error:", err);
     return res.status(500).json({ error: err.message || "Internal server error" });
   }
 }
