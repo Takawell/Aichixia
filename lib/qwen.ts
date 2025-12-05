@@ -41,8 +41,8 @@ export async function chatQwen(
       headers: {
         "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
         "Content-Type": "application/json",
-        "HTTP-Referer": process.env.NEXT_PUBLIC_SITE_URL || "https://aichiow.com",
-        "X-Title": "Aichiow Chat",
+        "HTTP-Referer": process.env.NEXT_PUBLIC_SITE_URL || "https://aichixia.vercel.app",
+        "X-Title": "Aichixia Chat",
       },
       body: JSON.stringify({
         model: QWEN_MODEL,
