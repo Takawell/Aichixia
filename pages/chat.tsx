@@ -10,13 +10,7 @@ import {
   FaSmile,
   FaBriefcase,
   FaHeart,
-  FaCog,
-  FaRobot,
-  FaCheckCircle,
 } from "react-icons/fa";
-import { SiOpenai, SiGoogle } from "react-icons/si";
-import { BiChip } from "react-icons/bi";
-import { IoSparkles } from "react-icons/io5";
 import Link from "next/link";
 import ThemeToggle from "@/components/ThemeToggle";
 
@@ -28,8 +22,6 @@ type Message = {
 };
 
 type Persona = "tsundere" | "friendly" | "professional" | "kawaii";
-
-type ProviderType = "auto" | "openai" | "gemini" | "qwen" | "gptoss" | "llama";
 
 const personaConfig: Record<
   Persona,
@@ -61,60 +53,15 @@ const personaConfig: Record<
   },
 };
 
-const providerConfig: Record<
-  ProviderType,
-  { name: string; description: string; icon: any; color: string }
-> = {
-  auto: {
-    name: "Auto",
-    description: "Smart fallback system",
-    icon: IoSparkles,
-    color: "from-violet-500 to-purple-500",
-  },
-  openai: {
-    name: "OpenAI",
-    description: "GPT-4 powered responses",
-    icon: SiOpenai,
-    color: "from-emerald-500 to-teal-500",
-  },
-  gemini: {
-    name: "Gemini",
-    description: "Google's advanced AI",
-    icon: SiGoogle,
-    color: "from-blue-500 to-indigo-500",
-  },
-  qwen: {
-    name: "Qwen",
-    description: "Alibaba's language model",
-    icon: BiChip,
-    color: "from-orange-500 to-red-500",
-  },
-  gptoss: {
-    name: "GPT-OSS",
-    description: "Open source GPT variant",
-    icon: FaRobot,
-    color: "from-cyan-500 to-blue-500",
-  },
-  llama: {
-    name: "Llama",
-    description: "Meta's Llama via Groq",
-    icon: FaRobot,
-    color: "from-pink-500 to-rose-500",
-  },
-};
-
 export default function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [typing, setTyping] = useState(false);
   const [persona, setPersona] = useState<Persona>("tsundere");
-  const [selectedProvider, setSelectedProvider] = useState<ProviderType>("auto");
   const [showPersonaMenu, setShowPersonaMenu] = useState(false);
-  const [showProviderMenu, setShowProviderMenu] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -175,7 +122,6 @@ export default function Chat() {
             content: m.content,
           })),
           persona: persona === "tsundere" ? undefined : personaConfig[persona].description,
-          selectedProvider: selectedProvider === "auto" ? undefined : selectedProvider,
         }),
       });
 
@@ -227,19 +173,11 @@ export default function Chat() {
     if (!provider) return null;
 
     const colors: Record<string, string> = {
-      openai: "bg-emerald-500",
-      gemini: "bg-blue-500",
-      qwen: "bg-orange-500",
-      gptoss: "bg-cyan-500",
-      llama: "bg-pink-500",
-    };
-
-    const providerNames: Record<string, string> = {
-      openai: "OpenAI",
-      gemini: "Gemini",
-      qwen: "Qwen",
-      gptoss: "GPT-OSS",
-      llama: "Llama",
+      openai: "bg-blue-500",
+      gemini: "bg-indigo-500",
+      qwen: "bg-purple-500",
+      gptoss: "bg-pink-500",
+      llama: "bg-rose-500",
     };
 
     return (
@@ -248,13 +186,12 @@ export default function Chat() {
           colors[provider] || "bg-gray-500"
         }`}
       >
-        {providerNames[provider] || provider.toUpperCase()}
+        {provider.toUpperCase()}
       </span>
     );
   };
 
   const PersonaIcon = personaConfig[persona].icon;
-  const ProviderIcon = providerConfig[selectedProvider].icon;
 
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
@@ -295,69 +232,6 @@ export default function Chat() {
         </div>
 
         <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-          <div className="relative">
-            <button
-              onClick={() => setShowProviderMenu(!showProviderMenu)}
-              className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-gradient-to-r from-violet-100 to-purple-100 dark:from-violet-900/30 dark:to-purple-900/30 hover:from-violet-200 hover:to-purple-200 dark:hover:from-violet-900/50 dark:hover:to-purple-900/50 rounded-lg transition-all text-xs sm:text-sm font-semibold text-violet-700 dark:text-violet-300 border border-violet-200 dark:border-violet-800"
-            >
-              <ProviderIcon className="text-base sm:text-lg" />
-              <span className="hidden md:inline">{providerConfig[selectedProvider].name}</span>
-              <FaChevronDown
-                size={10}
-                className={`transition-transform hidden sm:block ${showProviderMenu ? "rotate-180" : ""}`}
-              />
-            </button>
-
-            {showProviderMenu && (
-              <>
-                <div 
-                  className="fixed inset-0 z-10" 
-                  onClick={() => setShowProviderMenu(false)}
-                />
-                <div className="absolute right-0 mt-2 w-64 sm:w-72 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden z-20">
-                  <div className="p-3 bg-gradient-to-r from-violet-500 to-purple-500 text-white">
-                    <div className="flex items-center gap-2">
-                      <FaCog className="text-lg" />
-                      <span className="font-bold text-sm">AI Model Selection</span>
-                    </div>
-                  </div>
-                  {(Object.keys(providerConfig) as ProviderType[]).map((p) => {
-                    const Icon = providerConfig[p].icon;
-                    return (
-                      <button
-                        key={p}
-                        onClick={() => {
-                          setSelectedProvider(p);
-                          setShowProviderMenu(false);
-                        }}
-                        className={`w-full px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-700 transition-all border-b border-slate-100 dark:border-slate-700 last:border-b-0 ${
-                          selectedProvider === p ? "bg-violet-50 dark:bg-violet-900/20" : ""
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className={`p-2 rounded-lg bg-gradient-to-r ${providerConfig[p].color} text-white shadow-sm`}>
-                            <Icon className="text-lg" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="font-semibold text-slate-800 dark:text-slate-200 text-sm flex items-center gap-2">
-                              {providerConfig[p].name}
-                              {selectedProvider === p && (
-                                <FaCheckCircle className="text-violet-500 text-xs" />
-                              )}
-                            </div>
-                            <div className="text-xs text-slate-500 dark:text-slate-400 truncate">
-                              {providerConfig[p].description}
-                            </div>
-                          </div>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </>
-            )}
-          </div>
-
           <div className="relative">
             <button
               onClick={() => setShowPersonaMenu(!showPersonaMenu)}
