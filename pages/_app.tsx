@@ -4,7 +4,7 @@ import { useEffect } from "react";
 
 export default function App({ Component, pageProps }: AppProps) {
   useEffect(() => {
-    const theme = localStorage.getItem("theme") || "light";
+    const theme = localStorage.getItem("theme") || "dark";
     if (theme === "dark") {
       document.documentElement.classList.add("dark");
     } else {
