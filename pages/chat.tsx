@@ -2,15 +2,14 @@ import { useState, useRef, useEffect } from "react";
 import {
   FaPaperPlane,
   FaTrash,
-  FaRobot,
   FaUser,
   FaHome,
   FaCircle,
-  FaCog,
-  FaSmile,
-  FaMoon,
-  FaSun,
   FaChevronDown,
+  FaAngry,
+  FaSmile,
+  FaBriefcase,
+  FaHeart,
 } from "react-icons/fa";
 import Link from "next/link";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -26,31 +25,31 @@ type Persona = "tsundere" | "friendly" | "professional" | "kawaii";
 
 const personaConfig: Record<
   Persona,
-  { name: string; description: string; color: string; emoji: string }
+  { name: string; description: string; color: string; icon: any }
 > = {
   tsundere: {
     name: "Tsundere Mode",
     description: "B-baka! Classic tsundere personality",
     color: "from-pink-500 to-rose-500",
-    emoji: "😤",
+    icon: FaAngry,
   },
   friendly: {
     name: "Friendly Mode",
     description: "Warm and welcoming assistant",
     color: "from-green-500 to-emerald-500",
-    emoji: "😊",
+    icon: FaSmile,
   },
   professional: {
     name: "Professional Mode",
     description: "Formal and efficient helper",
     color: "from-blue-500 to-indigo-500",
-    emoji: "💼",
+    icon: FaBriefcase,
   },
   kawaii: {
     name: "Kawaii Mode",
     description: "Super cute and energetic!",
     color: "from-purple-500 to-pink-500",
-    emoji: "🌸",
+    icon: FaHeart,
   },
 };
 
@@ -63,7 +62,6 @@ export default function Chat() {
   const [showPersonaMenu, setShowPersonaMenu] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -146,7 +144,7 @@ export default function Chat() {
     } catch (error: any) {
       const errorMessage: Message = {
         role: "assistant",
-        content: "Gomen! Something went wrong... Please try again! 🙇‍♀️",
+        content: "Gomen! Something went wrong... Please try again!",
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMessage]);
@@ -193,6 +191,8 @@ export default function Chat() {
     );
   };
 
+  const PersonaIcon = personaConfig[persona].icon;
+
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
       <header className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg border-b border-slate-200 dark:border-slate-700 px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between shadow-sm sticky top-0 z-10">
@@ -225,7 +225,7 @@ export default function Chat() {
               </h1>
               <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-slate-500 dark:text-slate-400">
                 <FaCircle size={5} className="text-emerald-500 animate-pulse flex-shrink-0" />
-                <span className="truncate">Online • Multi-AI Assistant</span>
+                <span className="truncate">Online Multi-AI Assistant</span>
               </div>
             </div>
           </div>
@@ -237,7 +237,7 @@ export default function Chat() {
               onClick={() => setShowPersonaMenu(!showPersonaMenu)}
               className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition-all text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300"
             >
-              <span className="text-base sm:text-lg">{personaConfig[persona].emoji}</span>
+              <PersonaIcon className="text-base sm:text-lg" />
               <span className="hidden md:inline">{personaConfig[persona].name.split(" ")[0]}</span>
               <FaChevronDown
                 size={10}
@@ -252,33 +252,36 @@ export default function Chat() {
                   onClick={() => setShowPersonaMenu(false)}
                 />
                 <div className="absolute right-0 mt-2 w-56 sm:w-64 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden z-20">
-                  {(Object.keys(personaConfig) as Persona[]).map((p) => (
-                    <button
-                      key={p}
-                      onClick={() => {
-                        setPersona(p);
-                        setShowPersonaMenu(false);
-                      }}
-                      className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors border-b border-slate-100 dark:border-slate-700 last:border-b-0 ${
-                        persona === p ? "bg-sky-50 dark:bg-sky-900/20" : ""
-                      }`}
-                    >
-                      <div className="flex items-center gap-2 sm:gap-3">
-                        <span className="text-xl sm:text-2xl flex-shrink-0">{personaConfig[p].emoji}</span>
-                        <div className="flex-1 min-w-0">
-                          <div className="font-semibold text-slate-800 dark:text-slate-200 text-xs sm:text-sm truncate">
-                            {personaConfig[p].name}
+                  {(Object.keys(personaConfig) as Persona[]).map((p) => {
+                    const Icon = personaConfig[p].icon;
+                    return (
+                      <button
+                        key={p}
+                        onClick={() => {
+                          setPersona(p);
+                          setShowPersonaMenu(false);
+                        }}
+                        className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors border-b border-slate-100 dark:border-slate-700 last:border-b-0 ${
+                          persona === p ? "bg-sky-50 dark:bg-sky-900/20" : ""
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 sm:gap-3">
+                          <Icon className="text-xl sm:text-2xl flex-shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <div className="font-semibold text-slate-800 dark:text-slate-200 text-xs sm:text-sm truncate">
+                              {personaConfig[p].name}
+                            </div>
+                            <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 truncate">
+                              {personaConfig[p].description}
+                            </div>
                           </div>
-                          <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 truncate">
-                            {personaConfig[p].description}
-                          </div>
+                          {persona === p && (
+                            <FaCircle size={6} className="text-sky-500 flex-shrink-0" />
+                          )}
                         </div>
-                        {persona === p && (
-                          <FaCircle size={6} className="text-sky-500 flex-shrink-0" />
-                        )}
-                      </div>
-                    </button>
-                  ))}
+                      </button>
+                    );
+                  })}
                 </div>
               </>
             )}
@@ -306,8 +309,8 @@ export default function Chat() {
               alt="Aichixia"
               className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-sky-400 dark:border-sky-500 shadow-lg mb-4 sm:mb-6 animate-bounce"
             />
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-800 dark:text-slate-200 mb-2 sm:mb-3">
-              Konnichiwa! I'm Aichixia! 👋
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-800 dark:text-slate-200 mb-2 sm:mb-3 flex items-center justify-center gap-2">
+              Konnichiwa! I'm Aichixia! <FaHeart className="text-pink-500" />
             </h2>
             <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 max-w-md mb-4 sm:mb-6">
               Your anime-loving AI assistant powered by multiple AI providers. Ask me anything
@@ -411,33 +414,33 @@ export default function Chat() {
 
       <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg border-t border-slate-200 dark:border-slate-700 px-3 sm:px-4 py-3 sm:py-4">
         <div className="max-w-4xl mx-auto">
-          <div className="flex gap-2 items-end">
-            <div className="flex-1 relative">
-              <textarea
-                ref={inputRef}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Type your message..."
-                disabled={loading}
-                rows={1}
-                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-100 dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 focus:border-sky-400 dark:focus:border-sky-500 rounded-xl resize-none outline-none text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm sm:text-base max-h-32"
-                style={{
-                  minHeight: "44px",
-                  height: "auto",
-                }}
-                onInput={(e) => {
-                  const target = e.target as HTMLTextAreaElement;
-                  target.style.height = "44px";
-                  target.style.height = Math.min(target.scrollHeight, 128) + "px";
-                }}
-              />
-            </div>
+          <div className="flex gap-2 items-stretch">
+            <textarea
+              ref={inputRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Type your message..."
+              disabled={loading}
+              rows={1}
+              className="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-100 dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 focus:border-sky-400 dark:focus:border-sky-500 rounded-xl resize-none outline-none text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm sm:text-base max-h-32"
+              style={{
+                minHeight: "46px",
+              }}
+              onInput={(e) => {
+                const target = e.target as HTMLTextAreaElement;
+                target.style.height = "46px";
+                target.style.height = Math.min(target.scrollHeight, 128) + "px";
+              }}
+            />
 
             <button
               onClick={handleSend}
               disabled={!input.trim() || loading}
-              className="px-3 sm:px-4 md:px-5 h-[44px] bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 disabled:from-slate-300 disabled:to-slate-400 dark:disabled:from-slate-600 dark:disabled:to-slate-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl disabled:shadow-none transition-all disabled:cursor-not-allowed flex items-center justify-center gap-2 group flex-shrink-0"
+              className="px-4 sm:px-5 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 disabled:from-slate-300 disabled:to-slate-400 dark:disabled:from-slate-600 dark:disabled:to-slate-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl disabled:shadow-none transition-all disabled:cursor-not-allowed flex items-center justify-center gap-2 group flex-shrink-0"
+              style={{
+                minHeight: "46px",
+              }}
             >
               <span className="hidden sm:inline text-sm md:text-base">Send</span>
               <FaPaperPlane
