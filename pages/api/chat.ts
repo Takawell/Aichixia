@@ -46,61 +46,71 @@ function getNextProvider(current: ProviderType): ProviderType {
   return "llama";
 }
 
+function getFallbackChain(startProvider: ProviderType): ProviderType[] {
+  const allProviders: ProviderType[] = ["openai", "gemini", "qwen", "gptoss", "llama"];
+  const startIndex = allProviders.indexOf(startProvider);
+  return [...allProviders.slice(startIndex), ...allProviders.slice(0, startIndex)];
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
-    const { message, history, persona } = req.body as {
+    const { message, history, persona, preferredModel } = req.body as {
       message: string;
       history?: { role: "user" | "assistant" | "system"; content: string }[];
       persona?: string;
+      preferredModel?: ProviderType;
     };
 
     if (!message || typeof message !== "string") {
       return res.status(400).json({ error: "Message is required" });
     }
 
-    const shouldUseGeminiFirst = SIMPLE_QUERIES.some(p => p.test(message));
-
     let reply: string;
-    let provider: ProviderType = shouldUseGeminiFirst ? "gemini" : "openai";
+    let provider: ProviderType;
 
-    try {
-      const result = await askAI(provider, message, history || [], persona);
-      reply = result.reply;
-    } catch (err: any) {
-      if (err instanceof OpenAIRateLimitError || err instanceof OpenAIQuotaError) {
-        provider = "gemini";
-      } 
-      else if (err instanceof GroqRateLimitError || err instanceof GroqQuotaError) {
-        provider = "qwen";
-      }
-      else if (err instanceof QwenRateLimitError || err instanceof QwenQuotaError) {
-        provider = "gptoss";
-      }
-      else if (err instanceof GptOssRateLimitError || err instanceof GptOssQuotaError) {
-        provider = "llama";
-      }
-      else {
-        provider = getNextProvider(provider);
-      }
+    if (preferredModel && ["openai", "gemini", "qwen", "gptoss", "llama"].includes(preferredModel)) {
+      provider = preferredModel;
+    } else {
+      const shouldUseGeminiFirst = SIMPLE_QUERIES.some(p => p.test(message));
+      provider = shouldUseGeminiFirst ? "gemini" : "openai";
+    }
 
+    const fallbackChain = getFallbackChain(provider);
+    let lastError: any = null;
+
+    for (const currentProvider of fallbackChain) {
       try {
-        const result = await askAI(provider, message, history || [], persona);
+        const result = await askAI(currentProvider, message, history || [], persona);
         reply = result.reply;
-      } catch {
-        const fallback: ProviderType = "llama";
-
-        try {
-          const result = await askAI(fallback, message, history || [], persona);
-          reply = result.reply;
-          provider = fallback;
-        } catch {
-          reply = "Hmph! Everything is broken right now... I-I'll fix it later! B-baka!";
+        provider = currentProvider;
+        break;
+      } catch (err: any) {
+        lastError = err;
+        
+        if (
+          err instanceof OpenAIRateLimitError || 
+          err instanceof OpenAIQuotaError ||
+          err instanceof GroqRateLimitError || 
+          err instanceof GroqQuotaError ||
+          err instanceof QwenRateLimitError || 
+          err instanceof QwenQuotaError ||
+          err instanceof GptOssRateLimitError || 
+          err instanceof GptOssQuotaError
+        ) {
+          continue;
+        } else {
+          continue;
         }
       }
+    }
+
+    if (!reply!) {
+      reply = "Hmph! Everything is broken right now... I-I'll fix it later! B-baka!";
+      provider = "llama";
     }
 
     return res.status(200).json({ type: "ai", reply, provider });
