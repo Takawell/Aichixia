@@ -11,72 +11,69 @@ export default function ThemeToggle() {
   useEffect(() => {
     const stored = localStorage.getItem("theme")
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches
-    const darkMode = stored === "dark" || (!stored && prefersDark === true)
-
-    setIsDark(darkMode)
-    document.documentElement.classList.toggle("dark", darkMode)
-
+    const dark = stored === "dark" || (!stored && prefersDark)
+    setIsDark(dark)
+    document.documentElement.classList.toggle("dark", dark)
     setMounted(true)
   }, [])
 
-  const toggleTheme = () => {
-    const newDark = !isDark
-
-    setIsDark(newDark)
-    localStorage.setItem("theme", newDark ? "dark" : "light")
-    document.documentElement.classList.toggle("dark", newDark)
+  const toggle = () => {
+    const next = isDark ? "light" : "dark"
+    document.documentElement.classList.toggle("dark", !isDark)
+    localStorage.setItem("theme", next)
+    setIsDark(!isDark)
   }
 
   if (!mounted) return null
 
   return (
     <motion.button
-      onClick={toggleTheme}
-      aria-label="Toggle theme"
-      className="relative flex items-center justify-center w-11 h-11 rounded-full 
-      bg-gradient-to-tr 
-      from-neutral-900 to-neutral-700 
-      dark:from-neutral-200 dark:to-white 
-      shadow-md hover:shadow-lg transition-all duration-300
-      overflow-hidden"
+      onClick={toggle}
+      aria-label="theme toggle"
+      className="relative flex items-center justify-center w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-neutral-100 to-neutral-300 dark:from-neutral-800 dark:to-neutral-900 shadow-md transition-all duration-500 hover:shadow-xl"
       whileTap={{ scale: 0.9 }}
     >
       <motion.span
-        key={isDark ? "dark" : "light"}
-        initial={{ scale: 0, opacity: 0.4 }}
-        animate={{ scale: [0, 1.3, 1], opacity: [0.4, 0.15, 0] }}
+        key={isDark ? "dark-bg" : "light-bg"}
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ opacity: 0.15, scale: 2 }}
         transition={{ duration: 0.8 }}
-        className="absolute inset-0 rounded-full 
-        bg-gradient-to-r 
-        from-yellow-400 to-pink-400 
-        dark:from-blue-400 dark:to-purple-500"
+        className="absolute inset-0 rounded-full bg-gradient-to-r from-yellow-300 to-pink-400 dark:from-blue-500 dark:to-purple-600"
       />
 
       <AnimatePresence mode="wait" initial={false}>
         {isDark ? (
           <motion.span
             key="sun"
-            initial={{ rotate: -90, opacity: 0, scale: 0.5 }}
+            initial={{ rotate: -120, opacity: 0, scale: 0.6 }}
             animate={{ rotate: 0, opacity: 1, scale: 1 }}
-            exit={{ rotate: 90, opacity: 0, scale: 0.5 }}
-            transition={{ duration: 0.3 }}
-            className="text-yellow-400"
+            exit={{ rotate: 120, opacity: 0, scale: 0.6 }}
+            transition={{ duration: 0.35 }}
+            className="relative z-10 text-yellow-400"
           >
-            <Sun size={22} />
+            <Sun size={24} />
           </motion.span>
         ) : (
           <motion.span
             key="moon"
-            initial={{ rotate: 90, opacity: 0, scale: 0.5 }}
+            initial={{ rotate: 120, opacity: 0, scale: 0.6 }}
             animate={{ rotate: 0, opacity: 1, scale: 1 }}
-            exit={{ rotate: -90, opacity: 0, scale: 0.5 }}
-            transition={{ duration: 0.3 }}
-            className="text-blue-600"
+            exit={{ rotate: -120, opacity: 0, scale: 0.6 }}
+            transition={{ duration: 0.35 }}
+            className="relative z-10 text-blue-600"
           >
             <Moon size={22} />
           </motion.span>
         )}
       </AnimatePresence>
+
+      <motion.div
+        key={isDark ? "glow-dark" : "glow-light"}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.4 }}
+        transition={{ duration: 0.9 }}
+        className="absolute inset-0 blur-xl rounded-full pointer-events-none bg-gradient-to-br from-yellow-300/40 to-pink-400/40 dark:from-blue-600/40 dark:to-purple-600/40"
+      />
     </motion.button>
   )
 }
