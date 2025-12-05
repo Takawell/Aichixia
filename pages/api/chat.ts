@@ -13,6 +13,14 @@ const SIMPLE_QUERIES = [
 
 type ProviderType = "openai" | "gemini" | "qwen" | "gptoss" | "llama";
 
+const FALLBACK_CHAIN: Record<ProviderType, ProviderType[]> = {
+  openai: ["gemini", "qwen", "gptoss", "llama"],
+  gemini: ["qwen", "gptoss", "llama", "openai"],
+  qwen: ["gptoss", "llama", "openai", "gemini"],
+  gptoss: ["llama", "openai", "gemini", "qwen"],
+  llama: ["openai", "gemini", "qwen", "gptoss"],
+};
+
 async function askAI(
   provider: ProviderType,
   msg: string,
@@ -38,12 +46,31 @@ async function askAI(
   return chatGroq(hist);
 }
 
-function getNextProvider(current: ProviderType): ProviderType {
-  if (current === "openai") return "gemini";
-  if (current === "gemini") return "qwen";
-  if (current === "qwen") return "gptoss";
-  if (current === "gptoss") return "llama";
-  return "llama";
+async function tryWithFallback(
+  startProvider: ProviderType,
+  message: string,
+  history: any[],
+  persona?: string
+): Promise<{ reply: string; provider: ProviderType }> {
+  const providers = [startProvider, ...FALLBACK_CHAIN[startProvider]];
+  const attemptedProviders = new Set<ProviderType>();
+
+  for (const provider of providers) {
+    if (attemptedProviders.has(provider)) continue;
+    attemptedProviders.add(provider);
+
+    try {
+      console.log(`🔄 Trying provider: ${provider}`);
+      const result = await askAI(provider, message, history, persona);
+      console.log(`✅ Success with: ${provider}`);
+      return { reply: result.reply, provider };
+    } catch (err: any) {
+      console.log(`❌ Failed with ${provider}:`, err.message);
+      continue;
+    }
+  }
+
+  throw new Error("All providers failed");
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -52,58 +79,48 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const { message, history, persona } = req.body as {
+    const { message, history, persona, selectedProvider } = req.body as {
       message: string;
       history?: { role: "user" | "assistant" | "system"; content: string }[];
       persona?: string;
+      selectedProvider?: ProviderType;
     };
 
     if (!message || typeof message !== "string") {
       return res.status(400).json({ error: "Message is required" });
     }
 
-    const shouldUseGeminiFirst = SIMPLE_QUERIES.some(p => p.test(message));
-
-    let reply: string;
-    let provider: ProviderType = shouldUseGeminiFirst ? "gemini" : "openai";
-
-    try {
-      const result = await askAI(provider, message, history || [], persona);
-      reply = result.reply;
-    } catch (err: any) {
-      if (err instanceof OpenAIRateLimitError || err instanceof OpenAIQuotaError) {
-        provider = "gemini";
-      } 
-      else if (err instanceof GroqRateLimitError || err instanceof GroqQuotaError) {
-        provider = "qwen";
-      }
-      else if (err instanceof QwenRateLimitError || err instanceof QwenQuotaError) {
-        provider = "gptoss";
-      }
-      else if (err instanceof GptOssRateLimitError || err instanceof GptOssQuotaError) {
-        provider = "llama";
-      }
-      else {
-        provider = getNextProvider(provider);
-      }
-
-      try {
-        const result = await askAI(provider, message, history || [], persona);
-        reply = result.reply;
-      } catch {
-        const fallback: ProviderType = "llama";
-
-        try {
-          const result = await askAI(fallback, message, history || [], persona);
-          reply = result.reply;
-          provider = fallback;
-        } catch {
-          reply = "Hmph! Everything is broken right now... I-I'll fix it later! B-baka!";
-        }
-      }
+    let startProvider: ProviderType;
+    
+    if (selectedProvider) {
+      startProvider = selectedProvider;
+    } else {
+      const shouldUseGeminiFirst = SIMPLE_QUERIES.some(p => p.test(message));
+      startProvider = shouldUseGeminiFirst ? "gemini" : "openai";
     }
 
-    return res.status(200).json({ type: "ai", reply, provider });
+    try {
+      const { reply, provider } = await tryWithFallback(
+        startProvider,
+        message,
+        history || [],
+        persona
+      );
+
+      return res.status(200).json({ 
+        type: "ai", 
+        reply, 
+        provider,
+        requestedProvider: selectedProvider || "auto" 
+      });
+    } catch (err: any) {
+      return res.status(500).json({ 
+        type: "ai",
+        reply: "Hmph! Everything is broken right now... I-I'll fix it later! B-baka!",
+        provider: null,
+        error: "All providers failed"
+      });
+    }
   } catch (err: any) {
     return res.status(500).json({ error: err.message || "Internal server error" });
   }
