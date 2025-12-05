@@ -10,13 +10,11 @@ import {
   FaSmile,
   FaBriefcase,
   FaHeart,
-  FaCog,
+  FaBrain,
   FaRobot,
-  FaCheckCircle,
+  FaCog,
 } from "react-icons/fa";
-import { SiOpenai, SiGoogle } from "react-icons/si";
-import { BiChip } from "react-icons/bi";
-import { IoSparkles } from "react-icons/io5";
+import { SiOpenai } from "react-icons/si";
 import Link from "next/link";
 import ThemeToggle from "@/components/ThemeToggle";
 
@@ -28,8 +26,7 @@ type Message = {
 };
 
 type Persona = "tsundere" | "friendly" | "professional" | "kawaii";
-
-type ProviderType = "auto" | "openai" | "gemini" | "qwen" | "gptoss" | "llama";
+type ModelType = "auto" | "openai" | "gemini" | "qwen" | "gptoss" | "llama";
 
 const personaConfig: Record<
   Persona,
@@ -61,45 +58,45 @@ const personaConfig: Record<
   },
 };
 
-const providerConfig: Record<
-  ProviderType,
-  { name: string; description: string; icon: any; color: string }
+const modelConfig: Record<
+  ModelType,
+  { name: string; description: string; color: string; icon: any }
 > = {
   auto: {
-    name: "Auto",
-    description: "Smart fallback system",
-    icon: IoSparkles,
-    color: "from-violet-500 to-purple-500",
+    name: "Auto Select",
+    description: "Smart model selection with fallback",
+    color: "from-purple-500 to-pink-500",
+    icon: FaBrain,
   },
   openai: {
     name: "OpenAI",
-    description: "GPT-4 powered responses",
+    description: "GPT-4 - Most capable & intelligent",
+    color: "from-green-500 to-emerald-500",
     icon: SiOpenai,
-    color: "from-emerald-500 to-teal-500",
   },
   gemini: {
     name: "Gemini",
-    description: "Google's advanced AI",
-    icon: SiGoogle,
+    description: "Google's AI - Fast & efficient",
     color: "from-blue-500 to-indigo-500",
+    icon: FaRobot,
   },
   qwen: {
     name: "Qwen",
-    description: "Alibaba's language model",
-    icon: BiChip,
-    color: "from-orange-500 to-red-500",
+    description: "Alibaba's model - Balanced",
+    color: "from-purple-500 to-violet-500",
+    icon: FaCog,
   },
   gptoss: {
     name: "GPT-OSS",
-    description: "Open source GPT variant",
+    description: "Open source - Reliable",
+    color: "from-pink-500 to-rose-500",
     icon: FaRobot,
-    color: "from-cyan-500 to-blue-500",
   },
   llama: {
     name: "Llama",
-    description: "Meta's Llama via Groq",
+    description: "Meta's AI - Always available",
+    color: "from-orange-500 to-red-500",
     icon: FaRobot,
-    color: "from-pink-500 to-rose-500",
   },
 };
 
@@ -109,12 +106,11 @@ export default function Chat() {
   const [loading, setLoading] = useState(false);
   const [typing, setTyping] = useState(false);
   const [persona, setPersona] = useState<Persona>("tsundere");
-  const [selectedProvider, setSelectedProvider] = useState<ProviderType>("auto");
+  const [selectedModel, setSelectedModel] = useState<ModelType>("auto");
   const [showPersonaMenu, setShowPersonaMenu] = useState(false);
-  const [showProviderMenu, setShowProviderMenu] = useState(false);
+  const [showModelMenu, setShowModelMenu] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -125,6 +121,7 @@ export default function Chat() {
 
   useEffect(() => {
     const savedMessages = localStorage.getItem("aichixia-chat-history");
+    const savedModel = localStorage.getItem("aichixia-selected-model");
     if (savedMessages) {
       try {
         const parsed = JSON.parse(savedMessages);
@@ -138,6 +135,9 @@ export default function Chat() {
         console.error("Failed to load chat history");
       }
     }
+    if (savedModel && savedModel !== "auto") {
+      setSelectedModel(savedModel as ModelType);
+    }
   }, []);
 
   useEffect(() => {
@@ -145,6 +145,10 @@ export default function Chat() {
       localStorage.setItem("aichixia-chat-history", JSON.stringify(messages));
     }
   }, [messages]);
+
+  useEffect(() => {
+    localStorage.setItem("aichixia-selected-model", selectedModel);
+  }, [selectedModel]);
 
   const handleSend = async () => {
     if (!input.trim() || loading) return;
@@ -175,7 +179,7 @@ export default function Chat() {
             content: m.content,
           })),
           persona: persona === "tsundere" ? undefined : personaConfig[persona].description,
-          selectedProvider: selectedProvider === "auto" ? undefined : selectedProvider,
+          preferredModel: selectedModel === "auto" ? undefined : selectedModel,
         }),
       });
 
@@ -227,19 +231,11 @@ export default function Chat() {
     if (!provider) return null;
 
     const colors: Record<string, string> = {
-      openai: "bg-emerald-500",
+      openai: "bg-green-500",
       gemini: "bg-blue-500",
-      qwen: "bg-orange-500",
-      gptoss: "bg-cyan-500",
-      llama: "bg-pink-500",
-    };
-
-    const providerNames: Record<string, string> = {
-      openai: "OpenAI",
-      gemini: "Gemini",
-      qwen: "Qwen",
-      gptoss: "GPT-OSS",
-      llama: "Llama",
+      qwen: "bg-purple-500",
+      gptoss: "bg-pink-500",
+      llama: "bg-orange-500",
     };
 
     return (
@@ -248,13 +244,13 @@ export default function Chat() {
           colors[provider] || "bg-gray-500"
         }`}
       >
-        {providerNames[provider] || provider.toUpperCase()}
+        {provider.toUpperCase()}
       </span>
     );
   };
 
   const PersonaIcon = personaConfig[persona].icon;
-  const ProviderIcon = providerConfig[selectedProvider].icon;
+  const ModelIcon = modelConfig[selectedModel].icon;
 
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
@@ -288,7 +284,7 @@ export default function Chat() {
               </h1>
               <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-slate-500 dark:text-slate-400">
                 <FaCircle size={5} className="text-emerald-500 animate-pulse flex-shrink-0" />
-                <span className="truncate">Online Multi-AI Assistant</span>
+                <span className="truncate">Online • Multi-AI Assistant</span>
               </div>
             </div>
           </div>
@@ -297,58 +293,50 @@ export default function Chat() {
         <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
           <div className="relative">
             <button
-              onClick={() => setShowProviderMenu(!showProviderMenu)}
-              className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-gradient-to-r from-violet-100 to-purple-100 dark:from-violet-900/30 dark:to-purple-900/30 hover:from-violet-200 hover:to-purple-200 dark:hover:from-violet-900/50 dark:hover:to-purple-900/50 rounded-lg transition-all text-xs sm:text-sm font-semibold text-violet-700 dark:text-violet-300 border border-violet-200 dark:border-violet-800"
+              onClick={() => setShowModelMenu(!showModelMenu)}
+              className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 hover:from-purple-200 hover:to-pink-200 dark:hover:from-purple-900/50 dark:hover:to-pink-900/50 rounded-lg transition-all text-xs sm:text-sm font-semibold text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-700"
             >
-              <ProviderIcon className="text-base sm:text-lg" />
-              <span className="hidden md:inline">{providerConfig[selectedProvider].name}</span>
+              <ModelIcon className="text-base sm:text-lg" />
+              <span className="hidden lg:inline">{modelConfig[selectedModel].name}</span>
               <FaChevronDown
                 size={10}
-                className={`transition-transform hidden sm:block ${showProviderMenu ? "rotate-180" : ""}`}
+                className={`transition-transform hidden sm:block ${showModelMenu ? "rotate-180" : ""}`}
               />
             </button>
 
-            {showProviderMenu && (
+            {showModelMenu && (
               <>
                 <div 
                   className="fixed inset-0 z-10" 
-                  onClick={() => setShowProviderMenu(false)}
+                  onClick={() => setShowModelMenu(false)}
                 />
-                <div className="absolute right-0 mt-2 w-64 sm:w-72 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden z-20">
-                  <div className="p-3 bg-gradient-to-r from-violet-500 to-purple-500 text-white">
-                    <div className="flex items-center gap-2">
-                      <FaCog className="text-lg" />
-                      <span className="font-bold text-sm">AI Model Selection</span>
-                    </div>
-                  </div>
-                  {(Object.keys(providerConfig) as ProviderType[]).map((p) => {
-                    const Icon = providerConfig[p].icon;
+                <div className="absolute right-0 mt-2 w-64 sm:w-72 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden z-20">
+                  {(Object.keys(modelConfig) as ModelType[]).map((m) => {
+                    const Icon = modelConfig[m].icon;
                     return (
                       <button
-                        key={p}
+                        key={m}
                         onClick={() => {
-                          setSelectedProvider(p);
-                          setShowProviderMenu(false);
+                          setSelectedModel(m);
+                          setShowModelMenu(false);
                         }}
-                        className={`w-full px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-700 transition-all border-b border-slate-100 dark:border-slate-700 last:border-b-0 ${
-                          selectedProvider === p ? "bg-violet-50 dark:bg-violet-900/20" : ""
+                        className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors border-b border-slate-100 dark:border-slate-700 last:border-b-0 ${
+                          selectedModel === m ? "bg-purple-50 dark:bg-purple-900/20" : ""
                         }`}
                       >
-                        <div className="flex items-center gap-3">
-                          <div className={`p-2 rounded-lg bg-gradient-to-r ${providerConfig[p].color} text-white shadow-sm`}>
-                            <Icon className="text-lg" />
-                          </div>
+                        <div className="flex items-center gap-2 sm:gap-3">
+                          <Icon className="text-xl sm:text-2xl flex-shrink-0" />
                           <div className="flex-1 min-w-0">
-                            <div className="font-semibold text-slate-800 dark:text-slate-200 text-sm flex items-center gap-2">
-                              {providerConfig[p].name}
-                              {selectedProvider === p && (
-                                <FaCheckCircle className="text-violet-500 text-xs" />
-                              )}
+                            <div className="font-semibold text-slate-800 dark:text-slate-200 text-xs sm:text-sm truncate">
+                              {modelConfig[m].name}
                             </div>
-                            <div className="text-xs text-slate-500 dark:text-slate-400 truncate">
-                              {providerConfig[p].description}
+                            <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 truncate">
+                              {modelConfig[m].description}
                             </div>
                           </div>
+                          {selectedModel === m && (
+                            <FaCircle size={6} className="text-purple-500 flex-shrink-0" />
+                          )}
                         </div>
                       </button>
                     );
@@ -438,10 +426,18 @@ export default function Chat() {
             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-800 dark:text-slate-200 mb-2 sm:mb-3 flex items-center justify-center gap-2">
               Konnichiwa! I'm Aichixia! <FaHeart className="text-pink-500" />
             </h2>
-            <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 max-w-md mb-4 sm:mb-6">
+            <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 max-w-md mb-2">
               Your anime-loving AI assistant powered by multiple AI providers. Ask me anything
               about anime, manga, or just chat!
             </p>
+            <div className="flex items-center gap-2 mb-4 sm:mb-6 text-xs sm:text-sm">
+              <span className="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full font-semibold">
+                Model: {modelConfig[selectedModel].name}
+              </span>
+              <span className="px-3 py-1 bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300 rounded-full font-semibold">
+                {personaConfig[persona].name}
+              </span>
+            </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 max-w-2xl w-full">
               {[
