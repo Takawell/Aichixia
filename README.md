@@ -14,7 +14,7 @@
 
 ---
 
-## 💫 Overview
+## Overview
 
 **Aichixia 4.5** is a production-ready API platform that combines artificial intelligence with comprehensive anime data services. Built on Next.js and TypeScript, it serves as the intelligent backend for anime, manga, manhwa, manhua, and light novel applications.
 
@@ -26,7 +26,7 @@ The platform consists of two complementary API surfaces:
 
 ---
 
-## ✨ Core Capabilities
+## Core Capabilities
 
 <table>
 <tr>
@@ -55,7 +55,7 @@ POST /api/chat
 </td>
 <td width="50%">
 
-### 📊 **Data Services**
+### **Data Services**
 ```http
 GET /api/aichixia
 ```
@@ -86,7 +86,7 @@ Experience Aichixia's tsundere personality in action:
 
 ![Chat Playground](https://github.com/user-attachments/assets/190167cc-fa65-4bbf-ab11-76cfc6e8734d)
 
-**Try it live:** [aichixia.vercel.app/playground](https://aichixia.vercel.app/chat)
+**Try it live:** [aichixia.vercel.app/chat](https://aichixia.vercel.app/chat)
 
 </div>
 
