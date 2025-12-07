@@ -1,9 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { chatGemini } from "@/lib/gemini";
 import { chatOpenAI, OpenAIRateLimitError, OpenAIQuotaError } from "@/lib/openai";
-import { chatGroq, GroqRateLimitError, GroqQuotaError } from "@/lib/groq";
-import { chatGptOss, GptOssRateLimitError, GptOssQuotaError } from "@/lib/gpt-oss";
+import { chatDeepSeek, DeepSeekRateLimitError, DeepSeekQuotaError } from "@/lib/deepseek";
 import { chatQwen, QwenRateLimitError, QwenQuotaError } from "@/lib/qwen";
+import { chatGptOss, GptOssRateLimitError, GptOssQuotaError } from "@/lib/gpt-oss";
+import { chatGroq, GroqRateLimitError, GroqQuotaError } from "@/lib/groq";
 
 const SIMPLE_QUERIES = [
   /hello|hi|hey|halo/i,
@@ -11,7 +12,7 @@ const SIMPLE_QUERIES = [
   /thank|thanks|terima kasih/i,
 ];
 
-type ProviderType = "openai" | "gemini" | "qwen" | "gptoss" | "llama";
+type ProviderType = "openai" | "gemini" | "deepseek" | "qwen" | "gptoss" | "llama";
 
 async function askAI(
   provider: ProviderType,
@@ -33,6 +34,7 @@ async function askAI(
 
   if (provider === "openai") return chatOpenAI(hist);
   if (provider === "gemini") return chatGemini(hist);
+  if (provider === "deepseek") return chatDeepSeek(hist);
   if (provider === "qwen") return chatQwen(hist);
   if (provider === "gptoss") return chatGptOss(hist);
   return chatGroq(hist);
@@ -40,7 +42,8 @@ async function askAI(
 
 function getNextProvider(current: ProviderType): ProviderType {
   if (current === "openai") return "gemini";
-  if (current === "gemini") return "qwen";
+  if (current === "gemini") return "deepseek";
+  if (current === "deepseek") return "qwen";
   if (current === "qwen") return "gptoss";
   if (current === "gptoss") return "llama";
   return "llama";
@@ -74,7 +77,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (err instanceof OpenAIRateLimitError || err instanceof OpenAIQuotaError) {
         provider = "gemini";
       } 
-      else if (err instanceof GroqRateLimitError || err instanceof GroqQuotaError) {
+      else if (err instanceof DeepSeekRateLimitError || err instanceof DeepSeekQuotaError) {
         provider = "qwen";
       }
       else if (err instanceof QwenRateLimitError || err instanceof QwenQuotaError) {
@@ -82,6 +85,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
       else if (err instanceof GptOssRateLimitError || err instanceof GptOssQuotaError) {
         provider = "llama";
+      }
+      else if (err instanceof GroqRateLimitError || err instanceof GroqQuotaError) {
+        provider = "deepseek";
       }
       else {
         provider = getNextProvider(provider);
