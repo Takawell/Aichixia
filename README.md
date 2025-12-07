@@ -475,7 +475,7 @@ GET /api/aichixia?category={type}&action={operation}&[parameters]
 #### Category Types
 
 ```typescript
-type CategoryType = 'anime' | 'manga' | 'manhwa' | 'manhua' | 'ln' | 'lightnovel' | 'light_novel';
+type CategoryType = 'anime' | 'manga' | 'manhwa' | 'manhua' | 'lightnovel';
 ```
 
 #### Action Reference
@@ -737,7 +737,7 @@ OPENAI_MODEL=gpt-4o-mini
 GEMINI_API_KEY=AIzaSyxxxxxxxxxxxxxxxxx
 GEMINI_MODEL=gemini-2.5-flash
 
-# Alibaba Cloud Configuration
+# OpenRouter Configuration
 QWEN_API_KEY=sk-xxxxxxxxxxxxx
 QWEN_MODEL=qwen-coder-480b
 
