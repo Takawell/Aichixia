@@ -60,6 +60,7 @@ export default function Chat() {
   const [typing, setTyping] = useState(false);
   const [persona, setPersona] = useState<Persona>("tsundere");
   const [showPersonaMenu, setShowPersonaMenu] = useState(false);
+  
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const scrollToBottom = () => {
@@ -175,6 +176,7 @@ export default function Chat() {
     const colors: Record<string, string> = {
       openai: "bg-blue-500",
       gemini: "bg-indigo-500",
+      deepseek: "bg-cyan-500",
       qwen: "bg-purple-500",
       gptoss: "bg-pink-500",
       llama: "bg-rose-500",
