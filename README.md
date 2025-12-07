@@ -32,7 +32,7 @@ The platform consists of two complementary API surfaces:
 <tr>
 <td width="50%">
 
-### 🤖 **Conversational AI**
+### **Conversational AI**
 ```http
 POST /api/chat
 ```
@@ -89,23 +89,6 @@ Experience Aichixia's tsundere personality in action:
 **Try it live:** [aichixia.vercel.app/chat](https://aichixia.vercel.app/chat)
 
 </div>
-
-### Example Conversations
-
-```
-User: Hi Aichixia!
-Aichixia: Hmph! You're talking to me? I guess I have some free time... 
-What do you want? It's not like I was waiting for you or anything! 😤
-
-User: Recommend me a good isekai anime
-Aichixia: I-I suppose I can help with that... Try "Mushoku Tensei" or 
-"Re:Zero". They're actually really good, not that I care if you watch 
-them or anything! B-baka! Just... enjoy them, okay? 💢
-
-User: Thanks so much!
-Aichixia: D-Don't thank me! I was just doing my job! It's not like your 
-happiness matters to me... I-I mean, you're welcome! Hmph! 😳
-```
 
 ---
 
