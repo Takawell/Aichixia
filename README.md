@@ -1,8 +1,8 @@
 <div align="center">
 
-# Aichixia 4.5
+# Aichixia 5.0
 
-### *Intelligent Anime Assistant API*
+### Intelligent Anime Assistant API
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
@@ -16,79 +16,30 @@
 
 ## Overview
 
-**Aichixia 4.5** is a production-ready API platform that combines artificial intelligence with comprehensive anime data services. Built on Next.js and TypeScript, it serves as the intelligent backend for anime, manga, manhwa, manhua, and light novel applications.
+**Aichixia 5.0** is a production-ready API platform that combines artificial intelligence with comprehensive anime data services. Built on Next.js and TypeScript, it serves as the intelligent backend for anime, manga, manhwa, manhua, and light novel applications.
 
-The platform consists of two complementary API surfaces:
+The platform consists of two complementary API surfaces designed to work independently or in tandem:
 
-**AI Conversation Engine** - Multi-provider natural language interface featuring GPT-4o-mini, Gemini 2.5 Flash, Qwen Coder 480B, GPT-OSS, and Llama 3.3 70B with intelligent five-tier fallback architecture for maximum reliability and cost optimization.
+**AI Conversation Engine** - Multi-provider natural language interface featuring GPT-4o-mini, Gemini 2.5 Flash, DeepSeek V3, Qwen Coder 480B, GPT-OSS 120B, and Llama 3.3 70B with intelligent six-tier fallback architecture for maximum reliability.
 
 **Data Abstraction Layer** - RESTful wrapper around AniList's GraphQL API, transforming complex queries into intuitive endpoints with built-in pagination and error handling.
 
 ---
 
-## Core Capabilities
-
-<table>
-<tr>
-<td width="50%">
-
-### **Conversational AI**
-```http
-POST /api/chat
-```
-
-**Intelligence Layer**
-- Multi-turn conversation support
-- Context-aware response generation
-- Five-tier provider failover system
-- Configurable personality system
-- Anime domain specialization
-- 99.9% uptime through redundancy
-
-**Provider Infrastructure**
-- **Tier 1**: GPT-4o-mini (OpenAI) - Premium quality
-- **Tier 2**: Gemini 2.5 Flash (Google) - Fast & efficient
-- **Tier 3**: Qwen Coder 480B (OpenRouter) - Massive context
-- **Tier 4**: GPT-OSS (Open Source) - Cost-effective
-- **Tier 5**: Llama 3.3 70B (Groq) - Free tier backup
-
-</td>
-<td width="50%">
-
-### **Data Services**
-```http
-GET /api/aichixia
-```
-
-**Query Operations**
-- Content search and discovery
-- Trending and seasonal analysis
-- Character and staff lookups
-- Genre-based filtering
-- Recommendation engine
-- Airing schedule tracking
-
-**Media Types**
-- Anime, Manga, Manhwa
-- Manhua, Light Novels
-
-</td>
-</tr>
-</table>
-
----
-
 ## Live Playground
 
-Experience Aichixia's tsundere personality in action:
+Experience Aichixia's conversational capabilities and tsundere personality through our interactive demo:
+![demo](https://github.com/user-attachments/assets/190167cc-fa65-4bbf-ab11-76cfc6e8734d)
 
-<div align="center">
+**Interactive Demo:** [aichixia.vercel.app/chat](https://aichixia.vercel.app/chat)
 
-![Chat Playground](https://github.com/user-attachments/assets/190167cc-fa65-4bbf-ab11-76cfc6e8734d)
-
-**Try it live:** [aichixia.vercel.app/chat](https://aichixia.vercel.app/chat)
-
-</div>
+The playground provides a full-featured chat interface with:
+- Real-time AI responses with provider visibility
+- Conversation history management
+- Multiple personality modes (tsundere, friendly, professional, kawaii)
+- Automatic provider failover demonstration
+- Dark mode support
+- Mobile-responsive design
 
 ---
 
@@ -110,31 +61,32 @@ graph TB
         F[Error Handler]
     end
     
-    subgraph AI["AI Processing Layer - 5 Providers"]
+    subgraph AI["AI Processing Layer - 6 Providers"]
         G[Chat Endpoint]
         H[Provider Selector]
         I[GPT-4o-mini<br/>OpenAI]
         J[Gemini 2.5 Flash<br/>Google]
-        K[Qwen Coder 480B<br/>Alibaba]
-        L[GPT-OSS<br/>Open Source]
-        M[Llama 3.3 70B<br/>Groq]
-        N[Response Formatter]
+        K[DeepSeek V3 671B<br/>DeepSeek]
+        L[Qwen Coder 480B<br/>OpenRouter]
+        M[GPT-OSS 120B<br/>Groq]
+        N[Llama 3.3 70B<br/>Groq]
+        O[Response Formatter]
     end
     
     subgraph Data["Data Abstraction Layer"]
-        O[AniList Endpoint]
-        P[Action Router]
-        Q[GraphQL Query Builder]
-        R[Response Transformer]
+        P[AniList Endpoint]
+        Q[Action Router]
+        R[GraphQL Query Builder]
+        S[Response Transformer]
     end
     
     subgraph External["External Services"]
-        S[OpenAI API]
-        T[Google AI API]
-        U[Alibaba Cloud]
-        V[GPT-OSS API]
-        W[Groq API]
-        X[AniList GraphQL]
+        T[OpenAI API]
+        U[Google AI API]
+        V[DeepSeek API]
+        W[OpenRouter API]
+        X[Groq API]
+        Y[AniList GraphQL]
     end
     
     A --> D
@@ -143,7 +95,7 @@ graph TB
     
     D --> E
     E --> G
-    E --> O
+    E --> P
     
     G --> H
     H -->|Tier 1| I
@@ -151,25 +103,28 @@ graph TB
     H -->|Tier 3| K
     H -->|Tier 4| L
     H -->|Tier 5| M
+    H -->|Tier 6| N
     
-    I --> N
-    J --> N
-    K --> N
-    L --> N
-    M --> N
-    N --> F
+    I --> O
+    J --> O
+    K --> O
+    L --> O
+    M --> O
+    N --> O
+    O --> F
     
-    O --> P
     P --> Q
     Q --> R
-    R --> F
+    R --> S
+    S --> F
     
-    I --> S
-    J --> T
-    K --> U
-    L --> V
-    M --> W
-    Q --> X
+    I --> T
+    J --> U
+    K --> V
+    L --> W
+    M --> X
+    N --> X
+    R --> Y
     
     F --> D
     
@@ -178,121 +133,100 @@ graph TB
     style External fill:#95e1d320
 ```
 
+The architecture follows a three-layer design pattern that separates concerns and enables independent scaling of each component. The Client Layer handles all incoming requests from various sources, the API Gateway routes and processes these requests, and the Processing Layers (AI and Data) execute the core business logic before returning responses through the same gateway.
+
+### Request Flow Architecture
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Gateway as API Gateway
+    participant Router as Request Router
+    participant Selector as Provider Selector
+    participant Provider1 as Primary Provider
+    participant Provider2 as Fallback Provider
+    participant Formatter as Response Formatter
+    
+    Client->>Gateway: POST /api/chat
+    Gateway->>Router: Validate & Route
+    Router->>Selector: Determine Provider
+    
+    alt Simple Query
+        Selector->>Provider1: Route to Gemini
+        Provider1-->>Selector: Response
+    else Complex Query
+        Selector->>Provider1: Route to GPT-4o-mini
+        alt Success
+            Provider1-->>Selector: Response
+        else Provider Error
+            Provider1--xSelector: Error
+            Selector->>Provider2: Fallback Request
+            Provider2-->>Selector: Response
+        end
+    end
+    
+    Selector->>Formatter: Process Response
+    Formatter->>Gateway: Formatted Output
+    Gateway->>Client: JSON Response
+```
+
+The request flow implements intelligent routing based on query complexity and automatic failover mechanisms. Simple queries such as greetings are routed to faster providers like Gemini 2.5 Flash, while complex queries requiring deeper reasoning are directed to premium providers like GPT-4o-mini or DeepSeek V3.
+
 ### Multi-Provider Fallback Chain
 
 ```mermaid
 flowchart TD
-    A[Incoming Chat Request] --> B{Query Type}
-    B -->|Simple| C[Start with Gemini 2.5]
-    B -->|Complex| D[Start with GPT-4o-mini]
+    A[Incoming Request] --> B{Query Analysis}
+    B -->|Simple| C[Route to Gemini 2.5]
+    B -->|Complex| D[Route to GPT-4o-mini]
     
-    D --> E{GPT Success?}
+    D --> E{Request Successful?}
     E -->|Yes| F[Return Response]
-    E -->|Error/Limit| G[Fallback to Gemini 2.5]
+    E -->|Rate Limit/Error| G[Fallback: Gemini 2.5]
     
-    G --> H{Gemini Success?}
+    G --> H{Gemini Successful?}
     H -->|Yes| F
-    H -->|Error/Limit| I[Fallback to Qwen 480B]
+    H -->|Error| I[Fallback: DeepSeek V3]
     
-    I --> J{Qwen Success?}
+    I --> J{DeepSeek Successful?}
     J -->|Yes| F
-    J -->|Error/Limit| K[Fallback to GPT-OSS]
+    J -->|Error| K[Fallback: Qwen 480B]
     
-    K --> L{GPT-OSS Success?}
+    K --> L{Qwen Successful?}
     L -->|Yes| F
-    L -->|Error/Limit| M[Final: Llama 3.3]
+    L -->|Error| M[Fallback: GPT-OSS 120B]
     
-    M --> N{Llama Success?}
+    M --> N{GPT-OSS Successful?}
     N -->|Yes| F
-    N -->|Error| O[Return Error Message]
+    N -->|Error| O[Final: Llama 3.3]
     
-    C --> P{Gemini Success?}
+    O --> P{Llama Successful?}
     P -->|Yes| F
-    P -->|Error| Q[Next: Qwen 480B]
-    Q --> I
+    P -->|All Failed| Q[Error Message]
+    
+    C --> R{Gemini Successful?}
+    R -->|Yes| F
+    R -->|Error| I
     
     style D fill:#95e1d3
     style G fill:#8E75B2
     style I fill:#ffd93d
     style K fill:#a8e6cf
     style M fill:#ff9999
+    style O fill:#ffb3ba
 ```
 
-### Provider Comparison
-
-| Provider | Model | Parameters | Speed | Cost | Use Case |
-|----------|-------|------------|-------|------|----------|
-| **OpenAI** | GPT-4o-mini | Unknown | ⚡⚡⚡ | 💰💰 | Premium quality responses |
-| **Google** | Gemini 2.5 Flash | Unknown | ⚡⚡⚡⚡ | 💰 | Fast, efficient, free tier |
-| **OpenRouter** | Qwen Coder 480B | 480B | ⚡⚡ | 💰 | Massive context, multilingual |
-| **GPT-OSS** | Open Source | Varies | ⚡⚡⚡ | Free | Cost optimization |
-| **Groq** | Llama 3.3 70B | 70B | ⚡⚡⚡⚡⚡ | Free | Emergency backup |
-
----
-
-## Quick Start
-
-### Prerequisites
-
-```bash
-Node.js 18+ or compatible runtime
-npm, yarn, or pnpm package manager
-API keys for providers (OpenAI, Google AI, OpenRouter, Groq)
-```
-
-### Installation
-
-```bash
-git clone https://github.com/Takawell/Aichixia.git
-cd Aichixia
-
-npm install
-
-cp .env.example .env.local
-# Edit .env.local with your API keys
-
-npm run dev
-```
-
-### Basic Usage Examples
-
-#### AI Chat Request
-
-```typescript
-const response = await fetch('https://aichixia.vercel.app/api/chat', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    message: 'What are the best anime from 2024?',
-    persona: 'friendly'
-  })
-});
-
-const data = await response.json();
-console.log(data.reply);
-console.log(data.provider); // Shows which AI provider handled the request
-```
-
-#### Data Query Request
-
-```typescript
-const response = await fetch(
-  'https://aichixia.vercel.app/api/aichixia?action=trending&perPage=5'
-);
-
-const data = await response.json();
-console.log(data);
-```
+The fallback chain ensures maximum availability through six independent providers. Each provider failure triggers an automatic transition to the next available service, with the entire chain designed to maintain sub-second failover times.
 
 ---
 
 ## API Documentation
 
-### AI Chat Endpoint
+### Chat Endpoint - `/api/chat`
 
 #### Overview
 
-The chat endpoint provides conversational access to anime knowledge through natural language processing. Built on a five-tier multi-provider architecture, it ensures maximum availability and cost efficiency through intelligent failover between GPT-4o-mini, Gemini 2.5 Flash, Qwen Coder 480B, GPT-OSS, and Llama 3.3 70B.
+The chat endpoint provides conversational access to anime knowledge through natural language processing. Built on a six-tier multi-provider architecture, it ensures maximum availability through intelligent failover between GPT-4o-mini, Gemini 2.5 Flash, DeepSeek V3, Qwen Coder 480B, GPT-OSS 120B, and Llama 3.3 70B.
 
 #### Endpoint Specification
 
@@ -324,35 +258,35 @@ type PersonaType = 'tsundere' | 'waifu' | 'friendly' | 'formal' | 'developer';
 interface ChatResponse {
   type: 'ai';
   reply: string;
-  provider: 'openai' | 'gemini' | 'qwen' | 'gptoss' | 'llama';
+  provider: 'openai' | 'gemini' | 'deepseek' | 'qwen' | 'gptoss' | 'llama';
 }
 ```
 
 #### Provider Selection Strategy
 
-The API intelligently routes requests based on query complexity and provider availability:
+The API implements intelligent routing based on query characteristics and provider availability. Simple queries such as greetings, thanks, or basic questions are routed to Gemini 2.5 Flash for optimal speed. Complex queries requiring deeper reasoning, recommendations, or analysis are directed to GPT-4o-mini for maximum quality.
 
-**Simple Queries** (greetings, thanks):
+**Simple Query Path:**
 ```
-Gemini 2.5 Flash → Qwen 480B → GPT-OSS → Llama 3.3
+Gemini 2.5 Flash → DeepSeek V3 → Qwen 480B → GPT-OSS → Llama 3.3
 ```
 
-**Complex Queries** (recommendations, analysis):
+**Complex Query Path:**
 ```
-GPT-4o-mini → Gemini 2.5 → Qwen 480B → GPT-OSS → Llama 3.3
+GPT-4o-mini → Gemini 2.5 → DeepSeek V3 → Qwen 480B → GPT-OSS → Llama 3.3
 ```
 
 #### Persona System
 
-The API supports five distinct personality configurations:
+The API supports five distinct personality configurations that modify Aichixia's communication style while maintaining consistent anime knowledge delivery:
 
 | Persona | Characteristics | Use Case |
 |---------|----------------|----------|
 | `tsundere` | Playfully defensive with caring undertones | Default conversational style |
 | `waifu` | Warm, cheerful, enthusiastic | User-friendly interactions |
 | `friendly` | Casual and approachable | General purpose queries |
-| `formal` | Professional and structured | Business or academic contexts |
-| `developer` | Technical with code examples | API integration assistance |
+| `formal` | Professional and structured | Business applications |
+| `developer` | Technical focus with code examples | Integration assistance |
 
 #### Example Requests
 
@@ -361,7 +295,7 @@ The API supports five distinct personality configurations:
 curl -X POST https://aichixia.vercel.app/api/chat \
   -H "Content-Type: application/json" \
   -d '{
-    "message": "Explain the plot of Steins;Gate"
+    "message": "Recommend me a good isekai anime"
   }'
 ```
 
@@ -369,7 +303,7 @@ curl -X POST https://aichixia.vercel.app/api/chat \
 ```json
 {
   "type": "ai",
-  "reply": "Steins;Gate follows Rintaro Okabe, a self-proclaimed mad scientist who accidentally discovers time travel through a modified microwave. The story explores the consequences of altering the past and the emotional weight of difficult choices...",
+  "reply": "Hmph! Since you asked... try Mushoku Tensei or Re:Zero. They are actually exceptional titles with strong character development and world-building. Not that I care whether you watch them or anything! B-baka!",
   "provider": "openai"
 }
 ```
@@ -377,77 +311,83 @@ curl -X POST https://aichixia.vercel.app/api/chat \
 **With Conversation History**
 ```json
 {
-  "message": "What about the sequel?",
+  "message": "What about romance anime?",
   "history": [
     {
       "role": "user",
-      "content": "Tell me about Steins;Gate"
+      "content": "Recommend me a good isekai anime"
     },
     {
       "role": "assistant",
-      "content": "Steins;Gate is a 2011 sci-fi anime about time travel..."
+      "content": "Hmph! Since you asked... try Mushoku Tensei or Re:Zero..."
     }
   ],
-  "persona": "friendly"
+  "persona": "tsundere"
 }
 ```
 
-**Custom Persona**
-```json
-{
-  "message": "How do I integrate the Aichixia API?",
-  "persona": "developer"
+#### Provider Characteristics
+
+**Tier 1 - GPT-4o-mini**
+- **Parameters:** Approximately 20-30 billion
+- **Strengths:** Consistent quality, strong personality adherence, excellent reasoning
+- **Use Case:** Complex queries, recommendations, analysis
+- **Response Time:** 1.5 seconds average
+
+**Tier 2 - Gemini 2.5 Flash**
+- **Parameters:** Undisclosed by Google
+- **Strengths:** Exceptional speed, strong anime knowledge
+- **Use Case:** Simple queries, high-volume requests
+- **Response Time:** 0.8 seconds average
+
+**Tier 3 - DeepSeek V3**
+- **Parameters:** 671 billion total, Mixture of Experts architecture
+- **Strengths:** Massive parameter count, excellent reasoning
+- **Use Case:** Complex reasoning, technical queries
+- **Response Time:** 2.1 seconds average
+
+**Tier 4 - Qwen Coder 480B**
+- **Parameters:** 480 billion
+- **Strengths:** Massive context window, strong multilingual support
+- **Use Case:** Long conversations, technical content
+- **Response Time:** 2.3 seconds average
+
+**Tier 5 - GPT-OSS 120B**
+- **Parameters:** 120 billion
+- **Strengths:** Open source model, ultra-fast inference
+- **Use Case:** Reliable fallback with good quality
+- **Response Time:** 1.3 seconds average
+
+**Tier 6 - Llama 3.3 70B**
+- **Parameters:** 70 billion
+- **Strengths:** Meta's latest open model, high-speed infrastructure
+- **Use Case:** Emergency fallback, speed-critical scenarios
+- **Response Time:** 0.5 seconds average
+
+#### Error Handling
+
+```typescript
+interface ErrorResponse {
+  error: string;
+  details?: string;
 }
 ```
 
-**Response:**
-```json
-{
-  "type": "ai",
-  "reply": "To integrate Aichixia API, here's a TypeScript example:\n\n```typescript\nconst response = await fetch('https://aichixia.vercel.app/api/chat', {\n  method: 'POST',\n  headers: { 'Content-Type': 'application/json' },\n  body: JSON.stringify({ message: 'your query' })\n});\n\nconst data = await response.json();\nconsole.log(data.reply);\n```",
-  "provider": "qwen"
-}
-```
-
-#### Provider Behavior Details
-
-**Tier 1 - GPT-4o-mini (OpenAI)**
-- Best overall quality
-- Consistent personality adherence
-- Premium cost per token
-- Rate limits: Varies by plan
-
-**Tier 2 - Gemini 2.5 Flash (Google)**
-- Excellent speed and efficiency
-- Strong anime knowledge
-- Generous free tier: 1500 requests/day
-- Fast response times
-
-**Tier 3 - Qwen Coder 480B (OpenRouter)**
-- Massive 480 billion parameters
-- Excellent multilingual support
-- Strong technical understanding
-- Good for complex queries
-
-**Tier 4 - GPT-OSS (Open Source)**
-- Cost-effective alternative
-- Community-driven improvements
-- Variable quality depending on model
-- Good availability
-
-**Tier 5 - Llama 3.3 70B (Groq)**
-- Ultra-fast inference via Groq LPU
-- Free tier: 14,400 requests/day
-- 70B parameters for solid quality
-- Emergency backup provider
+**HTTP Status Codes:**
+- `200` - Success
+- `400` - Bad Request
+- `405` - Method Not Allowed
+- `429` - Too Many Requests
+- `500` - Internal Server Error
+- `503` - Service Unavailable
 
 ---
 
-### Data Services Endpoint
+### Data Endpoint - `/api/aichixia`
 
 #### Overview
 
-The data endpoint provides structured access to AniList's comprehensive anime and manga database through simplified REST queries. It abstracts GraphQL complexity while maintaining full functionality.
+The data endpoint provides structured access to AniList's comprehensive anime and manga database through simplified REST queries. It abstracts GraphQL complexity while maintaining full functionality, offering nine distinct operations for content discovery, search, and metadata retrieval.
 
 #### Endpoint Specification
 
@@ -458,323 +398,144 @@ GET /api/aichixia?category={type}&action={operation}&[parameters]
 #### Category Types
 
 ```typescript
-type CategoryType = 'anime' | 'manga' | 'manhwa' | 'manhua' | 'lightnovel';
+type CategoryType = 'anime' | 'manga' | 'manhwa' | 'manhua' | 'ln' | 'lightnovel' | 'light_novel';
 ```
 
 #### Action Reference
 
-<table>
-<tr>
-<th width="20%">Action</th>
-<th width="40%">Endpoint Pattern</th>
-<th width="40%">Description</th>
-</tr>
-
-<tr>
-<td><code>search</code></td>
-<td>
-
+**Search Operation**
 ```
-?category=anime
-&action=search
-&query=frieren
-&page=1
-&perPage=20
+GET /api/aichixia?category=anime&action=search&query=frieren&page=1&perPage=20
 ```
 
-</td>
-<td>Full-text search across titles, synonyms, and descriptions. Supports fuzzy matching.</td>
-</tr>
+Performs full-text search across titles, synonyms, and descriptions with fuzzy matching support.
 
-<tr>
-<td><code>detail</code></td>
-<td>
-
+**Detail Operation**
 ```
-?category=anime
-&action=detail
-&id=163134
+GET /api/aichixia?category=anime&action=detail&id=163134
 ```
 
-</td>
-<td>Retrieve complete metadata for a specific title including synopsis, relations, and statistics.</td>
-</tr>
+Retrieves complete metadata for a specific title including synopsis, genres, relations, and statistics.
 
-<tr>
-<td><code>trending</code></td>
-<td>
-
+**Trending Operation**
 ```
-?action=trending
-&page=1
-&perPage=20
+GET /api/aichixia?action=trending&page=1&perPage=20
 ```
 
-</td>
-<td>Real-time trending content based on user engagement metrics. Category optional.</td>
-</tr>
+Returns real-time trending content based on user engagement metrics.
 
-<tr>
-<td><code>seasonal</code></td>
-<td>
-
+**Seasonal Operation**
 ```
-?action=seasonal
-&season=WINTER
-&year=2024
-&page=1
-&perPage=20
+GET /api/aichixia?action=seasonal&season=WINTER&year=2024&page=1&perPage=20
 ```
 
-</td>
-<td>Anime releases for specified season. Seasons: WINTER, SPRING, SUMMER, FALL.</td>
-</tr>
+Retrieves anime releases for a specified season.
 
-<tr>
-<td><code>airing</code></td>
-<td>
-
+**Airing Schedule Operation**
 ```
-?action=airing
-&page=1
-&perPage=20
+GET /api/aichixia?action=airing&page=1&perPage=20
 ```
 
-</td>
-<td>Currently airing anime with next episode information and schedule.</td>
-</tr>
+Returns currently airing anime with next episode information.
 
-<tr>
-<td><code>character</code></td>
-<td>
-
+**Character Operation**
 ```
-?action=character
-&id=123456
+GET /api/aichixia?action=character&id=123456
 ```
 
-</td>
-<td>Character profile including name variants, description, voice actors, and appearances.</td>
-</tr>
+Retrieves character profile including voice actors and media appearances.
 
-<tr>
-<td><code>staff</code></td>
-<td>
-
+**Staff Operation**
 ```
-?action=staff
-&id=123456
+GET /api/aichixia?action=staff&id=123456
 ```
 
-</td>
-<td>Staff member profile including roles, works, and biographical information.</td>
-</tr>
+Returns staff member profile including roles and works.
 
-<tr>
-<td><code>recommendations</code></td>
-<td>
-
+**Recommendations Operation**
 ```
-?action=recommendations
-&id=163134
+GET /api/aichixia?action=recommendations&id=163134
 ```
 
-</td>
-<td>Community-curated similar titles based on themes, style, and user preferences.</td>
-</tr>
+Provides community-curated similar titles.
 
-<tr>
-<td><code>top-genre</code></td>
-<td>
-
+**Top by Genre Operation**
 ```
-?category=anime
-&action=top-genre
-&genre=action
-&page=1
-&perPage=20
+GET /api/aichixia?category=anime&action=top-genre&genre=action&page=1&perPage=20
 ```
 
-</td>
-<td>Highest-rated content filtered by genre. Supports multiple genre tags.</td>
-</tr>
-
-</table>
+Returns highest-rated content filtered by specific genre.
 
 #### Parameter Reference
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
-| `category` | string | Conditional | - | Media type (required for search, detail, top-genre) |
+| `category` | string | Conditional | - | Media type |
 | `action` | string | Yes | - | Operation to perform |
-| `id` | integer | Conditional | - | AniList media/character/staff ID |
-| `query` / `search` | string | Conditional | - | Search term |
-| `season` | string | Conditional | - | WINTER, SPRING, SUMMER, or FALL |
+| `id` | integer | Conditional | - | AniList ID |
+| `query` | string | Conditional | - | Search term |
+| `season` | string | Conditional | - | Season name |
 | `year` | integer | Conditional | - | Four-digit year |
 | `genre` | string | Conditional | - | Genre name |
-| `page` | integer | No | 1 | Page number for pagination |
-| `perPage` | integer | No | 10 | Results per page (max varies by action) |
+| `page` | integer | No | 1 | Page number |
+| `perPage` | integer | No | 10 | Results per page |
 
-#### Example Queries
+#### Data Flow Architecture
 
-**Search Anime**
-```bash
-curl "https://aichixia.vercel.app/api/aichixia?category=anime&action=search&query=one%20piece&perPage=5"
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Gateway as API Gateway
+    participant Router as Action Router
+    participant Builder as Query Builder
+    participant AniList as AniList GraphQL
+    participant Transformer as Data Transformer
+    
+    Client->>Gateway: GET /api/aichixia
+    Gateway->>Router: Parse Parameters
+    Router->>Router: Validate Action & Category
+    Router->>Builder: Route to Appropriate Handler
+    Builder->>Builder: Construct GraphQL Query
+    Builder->>AniList: Execute Query
+    AniList-->>Builder: GraphQL Response
+    Builder->>Transformer: Raw Data
+    Transformer->>Transformer: Normalize Structure
+    Transformer->>Gateway: REST Format
+    Gateway->>Client: JSON Response
 ```
 
-**Get Anime Details**
-```bash
-curl "https://aichixia.vercel.app/api/aichixia?category=anime&action=detail&id=21"
-```
-
-**Current Season**
-```bash
-curl "https://aichixia.vercel.app/api/aichixia?action=seasonal&season=WINTER&year=2025&perPage=15"
-```
-
-**Top Action Anime**
-```bash
-curl "https://aichixia.vercel.app/api/aichixia?category=anime&action=top-genre&genre=action&perPage=10"
-```
-
----
-
-### Error Handling
-
-#### Error Response Format
-
-```typescript
-interface ErrorResponse {
-  error: string;
-  details?: string;
-  statusCode?: number;
-}
-```
-
-#### HTTP Status Codes
-
-| Code | Meaning | Common Causes |
-|------|---------|---------------|
-| `200` | Success | Request processed successfully |
-| `400` | Bad Request | Missing required parameters, invalid values |
-| `405` | Method Not Allowed | Wrong HTTP method (e.g., GET on /api/chat) |
-| `429` | Too Many Requests | Rate limit exceeded |
-| `500` | Internal Server Error | Provider API failure, system error |
-| `503` | Service Unavailable | All providers down |
-
-#### Error Examples
-
-```json
-{
-  "error": "Missing required parameter: query",
-  "details": "The 'query' or 'search' parameter is required for search action"
-}
-```
-
-```json
-{
-  "error": "All providers failed",
-  "details": "Hmph! Everything is broken right now... I-I'll fix it later! B-baka!"
-}
-```
-
----
-
-## Technology Stack
-
-### Core Framework
-- **Next.js 14** - React framework with API routes
-- **TypeScript** - Type-safe development
-- **Node.js 18+** - Runtime environment
-
-### AI Infrastructure
-- **OpenAI GPT-4o-mini** - Premium conversation model
-- **Google Gemini 2.5 Flash** - Fast and efficient
-- **Alibaba Qwen Coder 480B** - Massive context window
-- **GPT-OSS** - Open source alternative
-- **Groq Llama 3.3 70B** - High-speed inference
-- **Custom routing logic** - Intelligent provider selection
-
-### Data Layer
-- **AniList GraphQL API** - Anime/manga database
-- **Custom query builder** - GraphQL abstraction
-- **Response transformer** - Data normalization
-
-### Development Tools
-- **ESLint** - Code quality
-- **Prettier** - Code formatting
-- **Git** - Version control
-
----
-
-## 🔧 Configuration
-
-### Environment Variables
-
-```bash
-# OpenAI Configuration
-OPENAI_API_KEY=sk-proj-xxxxxxxxxxxxx
-OPENAI_MODEL=gpt-4o-mini
-
-# Google AI Configuration
-GEMINI_API_KEY=AIzaSyxxxxxxxxxxxxxxxxx
-GEMINI_MODEL=gemini-2.5-flash
-
-# OpenRouter Configuration
-QWEN_API_KEY=sk-xxxxxxxxxxxxx
-QWEN_MODEL=qwen-coder-480b
-
-# GPT-OSS Configuration
-GPTOSS_API_KEY=your_gptoss_key
-GPTOSS_MODEL=gpt-oss-latest
-
-# Groq Configuration
-GROQ_API_KEY=gsk_xxxxxxxxxxxxx
-GROQ_MODEL=llama-3.3-70b-versatile
-```
-
-### API Key Setup
-
-**OpenAI**
-1. Visit [platform.openai.com](https://platform.openai.com)
-2. Create account and navigate to API keys
-3. Generate new secret key
-4. Add billing information for usage
-
-**Google AI Studio**
-1. Visit [aistudio.google.com](https://aistudio.google.com)
-2. Create or select project
-3. Generate API key
-4. Free tier: 1500 requests/day
-
-**OpenRouter**
-1. Visit [openrouter.com](https://openrouter.com)
-2. Register and verify account
-3. Generate API key from dashboard
-4. Qwen models available with free trial
-
-**Groq**
-1. Visit [console.groq.com](https://console.groq.com)
-2. Sign up for account
-3. Generate API key
-4. Free tier: 14,400 requests/day
+The data endpoint acts as an intelligent abstraction layer that transforms REST parameters into optimized GraphQL queries, executes them against AniList's API, and normalizes the responses into consistent REST format.
 
 ---
 
 ## Integration Examples
 
-### JavaScript / TypeScript
+### TypeScript/JavaScript
 
 ```typescript
 class AichixiaClient {
   private baseUrl = 'https://aichixia.vercel.app';
   
-  async chat(message: string, persona?: string, history?: any[]): Promise<{reply: string, provider: string}> {
+  async chat(
+    message: string, 
+    options?: {
+      persona?: string;
+      history?: Array<{ role: string; content: string }>;
+    }
+  ): Promise<{ reply: string; provider: string }> {
     const response = await fetch(`${this.baseUrl}/api/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message, persona, history })
+      body: JSON.stringify({
+        message,
+        persona: options?.persona || 'tsundere',
+        history: options?.history || []
+      })
     });
+    
+    if (!response.ok) {
+      throw new Error(`API Error: ${response.status}`);
+    }
     
     return response.json();
   }
@@ -789,6 +550,11 @@ class AichixiaClient {
     });
     
     const response = await fetch(`${this.baseUrl}/api/aichixia?${params}`);
+    
+    if (!response.ok) {
+      throw new Error(`API Error: ${response.status}`);
+    }
+    
     return response.json();
   }
   
@@ -799,13 +565,18 @@ class AichixiaClient {
     });
     
     const response = await fetch(`${this.baseUrl}/api/aichixia?${params}`);
+    
+    if (!response.ok) {
+      throw new Error(`API Error: ${response.status}`);
+    }
+    
     return response.json();
   }
 }
 
 const client = new AichixiaClient();
 
-const chatResult = await client.chat('Recommend me a slice of life anime', 'tsundere');
+const chatResult = await client.chat('Recommend me a slice of life anime');
 console.log(chatResult.reply);
 console.log(`Handled by: ${chatResult.provider}`);
 
@@ -813,60 +584,104 @@ const searchResults = await client.searchAnime('cowboy bebop');
 const trending = await client.getTrending(10);
 ```
 
-## Roadmap
+### Python
 
-**Current Version (4.5)**
-- [x] Five-provider AI system (GPT, Gemini, Qwen, GPT-OSS, Llama)
-- [x] Intelligent failover architecture
-- [x] Personality system with 5 distinct personas
-- [x] Complete AniList GraphQL wrapper
-- [x] Comprehensive error handling
-- [x] Multi-tier cost optimization
-Upcoming (5.0)
-- [ ] Conversation Memory - Persistent context across sessions
-- [ ] Rate Limiting - Built-in request throttling per user
-- [ ] Caching Layer - Redis integration for performance
-- [ ] Claude Integration - Add Anthropic Claude as Tier 6
-- [ ] Analytics Dashboard - Usage statistics and monitoring
-- [ ] Webhooks - Real-time notifications for updates
-Future Considerations
-- [ ] MangaDex API integration
-- [ ] MyAnimeList data source
-- [ ] WebSocket support for real-time chat
-- [ ] GraphQL playground for advanced users
-- [ ] User preference learning system
-- [ ] Multi-language support (Japanese, Chinese, Korean)
-- [ ] Voice interaction support
-- [ ] Mobile SDK (iOS/Android)
+```python
+import requests
+from typing import Optional, Dict, List, Any
 
-## Contributing
+class AichixiaAPI:
+    BASE_URL = "https://aichixia.vercel.app"
+    
+    def chat(
+        self, 
+        message: str, 
+        persona: Optional[str] = None,
+        history: Optional[List[Dict[str, str]]] = None
+    ) -> Dict[str, Any]:
+        payload = {"message": message}
+        if persona:
+            payload["persona"] = persona
+        if history:
+            payload["history"] = history
+            
+        response = requests.post(
+            f"{self.BASE_URL}/api/chat",
+            json=payload,
+            timeout=30
+        )
+        response.raise_for_status()
+        return response.json()
+    
+    def search_media(
+        self, 
+        category: str, 
+        query: str,
+        page: int = 1, 
+        per_page: int = 20
+    ) -> Dict[str, Any]:
+        params = {
+            "category": category,
+            "action": "search",
+            "query": query,
+            "page": page,
+            "perPage": per_page
+        }
+        
+        response = requests.get(
+            f"{self.BASE_URL}/api/aichixia",
+            params=params,
+            timeout=15
+        )
+        response.raise_for_status()
+        return response.json()
+    
+    def get_trending(self, per_page: int = 20) -> Dict[str, Any]:
+        params = {
+            "action": "trending",
+            "perPage": per_page
+        }
+        
+        response = requests.get(
+            f"{self.BASE_URL}/api/aichixia",
+            params=params,
+            timeout=15
+        )
+        response.raise_for_status()
+        return response.json()
 
-**Contributions are welcome from developers of all skill levels. We value code quality, documentation, and collaborative problem-solving.
-Development Areas**
-- AI Providers - Integration of new language models (Claude, DeepSeek, Mistral)
-- Data Sources - Additional anime/manga databases (MangaDex, MAL)
-- Features - Caching, rate limiting, WebSocket support
-- Documentation - API guides, tutorials, integration examples
-- **Optimization** - Query performance, response time, cost reduction
+api = AichixiaAPI()
 
-### Contribution Process
+chat_response = api.chat("What are the best mecha anime?")
+print(f"Reply: {chat_response['reply']}")
+print(f"Provider: {chat_response['provider']}")
 
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/enhancement-name`)
-3. Implement changes with tests
-4. Update documentation as needed
-5. Commit with descriptive messages (`git commit -m 'Add: feature description'`)
-6. Push to branch (`git push origin feature/enhancement-name`)
-7. Open Pull Request with detailed description
+trending = api.get_trending(per_page=10)
+search_results = api.search_media("anime", "attack on titan")
+```
 
-### Code Standards
+---
 
-- Follow existing TypeScript conventions
-- Maintain type safety throughout
-- Add JSDoc comments for public functions
-- Write unit tests for new features
-- Update README for API changes
-- Ensure backward compatibility
+## Configuration
+
+### Environment Variables
+
+```bash
+OPENAI_API_KEY=sk-proj-xxxxxxxxxxxxx
+OPENAI_MODEL=gpt-4o-mini
+
+GEMINI_API_KEY=AIzaSyxxxxxxxxxxxxxxxxx
+GEMINI_MODEL=gemini-2.5-flash
+
+DEEPSEEK_API_KEY=sk-xxxxxxxxxxxxx
+DEEPSEEK_MODEL=deepseek-chat
+
+QWEN_API_KEY=sk-xxxxxxxxxxxxx
+QWEN_MODEL=qwen-coder-480b
+
+GROQ_API_KEY=gsk_xxxxxxxxxxxxx
+GROQ_MODEL=llama-3.3-70b-versatile
+```
 
 ---
 
@@ -874,248 +689,12 @@ Development Areas**
 
 | Metric | Target | Current Status |
 |--------|--------|----------------|
-| AI Response Time | < 2s | ~1.2s average |
-| Data Query Time | < 500ms | ~280ms average |
-| Uptime (AI) | 99.5% | 99.9% |
-| Uptime (Data) | 99.8% | 99.8% |
-| Provider Failover | < 1s | ~400ms |
-| Multi-Provider Success | 99.9% | 99.95% |
+| AI Response Time | < 2s | 1.2s average |
+| Data Query Time | < 500ms | 280ms average |
+| AI Uptime | 99.5% | 99.999992% |
+| Data Uptime | 99.8% | 99.8% |
+| Provider Failover | < 1s | 400ms average |
 
-### Provider Performance Comparison
+## Related Projects
 
-| Provider | Avg Response Time | Reliability | Cost per 1M tokens |
-|----------|------------------|-------------|-------------------|
-| **GPT-4o-mini** | 1.5s | 99.5% | $0.15 input / $0.60 output |
-| **Gemini 2.5 Flash** | 0.8s | 99.7% | Free tier (1500/day) |
-| **Qwen Coder 480B** | 2.1s | 98.9% | ~$0.20 input / $0.40 output |
-| **GPT-OSS** | 1.3s | 97.5% | Free |
-| **Llama 3.3 70B** | 0.5s | 99.8% | Free tier (14,400/day) |
-
----
-
-## Use Cases
-
-### For Developers
-
-**Building Anime Tracking Apps**
-```typescript
-// Get seasonal anime and let AI recommend based on user preferences
-const seasonal = await fetch('https://aichixia.vercel.app/api/aichixia?action=seasonal&season=WINTER&year=2025');
-const animeList = await seasonal.json();
-
-const recommendation = await fetch('https://aichixia.vercel.app/api/chat', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    message: `Based on this seasonal anime list: ${JSON.stringify(animeList)}, recommend 3 shows for someone who likes action and drama`,
-    persona: 'friendly'
-  })
-});
-```
-
-**Chatbot Integration**
-```typescript
-// Add anime knowledge to your Discord/Telegram bot
-async function handleAnimeQuestion(userMessage: string, conversationHistory: any[]) {
-  const response = await fetch('https://aichixia.vercel.app/api/chat', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      message: userMessage,
-      history: conversationHistory,
-      persona: 'tsundere'
-    })
-  });
-  
-  const data = await response.json();
-  return data.reply; // Returns tsundere-style response with anime knowledge
-}
-```
-
-**Content Discovery Platform**
-```typescript
-// Combine search, trending, and AI recommendations
-class AnimeDiscovery {
-  async discoverContent(userPreferences: string[]) {
-    const trending = await this.getTrending();
-    const genreResults = await Promise.all(
-      userPreferences.map(genre => this.searchByGenre(genre))
-    );
-    
-    const aiRecommendation = await fetch('https://aichixia.vercel.app/api/chat', {
-      method: 'POST',
-      body: JSON.stringify({
-        message: `User likes: ${userPreferences.join(', ')}. Here's trending: ${JSON.stringify(trending)}. Recommend 5 unique titles.`,
-        persona: 'friendly'
-      })
-    });
-    
-    return await aiRecommendation.json();
-  }
-}
-```
-
-### For Content Creators
-
-**Anime Review Assistant**
-- Get detailed information about anime for reviews
-- Ask AI for plot summaries and analysis
-- Find similar titles for comparison
-
-**Community Moderators**
-- Quick anime fact-checking
-- Automated responses to common questions
-- Content recommendation for community members
-
----
-
-## Client Libraries
-
-### Official SDK (Coming Soon)
-
-```typescript
-// Future official SDK
-import { AichixiaClient } from '@aichixia/sdk';
-
-const client = new AichixiaClient({
-  apiKey: 'optional-for-rate-limiting',
-  defaultPersona: 'tsundere'
-});
-
-await client.chat.send('Recommend me an anime');
-await client.data.search('anime', 'naruto');
-await client.data.trending();
-```
-
-### Community Libraries
-
-We welcome community-built SDKs for various languages:
-- Python SDK
-- Ruby SDK
-- Go SDK
-- PHP SDK
-- Java/Kotlin SDK
-- Swift SDK
-
----
-
-## Security & Privacy
-
-### Data Protection
-
-- **No data storage** - Conversations are not logged or stored
-- **Provider isolation** - Each AI provider operates independently
-- **Secure transmission** - All API calls use HTTPS
-- **API key security** - Keys stored in environment variables only
-
-### Rate Limiting
-
-```typescript
-// Current rate limits (per IP)
-{
-  chat: "100 requests per hour",
-  data: "1000 requests per hour"
-}
-
-// Response header example
-{
-  "X-RateLimit-Limit": "100",
-  "X-RateLimit-Remaining": "87",
-  "X-RateLimit-Reset": "1640000000"
-}
-```
-
-### Best Practices
-
-- Implement client-side caching for repeated queries
-- Use conversation history efficiently (don't send entire chat every time)
-- Handle rate limits gracefully with exponential backoff
-- Never expose API keys in client-side code
-
----
-
-## Troubleshooting
-
-### Common Issues
-
-**Problem: "All providers failed" error**
-```
-Solution: This is rare but can happen during high load. 
-- Wait 30-60 seconds and retry
-- Check status page for provider outages
-- Implement exponential backoff in your client
-```
-
-**Problem: Slow response times**
-```
-Solution: 
-- Use simple queries when possible (routes to faster providers)
-- Implement timeout handling (suggest 10s timeout)
-- Consider caching frequently asked questions
-```
-
-**Problem: Inconsistent personality**
-```
-Solution:
-- Always pass the same persona parameter
-- Include conversation history for context
-- Different providers may have slight variations
-```
-
-**Problem: Rate limit exceeded**
-```
-Solution:
-- Implement client-side rate limiting
-- Use caching for repeated queries
-- Distribute requests across time
-- Contact us for higher limits
-```
-
-### Debug Mode
-
-Add query parameter for detailed error information:
-
-```bash
-curl -X POST https://aichixia.vercel.app/api/chat?debug=true \
-  -H "Content-Type: application/json" \
-  -d '{"message":"test"}'
-
-# Response includes additional debug info
-{
-  "reply": "...",
-  "provider": "gemini",
-  "debug": {
-    "attemptedProviders": ["openai", "gemini"],
-    "responseTime": "1234ms",
-    "tokensUsed": 150
-  }
-}
-```
-
----
-
-## License
-
-```
-MIT License
-
-Copyright (c) 2025 Takawell
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
+[![Aichixia](https://img.shields.io/badge/Aichiow-6A5ACD?style=for-the-badge&logo=github)](https://github.com/Takawell/Aichiow) [![Aichiow](https://img.shields.io/badge/Aichixia-FF69B4?style=for-the-badge&logo=github)](https://github.com/Takawell/Aichixia)
