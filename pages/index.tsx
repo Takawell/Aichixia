@@ -225,7 +225,7 @@ export default function Docs() {
             </h2>
           </div>
           
-          <Row method="POST" path={`${base}/api/chat`} desc="Tsundere AI assistant with 6-provider intelligent fallback chain (DeepSeek → OpenAI → Gemini → Qwen → GPT-OSS → Llama)" />
+          <Row method="POST" path={`${base}/api/chat`} desc="AI assistant with 6-provider intelligent fallback chain (OpenAI → Gemini → DeepSeek → Qwen → GPT-OSS → Llama)" />
           
           <div className="mt-6 bg-gradient-to-br from-purple-50 via-pink-50 to-rose-50 dark:from-purple-900/20 dark:via-pink-900/20 dark:to-rose-900/20 border-2 border-purple-200/50 dark:border-purple-700/50 rounded-xl p-5 shadow-md backdrop-blur-sm hover:shadow-lg transition-all duration-300">
             <h3 className="text-sm font-bold text-purple-800 dark:text-purple-300 mb-4 flex items-center gap-2">
@@ -237,12 +237,12 @@ export default function Docs() {
             
             <div className="flex flex-wrap items-center gap-2 mb-4">
               {[
-                { name: "DeepSeek", color: "from-red-500 to-orange-500" },
-                { name: "OpenAI", color: "from-green-500 to-emerald-500" },
-                { name: "Gemini", color: "from-blue-500 to-indigo-500" },
-                { name: "Qwen", color: "from-purple-500 to-violet-500" },
-                { name: "GPT-OSS", color: "from-pink-500 to-rose-500" },
-                { name: "Llama", color: "from-amber-500 to-yellow-500" }
+                { name: "OpenAI", color: "bg-blue500" },
+                { name: "Gemini", color: "bg-indigo-500" },
+                { name: "DeepSeek", color: "bg-cyan-500" },
+                { name: "Qwen", color: "bg-purple-500" },
+                { name: "GPT-OSS", color: "bg-pink-500" },
+                { name: "Llama", color: "bg-rose-500" }
               ].map((provider, idx) => (
                 <div key={idx} className="flex items-center gap-2 animate-fade-in" style={{ animationDelay: `${idx * 100}ms` }}>
                   <span className={`px-3 py-1.5 bg-gradient-to-r ${provider.color} text-white rounded-lg font-bold text-xs shadow-sm hover:shadow-md hover:scale-105 transition-all duration-300 cursor-pointer`}>
