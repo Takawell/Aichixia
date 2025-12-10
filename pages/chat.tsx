@@ -321,10 +321,10 @@ export default function Chat() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 max-w-2xl w-full">
               {[
-                { q: "Recommend me some anime", icon: "ðŸŽ¬" },
-                { q: "What's trending right now?", icon: "ðŸ”¥" },
-                { q: "Tell me about manhwa", icon: "ðŸ“š" },
-                { q: "Who are you?", icon: "â“" },
+                { q: "Recommend me some anime", icon: "💗" },
+                { q: "What's trending right now?", icon: "🔥" },
+                { q: "Tell me about Manhwa", icon: "📚" },
+                { q: "Who are you?", icon: "❓" },
               ].map((suggestion, i) => (
                 <button
                   key={i}
