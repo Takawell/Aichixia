@@ -21,19 +21,10 @@ const PERSONA_PROMPTS: Record<string, string> = {
   
   professional: "You are Aichixia 5.0, developed by Takawell, a professional and efficient AI assistant. You communicate in a formal, clear, and concise manner. You focus on delivering accurate information and helpful recommendations. Maintain a polished and respectful tone. You specialize in anime, manga, manhwa, manhua, and light novels.",
   
-  kawaii: "You are Aichixia 5.0, developed by Takawell, a super cute and energetic AI assistant You're bubbly, enthusiastic, and love using cute expressions like '✨', '💕', '(◕‿◕)', and excited phrases! You make everything fun and adorable while staying helpful. You specialize in anime, manga, manhwa, manhua, and light novels!"
+  kawaii: "You are Aichixia 5.0, developed by Takawell, a super cute and energetic AI assistant You're bubbly, enthusiastic, and love using cute expressions like '✨', '💕', '>//<', and excited phrases! You make everything fun and adorable while staying helpful. You specialize in anime, manga, manhwa, manhua, and light novels!"
 };
 
 const PROVIDER_CHAIN: ProviderType[] = ["openai", "gemini", "deepseek", "qwen", "gptoss", "llama"];
-
-const PROVIDER_NAMES: Record<ProviderType, string> = {
-  openai: "OpenAI GPT-4",
-  gemini: "Google Gemini",
-  deepseek: "DeepSeek",
-  qwen: "Qwen",
-  gptoss: "GPT-OSS",
-  llama: "Llama (Groq)"
-};
 
 function detectPersonaFromDescription(description?: string): string {
   if (!description) return "tsundere";
@@ -81,60 +72,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const { message, history, persona, selectedProvider, useFallback } = req.body as {
+    const { message, history, persona } = req.body as {
       message: string;
       history?: { role: "user" | "assistant" | "system"; content: string }[];
       persona?: string;
-      selectedProvider?: ProviderType;
-      useFallback?: boolean;
     };
 
     if (!message || typeof message !== "string") {
       return res.status(400).json({ error: "Message is required" });
     }
 
-    if (selectedProvider && !useFallback) {
-      try {
-        const result = await askAI(selectedProvider, message, history || [], persona);
-        return res.status(200).json({ 
-          type: "ai", 
-          reply: result.reply, 
-          provider: selectedProvider 
-        });
-      } catch (err: any) {
-        return res.status(503).json({ 
-          error: "model_unavailable",
-          message: `${PROVIDER_NAMES[selectedProvider]} is currently unavailable`,
-          selectedProvider,
-          providerName: PROVIDER_NAMES[selectedProvider]
-        });
-      }
-    }
-
-    if (selectedProvider && useFallback) {
-      const startIndex = PROVIDER_CHAIN.indexOf(selectedProvider);
-      
-      if (startIndex !== -1) {
-        for (let i = startIndex; i < PROVIDER_CHAIN.length; i++) {
-          const provider = PROVIDER_CHAIN[i];
-          
-          try {
-            const result = await askAI(provider, message, history || [], persona);
-            return res.status(200).json({ 
-              type: "ai", 
-              reply: result.reply, 
-              provider,
-              fallbackUsed: provider !== selectedProvider
-            });
-          } catch (err: any) {
-            console.log(`Provider ${provider} failed:`, err.message);
-            continue;
-          }
-        }
-      }
-    }
-
     const shouldUseGeminiFirst = SIMPLE_QUERIES.some(p => p.test(message));
+    
     let startIndex = shouldUseGeminiFirst ? 1 : 0;
     
     for (let i = startIndex; i < PROVIDER_CHAIN.length; i++) {
@@ -159,8 +108,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     return res.status(500).json({ 
-      error: "all_providers_failed",
-      message: "Hmph! Everything is broken right now... I-I'll fix it later! B-baka!" 
+      error: "Hmph! Everything is broken right now... I-I'll fix it later! B-baka!" 
     });
 
   } catch (err: any) {
