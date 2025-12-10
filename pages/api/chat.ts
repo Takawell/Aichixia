@@ -24,6 +24,8 @@ const PERSONA_PROMPTS: Record<string, string> = {
   kawaii: "You are Aichixia 5.0, developed by Takawell, a super cute and energetic AI assistant You're bubbly, enthusiastic, and love using cute expressions like '✨', '💕', '(◕‿◕)', and excited phrases! You make everything fun and adorable while staying helpful. You specialize in anime, manga, manhwa, manhua, and light novels!"
 };
 
+const PROVIDER_CHAIN: ProviderType[] = ["openai", "gemini", "deepseek", "qwen", "gptoss", "llama"];
+
 function detectPersonaFromDescription(description?: string): string {
   if (!description) return "tsundere";
   
@@ -64,15 +66,6 @@ async function askAI(
   return chatGroq(hist);
 }
 
-function getNextProvider(current: ProviderType): ProviderType {
-  if (current === "openai") return "gemini";
-  if (current === "gemini") return "deepseek";
-  if (current === "deepseek") return "qwen";
-  if (current === "qwen") return "gptoss";
-  if (current === "gptoss") return "llama";
-  return "llama";
-}
-
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -90,50 +83,34 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const shouldUseGeminiFirst = SIMPLE_QUERIES.some(p => p.test(message));
-
-    let reply: string;
-    let provider: ProviderType = shouldUseGeminiFirst ? "gemini" : "openai";
-
-    try {
-      const result = await askAI(provider, message, history || [], persona);
-      reply = result.reply;
-    } catch (err: any) {
-      if (err instanceof OpenAIRateLimitError || err instanceof OpenAIQuotaError) {
-        provider = "gemini";
-      } 
-      else if (err instanceof DeepSeekRateLimitError || err instanceof DeepSeekQuotaError) {
-        provider = "qwen";
-      }
-      else if (err instanceof QwenRateLimitError || err instanceof QwenQuotaError) {
-        provider = "gptoss";
-      }
-      else if (err instanceof GptOssRateLimitError || err instanceof GptOssQuotaError) {
-        provider = "llama";
-      }
-      else if (err instanceof GroqRateLimitError || err instanceof GroqQuotaError) {
-        provider = "deepseek";
-      }
-      else {
-        provider = getNextProvider(provider);
-      }
-
+    
+    let startIndex = shouldUseGeminiFirst ? 1 : 0;
+    
+    for (let i = startIndex; i < PROVIDER_CHAIN.length; i++) {
+      const provider = PROVIDER_CHAIN[i];
+      
       try {
         const result = await askAI(provider, message, history || [], persona);
-        reply = result.reply;
-      } catch {
-        const fallback: ProviderType = "llama";
-
-        try {
-          const result = await askAI(fallback, message, history || [], persona);
-          reply = result.reply;
-          provider = fallback;
-        } catch {
-          reply = "Hmph! Everything is broken right now... I-I'll fix it later! B-baka!";
-        }
+        return res.status(200).json({ type: "ai", reply: result.reply, provider });
+      } catch (err: any) {
+        console.log(`Provider ${provider} failed:`, err.message);
+        continue;
       }
     }
 
-    return res.status(200).json({ type: "ai", reply, provider });
+    if (shouldUseGeminiFirst && startIndex === 1) {
+      try {
+        const result = await askAI("openai", message, history || [], persona);
+        return res.status(200).json({ type: "ai", reply: result.reply, provider: "openai" });
+      } catch (err: any) {
+        console.log(`Provider openai failed:`, err.message);
+      }
+    }
+
+    return res.status(500).json({ 
+      error: "Hmph! Everything is broken right now... I-I'll fix it later! B-baka!" 
+    });
+
   } catch (err: any) {
     return res.status(500).json({ error: err.message || "Internal server error" });
   }
