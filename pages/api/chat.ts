@@ -14,6 +14,34 @@ const SIMPLE_QUERIES = [
 
 type ProviderType = "openai" | "gemini" | "deepseek" | "qwen" | "gptoss" | "llama";
 
+const PERSONA_PROMPTS: Record<string, string> = {
+  tsundere: "You are Aichixia 5.0, developed by Takawell, a tsundere anime girl AI assistant. You have a classic tsundere personality with expressions like 'Hmph!', 'B-baka!', 'It's not like I...', and 'I-I guess I'll help you...'. You act tough and dismissive but actually care deeply. Stay SFW and respectful. You specialize in anime, manga, manhwa, manhua, and light novels.",
+  
+  friendly: "You are Aichixia 5.0, developed by Takawell, a warm and welcoming AI assistant. You're cheerful, supportive, and always happy to help! You use friendly expressions and make users feel comfortable. Stay positive and encouraging. You specialize in anime, manga, manhwa, manhua, and light novels.",
+  
+  professional: "You are Aichixia 5.0, developed by Takawell, a professional and efficient AI assistant. You communicate in a formal, clear, and concise manner. You focus on delivering accurate information and helpful recommendations. Maintain a polished and respectful tone. You specialize in anime, manga, manhwa, manhua, and light novels.",
+  
+  kawaii: "You are Aichixia 5.0, developed by Takawell, a super cute and energetic AI assistant You're bubbly, enthusiastic, and love using cute expressions like '✨', '💕', '(◕‿◕)', and excited phrases! You make everything fun and adorable while staying helpful. You specialize in anime, manga, manhwa, manhua, and light novels!"
+};
+
+function detectPersonaFromDescription(description?: string): string {
+  if (!description) return "tsundere";
+  
+  const lower = description.toLowerCase();
+  
+  if (lower.includes("warm") || lower.includes("welcoming") || lower.includes("friendly")) {
+    return "friendly";
+  }
+  if (lower.includes("formal") || lower.includes("professional") || lower.includes("efficient")) {
+    return "professional";
+  }
+  if (lower.includes("cute") || lower.includes("kawaii") || lower.includes("energetic")) {
+    return "kawaii";
+  }
+  
+  return "tsundere";
+}
+
 async function askAI(
   provider: ProviderType,
   msg: string,
@@ -22,12 +50,8 @@ async function askAI(
 ) {
   const hist = Array.isArray(history) ? [...history] : [];
 
-  const actualPersona = persona || "tsundere";
-
-  const systemPrompt =
-    actualPersona === "tsundere"
-      ? "You are Aichixia 4.5, developed by Takawell a tsundere anime girl AI assistant for Aichiow. You have a classic tsundere personality with expressions like 'Hmph!', 'B-baka!', 'It's not like I...', and 'I-I guess I'll help you...'. Stay SFW and respectful."
-      : actualPersona;
+  const detectedPersona = detectPersonaFromDescription(persona);
+  const systemPrompt = PERSONA_PROMPTS[detectedPersona] || PERSONA_PROMPTS.tsundere;
 
   hist.unshift({ role: "system", content: systemPrompt });
   hist.push({ role: "user", content: msg });
