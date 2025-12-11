@@ -495,6 +495,10 @@ export default function Docs() {
               <FaTerminal size={16} />
               <span>© {new Date().getFullYear()} Aichixia - Anime-first AI Assistant</span>
             </div>
+            <p className="text-xs font-semibold bg-gradient-to-r from-sky-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+              BY TAKAWELL
+            </p>
+          </div>
         </footer>
       </div>
     </main>
