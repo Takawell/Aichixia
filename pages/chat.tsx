@@ -179,6 +179,7 @@ export default function Chat() {
       deepseek: "bg-cyan-500",
       qwen: "bg-purple-500",
       gptoss: "bg-pink-500",
+      compound: "bg-red-500",
       llama: "bg-rose-500",
     };
 
@@ -410,7 +411,6 @@ export default function Chat() {
             </div>
           </div>
         )}
-
         <div ref={messagesEndRef} />
       </div>
 
