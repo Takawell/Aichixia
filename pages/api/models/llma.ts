@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { chatGroq } from "@/lib/groq";
+import { chatLlama } from "@/lib/llama";
 
 // you can change this prompt as you like
 const PERSONA_PROMPTS: Record<string, string> = {
@@ -53,7 +53,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     hist.unshift({ role: "system", content: systemPrompt });
     hist.push({ role: "user", content: message });
 
-    const result = await chatGroq(hist);
+    const result = await chatLlama(hist);
     return res.status(200).json({ type: "ai", reply: result.reply, provider: "llama" });
 
   } catch (err: any) {
