@@ -27,6 +27,8 @@ import {
   FaShieldAlt,
   FaBolt,
   FaChartLine,
+  FaGithub,
+  FaTiktok,
 } from "react-icons/fa";
 import ThemeToggle from "@/components/ThemeToggle";
 import Link from "next/link";
@@ -244,18 +246,6 @@ const FeatureCard = ({ icon: Icon, title, description }: any) => {
   );
 };
 
-const StatCard = ({ icon: Icon, value, label }: any) => {
-  return (
-    <div className="bg-gradient-to-br from-blue-600 to-blue-700 dark:from-blue-500 dark:to-blue-600 rounded-xl p-6 text-white shadow-lg shadow-blue-500/30">
-      <div className="flex items-center gap-3 mb-2">
-        <Icon size={24} />
-        <p className="text-3xl font-black">{value}</p>
-      </div>
-      <p className="text-blue-100 text-sm font-medium">{label}</p>
-    </div>
-  );
-};
-
 export default function Docs() {
   const [scrolled, setScrolled] = useState(false);
 
@@ -295,7 +285,7 @@ export default function Docs() {
             
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black mb-6 leading-tight">
               <span className="bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
-                Anime & Manga API
+                Aichixia API
               </span>
               <br />
               <span className="text-slate-900 dark:text-white">Powered by AI</span>
@@ -305,7 +295,7 @@ export default function Docs() {
               Centralized API for anime, manga, manhwa, manhua, and light novels. Powered by AniList database with multi-provider AI intelligence.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 href="/chat"
                 className="group inline-flex items-center justify-center gap-3 px-6 py-3.5 bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-500 dark:to-blue-600 hover:from-blue-700 hover:to-blue-800 dark:hover:from-blue-600 dark:hover:to-blue-700 text-white rounded-xl font-bold transition-all duration-300 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 hover:-translate-y-0.5"
@@ -322,12 +312,6 @@ export default function Docs() {
                 <FaRocket size={20} />
                 <span>Explore Endpoints</span>
               </a>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <StatCard icon={FaDatabase} value="10K+" label="Daily Requests" />
-              <StatCard icon={FaBolt} value="99.9%" label="Uptime" />
-              <StatCard icon={FaShieldAlt} value="6" label="AI Providers" />
             </div>
           </div>
 
@@ -603,37 +587,6 @@ export default function Docs() {
               </div>
             </div>
           </section>
-
-          <section className="mb-20">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-gradient-to-br from-blue-600 to-blue-700 dark:from-blue-500 dark:to-blue-600 rounded-xl p-8 text-white shadow-xl shadow-blue-500/30">
-                <FaChartLine size={32} className="mb-4" />
-                <h3 className="text-2xl font-black mb-2">Performance</h3>
-                <p className="text-blue-100 mb-4">Lightning-fast API responses with optimized caching</p>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Average Response</span>
-                    <span className="text-sm font-bold">~200ms</span>
-                  </div>
-                  <div className="w-full bg-blue-800 rounded-full h-2">
-                    <div className="bg-white rounded-full h-2" style={{width: '85%'}}></div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-gradient-to-br from-purple-600 to-purple-700 dark:from-purple-500 dark:to-purple-600 rounded-xl p-8 text-white shadow-xl shadow-purple-500/30">
-                <FaGlobe size={32} className="mb-4" />
-                <h3 className="text-2xl font-black mb-2">Global CDN</h3>
-                <p className="text-purple-100 mb-4">Distributed worldwide for minimal latency</p>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-semibold">US</span>
-                  <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-semibold">EU</span>
-                  <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-semibold">ASIA</span>
-                  <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-semibold">AU</span>
-                </div>
-              </div>
-            </div>
-          </section>
         </div>
       </div>
 
@@ -647,11 +600,23 @@ export default function Docs() {
               <h3 className="text-2xl font-black text-slate-900 dark:text-white">Aichixia API</h3>
             </div>
             
-            <div className="flex flex-wrap items-center justify-center gap-8 text-sm text-slate-600 dark:text-slate-400">
-              <a href="#endpoints" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 font-medium">Endpoints</a>
-              <a href="#" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 font-medium">Documentation</a>
-              <a href="/chat" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 font-medium">AI Chat</a>
-              <a href="#" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 font-medium">GitHub</a>
+            <div className="flex items-center gap-6">
+              <a 
+                href="https://github.com/Takawell/Aichixia" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+              >
+                <FaGithub size={24} />
+              </a>
+              <a 
+                href="https://tiktok.com/putrawangyyy" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+              >
+                <FaTiktok size={24} />
+              </a>
             </div>
 
             <div className="w-full max-w-md h-px bg-gradient-to-r from-transparent via-slate-300 dark:via-slate-700 to-transparent"></div>
