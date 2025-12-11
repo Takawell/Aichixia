@@ -703,7 +703,7 @@ export default function Docs() {
                   </div>
                   <div className="flex-1">
                     <strong className="text-slate-900 dark:text-slate-100 text-base block mb-1">Model Selection</strong>
-                    <span className="text-slate-700 dark:text-slate-300 text-sm">Use /api/chat for auto-fallback or /api/models/{provider} for specific AI models</span>
+                    <span className="text-slate-700 dark:text-slate-300 text-sm">Use /api/chat for auto-fallback or /api/models/&#123;provider&#125; for specific AI models</span>
                   </div>
                 </li>
               </ul>
