@@ -12,7 +12,6 @@ import {
   FaHeart,
 } from "react-icons/fa";
 import Link from "next/link";
-import ThemeToggle from "@/components/ThemeToggle";
 
 type Message = {
   role: "user" | "assistant";
@@ -28,25 +27,25 @@ const personaConfig: Record<
   { name: string; description: string; color: string; icon: any }
 > = {
   tsundere: {
-    name: "Tsundere Mode",
+    name: "Tsundere",
     description: "B-baka! Classic tsundere personality",
     color: "from-pink-500 to-rose-500",
     icon: FaAngry,
   },
   friendly: {
-    name: "Friendly Mode",
+    name: "Friendly",
     description: "Warm and welcoming assistant",
     color: "from-green-500 to-emerald-500",
     icon: FaSmile,
   },
   professional: {
-    name: "Professional Mode",
+    name: "Professional",
     description: "Formal and efficient helper",
     color: "from-blue-500 to-indigo-500",
     icon: FaBriefcase,
   },
   kawaii: {
-    name: "Kawaii Mode",
+    name: "Kawaii",
     description: "Super cute and energetic!",
     color: "from-purple-500 to-pink-500",
     icon: FaHeart,
@@ -174,18 +173,18 @@ export default function Chat() {
     if (!provider) return null;
 
     const colors: Record<string, string> = {
-      openai: "bg-blue-500",
-      gemini: "bg-indigo-500",
-      deepseek: "bg-cyan-500",
-      qwen: "bg-purple-500",
-      gptoss: "bg-pink-500",
-      llama: "bg-rose-500",
+      openai: "bg-blue-600",
+      gemini: "bg-indigo-600",
+      deepseek: "bg-cyan-600",
+      qwen: "bg-purple-600",
+      gptoss: "bg-pink-600",
+      llama: "bg-rose-600",
     };
 
     return (
       <span
-        className={`text-[10px] px-2 py-0.5 rounded-full text-white font-bold ${
-          colors[provider] || "bg-gray-500"
+        className={`text-[9px] px-2 py-0.5 rounded-full text-white font-semibold ${
+          colors[provider] || "bg-zinc-600"
         }`}
       >
         {provider.toUpperCase()}
@@ -196,54 +195,52 @@ export default function Chat() {
   const PersonaIcon = personaConfig[persona].icon;
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
-      <header className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg border-b border-slate-200 dark:border-slate-700 px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between shadow-sm sticky top-0 z-10">
-        <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+    <div className="flex flex-col h-screen bg-black text-white">
+      <header className="bg-zinc-900/95 backdrop-blur-sm border-b border-zinc-800 px-4 py-3 flex items-center justify-between sticky top-0 z-10">
+        <div className="flex items-center gap-3 flex-1 min-w-0">
           <Link
             href="/"
-            className="p-1.5 sm:p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors flex-shrink-0"
+            className="p-2 hover:bg-zinc-800 rounded-lg transition-colors flex-shrink-0"
           >
-            <FaHome className="text-slate-600 dark:text-slate-300" size={18} />
+            <FaHome className="text-zinc-400" size={18} />
           </Link>
 
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+          <div className="flex items-center gap-3 min-w-0 flex-1">
             <div className="relative flex-shrink-0">
               <img
                 src="https://aichiow.vercel.app/aichixia.png"
                 alt="Aichixia"
-                className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-sky-400 dark:border-sky-500 shadow-md"
+                className="w-10 h-10 rounded-full border-2 border-red-600"
               />
-              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 sm:w-4 sm:h-4 bg-emerald-500 rounded-full border-2 border-white dark:border-slate-800 flex items-center justify-center">
-                <FaCircle size={5} className="text-white" />
-              </div>
+              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-zinc-900" />
             </div>
 
             <div className="min-w-0 flex-1">
-              <h1 className="text-sm sm:text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center gap-1.5 sm:gap-2 truncate">
+              <h1 className="text-base font-bold text-white flex items-center gap-2 truncate">
                 <span className="truncate">Aichixia 4.5</span>
-                <span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 bg-gradient-to-r from-sky-500 to-blue-500 text-white rounded-full font-semibold flex-shrink-0">
+                <span className="text-[10px] px-2 py-0.5 bg-red-600 text-white rounded-full font-semibold flex-shrink-0">
                   AI
                 </span>
               </h1>
-              <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-slate-500 dark:text-slate-400">
-                <FaCircle size={5} className="text-emerald-500 animate-pulse flex-shrink-0" />
-                <span className="truncate">Online Multi-AI Assistant</span>
+              <div className="flex items-center gap-1.5 text-xs text-zinc-400">
+                <FaCircle size={6} className="text-green-500 flex-shrink-0" />
+                <span className="truncate">Online</span>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+        <div className="flex items-center gap-2 flex-shrink-0">
           <div className="relative">
             <button
               onClick={() => setShowPersonaMenu(!showPersonaMenu)}
-              className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition-all text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300"
+              className="flex items-center gap-2 px-3 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-all text-sm font-medium text-zinc-300"
             >
-              <PersonaIcon className="text-base sm:text-lg" />
-              <span className="hidden md:inline">{personaConfig[persona].name.split(" ")[0]}</span>
+              <PersonaIcon size={16} />
+              <span className="hidden sm:inline">{personaConfig[persona].name}</span>
               <FaChevronDown
                 size={10}
-                className={`transition-transform hidden sm:block ${showPersonaMenu ? "rotate-180" : ""}`}
+                className={`transition-transform ${showPersonaMenu ? "rotate-180" : ""}`}
               />
             </button>
 
@@ -253,7 +250,7 @@ export default function Chat() {
                   className="fixed inset-0 z-10" 
                   onClick={() => setShowPersonaMenu(false)}
                 />
-                <div className="absolute right-0 mt-2 w-56 sm:w-64 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden z-20">
+                <div className="absolute right-0 mt-2 w-64 bg-zinc-900 rounded-lg shadow-xl border border-zinc-800 overflow-hidden z-20">
                   {(Object.keys(personaConfig) as Persona[]).map((p) => {
                     const Icon = personaConfig[p].icon;
                     return (
@@ -263,22 +260,22 @@ export default function Chat() {
                           setPersona(p);
                           setShowPersonaMenu(false);
                         }}
-                        className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors border-b border-slate-100 dark:border-slate-700 last:border-b-0 ${
-                          persona === p ? "bg-sky-50 dark:bg-sky-900/20" : ""
+                        className={`w-full px-4 py-3 text-left hover:bg-zinc-800 transition-colors border-b border-zinc-800 last:border-b-0 ${
+                          persona === p ? "bg-zinc-800" : ""
                         }`}
                       >
-                        <div className="flex items-center gap-2 sm:gap-3">
-                          <Icon className="text-xl sm:text-2xl flex-shrink-0" />
+                        <div className="flex items-center gap-3">
+                          <Icon className="text-lg flex-shrink-0" />
                           <div className="flex-1 min-w-0">
-                            <div className="font-semibold text-slate-800 dark:text-slate-200 text-xs sm:text-sm truncate">
+                            <div className="font-semibold text-white text-sm truncate">
                               {personaConfig[p].name}
                             </div>
-                            <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 truncate">
+                            <div className="text-xs text-zinc-400 truncate">
                               {personaConfig[p].description}
                             </div>
                           </div>
                           {persona === p && (
-                            <FaCircle size={6} className="text-sky-500 flex-shrink-0" />
+                            <FaCircle size={6} className="text-red-600 flex-shrink-0" />
                           )}
                         </div>
                       </button>
@@ -291,35 +288,31 @@ export default function Chat() {
 
           <button
             onClick={clearChat}
-            className="p-1.5 sm:p-2 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 rounded-lg transition-colors flex-shrink-0"
+            className="p-2 hover:bg-zinc-800 text-red-500 rounded-lg transition-colors flex-shrink-0"
             title="Clear chat"
           >
-            <FaTrash size={14} />
+            <FaTrash size={16} />
           </button>
-
-          <div className="hidden lg:block flex-shrink-0">
-            <ThemeToggle />
-          </div>
         </div>
       </header>
 
-      <div className="flex-1 overflow-y-auto px-3 sm:px-4 py-4 sm:py-6 space-y-3 sm:space-y-4">
+      <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4">
         {messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full text-center px-3 sm:px-4">
+          <div className="flex flex-col items-center justify-center h-full text-center px-4">
             <img
               src="https://aichiow.vercel.app/aichixia.png"
               alt="Aichixia"
-              className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-sky-400 dark:border-sky-500 shadow-lg mb-4 sm:mb-6 animate-bounce"
+              className="w-24 h-24 rounded-full border-4 border-red-600 shadow-lg mb-6"
             />
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-800 dark:text-slate-200 mb-2 sm:mb-3 flex items-center justify-center gap-2">
-              Konnichiwa! I'm Aichixia! <FaHeart className="text-pink-500" />
+            <h2 className="text-3xl font-bold text-white mb-3 flex items-center justify-center gap-2">
+              Konnichiwa! I'm Aichixia!
             </h2>
-            <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 max-w-md mb-4 sm:mb-6">
+            <p className="text-sm text-zinc-400 max-w-md mb-6">
               Your anime-loving AI assistant powered by multiple AI providers. Ask me anything
               about anime, manga, or just chat!
             </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 max-w-2xl w-full">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl w-full">
               {[
                 { q: "Recommend me some anime", icon: "💗" },
                 { q: "What's trending right now?", icon: "🔥" },
@@ -329,10 +322,10 @@ export default function Chat() {
                 <button
                   key={i}
                   onClick={() => setInput(suggestion.q)}
-                  className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 hover:border-sky-400 dark:hover:border-sky-500 rounded-lg transition-all hover:shadow-md text-left group"
+                  className="flex items-center gap-3 px-4 py-3 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-800 rounded-lg transition-all text-left group"
                 >
-                  <span className="text-xl sm:text-2xl flex-shrink-0">{suggestion.icon}</span>
-                  <span className="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 group-hover:text-sky-600 dark:group-hover:text-sky-400">
+                  <span className="text-2xl flex-shrink-0">{suggestion.icon}</span>
+                  <span className="text-sm font-medium text-zinc-300 group-hover:text-white">
                     {suggestion.q}
                   </span>
                 </button>
@@ -344,37 +337,37 @@ export default function Chat() {
         {messages.map((msg, idx) => (
           <div
             key={idx}
-            className={`flex gap-2 sm:gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+            className={`flex gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
           >
             {msg.role === "assistant" && (
               <div className="flex-shrink-0">
                 <img
                   src="https://aichiow.vercel.app/aichixia.png"
                   alt="Aichixia"
-                  className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full border-2 border-sky-400 dark:border-sky-500"
+                  className="w-8 h-8 rounded-full border-2 border-red-600"
                 />
               </div>
             )}
 
             <div
-              className={`flex flex-col max-w-[80%] sm:max-w-[75%] md:max-w-[70%] ${
+              className={`flex flex-col max-w-[75%] md:max-w-[70%] ${
                 msg.role === "user" ? "items-end" : "items-start"
               }`}
             >
               <div
-                className={`px-3 sm:px-4 py-2 sm:py-3 rounded-2xl shadow-md ${
+                className={`px-4 py-3 rounded-lg ${
                   msg.role === "user"
-                    ? "bg-gradient-to-r from-sky-500 to-blue-600 text-white rounded-tr-sm"
-                    : "bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-tl-sm"
+                    ? "bg-red-600 text-white"
+                    : "bg-zinc-900 text-white border border-zinc-800"
                 }`}
               >
-                <p className="text-xs sm:text-sm md:text-base whitespace-pre-wrap break-words leading-relaxed">
+                <p className="text-sm whitespace-pre-wrap break-words leading-relaxed">
                   {msg.content}
                 </p>
               </div>
 
-              <div className="flex items-center gap-1.5 sm:gap-2 mt-1 sm:mt-1.5 px-2">
-                <span className="text-[9px] sm:text-[10px] md:text-xs text-slate-400 dark:text-slate-500">
+              <div className="flex items-center gap-2 mt-1 px-2">
+                <span className="text-[10px] text-zinc-500">
                   {msg.timestamp.toLocaleTimeString([], {
                     hour: "2-digit",
                     minute: "2-digit",
@@ -386,8 +379,8 @@ export default function Chat() {
 
             {msg.role === "user" && (
               <div className="flex-shrink-0">
-                <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold border-2 border-white dark:border-slate-800 shadow-md">
-                  <FaUser size={12} className="sm:text-sm" />
+                <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white font-bold border-2 border-zinc-900">
+                  <FaUser size={14} />
                 </div>
               </div>
             )}
@@ -395,17 +388,17 @@ export default function Chat() {
         ))}
 
         {typing && (
-          <div className="flex gap-2 sm:gap-3 justify-start">
+          <div className="flex gap-3 justify-start">
             <img
               src="https://aichiow.vercel.app/aichixia.png"
               alt="Aichixia"
-              className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full border-2 border-sky-400 dark:border-sky-500"
+              className="w-8 h-8 rounded-full border-2 border-red-600"
             />
-            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 sm:px-6 py-3 sm:py-4 rounded-2xl rounded-tl-sm shadow-md">
-              <div className="flex gap-1 sm:gap-1.5">
-                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-sky-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-sky-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-sky-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+            <div className="bg-zinc-900 border border-zinc-800 px-5 py-3 rounded-lg">
+              <div className="flex gap-1.5">
+                <div className="w-2 h-2 bg-red-600 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                <div className="w-2 h-2 bg-red-600 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                <div className="w-2 h-2 bg-red-600 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
               </div>
             </div>
           </div>
@@ -414,9 +407,9 @@ export default function Chat() {
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg border-t border-slate-200 dark:border-slate-700 px-3 sm:px-4 py-3 sm:py-4">
+      <div className="bg-zinc-900/95 backdrop-blur-sm border-t border-zinc-800 px-4 py-4">
         <div className="max-w-4xl mx-auto">
-          <div className="flex gap-2 items-stretch">
+          <div className="flex gap-2 items-end">
             <textarea
               ref={inputRef}
               value={input}
@@ -425,13 +418,13 @@ export default function Chat() {
               placeholder="Type your message..."
               disabled={loading}
               rows={1}
-              className="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-100 dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 focus:border-sky-400 dark:focus:border-sky-500 rounded-xl resize-none outline-none text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm sm:text-base max-h-32"
+              className="flex-1 px-4 py-3 bg-zinc-800 border border-zinc-700 focus:border-zinc-600 rounded-lg resize-none outline-none text-white placeholder-zinc-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm max-h-32"
               style={{
-                minHeight: "46px",
+                minHeight: "44px",
               }}
               onInput={(e) => {
                 const target = e.target as HTMLTextAreaElement;
-                target.style.height = "46px";
+                target.style.height = "44px";
                 target.style.height = Math.min(target.scrollHeight, 128) + "px";
               }}
             />
@@ -439,15 +432,15 @@ export default function Chat() {
             <button
               onClick={handleSend}
               disabled={!input.trim() || loading}
-              className="px-4 sm:px-5 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 disabled:from-slate-300 disabled:to-slate-400 dark:disabled:from-slate-600 dark:disabled:to-slate-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl disabled:shadow-none transition-all disabled:cursor-not-allowed flex items-center justify-center gap-2 group flex-shrink-0"
+              className="px-5 bg-red-600 hover:bg-red-700 disabled:bg-zinc-700 text-white rounded-lg font-semibold transition-all disabled:cursor-not-allowed flex items-center justify-center gap-2 group flex-shrink-0"
               style={{
-                minHeight: "46px",
+                minHeight: "44px",
               }}
             >
-              <span className="hidden sm:inline text-sm md:text-base">Send</span>
+              <span className="hidden sm:inline text-sm">Send</span>
               <FaPaperPlane
                 size={14}
-                className={`${loading ? "animate-pulse" : "group-hover:translate-x-0.5"} transition-transform sm:text-base`}
+                className={`${loading ? "animate-pulse" : "group-hover:translate-x-0.5"} transition-transform`}
               />
             </button>
           </div>
