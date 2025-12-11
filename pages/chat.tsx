@@ -10,6 +10,11 @@ import {
   FaSmile,
   FaBriefcase,
   FaHeart,
+  FaFire,
+  FaBook,
+  FaQuestion,
+  FaSearch,
+  FaComments,
 } from "react-icons/fa";
 import Link from "next/link";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -59,6 +64,7 @@ export default function Chat() {
   const [loading, setLoading] = useState(false);
   const [typing, setTyping] = useState(false);
   const [persona, setPersona] = useState<Persona>("tsundere");
+  const [mode, setMode] = useState<"normal" | "deep">("normal");
   const [showPersonaMenu, setShowPersonaMenu] = useState(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -113,7 +119,7 @@ export default function Chat() {
     }
 
     try {
-      const response = await fetch("/api/chat", {
+      const response = await fetch(mode === "normal" ? "/api/chat" : "/api/models/compound", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -235,6 +241,31 @@ export default function Chat() {
         </div>
 
         <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+          <div className="flex items-center gap-1 bg-white dark:bg-slate-700 rounded-lg border-2 border-slate-200 dark:border-slate-600 overflow-hidden">
+            <button
+              onClick={() => setMode("normal")}
+              className={`flex items-center gap-1.5 px-2 sm:px-3 py-1.5 sm:py-2 transition-all text-xs sm:text-sm font-semibold ${
+                mode === "normal"
+                  ? "bg-sky-500 text-white"
+                  : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-600"
+              }`}
+            >
+              <FaComments className="text-sm sm:text-base" />
+              <span className="hidden sm:inline">Normal</span>
+            </button>
+            <button
+              onClick={() => setMode("deep")}
+              className={`flex items-center gap-1.5 px-2 sm:px-3 py-1.5 sm:py-2 transition-all text-xs sm:text-sm font-semibold ${
+                mode === "deep"
+                  ? "bg-purple-500 text-white"
+                  : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-600"
+              }`}
+            >
+              <FaSearch className="text-sm sm:text-base" />
+              <span className="hidden sm:inline">Deep</span>
+            </button>
+          </div>
+
           <div className="relative">
             <button
               onClick={() => setShowPersonaMenu(!showPersonaMenu)}
@@ -322,17 +353,17 @@ export default function Chat() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 max-w-2xl w-full">
               {[
-                { q: "Recommend me some anime", icon: "💗" },
-                { q: "What's trending right now?", icon: "🔥" },
-                { q: "Tell me about Manhwa", icon: "📚" },
-                { q: "Who are you?", icon: "❓" },
+                { q: "Recommend me some anime", icon: FaHeart },
+                { q: "What's trending right now?", icon: FaFire },
+                { q: "Tell me about Manhwa", icon: FaBook },
+                { q: "Who are you?", icon: FaQuestion },
               ].map((suggestion, i) => (
                 <button
                   key={i}
                   onClick={() => setInput(suggestion.q)}
                   className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 hover:border-sky-400 dark:hover:border-sky-500 rounded-lg transition-all hover:shadow-md text-left group"
                 >
-                  <span className="text-xl sm:text-2xl flex-shrink-0">{suggestion.icon}</span>
+                  <suggestion.icon className="text-xl sm:text-2xl flex-shrink-0 text-sky-500" />
                   <span className="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 group-hover:text-sky-600 dark:group-hover:text-sky-400">
                     {suggestion.q}
                   </span>
@@ -411,6 +442,7 @@ export default function Chat() {
             </div>
           </div>
         )}
+        
         <div ref={messagesEndRef} />
       </div>
 
