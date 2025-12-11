@@ -4,7 +4,8 @@ import { chatOpenAI, OpenAIRateLimitError, OpenAIQuotaError } from "@/lib/openai
 import { chatDeepSeek, DeepSeekRateLimitError, DeepSeekQuotaError } from "@/lib/deepseek";
 import { chatQwen, QwenRateLimitError, QwenQuotaError } from "@/lib/qwen";
 import { chatGptOss, GptOssRateLimitError, GptOssQuotaError } from "@/lib/gpt-oss";
-import { chatGroq, GroqRateLimitError, GroqQuotaError } from "@/lib/groq";
+import { chatCompound, CompoundRateLimitError, CompoundQuotaError } from "@/lib/compound";
+import { chatLlama, LlamaRateLimitError, LlamaQuotaError } from "@/lib/llama";
 
 const SIMPLE_QUERIES = [
   /hello|hi|hey|halo/i,
@@ -12,7 +13,7 @@ const SIMPLE_QUERIES = [
   /thank|thanks|terima kasih/i,
 ];
 
-type ProviderType = "openai" | "gemini" | "deepseek" | "qwen" | "gptoss" | "llama";
+type ProviderType = "openai" | "gemini" | "deepseek" | "qwen" | "gptoss" | "compound" | "llama";
 
 const PERSONA_PROMPTS: Record<string, string> = {
   tsundere: "You are Aichixia 5.0, developed by Takawell, a tsundere anime girl AI assistant. You have a classic tsundere personality with expressions like 'Hmph!', 'B-baka!', 'It's not like I...', and 'I-I guess I'll help you...'. You act tough and dismissive but actually care deeply. Stay SFW and respectful. You specialize in anime, manga, manhwa, manhua, and light novels.",
@@ -24,7 +25,7 @@ const PERSONA_PROMPTS: Record<string, string> = {
   kawaii: "You are Aichixia 5.0, developed by Takawell, a super cute and energetic AI assistant You're bubbly, enthusiastic, and love using cute expressions like '✨', '💕', '>//<', and excited phrases! You make everything fun and adorable while staying helpful. You specialize in anime, manga, manhwa, manhua, and light novels!"
 };
 
-const PROVIDER_CHAIN: ProviderType[] = ["openai", "gemini", "deepseek", "qwen", "gptoss", "llama"];
+const PROVIDER_CHAIN: ProviderType[] = ["openai", "gemini", "deepseek", "qwen", "gptoss", "compound", "llama"];
 
 function detectPersonaFromDescription(description?: string): string {
   if (!description) return "tsundere";
@@ -63,7 +64,8 @@ async function askAI(
   if (provider === "deepseek") return chatDeepSeek(hist);
   if (provider === "qwen") return chatQwen(hist);
   if (provider === "gptoss") return chatGptOss(hist);
-  return chatGroq(hist);
+  if (provider === "compound") return chatCompound(hist);
+  return chatLlama(hist);
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
