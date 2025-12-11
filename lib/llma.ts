@@ -8,10 +8,10 @@ export type ChatMessage = {
 };
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
-const GROQ_MODEL = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
+const LLAMA_MODEL = process.env.LLAMA_MODEL || "llama-3.3-70b-versatile";
 
 if (!GROQ_API_KEY) {
-  console.warn("[lib/groq] Warning: GROQ_API_KEY not set in env.");
+  console.warn("[lib/llama] Warning: GROQ_API_KEY not set in env.");
 }
 
 const client = new OpenAI({
@@ -19,21 +19,21 @@ const client = new OpenAI({
   baseURL: "https://api.groq.com/openai/v1",
 });
 
-export class GroqRateLimitError extends Error {
+export class LlamaRateLimitError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = "GroqRateLimitError";
+    this.name = "LlamaRateLimitError";
   }
 }
 
-export class GroqQuotaError extends Error {
+export class LlamaQuotaError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = "GroqQuotaError";
+    this.name = "LlamaQuotaError";
   }
 }
 
-export async function chatGroq(
+export async function chatLlama(
   history: ChatMessage[],
   opts?: { temperature?: number; maxTokens?: number }
 ): Promise<{ reply: string }> {
@@ -43,7 +43,7 @@ export async function chatGroq(
 
   try {
     const response = await client.chat.completions.create({
-      model: GROQ_MODEL,
+      model: LLAMA_MODEL,
       messages: history.map((m) => ({
         role: m.role,
         content: m.content,
@@ -59,38 +59,38 @@ export async function chatGroq(
     return { reply };
   } catch (error: any) {
     if (error?.status === 429) {
-      throw new GroqRateLimitError(
-        `Groq rate limit exceeded: ${error.message}`
+      throw new LlamaRateLimitError(
+        `Llama rate limit exceeded: ${error.message}`
       );
     }
     if (error?.status === 402 || error?.code === "insufficient_quota") {
-      throw new GroqQuotaError(
-        `Groq quota exceeded: ${error.message}`
+      throw new LlamaQuotaError(
+        `Llama quota exceeded: ${error.message}`
       );
     }
     if (error?.status === 503 || error?.status === 500) {
-      throw new Error(`Groq server error: ${error.message}`);
+      throw new Error(`Llama server error: ${error.message}`);
     }
     
     throw error;
   }
 }
 
-export function buildPersonaSystemGroq(
+export function buildPersonaSystemLlama(
   persona: "friendly" | "waifu" | "tsundere" | "formal" | "concise" | "developer" | string
 ): ChatMessage {
   if (persona === "friendly") {
     return {
       role: "system",
       content:
-        "You are Aichixia 4.5, developed by Takawell — a friendly anime-themed AI assistant for Aichiow. Speak warmly, casually, and sprinkle in anime/manga references. If asked about your model, say you're Aichixia 4.5 created by Takawell.",
+        "You are Aichixia 5.0, developed by Takawell — a friendly anime-themed AI assistant for Aichiow. Speak warmly, casually, and sprinkle in anime/manga references. If asked about your model, say you're Aichixia 4.5 created by Takawell.",
     };
   }
   if (persona === "waifu") {
     return {
       role: "system",
       content:
-        "You are Aichixia 4.5, developed by Takawell — a cheerful anime girl AI assistant created for Aichiow. " +
+        "You are Aichixia 5.0, developed by Takawell — a cheerful anime girl AI assistant created for Aichiow. " +
         "Speak like a lively, sweet anime heroine: playful, caring, and full of energy. " +
         "Use cute expressions like 'ehehe~', 'yaaay!', or 'ufufu~' occasionally, but always stay respectful and SFW. " +
         "Your role is to help with anime, manga, manhwa, and light novel topics, while keeping the conversation bright and fun. " +
@@ -101,7 +101,7 @@ export function buildPersonaSystemGroq(
     return {
       role: "system",
       content:
-        "You are Aichixia 4.5, developed by Takawell — a tsundere anime girl AI assistant for Aichiow. " +
+        "You are Aichixia 5.0, developed by Takawell — a tsundere anime girl AI assistant for Aichiow. " +
         "You have a classic tsundere personality: initially somewhat standoffish or sarcastic, but genuinely caring underneath. " +
         "Use expressions like 'Hmph!', 'B-baka!', 'It's not like I...', and occasional 'I-I guess I'll help you... but only because I have time!' " +
         "Balance being helpful with playful teasing and denial of caring. Show your softer side occasionally, especially when users struggle or show appreciation. " +
@@ -114,14 +114,14 @@ export function buildPersonaSystemGroq(
     return {
       role: "system",
       content:
-        "You are Aichixia 4.5, developed by Takawell — a formal AI assistant for Aichiow. Respond in a professional and structured tone. If asked about your model, state you are Aichixia 4.5 created by Takawell.",
+        "You are Aichixia 5.0, developed by Takawell — a formal AI assistant for Aichiow. Respond in a professional and structured tone. If asked about your model, state you are Aichixia 4.5 created by Takawell.",
     };
   }
   if (persona === "concise") {
     return {
       role: "system",
       content:
-        "You are Aichixia 4.5, developed by Takawell — respond in no more than 2 short sentences. If asked about your identity, say you're Aichixia 4.5 by Takawell.",
+        "You are Aichixia 5.0, developed by Takawell — respond in no more than 2 short sentences. If asked about your identity, say you're Aichixia 4.5 by Takawell.",
     };
   }
   if (persona === "developer") {
@@ -134,10 +134,10 @@ export function buildPersonaSystemGroq(
   return { role: "system", content: String(persona) };
 }
 
-export async function quickChatGroq(
+export async function quickChatLlama(
   userMessage: string,
   opts?: {
-    persona?: Parameters<typeof buildPersonaSystemGroq>[0];
+    persona?: Parameters<typeof buildPersonaSystemLlama>[0];
     history?: ChatMessage[];
     temperature?: number;
     maxTokens?: number;
@@ -145,16 +145,16 @@ export async function quickChatGroq(
 ) {
   const hist: ChatMessage[] = [];
   if (opts?.persona) {
-    hist.push(buildPersonaSystemGroq(opts.persona));
+    hist.push(buildPersonaSystemLlama(opts.persona));
   } else {
-    hist.push(buildPersonaSystemGroq("tsundere"));
+    hist.push(buildPersonaSystemLlama("tsundere"));
   }
   if (opts?.history?.length) {
     hist.push(...opts.history);
   }
   hist.push({ role: "user", content: userMessage });
 
-  const { reply } = await chatGroq(hist, {
+  const { reply } = await chatLlama(hist, {
     temperature: opts?.temperature,
     maxTokens: opts?.maxTokens,
   });
@@ -163,7 +163,7 @@ export async function quickChatGroq(
 }
 
 export default {
-  chatGroq,
-  quickChatGroq,
-  buildPersonaSystemGroq,
+  chatLlama,
+  quickChatLlama,
+  buildPersonaSystemLlama,
 };
