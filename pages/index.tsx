@@ -1,300 +1,442 @@
 import { useState } from "react";
-import {
-  FaBookOpen,
-  FaFilm,
-  FaComments,
-  FaStickyNote,
-  FaTerminal,
-  FaCheckCircle,
-  FaTimesCircle,
-  FaCopy,
-  FaRocket,
-  FaChevronRight,
-  FaBrain,
-} from "react-icons/fa";
+import { FaRocket, FaCode, FaBrain, FaHeart, FaGithub, FaBook, FaLightbulb, FaShieldAlt } from "react-icons/fa";
+import { motion } from "framer-motion";
 import ThemeToggle from "@/components/ThemeToggle";
 import Link from "next/link";
 
-const base = "https://aichixia.vercel.app";
+export default function ApiDocs() {
+  const [activeTab, setActiveTab] = useState<"overview" | "quickstart" | "features">("overview");
 
-const CopyableCode = ({ text }: { text: string }) => {
-  const [copied, setCopied] = useState(false);
-  const copy = () => {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1200);
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
   };
-  return (
-    <button
-      onClick={copy}
-      className="inline-flex items-center gap-2 bg-slate-200 dark:bg-slate-800 text-sky-600 dark:text-sky-300 px-3 py-1.5 rounded-md font-semibold text-sm active:scale-95 transition hover:bg-slate-300 dark:hover:bg-slate-700"
-    >
-      <code className="truncate max-w-[160px]">{text}</code>
-      {copied ? <FaCheckCircle size={14} className="text-green-500" /> : <FaCopy size={14} />}
-    </button>
-  );
-};
 
-const StatusBadge = ({ active, label }: { active: boolean; label: string }) => {
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-white text-xs font-bold shadow-sm
-      ${active ? "bg-emerald-500" : "bg-rose-500"}`}
-    >
-      {active ? <FaCheckCircle size={10} /> : <FaTimesCircle size={10} />} {label}
-    </span>
-  );
-};
-
-const Row = ({
-  method,
-  path,
-  desc,
-  active = true,
-  overrideLabel,
-}: {
-  method: string;
-  path: string;
-  desc: string;
-  active?: boolean;
-  overrideLabel?: string;
-}) => {
-  const [copied, setCopied] = useState(false);
-  const copy = () => {
-    navigator.clipboard.writeText(path);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1200);
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 100
+      }
+    }
   };
-  
-  return (
-    <div
-      onClick={copy}
-      className="group border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-4 mb-3 shadow-sm hover:shadow-lg cursor-pointer transition-all duration-300 hover:border-sky-400 dark:hover:border-sky-500 relative overflow-hidden"
-    >
-      <div className="absolute inset-0 bg-gradient-to-r from-sky-400/5 to-purple-400/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-      
-      <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2">
-        <div className="flex items-center gap-2 flex-1 min-w-0">
-          <span className="px-2.5 py-1 bg-gradient-to-r from-sky-500 to-blue-500 text-white rounded font-bold text-xs tracking-wider whitespace-nowrap shadow-sm">
-            {method}
-          </span>
-          <span className="px-2.5 py-1 bg-slate-100 dark:bg-slate-700 text-sky-600 dark:text-sky-300 rounded text-xs font-mono truncate flex-1 group-hover:bg-slate-200 dark:group-hover:bg-slate-600 transition-colors">
-            {path}
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <StatusBadge active={active} label={overrideLabel ?? (active ? "Active" : "Inactive")} />
-          {copied ? (
-            <FaCheckCircle className="text-emerald-500" size={14} />
-          ) : (
-            <FaCopy className="text-slate-400 group-hover:text-sky-500 transition-colors" size={14} />
-          )}
-        </div>
-      </div>
-      <p className="relative text-slate-600 dark:text-slate-400 text-xs sm:text-sm">{desc}</p>
-    </div>
-  );
-};
 
-export default function Docs() {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900 transition-colors duration-300">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
-        <div className="flex justify-between items-start mb-8 sm:mb-12">
-          <div className="flex-1" />
+    <main className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-950 text-white relative overflow-hidden">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-transparent pointer-events-none"></div>
+      <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10 pointer-events-none"></div>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <div className="absolute top-8 right-8">
           <ThemeToggle />
         </div>
 
-        <header className="text-center mb-12 sm:mb-16">
-          <div className="inline-flex items-center justify-center gap-3 mb-4 bg-gradient-to-r from-sky-500 via-blue-500 to-purple-500 bg-clip-text text-transparent animate-pulse">
-            <FaBookOpen className="text-sky-500 dark:text-sky-400" size={40} />
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight">
-              Aichixia API
-            </h1>
-          </div>
-          <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base lg:text-lg max-w-2xl mx-auto leading-relaxed px-4">
-            Centralized API for anime, manga, manhwa, manhua, and light novels. Powered by AniList database with multi-provider AI intelligence.
-          </p>
-          
-          <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center items-center px-4">
+        <motion.header
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, type: "spring" }}
+          className="text-center mb-16 sm:mb-24"
+        >
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+            className="inline-block mb-6"
+          >
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full blur-2xl opacity-50 animate-pulse"></div>
+              <img
+                src="/aichixia.png"
+                alt="Aichixia"
+                className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-blue-400/50 shadow-2xl shadow-blue-500/50"
+              />
+            </div>
+          </motion.div>
+
+          <motion.h1
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+            className="text-4xl sm:text-5xl md:text-7xl font-black mb-4 sm:mb-6 bg-gradient-to-r from-blue-300 via-cyan-300 to-blue-400 bg-clip-text text-transparent"
+          >
+            Aichixia API
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="text-base sm:text-xl text-blue-200/80 max-w-3xl mx-auto mb-8 sm:mb-12 leading-relaxed px-4"
+          >
+            Your gateway to anime, manga, manhwa, and AI-powered conversations. Built for developers who love anime culture.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center px-4"
+          >
+            <Link
+              href="/docs"
+              className="group relative px-8 py-4 bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 rounded-2xl font-bold text-lg overflow-hidden transition-all duration-300 hover:scale-105 active:scale-95 shadow-2xl shadow-blue-500/50 w-full sm:w-auto"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <span className="relative flex items-center justify-center gap-3">
+                <FaBook className="text-2xl" />
+                <span>View Documentation</span>
+              </span>
+            </Link>
+
             <Link
               href="/chat"
-              className="group inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white rounded-full font-bold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95"
+              className="group px-8 py-4 bg-slate-800/50 backdrop-blur-xl border-2 border-blue-500/30 hover:border-blue-400/50 rounded-2xl font-bold text-lg transition-all duration-300 hover:scale-105 active:scale-95 w-full sm:w-auto"
             >
-              <FaComments size={20} />
-              <span>Try AI Chat</span>
-              <FaChevronRight className="group-hover:translate-x-1 transition-transform" size={14} />
+              <span className="flex items-center justify-center gap-3">
+                <FaBrain className="text-2xl text-cyan-400" />
+                <span>Try AI Chat</span>
+              </span>
             </Link>
-            
-            <a
-              href="#endpoints"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-600 hover:border-sky-400 dark:hover:border-sky-500 text-slate-700 dark:text-slate-300 rounded-full font-semibold shadow-sm hover:shadow-md transition-all duration-300"
-            >
-              <FaRocket size={18} />
-              <span>Explore API</span>
-            </a>
-          </div>
-        </header>
+          </motion.div>
+        </motion.header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-12">
-          <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-md border border-slate-200 dark:border-slate-700 hover:shadow-lg transition-shadow">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-sky-100 dark:bg-sky-900/30 rounded-lg">
-                <FaFilm className="text-sky-600 dark:text-sky-400" size={24} />
-              </div>
-              <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">Rich Data</h3>
-            </div>
-            <p className="text-slate-600 dark:text-slate-400 text-sm">
-              Access comprehensive anime, manga, and light novel information from AniList
-            </p>
-          </div>
-
-          <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-md border border-slate-200 dark:border-slate-700 hover:shadow-lg transition-shadow">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-                <FaBrain className="text-purple-600 dark:text-purple-400" size={24} />
-              </div>
-              <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">Multi-AI</h3>
-            </div>
-            <p className="text-slate-600 dark:text-slate-400 text-sm">
-              Smart fallback system with OpenAI, Gemini, Deepseek, Qwen, GPT-OSS, and Llama
-            </p>
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="mb-16 sm:mb-24"
+        >
+          <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mb-12 px-4">
+            {[
+              { id: "overview", label: "Overview", icon: FaRocket },
+              { id: "quickstart", label: "Quick Start", icon: FaLightbulb },
+              { id: "features", label: "Features", icon: FaBrain }
+            ].map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <motion.button
+                  key={tab.id}
+                  variants={itemVariants}
+                  onClick={() => setActiveTab(tab.id as any)}
+                  className={`relative px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-bold transition-all duration-300 flex items-center justify-center gap-3 ${
+                    activeTab === tab.id
+                      ? "bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-2xl shadow-blue-500/50 scale-105"
+                      : "bg-slate-800/50 backdrop-blur-xl border border-blue-500/20 hover:border-blue-400/50 text-blue-200"
+                  }`}
+                >
+                  <Icon className="text-xl" />
+                  <span className="text-sm sm:text-base">{tab.label}</span>
+                </motion.button>
+              );
+            })}
           </div>
 
-          <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-md border border-slate-200 dark:border-slate-700 hover:shadow-lg transition-shadow">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
-                <FaRocket className="text-emerald-600 dark:text-emerald-400" size={24} />
-              </div>
-              <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">Fast & Free</h3>
-            </div>
-            <p className="text-slate-600 dark:text-slate-400 text-sm">
-              Lightning-fast responses with no authentication required
-            </p>
-          </div>
-        </div>
-
-        <section id="endpoints" className="mb-12 scroll-mt-8">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 bg-gradient-to-br from-sky-500 to-blue-500 rounded-lg shadow-lg">
-              <FaFilm className="text-white" size={24} />
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-slate-200">
-              API Endpoints
-            </h2>
-          </div>
-
-          <div className="space-y-1">
-            <Row method="GET" path={`${base}/api/aichixia?category=anime&action=search&query={text}`} desc="Search anime (requires query)" />
-            <Row method="GET" path={`${base}/api/aichixia?category=manga&action=search&query={text}`} desc="Search manga (requires query)" />
-            <Row method="GET" path={`${base}/api/aichixia?category=manhwa&action=search&query={text}`} desc="Search manhwa (requires query)" />
-            <Row method="GET" path={`${base}/api/aichixia?category=manhua&action=search&query={text}`} desc="Search manhua (requires query)" />
-            <Row method="GET" path={`${base}/api/aichixia?category=ln&action=search&query={text}`} desc="Search light novels (requires query)" />
-            <Row method="GET" path={`${base}/api/aichixia?category=anime&action=detail&id={value}`} desc="Media detail by ID (requires id)" />
-            <Row method="GET" path={`${base}/api/aichixia?action=trending`} desc="Trending anime & manga" />
-            <Row method="GET" path={`${base}/api/aichixia?category=anime&action=seasonal`} desc="Seasonal anime list" />
-            <Row method="GET" path={`${base}/api/aichixia?action=airing`} desc="Airing schedule" />
-            <Row method="GET" path={`${base}/api/aichixia?category=anime&action=recommendations&id={value}`} desc="Recommendations (requires id)" />
-            <Row method="GET" path={`${base}/api/aichixia?category=manhwa&action=top-genre&genre={name}`} desc="Top by genre (requires genre)" />
-            <Row method="GET" path={`${base}/api/aichixia?action=character&id={value}`} desc="Character detail (requires id)" />
-            <Row method="GET" path={`${base}/api/aichixia?action=staff&id={value}`} desc="Staff detail (requires id)" active={false} overrideLabel="Maintenance" />
-          </div>
-        </section>
-
-        <section className="mb-12">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg shadow-lg">
-              <FaComments className="text-white" size={24} />
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-slate-200">
-              AI Chat
-            </h2>
-          </div>
-          <Row method="POST" path={`${base}/api/chat`} desc="AI assistant with multi-provider fallback (OpenAI → Gemini → Deepseek → Qwen → GPT-OSS → Llama)" />
-          
-          <div className="mt-6 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-5">
-            <h3 className="text-sm font-bold text-purple-800 dark:text-purple-300 mb-3 flex items-center gap-2">
-              <FaBrain size={16} />
-              AI Provider Chain
-            </h3>
-            <div className="flex flex-wrap items-center gap-2 text-xs">
-              <span className="px-3 py-1 bg-blue-500 text-white rounded-full font-semibold">OpenAI</span>
-              <FaChevronRight className="text-slate-400" size={10} />
-              <span className="px-3 py-1 bg-indigo-500 text-white rounded-full font-semibold">Gemini</span>
-              <FaChevronRight className="text-slate-400" size={10} />
-              <span className="px-3 py-1 bg-violet-500 text-white rounded-full font-semibold">Deepseek</span>
-              <FaChevronRight className="text-slate-400" size={10} />
-              <span className="px-3 py-1 bg-purple-500 text-white rounded-full font-semibold">Qwen</span>
-              <FaChevronRight className="text-slate-400" size={10} />
-              <span className="px-3 py-1 bg-pink-500 text-white rounded-full font-semibold">GPT-OSS</span>
-              <FaChevronRight className="text-slate-400" size={10} />
-              <span className="px-3 py-1 bg-rose-500 text-white rounded-full font-semibold">Llama</span>
-            </div>
-            <p className="text-xs text-slate-600 dark:text-slate-400 mt-3">
-              Automatic fallback ensures 99.9% uptime with intelligent provider switching on rate limits or quota exhaustion
-            </p>
-          </div>
-        </section>
-
-        <section className="mb-12">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-gradient-to-br from-amber-500 to-orange-500 rounded-lg shadow-lg">
-              <FaStickyNote className="text-white" size={20} />
-            </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-slate-200">
-              Important Notes
-            </h2>
-          </div>
-          <div className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg p-6 shadow-sm">
-            <ul className="text-slate-700 dark:text-slate-300 space-y-2 text-sm">
-              <li className="flex items-start gap-2">
-                <span className="text-sky-500 mt-1">•</span>
-                <span><strong className="text-slate-900 dark:text-slate-100">Categories:</strong> anime, manga, manhwa, manhua, ln</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-sky-500 mt-1">•</span>
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+            className="bg-slate-900/60 backdrop-blur-2xl border border-blue-500/20 rounded-3xl p-6 sm:p-8 md:p-12 shadow-2xl"
+          >
+            {activeTab === "overview" && (
+              <div className="space-y-6 sm:space-y-8">
                 <div>
-                  <strong className="text-slate-900 dark:text-slate-100">Required parameters:</strong>
-                  <ul className="ml-4 mt-1 space-y-1">
-                    <li className="flex items-start gap-2">
-                      <span className="text-purple-500">→</span>
-                      <code className="bg-slate-100 dark:bg-slate-900 px-2 py-0.5 rounded text-xs">id</code>
-                      <span className="text-slate-600 dark:text-slate-400">for detail, character, staff, recommendations</span>
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-transparent bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text mb-4 sm:mb-6">
+                    What is Aichixia API?
+                  </h2>
+                  <p className="text-base sm:text-lg text-blue-100/80 leading-relaxed mb-6">
+                    Aichixia is a powerful RESTful API that combines comprehensive anime/manga data from AniList with multi-provider AI capabilities. Whether you're building an anime recommendation app, a chatbot, or a content discovery platform, Aichixia provides everything you need.
+                  </p>
+                  <p className="text-base sm:text-lg text-blue-100/80 leading-relaxed">
+                    Our API is designed with simplicity in mind - no complex authentication flows, no API key management headaches. Just pure, instant access to rich anime data and intelligent AI conversations.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                  {[
+                    {
+                      title: "Rich Database",
+                      desc: "Access millions of anime, manga, manhwa, manhua, and light novel entries with detailed information including characters, staff, and recommendations",
+                      color: "from-blue-500 to-cyan-500",
+                      icon: FaBook
+                    },
+                    {
+                      title: "AI Intelligence",
+                      desc: "6-provider fallback system (OpenAI, Gemini, DeepSeek, Qwen, GPT-OSS, Llama) ensures 99.9% uptime for conversational AI",
+                      color: "from-purple-500 to-pink-500",
+                      icon: FaBrain
+                    },
+                    {
+                      title: "Developer Friendly",
+                      desc: "Clean REST architecture with JSON responses, comprehensive documentation, and no authentication required for public endpoints",
+                      color: "from-green-500 to-emerald-500",
+                      icon: FaCode
+                    },
+                    {
+                      title: "Production Ready",
+                      desc: "Built for scale with intelligent caching, rate limiting, edge deployment, and real-time monitoring",
+                      color: "from-orange-500 to-red-500",
+                      icon: FaShieldAlt
+                    }
+                  ].map((item, idx) => {
+                    const Icon = item.icon;
+                    return (
+                      <motion.div
+                        key={idx}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.1 }}
+                        className="group relative bg-slate-800/50 backdrop-blur-xl border border-blue-500/20 hover:border-blue-400/50 rounded-2xl p-6 transition-all duration-300 hover:scale-105 overflow-hidden"
+                      >
+                        <div className={`absolute inset-0 bg-gradient-to-r ${item.color} opacity-0 group-hover:opacity-10 transition-opacity`}></div>
+                        <div className="relative flex items-start gap-4 mb-3">
+                          <div className={`p-3 bg-gradient-to-r ${item.color} rounded-xl`}>
+                            <Icon className="text-white text-xl" />
+                          </div>
+                          <h3 className="text-xl font-bold text-blue-100 flex-1">{item.title}</h3>
+                        </div>
+                        <p className="relative text-sm text-blue-200/70 leading-relaxed">{item.desc}</p>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+
+                <div className="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 rounded-2xl p-6">
+                  <h3 className="text-xl font-bold text-cyan-300 mb-3 flex items-center gap-2">
+                    <FaLightbulb />
+                    Why Choose Aichixia?
+                  </h3>
+                  <ul className="space-y-2 text-blue-100/80">
+                    <li className="flex items-start gap-3">
+                      <span className="text-cyan-400 mt-1">•</span>
+                      <span>Unified access to anime data and AI in a single API</span>
                     </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-purple-500">→</span>
-                      <code className="bg-slate-100 dark:bg-slate-900 px-2 py-0.5 rounded text-xs">query</code>
-                      <span className="text-slate-600 dark:text-slate-400">for search</span>
+                    <li className="flex items-start gap-3">
+                      <span className="text-cyan-400 mt-1">•</span>
+                      <span>Automatic failover ensures your app never goes down</span>
                     </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-purple-500">→</span>
-                      <code className="bg-slate-100 dark:bg-slate-900 px-2 py-0.5 rounded text-xs">genre</code>
-                      <span className="text-slate-600 dark:text-slate-400">for top-genre</span>
+                    <li className="flex items-start gap-3">
+                      <span className="text-cyan-400 mt-1">•</span>
+                      <span>Free tier with generous rate limits for indie developers</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="text-cyan-400 mt-1">•</span>
+                      <span>Open source and community-driven development</span>
                     </li>
                   </ul>
                 </div>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-sky-500 mt-1">•</span>
-                <span><strong className="text-slate-900 dark:text-slate-100">Chat Persona:</strong> Default is tsundere, or send custom persona in POST body</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-sky-500 mt-1">•</span>
-                <span><strong className="text-slate-900 dark:text-slate-100">Rate Limit:</strong> Please be respectful with API usage</span>
-              </li>
-            </ul>
-          </div>
-        </section>
+              </div>
+            )}
 
-        <footer className="text-center pt-8 border-t border-slate-300 dark:border-slate-700">
-          <div className="flex flex-col items-center gap-3 text-slate-500 dark:text-slate-400 text-sm">
-            <div className="flex items-center gap-2">
-              <FaTerminal size={16} />
-              <span>© {new Date().getFullYear()} Aichixia - Anime-first AI Assistant</span>
+            {activeTab === "quickstart" && (
+              <div className="space-y-6 sm:space-y-8">
+                <div>
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-transparent bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text mb-4 sm:mb-6">
+                    Get Started in Minutes
+                  </h2>
+                  <p className="text-base sm:text-lg text-blue-100/80 leading-relaxed mb-4">
+                    No API keys, no complex setup. Just start making HTTP requests!
+                  </p>
+                  <p className="text-sm text-blue-200/60">
+                    All you need is a basic understanding of REST APIs and your favorite HTTP client. Our API speaks standard JSON and follows RESTful conventions.
+                  </p>
+                </div>
+
+                <div className="space-y-4 sm:space-y-6">
+                  {[
+                    {
+                      title: "1. Search for Content",
+                      desc: "Search across anime, manga, manhwa, manhua, and light novels with a simple query parameter. Results include titles, images, scores, and metadata.",
+                      category: "Data Retrieval"
+                    },
+                    {
+                      title: "2. Fetch Detailed Info",
+                      desc: "Get comprehensive details about any title including synopsis, episodes, characters, staff, and related content. Perfect for building detailed pages.",
+                      category: "Data Retrieval"
+                    },
+                    {
+                      title: "3. Discover Trending",
+                      desc: "Access real-time trending content, seasonal anime, airing schedules, and personalized recommendations based on user preferences.",
+                      category: "Discovery"
+                    },
+                    {
+                      title: "4. AI Conversations",
+                      desc: "Integrate conversational AI with customizable personas (tsundere, friendly, professional, kawaii). Perfect for chatbots and recommendation engines.",
+                      category: "AI Features"
+                    }
+                  ].map((step, idx) => (
+                    <motion.div
+                      key={idx}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: idx * 0.15 }}
+                      className="bg-slate-800/50 backdrop-blur-xl border border-blue-500/20 rounded-2xl p-5 sm:p-6 hover:border-blue-400/40 transition-all"
+                    >
+                      <div className="flex items-start gap-3 mb-3">
+                        <span className="px-2 py-1 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg text-xs font-bold">
+                          {step.category}
+                        </span>
+                      </div>
+                      <h3 className="text-lg sm:text-xl font-bold text-cyan-300 mb-2">{step.title}</h3>
+                      <p className="text-sm text-blue-200/70 leading-relaxed">{step.desc}</p>
+                    </motion.div>
+                  ))}
+                </div>
+
+                <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-2xl p-6">
+                  <h3 className="text-xl font-bold text-purple-300 mb-3 flex items-center gap-2">
+                    <FaRocket />
+                    Ready to Code?
+                  </h3>
+                  <p className="text-blue-100/80 mb-4">
+                    Check out our comprehensive documentation for detailed endpoint references, request/response examples, and best practices.
+                  </p>
+                  <Link
+                    href="/docs"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-bold hover:scale-105 active:scale-95 transition-all"
+                  >
+                    <FaBook />
+                    <span>View Full Documentation</span>
+                  </Link>
+                </div>
+              </div>
+            )}
+
+            {activeTab === "features" && (
+              <div className="space-y-6 sm:space-y-8">
+                <div>
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-transparent bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text mb-4 sm:mb-6">
+                    Powerful Features
+                  </h2>
+                  <p className="text-base sm:text-lg text-blue-100/80 leading-relaxed">
+                    Everything you need to build modern anime applications, from simple search tools to complex recommendation systems.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 sm:gap-6">
+                  {[
+                    {
+                      title: "Multi-Provider AI System",
+                      features: ["OpenAI GPT-4 - Most intelligent responses", "Google Gemini - Fast and efficient", "DeepSeek - Advanced reasoning", "Qwen - Balanced performance", "GPT-OSS - Open source alternative", "Llama via Groq - Ultra-fast inference"],
+                      color: "from-purple-500 to-pink-500",
+                      icon: FaBrain
+                    },
+                    {
+                      title: "Comprehensive Database",
+                      features: ["Full-text search with autocomplete", "Trending and seasonal content", "Character and staff details", "Episode information and schedules", "Genre-based recommendations", "Related content suggestions"],
+                      color: "from-blue-500 to-cyan-500",
+                      icon: FaBook
+                    },
+                    {
+                      title: "Developer Experience",
+                      features: ["RESTful API design", "Clean JSON responses", "No authentication for public data", "Intelligent rate limiting", "CORS enabled for web apps", "TypeScript types available"],
+                      color: "from-green-500 to-emerald-500",
+                      icon: FaCode
+                    }
+                  ].map((category, idx) => {
+                    const Icon = category.icon;
+                    return (
+                      <motion.div
+                        key={idx}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.15 }}
+                        className="group relative bg-slate-800/50 backdrop-blur-xl border border-blue-500/20 hover:border-blue-400/50 rounded-2xl p-6 transition-all duration-300 overflow-hidden"
+                      >
+                        <div className={`absolute inset-0 bg-gradient-to-r ${category.color} opacity-0 group-hover:opacity-10 transition-opacity`}></div>
+                        <div className="relative flex items-center gap-3 mb-4">
+                          <div className={`p-3 bg-gradient-to-r ${category.color} rounded-xl`}>
+                            <Icon className="text-white text-2xl" />
+                          </div>
+                          <h3 className="text-xl sm:text-2xl font-bold text-blue-100">{category.title}</h3>
+                        </div>
+                        <ul className="relative space-y-2">
+                          {category.features.map((feature, fidx) => (
+                            <li key={fidx} className="flex items-start gap-3 text-sm sm:text-base text-blue-200/80">
+                              <span className="w-2 h-2 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full mt-2 flex-shrink-0"></span>
+                              <span>{feature}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </motion.div>
+        </motion.div>
+
+        <motion.section
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1, duration: 0.8 }}
+          className="text-center mb-16 sm:mb-24"
+        >
+          <div className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 backdrop-blur-xl border border-blue-500/20 rounded-3xl p-8 sm:p-12 md:p-16">
+            <FaHeart className="text-5xl sm:text-6xl text-pink-500 mx-auto mb-6 animate-pulse" />
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-blue-100 mb-4 sm:mb-6">
+              Ready to Build Something Amazing?
+            </h2>
+            <p className="text-base sm:text-lg text-blue-200/80 mb-6 sm:mb-8 max-w-2xl mx-auto px-4">
+              Join hundreds of developers using Aichixia API to create the next generation of anime applications. From simple hobby projects to production-scale platforms.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center px-4">
+              <Link
+                href="/docs"
+                className="group px-8 py-4 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl font-bold text-lg hover:scale-105 active:scale-95 transition-all duration-300 shadow-2xl shadow-blue-500/50"
+              >
+                <span className="flex items-center justify-center gap-3">
+                  <FaBook className="text-2xl" />
+                  <span>Read Documentation</span>
+                </span>
+              </Link>
+              <a
+                href="https://github.com/Takawell/Aichixia"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-8 py-4 bg-slate-800/50 backdrop-blur-xl border-2 border-blue-500/30 hover:border-blue-400/50 rounded-2xl font-bold text-lg hover:scale-105 active:scale-95 transition-all duration-300"
+              >
+                <span className="flex items-center justify-center gap-3">
+                  <FaGithub className="text-2xl" />
+                  <span>View on GitHub</span>
+                </span>
+              </a>
             </div>
-            <p className="text-xs">BY TAKAWELL</p>
           </div>
-        </footer>
+        </motion.section>
+
+        <motion.footer
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.2 }}
+          className="text-center py-8 border-t border-blue-500/20"
+        >
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 mb-4">
+            <Link href="/docs" className="text-blue-300 hover:text-blue-200 transition-colors text-sm sm:text-base">
+              Documentation
+            </Link>
+            <span className="hidden sm:inline text-blue-500/50">•</span>
+            <Link href="/chat" className="text-blue-300 hover:text-blue-200 transition-colors text-sm sm:text-base">
+              Try AI Chat
+            </Link>
+            <span className="hidden sm:inline text-blue-500/50">•</span>
+            <a href="https://github.com/Takawell/Aichixia" className="text-blue-300 hover:text-blue-200 transition-colors text-sm sm:text-base">
+              GitHub
+            </a>
+          </div>
+          <p className="text-blue-300/60 text-xs sm:text-sm">
+            © {new Date().getFullYear()} Aichixia - Anime-first AI Assistant
+          </p>
+        </motion.footer>
       </div>
     </main>
   );
