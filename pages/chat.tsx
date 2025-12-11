@@ -18,6 +18,8 @@ import {
 } from "react-icons/fa";
 import Link from "next/link";
 import ThemeToggle from "@/components/ThemeToggle";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 type Message = {
   role: "user" | "assistant";
@@ -241,13 +243,13 @@ export default function Chat() {
         </div>
 
         <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-          <div className="flex items-center gap-1 bg-white dark:bg-slate-700 rounded-lg border-2 border-slate-200 dark:border-slate-600 overflow-hidden">
+          <div className="relative bg-slate-100 dark:bg-slate-700/50 rounded-full p-1 flex items-center">
             <button
               onClick={() => setMode("normal")}
-              className={`flex items-center gap-1.5 px-2 sm:px-3 py-1.5 sm:py-2 transition-all text-xs sm:text-sm font-semibold ${
+              className={`relative flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full transition-all duration-300 text-xs sm:text-sm font-semibold ${
                 mode === "normal"
-                  ? "bg-sky-500 text-white"
-                  : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-600"
+                  ? "bg-gradient-to-r from-sky-500 to-blue-500 text-white shadow-lg"
+                  : "text-slate-600 dark:text-slate-400"
               }`}
             >
               <FaComments className="text-sm sm:text-base" />
@@ -255,10 +257,10 @@ export default function Chat() {
             </button>
             <button
               onClick={() => setMode("deep")}
-              className={`flex items-center gap-1.5 px-2 sm:px-3 py-1.5 sm:py-2 transition-all text-xs sm:text-sm font-semibold ${
+              className={`relative flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full transition-all duration-300 text-xs sm:text-sm font-semibold ${
                 mode === "deep"
-                  ? "bg-purple-500 text-white"
-                  : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-600"
+                  ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg"
+                  : "text-slate-600 dark:text-slate-400"
               }`}
             >
               <FaSearch className="text-sm sm:text-base" />
@@ -400,9 +402,17 @@ export default function Chat() {
                     : "bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-tl-sm"
                 }`}
               >
-                <p className="text-xs sm:text-sm md:text-base whitespace-pre-wrap break-words leading-relaxed">
-                  {msg.content}
-                </p>
+                {msg.role === "assistant" ? (
+                  <div className="prose prose-sm sm:prose-base dark:prose-invert max-w-none prose-p:my-2 prose-headings:my-3 prose-ul:my-2 prose-ol:my-2 prose-li:my-1">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {msg.content}
+                    </ReactMarkdown>
+                  </div>
+                ) : (
+                  <p className="text-xs sm:text-sm md:text-base whitespace-pre-wrap break-words leading-relaxed">
+                    {msg.content}
+                  </p>
+                )}
               </div>
 
               <div className="flex items-center gap-1.5 sm:gap-2 mt-1 sm:mt-1.5 px-2">
@@ -442,7 +452,6 @@ export default function Chat() {
             </div>
           </div>
         )}
-        
         <div ref={messagesEndRef} />
       </div>
 
