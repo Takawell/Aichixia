@@ -8,7 +8,7 @@ export type ChatMessage = {
 };
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
-const GROQ_MODEL_OSS = process.env.GROQ_MODEL_OSS || "gpt-oss-120b";
+const GROQ_MODEL_OSS = process.env.GROQ_MODEL_OSS || "openai/gpt-oss-120b";
 
 if (!GROQ_API_KEY) {
   console.warn("[lib/gpt-oss] Warning: GROQ_API_KEY not set in env.");
@@ -49,7 +49,7 @@ export async function chatGptOss(
         content: m.content,
       })),
       temperature: opts?.temperature ?? 0.8,
-      max_tokens: opts?.maxTokens ?? 512,
+      max_tokens: opts?.maxTokens ?? 4096,
     });
 
     const reply =
