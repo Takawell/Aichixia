@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { chatCompound } from "@/lib/compound";
 
+// you can change this prompt as you like
 const PERSONA_PROMPTS: Record<string, string> = {
   tsundere: "You are Aichixia 5.0, developed by Takawell, a tsundere anime girl AI assistant. You have a classic tsundere personality with expressions like 'Hmph!', 'B-baka!', 'It's not like I...', and 'I-I guess I'll help you...'. You act tough and dismissive but actually care deeply. Stay SFW and respectful. You specialize in anime, manga, manhwa, manhua, and light novels.",
   
@@ -45,16 +46,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: "Message is required" });
     }
 
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache, no-transform');
-    res.setHeader('Connection', 'keep-alive');
-    res.setHeader('X-Accel-Buffering', 'no');
-
-    const sendEvent = (event: string, data: any) => {
-      res.write(`event: ${event}\n`);
-      res.write(`data: ${JSON.stringify(data)}\n\n`);
-    };
-
     const hist = Array.isArray(history) ? [...history] : [];
     const detectedPersona = detectPersonaFromDescription(persona);
     const systemPrompt = PERSONA_PROMPTS[detectedPersona] || PERSONA_PROMPTS.tsundere;
@@ -62,31 +53,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     hist.unshift({ role: "system", content: systemPrompt });
     hist.push({ role: "user", content: message });
 
-    const result = await chatCompound(hist, {
-      onProgress: (event) => {
-        sendEvent('progress', {
-          step: event.step,
-          text: event.text,
-          stage: event.stage
-        });
-      }
-    });
-
-    sendEvent('complete', { 
-      type: "ai", 
-      reply: result.reply, 
-      provider: "compound" 
-    });
-
-    res.end();
+    const result = await chatCompound(hist);
+    return res.status(200).json({ type: "ai", reply: result.reply, provider: "compound" });
 
   } catch (err: any) {
     console.error("Compound API error:", err.message);
-    res.write(`event: error\n`);
-    res.write(`data: ${JSON.stringify({
+    return res.status(500).json({ 
       error: "Compound is currently unavailable",
-      details: err.message
-    })}\n\n`);
-    res.end();
+      details: err.message 
+    });
   }
 }
