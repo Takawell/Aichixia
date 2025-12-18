@@ -380,15 +380,15 @@ export default function Docs() {
               />
               <Row 
                 method="GET" 
-                path={`${base}/api/aichixia?action=trending`} 
+                path={`${base}/api/aichixia?action=trending&category=anime&page=1&perPage=20`} 
                 desc="Get currently trending anime and manga" 
-                note="Returns a list of the most popular trending titles right now."
+                note={`Returns a list of the most popular trending titles right now. Supports category filtering and pagination.`}
               />
               <Row 
                 method="GET" 
-                path={`${base}/api/aichixia?category=anime&action=seasonal`} 
-                desc="Get current seasonal anime releases" 
-                note="Returns anime airing in the current season with broadcast schedules."
+                path={`${base}/api/aichixia?category=anime&action=seasonal&season=<SEASON>&year=<YEAR>&page=<PAGE>&perPage=<PERPAGE>`} 
+                desc="Get seasonal anime releases" 
+                note={`Returns anime airing within the specified season and year. Params 'season' and 'year' are required.`}
               />
               <Row 
                 method="GET" 
