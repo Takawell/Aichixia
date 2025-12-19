@@ -13,9 +13,9 @@ import {
   FaFire,
   FaBook,
   FaQuestion,
-  FaSearch,
-  FaComments,
 } from "react-icons/fa";
+import { SiOpenai, SiGoogle, SiMeta } from "react-icons/si";
+import { IoSparkles } from "react-icons/io5";
 import Link from "next/link";
 import ThemeToggle from "@/components/ThemeToggle";
 import ReactMarkdown from "react-markdown";
@@ -29,6 +29,14 @@ type Message = {
 };
 
 type Persona = "tsundere" | "friendly" | "professional" | "kawaii";
+
+type Model = {
+  id: string;
+  name: string;
+  endpoint: string;
+  icon: any;
+  color: string;
+};
 
 const personaConfig: Record<
   Persona,
@@ -60,17 +68,71 @@ const personaConfig: Record<
   },
 };
 
+const models: Model[] = [
+  {
+    id: "aichixia",
+    name: "Aichixia",
+    endpoint: "/api/chat",
+    icon: IoSparkles,
+    color: "from-sky-500 to-blue-500",
+  },
+  {
+    id: "gpt4mini",
+    name: "GPT-4 Mini",
+    endpoint: "/api/models/openai",
+    icon: SiOpenai,
+    color: "from-green-500 to-emerald-500",
+  },
+  {
+    id: "gemini",
+    name: "Gemini 2.5 Flash",
+    endpoint: "/api/models/gemini",
+    icon: SiGoogle,
+    color: "from-indigo-500 to-purple-500",
+  },
+  {
+    id: "deepseek",
+    name: "DeepSeek V3",
+    endpoint: "/api/models/deepseek",
+    icon: IoSparkles,
+    color: "from-cyan-500 to-blue-500",
+  },
+  {
+    id: "qwen",
+    name: "Qwen3 Coder 480B",
+    endpoint: "/api/models/qwen",
+    icon: IoSparkles,
+    color: "from-purple-500 to-pink-500",
+  },
+  {
+    id: "gptoss",
+    name: "GPT-OSS 120B",
+    endpoint: "/api/models/gptoss",
+    icon: IoSparkles,
+    color: "from-pink-500 to-rose-500",
+  },
+  {
+    id: "llama",
+    name: "Llama 3.3 70B",
+    endpoint: "/api/models/llama",
+    icon: SiMeta,
+    color: "from-orange-500 to-red-500",
+  },
+];
+
 export default function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [typing, setTyping] = useState(false);
   const [persona, setPersona] = useState<Persona>("tsundere");
-  const [mode, setMode] = useState<"normal" | "deep">("normal");
+  const [selectedModel, setSelectedModel] = useState<Model>(models[0]);
   const [showPersonaMenu, setShowPersonaMenu] = useState(false);
+  const [showModelMenu, setShowModelMenu] = useState(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -121,7 +183,7 @@ export default function Chat() {
     }
 
     try {
-      const response = await fetch(mode === "normal" ? "/api/chat" : "/api/models/compound", {
+      const response = await fetch(selectedModel.endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -203,6 +265,7 @@ export default function Chat() {
   };
 
   const PersonaIcon = personaConfig[persona].icon;
+  const ModelIcon = selectedModel.icon;
 
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
@@ -243,31 +306,6 @@ export default function Chat() {
         </div>
 
         <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-          <div className="relative bg-slate-100 dark:bg-slate-700/50 rounded-full p-1 flex items-center">
-            <button
-              onClick={() => setMode("normal")}
-              className={`relative flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full transition-all duration-300 text-xs sm:text-sm font-semibold ${
-                mode === "normal"
-                  ? "bg-gradient-to-r from-sky-500 to-blue-500 text-white shadow-lg"
-                  : "text-slate-600 dark:text-slate-400"
-              }`}
-            >
-              <FaComments className="text-sm sm:text-base" />
-              <span className="hidden sm:inline">Normal</span>
-            </button>
-            <button
-              onClick={() => setMode("deep")}
-              className={`relative flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full transition-all duration-300 text-xs sm:text-sm font-semibold ${
-                mode === "deep"
-                  ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg"
-                  : "text-slate-600 dark:text-slate-400"
-              }`}
-            >
-              <FaSearch className="text-sm sm:text-base" />
-              <span className="hidden sm:inline">Deep</span>
-            </button>
-          </div>
-
           <div className="relative">
             <button
               onClick={() => setShowPersonaMenu(!showPersonaMenu)}
@@ -337,160 +375,223 @@ export default function Chat() {
         </div>
       </header>
 
-      <div className="flex-1 overflow-y-auto px-3 sm:px-4 py-4 sm:py-6 space-y-3 sm:space-y-4">
-        {messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full text-center px-3 sm:px-4">
-            <img
-              src="https://aichiow.vercel.app/aichixia.png"
-              alt="Aichixia"
-              className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-sky-400 dark:border-sky-500 shadow-lg mb-4 sm:mb-6 animate-bounce"
-            />
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-800 dark:text-slate-200 mb-2 sm:mb-3 flex items-center justify-center gap-2">
-              Konnichiwa! I'm Aichixia! <FaHeart className="text-pink-500" />
-            </h2>
-            <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 max-w-md mb-4 sm:mb-6">
-              Your anime-loving AI assistant powered by multiple AI providers. Ask me anything
-              about anime, manga, or just chat!
-            </p>
+      <div className="flex-1 overflow-y-auto px-3 sm:px-4 py-4 sm:py-6">
+        <div className="max-w-4xl mx-auto space-y-3 sm:space-y-4">
+          {messages.length === 0 && (
+            <div className="flex flex-col items-center justify-center h-full text-center px-3 sm:px-4">
+              <img
+                src="https://aichiow.vercel.app/aichixia.png"
+                alt="Aichixia"
+                className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-sky-400 dark:border-sky-500 shadow-lg mb-4 sm:mb-6 animate-bounce"
+              />
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-800 dark:text-slate-200 mb-2 sm:mb-3 flex items-center justify-center gap-2">
+                Konnichiwa! I'm Aichixia! <FaHeart className="text-pink-500" />
+              </h2>
+              <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 max-w-md mb-4 sm:mb-6">
+                Your anime-loving AI assistant powered by multiple AI providers. Ask me anything
+                about anime, manga, or just chat!
+              </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 max-w-2xl w-full">
-              {[
-                { q: "Recommend me some anime", icon: FaHeart },
-                { q: "What's trending right now?", icon: FaFire },
-                { q: "Tell me about Manhwa", icon: FaBook },
-                { q: "Who are you?", icon: FaQuestion },
-              ].map((suggestion, i) => (
-                <button
-                  key={i}
-                  onClick={() => setInput(suggestion.q)}
-                  className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 hover:border-sky-400 dark:hover:border-sky-500 rounded-lg transition-all hover:shadow-md text-left group"
-                >
-                  <suggestion.icon className="text-xl sm:text-2xl flex-shrink-0 text-sky-500" />
-                  <span className="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 group-hover:text-sky-600 dark:group-hover:text-sky-400">
-                    {suggestion.q}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {messages.map((msg, idx) => (
-          <div
-            key={idx}
-            className={`flex gap-2 sm:gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-          >
-            {msg.role === "assistant" && (
-              <div className="flex-shrink-0">
-                <img
-                  src="https://aichiow.vercel.app/aichixia.png"
-                  alt="Aichixia"
-                  className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full border-2 border-sky-400 dark:border-sky-500"
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 max-w-2xl w-full">
+                {[
+                  { q: "Recommend me some anime", icon: FaHeart },
+                  { q: "What's trending right now?", icon: FaFire },
+                  { q: "Tell me about Manhwa", icon: FaBook },
+                  { q: "Who are you?", icon: FaQuestion },
+                ].map((suggestion, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setInput(suggestion.q)}
+                    className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 hover:border-sky-400 dark:hover:border-sky-500 rounded-lg transition-all hover:shadow-md text-left group"
+                  >
+                    <suggestion.icon className="text-xl sm:text-2xl flex-shrink-0 text-sky-500" />
+                    <span className="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 group-hover:text-sky-600 dark:group-hover:text-sky-400">
+                      {suggestion.q}
+                    </span>
+                  </button>
+                ))}
               </div>
-            )}
+            </div>
+          )}
 
+          {messages.map((msg, idx) => (
             <div
-              className={`flex flex-col max-w-[80%] sm:max-w-[75%] md:max-w-[70%] ${
-                msg.role === "user" ? "items-end" : "items-start"
-              }`}
+              key={idx}
+              className={`flex gap-2 sm:gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
             >
+              {msg.role === "assistant" && (
+                <div className="flex-shrink-0">
+                  <img
+                    src="https://aichiow.vercel.app/aichixia.png"
+                    alt="Aichixia"
+                    className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full border-2 border-sky-400 dark:border-sky-500"
+                  />
+                </div>
+              )}
+
               <div
-                className={`px-3 sm:px-4 py-2 sm:py-3 rounded-2xl shadow-md ${
-                  msg.role === "user"
-                    ? "bg-gradient-to-r from-sky-500 to-blue-600 text-white rounded-tr-sm"
-                    : "bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-tl-sm"
+                className={`flex flex-col max-w-[85%] sm:max-w-[75%] md:max-w-[70%] ${
+                  msg.role === "user" ? "items-end" : "items-start"
                 }`}
               >
-                {msg.role === "assistant" ? (
-                  <div className="prose prose-sm sm:prose-base dark:prose-invert max-w-none prose-p:my-2 prose-headings:my-3 prose-ul:my-2 prose-ol:my-2 prose-li:my-1">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                <div
+                  className={`px-3 sm:px-4 py-2 sm:py-3 rounded-2xl shadow-md ${
+                    msg.role === "user"
+                      ? "bg-gradient-to-r from-sky-500 to-blue-600 text-white rounded-tr-sm"
+                      : "bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-tl-sm"
+                  }`}
+                >
+                  {msg.role === "assistant" ? (
+                    <div className="prose prose-sm sm:prose-base dark:prose-invert max-w-none prose-p:my-2 prose-headings:my-3 prose-ul:my-2 prose-ol:my-2 prose-li:my-1">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {msg.content}
+                      </ReactMarkdown>
+                    </div>
+                  ) : (
+                    <p className="text-xs sm:text-sm md:text-base whitespace-pre-wrap break-words leading-relaxed">
                       {msg.content}
-                    </ReactMarkdown>
-                  </div>
-                ) : (
-                  <p className="text-xs sm:text-sm md:text-base whitespace-pre-wrap break-words leading-relaxed">
-                    {msg.content}
-                  </p>
-                )}
-              </div>
+                    </p>
+                  )}
+                </div>
 
-              <div className="flex items-center gap-1.5 sm:gap-2 mt-1 sm:mt-1.5 px-2">
-                <span className="text-[9px] sm:text-[10px] md:text-xs text-slate-400 dark:text-slate-500">
-                  {msg.timestamp.toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </span>
-                {msg.role === "assistant" && msg.provider && getProviderBadge(msg.provider)}
-              </div>
-            </div>
-
-            {msg.role === "user" && (
-              <div className="flex-shrink-0">
-                <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold border-2 border-white dark:border-slate-800 shadow-md">
-                  <FaUser size={12} className="sm:text-sm" />
+                <div className="flex items-center gap-1.5 sm:gap-2 mt-1 sm:mt-1.5 px-2">
+                  <span className="text-[9px] sm:text-[10px] md:text-xs text-slate-400 dark:text-slate-500">
+                    {msg.timestamp.toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                  {msg.role === "assistant" && msg.provider && getProviderBadge(msg.provider)}
                 </div>
               </div>
-            )}
-          </div>
-        ))}
 
-        {typing && (
-          <div className="flex gap-2 sm:gap-3 justify-start">
-            <img
-              src="https://aichiow.vercel.app/aichixia.png"
-              alt="Aichixia"
-              className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full border-2 border-sky-400 dark:border-sky-500"
-            />
-            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 sm:px-6 py-3 sm:py-4 rounded-2xl rounded-tl-sm shadow-md">
-              <div className="flex gap-1 sm:gap-1.5">
-                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-sky-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-sky-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-sky-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+              {msg.role === "user" && (
+                <div className="flex-shrink-0">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold border-2 border-white dark:border-slate-800 shadow-md">
+                    <FaUser size={12} className="sm:text-sm" />
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+
+          {typing && (
+            <div className="flex gap-2 sm:gap-3 justify-start">
+              <img
+                src="https://aichiow.vercel.app/aichixia.png"
+                alt="Aichixia"
+                className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full border-2 border-sky-400 dark:border-sky-500"
+              />
+              <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 sm:px-6 py-3 sm:py-4 rounded-2xl rounded-tl-sm shadow-md">
+                <div className="flex items-center gap-2">
+                  <div className="flex gap-1">
+                    <div className="w-2 h-2 bg-sky-400 rounded-full animate-bounce" style={{ animationDelay: "0ms", animationDuration: "1s" }} />
+                    <div className="w-2 h-2 bg-sky-500 rounded-full animate-bounce" style={{ animationDelay: "150ms", animationDuration: "1s" }} />
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: "300ms", animationDuration: "1s" }} />
+                  </div>
+                  <span className="text-xs text-slate-500 dark:text-slate-400 ml-1">{selectedModel.name}</span>
+                </div>
               </div>
             </div>
-          </div>
-        )}
-        <div ref={messagesEndRef} />
+          )}
+          <div ref={messagesEndRef} />
+        </div>
       </div>
 
       <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg border-t border-slate-200 dark:border-slate-700 px-3 sm:px-4 py-3 sm:py-4">
         <div className="max-w-4xl mx-auto">
-          <div className="flex gap-2 items-stretch">
-            <textarea
-              ref={inputRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Type your message..."
-              disabled={loading}
-              rows={1}
-              className="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-100 dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 focus:border-sky-400 dark:focus:border-sky-500 rounded-xl resize-none outline-none text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm sm:text-base max-h-32"
-              style={{
-                minHeight: "46px",
-              }}
-              onInput={(e) => {
-                const target = e.target as HTMLTextAreaElement;
-                target.style.height = "46px";
-                target.style.height = Math.min(target.scrollHeight, 128) + "px";
-              }}
-            />
+          <div className="flex flex-col sm:flex-row gap-2 items-stretch">
+            <div className="relative sm:w-auto w-full">
+              <button
+                onClick={() => setShowModelMenu(!showModelMenu)}
+                className={`flex items-center justify-between sm:justify-center gap-2 px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-r ${selectedModel.color} text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all w-full sm:w-auto sm:min-w-[160px]`}
+              >
+                <div className="flex items-center gap-2">
+                  <ModelIcon className="text-lg" />
+                  <span className="text-sm">{selectedModel.name}</span>
+                </div>
+                <FaChevronDown
+                  size={12}
+                  className={`transition-transform ${showModelMenu ? "rotate-180" : ""}`}
+                />
+              </button>
 
-            <button
-              onClick={handleSend}
-              disabled={!input.trim() || loading}
-              className="px-4 sm:px-5 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 disabled:from-slate-300 disabled:to-slate-400 dark:disabled:from-slate-600 dark:disabled:to-slate-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl disabled:shadow-none transition-all disabled:cursor-not-allowed flex items-center justify-center gap-2 group flex-shrink-0"
-              style={{
-                minHeight: "46px",
-              }}
-            >
-              <span className="hidden sm:inline text-sm md:text-base">Send</span>
-              <FaPaperPlane
-                size={14}
-                className={`${loading ? "animate-pulse" : "group-hover:translate-x-0.5"} transition-transform sm:text-base`}
+              {showModelMenu && (
+                <>
+                  <div 
+                    className="fixed inset-0 z-10" 
+                    onClick={() => setShowModelMenu(false)}
+                  />
+                  <div className="absolute bottom-full left-0 mb-2 w-full sm:w-64 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden z-20 max-h-80 overflow-y-auto">
+                    {models.map((model) => {
+                      const Icon = model.icon;
+                      return (
+                        <button
+                          key={model.id}
+                          onClick={() => {
+                            setSelectedModel(model);
+                            setShowModelMenu(false);
+                          }}
+                          className={`w-full px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors border-b border-slate-100 dark:border-slate-700 last:border-b-0 ${
+                            selectedModel.id === model.id ? "bg-sky-50 dark:bg-sky-900/20" : ""
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className={`p-2 rounded-lg bg-gradient-to-r ${model.color}`}>
+                              <Icon className="text-white text-lg" />
+                            </div>
+                            <div className="flex-1">
+                              <div className="font-semibold text-slate-800 dark:text-slate-200 text-sm">
+                                {model.name}
+                              </div>
+                            </div>
+                            {selectedModel.id === model.id && (
+                              <FaCircle size={8} className="text-sky-500" />
+                            )}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="flex gap-2 flex-1">
+              <textarea
+                ref={inputRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Type your message..."
+                disabled={loading}
+                rows={1}
+                className="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-100 dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 focus:border-sky-400 dark:focus:border-sky-500 rounded-xl resize-none outline-none text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm sm:text-base max-h-32"
+                style={{
+                  minHeight: "46px",
+                }}
+                onInput={(e) => {
+                  const target = e.target as HTMLTextAreaElement;
+                  target.style.height = "46px";
+                  target.style.height = Math.min(target.scrollHeight, 128) + "px";
+                }}
               />
-            </button>
+
+              <button
+                onClick={handleSend}
+                disabled={!input.trim() || loading}
+                className="px-4 sm:px-5 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 disabled:from-slate-300 disabled:to-slate-400 dark:disabled:from-slate-600 dark:disabled:to-slate-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl disabled:shadow-none transition-all disabled:cursor-not-allowed flex items-center justify-center gap-2 group flex-shrink-0"
+                style={{
+                  minHeight: "46px",
+                }}
+              >
+                <span className="hidden sm:inline text-sm md:text-base">Send</span>
+                <FaPaperPlane
+                  size={14}
+                  className={`${loading ? "animate-pulse" : "group-hover:translate-x-0.5"} transition-transform sm:text-base`}
+                />
+              </button>
+            </div>
           </div>
         </div>
       </div>
