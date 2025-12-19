@@ -482,14 +482,19 @@ export default function Chat() {
                 alt="Aichixia"
                 className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full border-2 border-sky-400 dark:border-sky-500"
               />
-              <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 sm:px-6 py-3 sm:py-4 rounded-2xl rounded-tl-sm shadow-md">
-                <div className="flex items-center gap-2">
-                  <div className="flex gap-1">
-                    <div className="w-2 h-2 bg-sky-400 rounded-full animate-bounce" style={{ animationDelay: "0ms", animationDuration: "1s" }} />
-                    <div className="w-2 h-2 bg-sky-500 rounded-full animate-bounce" style={{ animationDelay: "150ms", animationDuration: "1s" }} />
-                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: "300ms", animationDuration: "1s" }} />
+              <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-5 py-3 rounded-2xl rounded-tl-sm shadow-md min-w-[200px]">
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-2">
+                    <ModelIcon className="text-sky-500 text-sm" />
+                    <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                      {selectedModel.name}
+                    </span>
                   </div>
-                  <span className="text-xs text-slate-500 dark:text-slate-400 ml-1">{selectedModel.name}</span>
+                  <div className="flex gap-1">
+                    <div className="w-1.5 h-1.5 bg-sky-400 rounded-full animate-bounce" style={{ animationDelay: "0ms", animationDuration: "0.8s" }} />
+                    <div className="w-1.5 h-1.5 bg-sky-500 rounded-full animate-bounce" style={{ animationDelay: "150ms", animationDuration: "0.8s" }} />
+                    <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: "300ms", animationDuration: "0.8s" }} />
+                  </div>
                 </div>
               </div>
             </div>
