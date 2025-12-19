@@ -112,6 +112,13 @@ const models: Model[] = [
     color: "from-pink-500 to-rose-500",
   },
   {
+    id: "compound",
+    name: "Groq Compound",
+    endpoint: "/api/models/compound",
+    icon: IoSparkles,
+    color: "from-orange-500 to-blue-500",
+  },
+  {
     id: "llama",
     name: "Llama 3.3 70B",
     endpoint: "/api/models/llama",
