@@ -15,7 +15,7 @@ import {
   FaQuestion,
   FaSearch,
   FaComments,
-  FaSparkles,
+  FaStar,
 } from "react-icons/fa";
 import Link from "next/link";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -359,7 +359,7 @@ export default function Chat() {
                   className="relative w-24 h-24 lg:w-32 lg:h-32 rounded-full border-4 border-white dark:border-slate-900 shadow-2xl animate-bounce"
                 />
                 <div className="absolute -top-2 -right-2 lg:-top-3 lg:-right-3">
-                  <FaSparkles className="text-2xl lg:text-3xl text-yellow-400 animate-pulse" />
+                  <FaStar className="text-2xl lg:text-3xl text-yellow-400 animate-pulse" />
                 </div>
               </div>
               
