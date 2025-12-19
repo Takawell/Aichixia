@@ -292,7 +292,7 @@ export default function Chat() {
 
             <div className="min-w-0 flex-1">
               <h1 className="text-sm sm:text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center gap-1.5 sm:gap-2 truncate">
-                <span className="truncate">Aichixia 4.5</span>
+                <span className="truncate">Aichixia 5.0</span>
                 <span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 bg-gradient-to-r from-sky-500 to-blue-500 text-white rounded-full font-semibold flex-shrink-0">
                   AI
                 </span>
@@ -500,97 +500,107 @@ export default function Chat() {
 
       <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg border-t border-slate-200 dark:border-slate-700 px-3 sm:px-4 py-3 sm:py-4">
         <div className="max-w-4xl mx-auto">
-          <div className="flex flex-col sm:flex-row gap-2 items-stretch">
-            <div className="relative sm:w-auto w-full">
-              <button
-                onClick={() => setShowModelMenu(!showModelMenu)}
-                className={`flex items-center justify-between sm:justify-center gap-2 px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-r ${selectedModel.color} text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all w-full sm:w-auto sm:min-w-[160px]`}
-              >
-                <div className="flex items-center gap-2">
-                  <ModelIcon className="text-lg" />
-                  <span className="text-sm">{selectedModel.name}</span>
+          <div className="relative bg-slate-100/50 dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-700 p-3 sm:p-4">
+            <div className="flex flex-col gap-3">
+              <div className="flex gap-2 items-center">
+                <div className="relative">
+                  <button
+                    onClick={() => setShowModelMenu(!showModelMenu)}
+                    className="flex items-center gap-2 px-3 py-2 bg-slate-200/80 dark:bg-slate-700/80 hover:bg-slate-300 dark:hover:bg-slate-600 rounded-lg transition-all text-sm font-medium text-slate-700 dark:text-slate-300"
+                  >
+                    <ModelIcon className="text-base" />
+                    <span className="hidden sm:inline">{selectedModel.name}</span>
+                    <FaChevronDown
+                      size={10}
+                      className={`transition-transform ${showModelMenu ? "rotate-180" : ""}`}
+                    />
+                  </button>
+
+                  {showModelMenu && (
+                    <>
+                      <div 
+                        className="fixed inset-0 z-10" 
+                        onClick={() => setShowModelMenu(false)}
+                      />
+                      <div className="absolute bottom-full left-0 mb-2 w-72 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden z-20">
+                        <div className="p-3 border-b border-slate-200 dark:border-slate-700">
+                          <input
+                            type="text"
+                            placeholder="Search model..."
+                            className="w-full px-3 py-2 bg-slate-100 dark:bg-slate-900 rounded-lg text-sm outline-none text-slate-800 dark:text-slate-200 placeholder-slate-400"
+                          />
+                        </div>
+                        <div className="max-h-80 overflow-y-auto">
+                          {models.map((model) => {
+                            const Icon = model.icon;
+                            return (
+                              <button
+                                key={model.id}
+                                onClick={() => {
+                                  setSelectedModel(model);
+                                  setShowModelMenu(false);
+                                }}
+                                className={`w-full px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all ${
+                                  selectedModel.id === model.id ? "bg-sky-50 dark:bg-sky-900/20" : ""
+                                }`}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <div className={`p-2 rounded-lg bg-gradient-to-r ${model.color} shadow-sm`}>
+                                    <Icon className="text-white text-base" />
+                                  </div>
+                                  <div className="flex-1">
+                                    <div className="font-semibold text-slate-800 dark:text-slate-200 text-sm">
+                                      {model.name}
+                                    </div>
+                                  </div>
+                                  {selectedModel.id === model.id && (
+                                    <FaCircle size={8} className="text-sky-500" />
+                                  )}
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
-                <FaChevronDown
-                  size={12}
-                  className={`transition-transform ${showModelMenu ? "rotate-180" : ""}`}
-                />
-              </button>
+              </div>
 
-              {showModelMenu && (
-                <>
-                  <div 
-                    className="fixed inset-0 z-10" 
-                    onClick={() => setShowModelMenu(false)}
+              <div className="flex gap-2 items-end">
+                <textarea
+                  ref={inputRef}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Ask anything or @mention"
+                  disabled={loading}
+                  rows={1}
+                  className="flex-1 px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 focus:border-sky-400 dark:focus:border-sky-500 rounded-xl resize-none outline-none text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm sm:text-base max-h-32 shadow-sm"
+                  style={{
+                    minHeight: "48px",
+                  }}
+                  onInput={(e) => {
+                    const target = e.target as HTMLTextAreaElement;
+                    target.style.height = "48px";
+                    target.style.height = Math.min(target.scrollHeight, 128) + "px";
+                  }}
+                />
+
+                <button
+                  onClick={handleSend}
+                  disabled={!input.trim() || loading}
+                  className="px-4 py-3 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 disabled:from-slate-300 disabled:to-slate-400 dark:disabled:from-slate-600 dark:disabled:to-slate-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl disabled:shadow-none transition-all disabled:cursor-not-allowed flex items-center justify-center gap-2 group"
+                  style={{
+                    minHeight: "48px",
+                  }}
+                >
+                  <FaPaperPlane
+                    size={16}
+                    className={`${loading ? "animate-pulse" : "group-hover:translate-x-0.5 group-hover:-translate-y-0.5"} transition-transform`}
                   />
-                  <div className="absolute bottom-full left-0 mb-2 w-full sm:w-64 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden z-20 max-h-80 overflow-y-auto">
-                    {models.map((model) => {
-                      const Icon = model.icon;
-                      return (
-                        <button
-                          key={model.id}
-                          onClick={() => {
-                            setSelectedModel(model);
-                            setShowModelMenu(false);
-                          }}
-                          className={`w-full px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors border-b border-slate-100 dark:border-slate-700 last:border-b-0 ${
-                            selectedModel.id === model.id ? "bg-sky-50 dark:bg-sky-900/20" : ""
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className={`p-2 rounded-lg bg-gradient-to-r ${model.color}`}>
-                              <Icon className="text-white text-lg" />
-                            </div>
-                            <div className="flex-1">
-                              <div className="font-semibold text-slate-800 dark:text-slate-200 text-sm">
-                                {model.name}
-                              </div>
-                            </div>
-                            {selectedModel.id === model.id && (
-                              <FaCircle size={8} className="text-sky-500" />
-                            )}
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </>
-              )}
-            </div>
-
-            <div className="flex gap-2 flex-1">
-              <textarea
-                ref={inputRef}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Type your message..."
-                disabled={loading}
-                rows={1}
-                className="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-100 dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 focus:border-sky-400 dark:focus:border-sky-500 rounded-xl resize-none outline-none text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm sm:text-base max-h-32"
-                style={{
-                  minHeight: "46px",
-                }}
-                onInput={(e) => {
-                  const target = e.target as HTMLTextAreaElement;
-                  target.style.height = "46px";
-                  target.style.height = Math.min(target.scrollHeight, 128) + "px";
-                }}
-              />
-
-              <button
-                onClick={handleSend}
-                disabled={!input.trim() || loading}
-                className="px-4 sm:px-5 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 disabled:from-slate-300 disabled:to-slate-400 dark:disabled:from-slate-600 dark:disabled:to-slate-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl disabled:shadow-none transition-all disabled:cursor-not-allowed flex items-center justify-center gap-2 group flex-shrink-0"
-                style={{
-                  minHeight: "46px",
-                }}
-              >
-                <span className="hidden sm:inline text-sm md:text-base">Send</span>
-                <FaPaperPlane
-                  size={14}
-                  className={`${loading ? "animate-pulse" : "group-hover:translate-x-0.5"} transition-transform sm:text-base`}
-                />
-              </button>
+                </button>
+              </div>
             </div>
           </div>
         </div>
