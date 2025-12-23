@@ -19,6 +19,9 @@
     "react-icons": "^5.2.1",
     "react-markdown": "^9.0.0",
     "remark-gfm": "^4.0.0",
+    "tailwindcss": "^3.4.1",
+    "postcss": "^8.4.31",
+    "autoprefixer": "^10.4.17",
     "framer-motion": "^11.0.0",
     "@lobehub/icons": "^2.43.1"
   },
@@ -32,3 +35,4 @@
     "tailwindcss": "^3.4.4",
     "typescript": "5.4.5"
   }
+}
