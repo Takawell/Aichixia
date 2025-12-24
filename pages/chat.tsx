@@ -124,7 +124,7 @@ const models: Model[] = [
     name: "Cohere A",
     endpoint: "/api/models/qwen",
     icon: GiClover,
-    color: "from-purple-500 to-pink-500",
+    color: "from-gold-500 to-purple-500",
   },
   {
     id: "compound",
