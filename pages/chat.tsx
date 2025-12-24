@@ -15,7 +15,7 @@ import {
   FaQuestion,
   FaSearch,
 } from "react-icons/fa";
-import { SiOpenai, SiGooglegemini, SiAnthropic, SiGroq, SiMeta, SiAlibabacloud, } from "react-icons/si";
+import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, } from "react-icons/si";
 import { IoSparkles } from "react-icons/io5";
 import Link from "next/link";
 import ThemeToggle from "@/components/ThemeToggle";
