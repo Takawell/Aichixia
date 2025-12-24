@@ -137,8 +137,7 @@ export default function Chat() {
   const [selectedModel, setSelectedModel] = useState<Model>(models[0]);
   const [showPersonaMenu, setShowPersonaMenu] = useState(false);
   const [showModelMenu, setShowModelMenu] = useState(false);
-  const [modelSearch, setModelSearch] = useState("");
-  
+  const [modelSearch, setModelSearch] = useState("");  
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   
@@ -527,92 +526,90 @@ export default function Chat() {
 
       <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg border-t border-slate-200 dark:border-slate-700 px-3 sm:px-4 py-3 sm:py-4">
         <div className="max-w-4xl mx-auto">
-          <div className="relative bg-slate-100/50 dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-700 p-3 sm:p-4">
-            <div className="flex flex-col gap-3">
-              <div className="flex gap-2 items-center">
-                <div className="relative">
-                  <button
-                    onClick={() => {
-                      setShowModelMenu(!showModelMenu);
-                      setModelSearch("");
-                    }}
-                    className="flex items-center gap-2 px-3 py-2 bg-slate-200/80 dark:bg-slate-700/80 hover:bg-slate-300 dark:hover:bg-slate-600 rounded-lg transition-all text-sm font-medium text-slate-700 dark:text-slate-300 shadow-sm"
-                  >
-                    <div className={`p-1 rounded bg-gradient-to-r ${selectedModel.color}`}>
-                      <ModelIcon className="text-white text-xs" />
-                    </div>
-                    <span className="hidden sm:inline truncate max-w-[120px] md:max-w-[150px]">{selectedModel.name}</span>
-                    <FaChevronDown
-                      size={10}
-                      className={`transition-transform ${showModelMenu ? "rotate-180" : ""}`}
-                    />
-                  </button>
-
-                  {showModelMenu && (
-                    <>
-                      <div 
-                        className="fixed inset-0 z-10" 
-                        onClick={() => setShowModelMenu(false)}
+          <div className="relative bg-slate-100/50 dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-700 p-2 sm:p-3">
+            <div className="flex gap-2 items-end">
+              <div className="flex-1 flex flex-col gap-2">
+                <div className="flex items-center gap-2 px-2">
+                  <div className="relative">
+                    <button
+                      onClick={() => {
+                        setShowModelMenu(!showModelMenu);
+                        setModelSearch("");
+                      }}
+                      className="flex items-center gap-1.5 px-2 py-1.5 hover:bg-slate-200/50 dark:hover:bg-slate-700/50 rounded-lg transition-all group"
+                    >
+                      <ModelIcon className="text-slate-600 dark:text-slate-300 text-sm sm:text-base" />
+                      <span className="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300 truncate max-w-[100px] sm:max-w-[150px]">
+                        {selectedModel.name}
+                      </span>
+                      <FaChevronDown
+                        size={10}
+                        className={`text-slate-500 dark:text-slate-400 transition-transform ${showModelMenu ? "rotate-180" : ""}`}
                       />
-                      <div className="absolute bottom-full left-0 mb-2 w-72 sm:w-80 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden z-20">
-                        <div className="p-3 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">
-                          <div className="relative">
-                            <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm" />
-                            <input
-                              type="text"
-                              value={modelSearch}
-                              onChange={(e) => setModelSearch(e.target.value)}
-                              placeholder="Search models..."
-                              className="w-full pl-9 pr-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:border-sky-400 dark:focus:border-sky-500 text-slate-800 dark:text-slate-200 placeholder-slate-400 transition-colors"
-                              autoFocus
-                            />
+                    </button>
+
+                    {showModelMenu && (
+                      <>
+                        <div 
+                          className="fixed inset-0 z-10" 
+                          onClick={() => setShowModelMenu(false)}
+                        />
+                        <div className="absolute bottom-full left-0 mb-2 w-72 sm:w-80 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden z-20">
+                          <div className="p-3 border-b border-slate-200 dark:border-slate-700">
+                            <div className="relative">
+                              <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs" />
+                              <input
+                                type="text"
+                                value={modelSearch}
+                                onChange={(e) => setModelSearch(e.target.value)}
+                                placeholder="Search models..."
+                                className="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:border-sky-400 dark:focus:border-sky-500 text-slate-800 dark:text-slate-200 placeholder-slate-400 transition-colors"
+                                autoFocus
+                              />
+                            </div>
+                          </div>
+                          <div className="max-h-80 overflow-y-auto">
+                            {filteredModels.length > 0 ? (
+                              filteredModels.map((model) => {
+                                const Icon = model.icon;
+                                return (
+                                  <button
+                                    key={model.id}
+                                    onClick={() => {
+                                      setSelectedModel(model);
+                                      setShowModelMenu(false);
+                                      setModelSearch("");
+                                    }}
+                                    className={`w-full px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all ${
+                                      selectedModel.id === model.id ? "bg-sky-50 dark:bg-sky-900/20" : ""
+                                    }`}
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      <Icon className="text-slate-600 dark:text-slate-300 text-lg flex-shrink-0" />
+                                      <div className="flex-1 min-w-0">
+                                        <div className="font-semibold text-slate-800 dark:text-slate-200 text-sm truncate">
+                                          {model.name}
+                                        </div>
+                                      </div>
+                                      {selectedModel.id === model.id && (
+                                        <FaCircle size={8} className="text-sky-500 flex-shrink-0" />
+                                      )}
+                                    </div>
+                                  </button>
+                                );
+                              })
+                            ) : (
+                              <div className="px-4 py-8 text-center text-slate-500 dark:text-slate-400 text-sm">
+                                No models found
+                              </div>
+                            )}
                           </div>
                         </div>
-                        <div className="max-h-80 overflow-y-auto">
-                          {filteredModels.length > 0 ? (
-                            filteredModels.map((model) => {
-                              const Icon = model.icon;
-                              return (
-                                <button
-                                  key={model.id}
-                                  onClick={() => {
-                                    setSelectedModel(model);
-                                    setShowModelMenu(false);
-                                    setModelSearch("");
-                                  }}
-                                  className={`w-full px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all ${
-                                    selectedModel.id === model.id ? "bg-sky-50 dark:bg-sky-900/20" : ""
-                                  }`}
-                                >
-                                  <div className="flex items-center gap-3">
-                                    <div className={`p-2 rounded-lg bg-gradient-to-r ${model.color} shadow-sm flex-shrink-0`}>
-                                      <Icon className="text-white text-base" />
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                      <div className="font-semibold text-slate-800 dark:text-slate-200 text-sm truncate">
-                                        {model.name}
-                                      </div>
-                                    </div>
-                                    {selectedModel.id === model.id && (
-                                      <FaCircle size={8} className="text-sky-500 flex-shrink-0" />
-                                    )}
-                                  </div>
-                                </button>
-                              );
-                            })
-                          ) : (
-                            <div className="px-4 py-8 text-center text-slate-500 dark:text-slate-400 text-sm">
-                              No models found
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </>
-                  )}
+                      </>
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              <div className="flex gap-2 items-end">
                 <textarea
                   ref={inputRef}
                   value={input}
@@ -621,31 +618,31 @@ export default function Chat() {
                   placeholder="Ask anything or @mention"
                   disabled={loading}
                   rows={1}
-                  className="flex-1 px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 focus:border-sky-400 dark:focus:border-sky-500 rounded-xl resize-none outline-none text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm sm:text-base max-h-32 shadow-sm"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 focus:border-sky-400 dark:focus:border-sky-500 rounded-xl resize-none outline-none text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm sm:text-base max-h-32 shadow-sm"
                   style={{
-                    minHeight: "48px",
+                    minHeight: "44px",
                   }}
                   onInput={(e) => {
                     const target = e.target as HTMLTextAreaElement;
-                    target.style.height = "48px";
+                    target.style.height = "44px";
                     target.style.height = Math.min(target.scrollHeight, 128) + "px";
                   }}
                 />
-
-                <button
-                  onClick={handleSend}
-                  disabled={!input.trim() || loading}
-                  className="px-4 py-3 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 disabled:from-slate-300 disabled:to-slate-400 dark:disabled:from-slate-600 dark:disabled:to-slate-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl disabled:shadow-none transition-all disabled:cursor-not-allowed flex items-center justify-center gap-2 group"
-                  style={{
-                    minHeight: "48px",
-                  }}
-                >
-                  <FaPaperPlane
-                    size={16}
-                    className={`${loading ? "animate-pulse" : "group-hover:translate-x-0.5 group-hover:-translate-y-0.5"} transition-transform`}
-                  />
-                </button>
               </div>
+
+              <button
+                onClick={handleSend}
+                disabled={!input.trim() || loading}
+                className="px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 disabled:from-slate-300 disabled:to-slate-400 dark:disabled:from-slate-600 dark:disabled:to-slate-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl disabled:shadow-none transition-all disabled:cursor-not-allowed flex items-center justify-center gap-2 group flex-shrink-0"
+                style={{
+                  minHeight: "44px",
+                }}
+              >
+                <FaPaperPlane
+                  size={14}
+                  className={`${loading ? "animate-pulse" : "group-hover:translate-x-0.5 group-hover:-translate-y-0.5"} transition-transform`}
+                />
+              </button>
             </div>
           </div>
         </div>
