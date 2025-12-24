@@ -16,7 +16,7 @@ import {
   FaSearch,
 } from "react-icons/fa";
 import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, } from "react-icons/si";
-import { IoSparkles } from "react-icons/io5";
+import { GiSpermWhale, GiPowerLightning, GiBlackHoleBolas, } from "react-icons/gi";
 import Link from "next/link";
 import ThemeToggle from "@/components/ThemeToggle";
 import ReactMarkdown from "react-markdown";
@@ -74,7 +74,7 @@ const models: Model[] = [
     id: "aichixia",
     name: "Aichixia",
     endpoint: "/api/chat",
-    icon: IoSparkles,
+    icon: GiBlackHoleBolas,
     color: "from-sky-500 to-blue-500",
   },
   {
@@ -95,7 +95,7 @@ const models: Model[] = [
     id: "deepseek",
     name: "DeepSeek V3",
     endpoint: "/api/models/deepseek",
-    icon: IoSparkles,
+    icon: GiSpermWhale,
     color: "from-cyan-500 to-blue-500",
   },
   {
@@ -123,7 +123,7 @@ const models: Model[] = [
     id: "compound",
     name: "Groq Compound",
     endpoint: "/api/models/compound",
-    icon: IoSparkles,
+    icon: GiPowerLightning,
     color: "from-orange-500 to-blue-500",
   },
   {
