@@ -15,7 +15,7 @@ import {
   FaQuestion,
   FaSearch,
 } from "react-icons/fa";
-import { SiOpenai, SiGoogle, SiGooglegemini, SiAnthropic, SiGroq, SiMeta, SiAlibabacloud,} from "react-icons/si";
+import { SiOpenai, SiGooglegemini, SiAnthropic, SiGroq, SiMeta, SiAlibabacloud, } from "react-icons/si";
 import { IoSparkles } from "react-icons/io5";
 import Link from "next/link";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -123,7 +123,7 @@ const models: Model[] = [
     id: "compound",
     name: "Groq Compound",
     endpoint: "/api/models/compound",
-    icon: SiGroq,
+    icon: IoSparkles,
     color: "from-orange-500 to-blue-500",
   },
   {
