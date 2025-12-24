@@ -113,6 +113,13 @@ const models: Model[] = [
     color: "from-pink-500 to-rose-500",
   },
   {
+    id: "claude",
+    name: "Claude Haiku 4.5",
+    endpoint: "/api/models/claude",
+    icon: IoSparkles,
+    color: "from-orange-500 to-purple-500",
+  },
+  {
     id: "compound",
     name: "Groq Compound",
     endpoint: "/api/models/compound",
@@ -261,6 +268,7 @@ export default function Chat() {
       deepseek: "bg-cyan-500",
       qwen: "bg-purple-500",
       gptoss: "bg-pink-500",
+      claude:"bg-orange-500",
       compound: "bg-red-500",
       llama: "bg-rose-500",
     };
