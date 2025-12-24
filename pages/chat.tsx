@@ -120,18 +120,18 @@ const models: Model[] = [
     color: "from-orange-500 to-purple-500",
   },
   {
-    id: "cohere",
-    name: "Cohere Command A",
-    endpoint: "/api/models/cohere",
-    icon: GiClover,
-    color: "from-gold-500 to-purple-500",
-  },
-  {
     id: "compound",
     name: "Groq Compound",
     endpoint: "/api/models/compound",
     icon: GiPowerLightning,
     color: "from-orange-500 to-blue-500",
+  },
+  {
+    id: "cohere",
+    name: "Cohere Command A",
+    endpoint: "/api/models/cohere",
+    icon: GiClover,
+    color: "from-emerald-500 to-purple-500",
   },
   {
     id: "llama",
@@ -270,15 +270,15 @@ export default function Chat() {
     if (!provider) return null;
 
     const colors: Record<string, string> = {
-      openai: "bg-blue-500",
-      gemini: "bg-indigo-500",
-      deepseek: "bg-cyan-500",
-      qwen: "bg-purple-500",
+      openai: "bg-zinc-900",
+      gemini: "bg-blue-500",
+      deepseek: "bg-indigo-500",
+      qwen: "bg-violet-700",
       gptoss: "bg-pink-500",
-      claude:"bg-orange-500",
-      cohere: "bg-gold-500",
-      compound: "bg-red-500",
-      llama: "bg-rose-500",
+      claude: "bg-[#d97757]",
+      cohere: "bg-[#3d5941]",
+      compound: "bg-[#F55036]",
+      llama: "bg-[#0668E1]" 
     };
 
     return (
