@@ -121,8 +121,8 @@ const models: Model[] = [
   },
   {
     id: "cohere",
-    name: "Cohere A",
-    endpoint: "/api/models/qwen",
+    name: "Cohere Command A",
+    endpoint: "/api/models/cohere",
     icon: GiClover,
     color: "from-gold-500 to-purple-500",
   },
