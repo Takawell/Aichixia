@@ -13,6 +13,7 @@ import {
   FaFire,
   FaBook,
   FaQuestion,
+  FaSearch,
 } from "react-icons/fa";
 import { SiOpenai, SiGoogle, SiMeta } from "react-icons/si";
 import { IoSparkles } from "react-icons/io5";
@@ -136,6 +137,7 @@ export default function Chat() {
   const [selectedModel, setSelectedModel] = useState<Model>(models[0]);
   const [showPersonaMenu, setShowPersonaMenu] = useState(false);
   const [showModelMenu, setShowModelMenu] = useState(false);
+  const [modelSearch, setModelSearch] = useState("");
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -170,6 +172,10 @@ export default function Chat() {
       localStorage.setItem("aichixia-chat-history", JSON.stringify(messages));
     }
   }, [messages]);
+
+  const filteredModels = models.filter(model => 
+    model.name.toLowerCase().includes(modelSearch.toLowerCase())
+  );
 
   const handleSend = async () => {
     if (!input.trim() || loading) return;
@@ -487,20 +493,29 @@ export default function Chat() {
               <img
                 src="https://aichiow.vercel.app/aichixia.png"
                 alt="Aichixia"
-                className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full border-2 border-sky-400 dark:border-sky-500"
+                className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full border-2 border-sky-400 dark:border-sky-500 flex-shrink-0"
               />
-              <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-5 py-3 rounded-2xl rounded-tl-sm shadow-md min-w-[200px]">
-                <div className="flex flex-col gap-2">
+              <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl rounded-tl-sm shadow-lg overflow-hidden min-w-[200px] max-w-[300px] sm:max-w-[350px]">
+                <div className="px-4 py-2.5 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-700/50 dark:to-slate-800/50 border-b border-slate-200 dark:border-slate-700">
                   <div className="flex items-center gap-2">
-                    <ModelIcon className="text-sky-500 text-sm" />
-                    <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                      {selectedModel.name}
-                    </span>
+                    <div className={`p-1.5 rounded-lg bg-gradient-to-r ${selectedModel.color} shadow-sm`}>
+                      <ModelIcon className="text-white text-xs" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
+                        {selectedModel.name}
+                      </div>
+                      <div className="text-[10px] text-slate-500 dark:text-slate-400">
+                        Thinking...
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex gap-1">
-                    <div className="w-1.5 h-1.5 bg-sky-400 rounded-full animate-bounce" style={{ animationDelay: "0ms", animationDuration: "0.8s" }} />
-                    <div className="w-1.5 h-1.5 bg-sky-500 rounded-full animate-bounce" style={{ animationDelay: "150ms", animationDuration: "0.8s" }} />
-                    <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: "300ms", animationDuration: "0.8s" }} />
+                </div>
+                <div className="px-4 py-3">
+                  <div className="flex gap-1.5">
+                    <div className="w-2 h-2 bg-sky-400 rounded-full animate-bounce" style={{ animationDelay: "0ms", animationDuration: "0.8s" }} />
+                    <div className="w-2 h-2 bg-sky-500 rounded-full animate-bounce" style={{ animationDelay: "150ms", animationDuration: "0.8s" }} />
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: "300ms", animationDuration: "0.8s" }} />
                   </div>
                 </div>
               </div>
@@ -517,11 +532,16 @@ export default function Chat() {
               <div className="flex gap-2 items-center">
                 <div className="relative">
                   <button
-                    onClick={() => setShowModelMenu(!showModelMenu)}
-                    className="flex items-center gap-2 px-3 py-2 bg-slate-200/80 dark:bg-slate-700/80 hover:bg-slate-300 dark:hover:bg-slate-600 rounded-lg transition-all text-sm font-medium text-slate-700 dark:text-slate-300"
+                    onClick={() => {
+                      setShowModelMenu(!showModelMenu);
+                      setModelSearch("");
+                    }}
+                    className="flex items-center gap-2 px-3 py-2 bg-slate-200/80 dark:bg-slate-700/80 hover:bg-slate-300 dark:hover:bg-slate-600 rounded-lg transition-all text-sm font-medium text-slate-700 dark:text-slate-300 shadow-sm"
                   >
-                    <ModelIcon className="text-base" />
-                    <span className="hidden sm:inline">{selectedModel.name}</span>
+                    <div className={`p-1 rounded bg-gradient-to-r ${selectedModel.color}`}>
+                      <ModelIcon className="text-white text-xs" />
+                    </div>
+                    <span className="hidden sm:inline truncate max-w-[120px] md:max-w-[150px]">{selectedModel.name}</span>
                     <FaChevronDown
                       size={10}
                       className={`transition-transform ${showModelMenu ? "rotate-180" : ""}`}
@@ -534,44 +554,57 @@ export default function Chat() {
                         className="fixed inset-0 z-10" 
                         onClick={() => setShowModelMenu(false)}
                       />
-                      <div className="absolute bottom-full left-0 mb-2 w-72 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden z-20">
-                        <div className="p-3 border-b border-slate-200 dark:border-slate-700">
-                          <input
-                            type="text"
-                            placeholder="Search model..."
-                            className="w-full px-3 py-2 bg-slate-100 dark:bg-slate-900 rounded-lg text-sm outline-none text-slate-800 dark:text-slate-200 placeholder-slate-400"
-                          />
+                      <div className="absolute bottom-full left-0 mb-2 w-72 sm:w-80 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden z-20">
+                        <div className="p-3 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">
+                          <div className="relative">
+                            <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm" />
+                            <input
+                              type="text"
+                              value={modelSearch}
+                              onChange={(e) => setModelSearch(e.target.value)}
+                              placeholder="Search models..."
+                              className="w-full pl-9 pr-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:border-sky-400 dark:focus:border-sky-500 text-slate-800 dark:text-slate-200 placeholder-slate-400 transition-colors"
+                              autoFocus
+                            />
+                          </div>
                         </div>
                         <div className="max-h-80 overflow-y-auto">
-                          {models.map((model) => {
-                            const Icon = model.icon;
-                            return (
-                              <button
-                                key={model.id}
-                                onClick={() => {
-                                  setSelectedModel(model);
-                                  setShowModelMenu(false);
-                                }}
-                                className={`w-full px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all ${
-                                  selectedModel.id === model.id ? "bg-sky-50 dark:bg-sky-900/20" : ""
-                                }`}
-                              >
-                                <div className="flex items-center gap-3">
-                                  <div className={`p-2 rounded-lg bg-gradient-to-r ${model.color} shadow-sm`}>
-                                    <Icon className="text-white text-base" />
-                                  </div>
-                                  <div className="flex-1">
-                                    <div className="font-semibold text-slate-800 dark:text-slate-200 text-sm">
-                                      {model.name}
+                          {filteredModels.length > 0 ? (
+                            filteredModels.map((model) => {
+                              const Icon = model.icon;
+                              return (
+                                <button
+                                  key={model.id}
+                                  onClick={() => {
+                                    setSelectedModel(model);
+                                    setShowModelMenu(false);
+                                    setModelSearch("");
+                                  }}
+                                  className={`w-full px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all ${
+                                    selectedModel.id === model.id ? "bg-sky-50 dark:bg-sky-900/20" : ""
+                                  }`}
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <div className={`p-2 rounded-lg bg-gradient-to-r ${model.color} shadow-sm flex-shrink-0`}>
+                                      <Icon className="text-white text-base" />
                                     </div>
+                                    <div className="flex-1 min-w-0">
+                                      <div className="font-semibold text-slate-800 dark:text-slate-200 text-sm truncate">
+                                        {model.name}
+                                      </div>
+                                    </div>
+                                    {selectedModel.id === model.id && (
+                                      <FaCircle size={8} className="text-sky-500 flex-shrink-0" />
+                                    )}
                                   </div>
-                                  {selectedModel.id === model.id && (
-                                    <FaCircle size={8} className="text-sky-500" />
-                                  )}
-                                </div>
-                              </button>
-                            );
-                          })}
+                                </button>
+                              );
+                            })
+                          ) : (
+                            <div className="px-4 py-8 text-center text-slate-500 dark:text-slate-400 text-sm">
+                              No models found
+                            </div>
+                          )}
                         </div>
                       </div>
                     </>
