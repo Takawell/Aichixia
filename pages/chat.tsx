@@ -16,7 +16,7 @@ import {
   FaSearch,
 } from "react-icons/fa";
 import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, } from "react-icons/si";
-import { GiSpermWhale, GiPowerLightning, GiBlackHoleBolas, } from "react-icons/gi";
+import { GiSpermWhale, GiPowerLightning, GiBlackHoleBolas, GiClover, } from "react-icons/gi";
 import Link from "next/link";
 import ThemeToggle from "@/components/ThemeToggle";
 import ReactMarkdown from "react-markdown";
@@ -118,6 +118,13 @@ const models: Model[] = [
     endpoint: "/api/models/claude",
     icon: SiAnthropic,
     color: "from-orange-500 to-purple-500",
+  },
+  {
+    id: "cohere",
+    name: "Cohere A",
+    endpoint: "/api/models/qwen",
+    icon: GiClover,
+    color: "from-purple-500 to-pink-500",
   },
   {
     id: "compound",
@@ -269,6 +276,7 @@ export default function Chat() {
       qwen: "bg-purple-500",
       gptoss: "bg-pink-500",
       claude:"bg-orange-500",
+      cohere: "bg-gold-500",
       compound: "bg-red-500",
       llama: "bg-rose-500",
     };
