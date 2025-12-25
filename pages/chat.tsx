@@ -70,7 +70,7 @@ const personaConfig: Record<
 };
 
 const models: Model[] = [
-  {
+    {
     id: "aichixia",
     name: "Aichixia | Auto",
     endpoint: "/api/chat",
@@ -92,25 +92,11 @@ const models: Model[] = [
     color: "from-green-500 to-emerald-500",
   },
   {
-    id: "gemini",
-    name: "Gemini 2.5 Flash",
-    endpoint: "/api/models/gemini",
-    icon: SiGooglegemini,
-    color: "from-indigo-500 to-purple-500",
-  },
-  {
     id: "deepseek",
-    name: "DeepSeek V3 | Maintenance",
+    name: "DeepSeek V3",
     endpoint: "/api/models/deepseek",
     icon: GiSpermWhale,
     color: "from-cyan-500 to-blue-500",
-  },
-  {
-    id: "qwen",
-    name: "Qwen3 Coder 480B",
-    endpoint: "/api/models/qwen",
-    icon: SiAlibabacloud,
-    color: "from-purple-500 to-pink-500",
   },
   {
     id: "gptoss",
@@ -120,11 +106,11 @@ const models: Model[] = [
     color: "from-pink-500 to-rose-500",
   },
   {
-    id: "claude",
-    name: "Claude Haiku 4.5",
-    endpoint: "/api/models/claude",
-    icon: SiAnthropic,
-    color: "from-orange-500 to-purple-500",
+    id: "llama",
+    name: "Llama 3.3 70B",
+    endpoint: "/api/models/llama",
+    icon: SiMeta,
+    color: "from-orange-500 to-red-500",
   },
   {
     id: "compound",
@@ -134,6 +120,20 @@ const models: Model[] = [
     color: "from-orange-500 to-blue-500",
   },
   {
+    id: "claude",
+    name: "Claude Haiku 4.5",
+    endpoint: "/api/models/claude",
+    icon: SiAnthropic,
+    color: "from-orange-500 to-purple-500",
+  },
+  {
+    id: "qwen",
+    name: "Qwen3 Coder 480B",
+    endpoint: "/api/models/qwen",
+    icon: SiAlibabacloud,
+    color: "from-purple-500 to-pink-500",
+  },
+  {
     id: "cohere",
     name: "Cohere Command A",
     endpoint: "/api/models/cohere",
@@ -141,11 +141,11 @@ const models: Model[] = [
     color: "from-emerald-500 to-purple-500",
   },
   {
-    id: "llama",
-    name: "Llama 3.3 70B",
-    endpoint: "/api/models/llama",
-    icon: SiMeta,
-    color: "from-orange-500 to-red-500",
+    id: "gemini",
+    name: "Gemini 2.5 Flash",
+    endpoint: "/api/models/gemini",
+    icon: SiGooglegemini,
+    color: "from-indigo-500 to-purple-500",
   },
 ];
 
