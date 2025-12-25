@@ -113,18 +113,18 @@ const models: Model[] = [
     color: "from-pink-500 to-rose-500",
   },
   {
+    id: "gemini",
+    name: "Gemini 3 Flash",
+    endpoint: "/api/models/gemini",
+    icon: SiGooglegemini,
+    color: "from-indigo-500 to-purple-500",
+  },
+  {
     id: "compound",
     name: "Groq Compound",
     endpoint: "/api/models/compound",
     icon: GiPowerLightning,
     color: "from-orange-500 to-blue-500",
-  },
-  {
-    id: "gemini",
-    name: "Gemini 2.5 Flash",
-    endpoint: "/api/models/gemini",
-    icon: SiGooglegemini,
-    color: "from-indigo-500 to-purple-500",
   },
   {
     id: "claude",
@@ -278,7 +278,7 @@ export default function Chat() {
 
     const colors: Record<string, string> = {
       kimi: "bg-[#0091FF]",
-      openai: "bg-zinc-900",
+      openai: "bg-slate-800",
       gemini: "bg-blue-500",
       deepseek: "bg-indigo-500",
       qwen: "bg-violet-700",
