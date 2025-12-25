@@ -99,13 +99,6 @@ const models: Model[] = [
     color: "from-cyan-500 to-blue-500",
   },
   {
-    id: "gptoss",
-    name: "GPT-OSS 120B",
-    endpoint: "/api/models/gptoss",
-    icon: SiOpenai,
-    color: "from-pink-500 to-rose-500",
-  },
-  {
     id: "llama",
     name: "Llama 3.3 70B",
     endpoint: "/api/models/llama",
@@ -113,11 +106,25 @@ const models: Model[] = [
     color: "from-orange-500 to-red-500",
   },
   {
+    id: "gptoss",
+    name: "GPT-OSS 120B",
+    endpoint: "/api/models/gptoss",
+    icon: SiOpenai,
+    color: "from-pink-500 to-rose-500",
+  },
+  {
     id: "compound",
     name: "Groq Compound",
     endpoint: "/api/models/compound",
     icon: GiPowerLightning,
     color: "from-orange-500 to-blue-500",
+  },
+  {
+    id: "gemini",
+    name: "Gemini 2.5 Flash",
+    endpoint: "/api/models/gemini",
+    icon: SiGooglegemini,
+    color: "from-indigo-500 to-purple-500",
   },
   {
     id: "claude",
@@ -139,13 +146,6 @@ const models: Model[] = [
     endpoint: "/api/models/cohere",
     icon: GiClover,
     color: "from-emerald-500 to-purple-500",
-  },
-  {
-    id: "gemini",
-    name: "Gemini 2.5 Flash",
-    endpoint: "/api/models/gemini",
-    icon: SiGooglegemini,
-    color: "from-indigo-500 to-purple-500",
   },
 ];
 
