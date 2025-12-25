@@ -15,7 +15,7 @@ import {
   FaQuestion,
   FaSearch,
 } from "react-icons/fa";
-import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, } from "react-icons/si";
+import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, } from "react-icons/si";
 import { GiSpermWhale, GiPowerLightning, GiBlackHoleBolas, GiClover, } from "react-icons/gi";
 import Link from "next/link";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -76,6 +76,13 @@ const models: Model[] = [
     endpoint: "/api/chat",
     icon: GiBlackHoleBolas,
     color: "from-sky-500 to-blue-500",
+  },
+  {
+    id: "kimi",
+    name: "Kimi K2 1T",
+    endpoint: "/api/models/kimi",
+    icon: SiDigikeyelectronics,
+    color: "from-blue-500 to-black-500",
   },
   {
     id: "gpt4mini",
@@ -270,6 +277,7 @@ export default function Chat() {
     if (!provider) return null;
 
     const colors: Record<string, string> = {
+      kimi: "bg-[#0091FF]",
       openai: "bg-zinc-900",
       gemini: "bg-blue-500",
       deepseek: "bg-indigo-500",
