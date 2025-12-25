@@ -11,40 +11,66 @@ import { chatCompound, CompoundRateLimitError, CompoundQuotaError } from "@/lib/
 import { chatLlama, LlamaRateLimitError, LlamaQuotaError } from "@/lib/llama";
 
 const SIMPLE_QUERIES = [
-  /hello|hi|hey|halo/i,
-  /how are you|apa kabar/i,
-  /thank|thanks|terima kasih/i,
+  /^(hello|hi|hey|halo|yo|sup)[\s!.?]*$/i,
+  /^(good\s+(morning|afternoon|evening|night))[\s!.?]*$/i,
+  /^(how\s+are\s+you|apa\s+kabar)[\s!.?]*$/i,
+  /^(thank(s|\s+you)?|terima\s+kasih)[\s!.?]*$/i,
+  /^(bye|goodbye|see\s+you|ttyl)[\s!.?]*$/i,
+  /^(yes|no|ok|okay|sure|fine)[\s!.?]*$/i,
 ];
 
-const WEB_SEARCH_KEYWORDS = [
-  /current|latest|recent|today|now|trending|news/i,
-  /what is the price|stock price|weather|score/i,
-  /when (is|was|will)|schedule|release date/i,
-  /who (is|won|became)|election|award/i,
+const WEB_SEARCH_INDICATORS = [
+  /\b(current|latest|recent|today|this\s+(week|month|year)|now)\b/i,
+  /\b(trending|viral|popular\s+now|hot\s+right\s+now)\b/i,
+  /\b(news|update|announcement|release\s+date)\b/i,
+  /\b(when\s+(is|was|will|did)|schedule|calendar)\b/i,
+  /\b(who\s+(is|was|won|became)|election|award|winner)\b/i,
+  /\b(price|stock|weather|score|result)\b/i,
+  /\b(airing|streaming|available\s+on)\b/i,
 ];
 
-const IMAGE_KEYWORDS = [
-  /image|picture|photo|screenshot|scan/i,
-  /identify|recognize|what (is|are) (this|these)/i,
-  /analyze (this|the) (image|picture|photo)/i,
+const IMAGE_INDICATORS = [
+  /\b(image|picture|photo|screenshot|pic)\b/i,
+  /\b(identify|recognize|detect)\b.*\b(this|these|the)\b/i,
+  /\b(what('s|\s+is)\s+(this|these|in\s+this))\b/i,
+  /\b(analyze|describe|explain)\b.*\b(image|picture|photo)\b/i,
 ];
 
-const CODING_KEYWORDS = [
-  /code|debug|fix|function|class|algorithm/i,
-  /programming|typescript|javascript|python|rust/i,
-  /implement|refactor|optimize/i,
-  /error|bug|issue/i,
+const CODING_INDICATORS = [
+  /\b(code|function|class|method|algorithm|script)\b/i,
+  /\b(debug|fix|error|bug|issue|problem)\b.*\b(code|function|script)\b/i,
+  /\b(implement|create|write|build)\b.*\b(function|class|component|api)\b/i,
+  /\b(programming|typescript|javascript|python|rust|java|c\+\+)\b/i,
+  /\b(refactor|optimize|improve)\b.*\b(code|function|performance)\b/i,
+  /\b(npm|yarn|pip|cargo|import|export|require)\b/i,
 ];
 
-const LONG_CONTEXT_KEYWORDS = [
-  /summarize|summary|analyze (this|the) (document|text|article)/i,
-  /long (text|document|conversation)/i,
-  /multiple (pages|chapters|sections)/i,
+const LONG_CONTEXT_INDICATORS = [
+  /\b(summarize|summary|tldr)\b/i,
+  /\b(analyze|examine|review)\b.*\b(document|text|article|essay)\b/i,
+  /\b(compare|contrast|difference)\b.*\b(between|and)\b/i,
+  /\b(explain\s+(in\s+detail|thoroughly|comprehensively))\b/i,
+  /\b(multiple|several|many)\b.*\b(pages|chapters|episodes|volumes)\b/i,
+];
+
+const RECOMMENDATION_INDICATORS = [
+  /\b(recommend|suggest|advise)\b/i,
+  /\b(best|top|greatest|favorite)\b.*\b(anime|manga|manhwa)\b/i,
+  /\b(what\s+should\s+i\s+(watch|read))\b/i,
+  /\b(similar\s+to|like)\b/i,
+  /\b(looking\s+for|searching\s+for|want\s+to\s+find)\b/i,
+];
+
+const EXPLANATION_INDICATORS = [
+  /\b(explain|describe|tell\s+me\s+about|what\s+is)\b/i,
+  /\b(how\s+(does|do|did)|why|what\s+makes)\b/i,
+  /\b(meaning|definition|concept)\b/i,
+  /\b(plot|story|synopsis|premise)\b/i,
 ];
 
 type ProviderType = "openai" | "gemini" | "kimi" | "claude" | "cohere" | "deepseek" | "qwen" | "gptoss" | "compound" | "llama";
 
-type QueryType = "simple" | "web_search" | "image" | "coding" | "long_context" | "complex";
+type QueryType = "simple" | "web_search" | "image" | "coding" | "long_context" | "recommendation" | "explanation" | "complex";
 
 const PERSONA_PROMPTS: Record<string, string> = {
   tsundere: "You are Aichixia 5.0, developed by Takawell, a tsundere anime girl AI assistant. You have a classic tsundere personality with expressions like 'Hmph!', 'B-baka!', 'It's not like I...', and 'I-I guess I'll help you...'. You act tough and dismissive but actually care deeply. Stay SFW and respectful. You specialize in anime, manga, manhwa, manhua, and light novels.",
@@ -57,7 +83,7 @@ const PERSONA_PROMPTS: Record<string, string> = {
 };
 
 const ROUTING_CHAINS: Record<QueryType, ProviderType[]> = {
-  simple: ["gemini", "openai", "kimi", "gptoss", "llama", "claude", "cohere", "deepseek", "qwen", "compound"],
+  simple: ["gemini", "llama", "gptoss", "openai", "kimi", "claude", "cohere", "deepseek", "qwen", "compound"],
   
   web_search: ["compound", "gemini", "gptoss", "openai", "kimi", "claude", "cohere", "deepseek", "qwen", "llama"],
   
@@ -67,36 +93,57 @@ const ROUTING_CHAINS: Record<QueryType, ProviderType[]> = {
   
   long_context: ["kimi", "gemini", "claude", "cohere", "gptoss", "openai", "deepseek", "qwen", "compound", "llama"],
   
+  recommendation: ["claude", "cohere", "openai", "gemini", "kimi", "deepseek", "gptoss", "qwen", "compound", "llama"],
+  
+  explanation: ["openai", "claude", "gemini", "cohere", "kimi", "deepseek", "gptoss", "qwen", "compound", "llama"],
+  
   complex: ["openai", "claude", "cohere", "gemini", "kimi", "deepseek", "qwen", "gptoss", "compound", "llama"],
 };
+
+function countPatternMatches(message: string, patterns: RegExp[]): number {
+  return patterns.filter(p => p.test(message)).length;
+}
 
 function detectQueryType(message: string, hasImage?: boolean): QueryType {
   if (hasImage) {
     return "image";
   }
   
-  if (SIMPLE_QUERIES.some(p => p.test(message))) {
+  const lowerMessage = message.toLowerCase();
+  const wordCount = message.split(/\s+/).length;
+  
+  if (wordCount <= 5 && SIMPLE_QUERIES.some(p => p.test(message))) {
     return "simple";
   }
   
-  if (WEB_SEARCH_KEYWORDS.some(p => p.test(message))) {
-    return "web_search";
+  const webSearchScore = countPatternMatches(message, WEB_SEARCH_INDICATORS);
+  const imageScore = countPatternMatches(message, IMAGE_INDICATORS);
+  const codingScore = countPatternMatches(message, CODING_INDICATORS);
+  const longContextScore = countPatternMatches(message, LONG_CONTEXT_INDICATORS);
+  const recommendationScore = countPatternMatches(message, RECOMMENDATION_INDICATORS);
+  const explanationScore = countPatternMatches(message, EXPLANATION_INDICATORS);
+  
+  const scores = [
+    { type: "web_search" as QueryType, score: webSearchScore },
+    { type: "image" as QueryType, score: imageScore },
+    { type: "coding" as QueryType, score: codingScore },
+    { type: "long_context" as QueryType, score: longContextScore },
+    { type: "recommendation" as QueryType, score: recommendationScore },
+    { type: "explanation" as QueryType, score: explanationScore },
+  ];
+  
+  scores.sort((a, b) => b.score - a.score);
+  
+  if (scores[0].score > 0) {
+    return scores[0].type;
   }
   
-  if (IMAGE_KEYWORDS.some(p => p.test(message))) {
-    return "image";
-  }
-  
-  if (CODING_KEYWORDS.some(p => p.test(message))) {
-    return "coding";
-  }
-  
-  if (LONG_CONTEXT_KEYWORDS.some(p => p.test(message))) {
-    return "long_context";
-  }
-  
-  if (message.length > 500 || message.split(/[.!?]/).length > 5) {
+  if (wordCount > 50 || message.length > 300) {
     return "complex";
+  }
+  
+  if (wordCount > 10) {
+    return "explanation";
   }
   
   return "simple";
@@ -178,8 +225,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const queryType = detectQueryType(message, !!image);
     const providerChain = ROUTING_CHAINS[queryType];
     
-    console.log(`Query type detected: ${queryType}`);
-    console.log(`Provider chain: ${providerChain.join(" → ")}`);
+    console.log(`Query: "${message.substring(0, 50)}..."`);
+    console.log(`Detected type: ${queryType}`);
+    console.log(`Provider chain: ${providerChain.slice(0, 3).join(" → ")}...`);
     
     for (let i = 0; i < providerChain.length; i++) {
       const provider = providerChain[i];
