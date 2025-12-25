@@ -516,6 +516,7 @@ comparison.forEach(result => {
     console.log(result.reply);
   }
 });
+```
 
 #### Model Selection Guide
 
@@ -531,7 +532,6 @@ comparison.forEach(result => {
 | **compound** | Web search, real-time info | Offline knowledge |
 | **llama** | Ultra-fast responses | Complex reasoning |
 | **openai** | General purpose, balanced | Cost optimization |
-```
 
 ---
 
