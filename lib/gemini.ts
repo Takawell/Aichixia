@@ -73,7 +73,7 @@ export async function chatGemini(
     contents: messagesToContents(history),
     generationConfig: {
       temperature: opts.temperature ?? 0.8,
-      maxOutputTokens: opts.maxOutputTokens ?? 600,
+      maxOutputTokens: opts.maxOutputTokens ?? 4096,
       topK: opts.topK,
       topP: opts.topP,
       ...(opts.extraGenerationConfig || {}),
