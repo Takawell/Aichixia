@@ -72,7 +72,7 @@ const personaConfig: Record<
 const models: Model[] = [
   {
     id: "aichixia",
-    name: "Aichixia (auto)",
+    name: "Aichixia | Auto",
     endpoint: "/api/chat",
     icon: GiBlackHoleBolas,
     color: "from-sky-500 to-blue-500",
@@ -100,7 +100,7 @@ const models: Model[] = [
   },
   {
     id: "deepseek",
-    name: "DeepSeek V3",
+    name: "DeepSeek V3 | Maintenance",
     endpoint: "/api/models/deepseek",
     icon: GiSpermWhale,
     color: "from-cyan-500 to-blue-500",
