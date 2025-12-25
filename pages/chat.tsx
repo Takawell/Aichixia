@@ -72,14 +72,14 @@ const personaConfig: Record<
 const models: Model[] = [
   {
     id: "aichixia",
-    name: "Aichixia",
+    name: "Aichixia (auto)",
     endpoint: "/api/chat",
     icon: GiBlackHoleBolas,
     color: "from-sky-500 to-blue-500",
   },
   {
     id: "kimi",
-    name: "Kimi K2 1T",
+    name: "Kimi K2",
     endpoint: "/api/models/kimi",
     icon: SiDigikeyelectronics,
     color: "from-blue-500 to-black-500",
