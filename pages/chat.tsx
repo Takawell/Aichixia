@@ -89,7 +89,7 @@ const models: Model[] = [
     id: "glm",
     name: "GLM 4.6",
     endpoint: "/api/models/glm",
-    icon: SiDigikeyelectronics,
+    icon: TbSquareLetterZ,
     color: "from-[#1835D4] to-[#010B24]",
   },
   {
@@ -285,7 +285,7 @@ export default function Chat() {
     if (!provider) return null;
 
     const colors: Record<string, string> = {
-      glm 4.6: "bg-[#1835D4]",
+      glm: "bg-[#1835D4]",
       kimi: "bg-[#0091FF]",
       openai: "bg-slate-800",
       gemini: "bg-blue-500",
