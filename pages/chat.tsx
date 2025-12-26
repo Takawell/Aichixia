@@ -17,6 +17,7 @@ import {
 } from "react-icons/fa";
 import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, } from "react-icons/si";
 import { GiSpermWhale, GiPowerLightning, GiBlackHoleBolas, GiClover, } from "react-icons/gi";
+import { TbSquareLetterZ } from "react-icons/tb";
 import Link from "next/link";
 import ThemeToggle from "@/components/ThemeToggle";
 import ReactMarkdown from "react-markdown";
@@ -83,6 +84,13 @@ const models: Model[] = [
     endpoint: "/api/models/kimi",
     icon: SiDigikeyelectronics,
     color: "from-blue-500 to-black-500",
+  },
+  {
+    id: "glm",
+    name: "GLM 4.6",
+    endpoint: "/api/models/glm",
+    icon: SiDigikeyelectronics,
+    color: "from-[#1835D4] to-[#010B24]",
   },
   {
     id: "gpt4mini",
@@ -277,6 +285,7 @@ export default function Chat() {
     if (!provider) return null;
 
     const colors: Record<string, string> = {
+      glm 4.6: "bg-[#1835D4]",
       kimi: "bg-[#0091FF]",
       openai: "bg-slate-800",
       gemini: "bg-blue-500",
