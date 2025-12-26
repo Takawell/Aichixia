@@ -8,7 +8,7 @@ export type ChatMessage = {
 };
 
 const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
-const DEEPSEEK_MODEL = process.env.DEEPSEEK_MODEL || "deepseek-chat";
+const DEEPSEEK_MODEL = process.env.DEEPSEEK_MODEL || "deepseek-ai/DeepSeek-V3.2";
 
 if (!DEEPSEEK_API_KEY) {
   console.warn("[lib/deepseek] Warning: DEEPSEEK_API_KEY not set in env.");
@@ -16,7 +16,7 @@ if (!DEEPSEEK_API_KEY) {
 
 const client = new OpenAI({
   apiKey: DEEPSEEK_API_KEY,
-  baseURL: "https://api.deepseek.com",
+  baseURL: "https://api.siliconflow.com/v1/chat/completions",
 });
 
 export class DeepSeekRateLimitError extends Error {
