@@ -16,7 +16,7 @@ if (!DEEPSEEK_API_KEY) {
 
 const client = new OpenAI({
   apiKey: DEEPSEEK_API_KEY,
-  baseURL: "https://api.siliconflow.com/v1/chat/completions",
+  baseURL: "https://api.siliconflow.com",
 });
 
 export class DeepSeekRateLimitError extends Error {
@@ -49,7 +49,7 @@ export async function chatDeepSeek(
         content: m.content,
       })),
       temperature: opts?.temperature ?? 0.8,
-      max_tokens: opts?.maxTokens ?? 512,
+      max_tokens: opts?.maxTokens ?? 1080,
     });
 
     const reply =
