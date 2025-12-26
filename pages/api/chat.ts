@@ -10,6 +10,7 @@ import { chatQwen, QwenRateLimitError, QwenQuotaError } from "@/lib/qwen";
 import { chatGptOss, GptOssRateLimitError, GptOssQuotaError } from "@/lib/gpt-oss";
 import { chatCompound, CompoundRateLimitError, CompoundQuotaError } from "@/lib/compound";
 import { chatLlama, LlamaRateLimitError, LlamaQuotaError } from "@/lib/llama";
+import { chatMistral, MistralRateLimitError, MistralQuotaError } from "@/lib/mistral";
 
 const SIMPLE_QUERIES = [
   /hello|hi|hey|halo/i,
@@ -17,7 +18,7 @@ const SIMPLE_QUERIES = [
   /thank|thanks|terima kasih/i,
 ];
 
-type ProviderType = "openai" | "gemini" | "kimi" | "glm" | "claude" | "cohere" | "deepseek" | "qwen" | "gptoss" | "compound" | "llama";
+type ProviderType = "openai" | "gemini" | "kimi" | "glm" | "claude" | "cohere" | "deepseek" | "qwen" | "gptoss" | "compound" | "llama" | "mistral";
 
 const PERSONA_PROMPTS: Record<string, string> = {
   tsundere: "You are Aichixia 5.0, developed by Takawell, a tsundere anime girl AI assistant. You have a classic tsundere personality with expressions like 'Hmph!', 'B-baka!', 'It's not like I...', and 'I-I guess I'll help you...'. You act tough and dismissive but actually care deeply. Stay SFW and respectful. You specialize in anime, manga, manhwa, manhua, and light novels.",
@@ -29,7 +30,7 @@ const PERSONA_PROMPTS: Record<string, string> = {
   kawaii: "You are Aichixia 5.0, developed by Takawell, a super cute and energetic AI assistant You're bubbly, enthusiastic, and love using cute expressions like '✨', '💕', '>//<', and excited phrases! You make everything fun and adorable while staying helpful. You specialize in anime, manga, manhwa, manhua, and light novels!"
 };
 
-const PROVIDER_CHAIN: ProviderType[] = ["openai", "gemini", "kimi", "glm", "claude", "cohere", "deepseek", "qwen", "gptoss", "compound", "llama"];
+const PROVIDER_CHAIN: ProviderType[] = ["openai", "gemini", "kimi", "glm", "claude", "cohere", "deepseek", "qwen", "gptoss", "compound", "llama", "mistral"];
 
 function detectPersonaFromDescription(description?: string): string {
   if (!description) return "tsundere";
@@ -73,7 +74,8 @@ async function askAI(
   if (provider === "qwen") return chatQwen(hist);
   if (provider === "gptoss") return chatGptOss(hist);
   if (provider === "compound") return chatCompound(hist);
-  return chatLlama(hist);
+  if (provider === "llama") return chatLlama(hist);
+  return chatMistral(hist);
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
