@@ -14,12 +14,13 @@ import {
   FaBook,
   FaQuestion,
   FaSearch,
+  FaImage,
+  FaMicrophone,
+  FaStop,
 } from "react-icons/fa";
 import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, } from "react-icons/si";
 import { GiSpermWhale, GiPowerLightning, GiBlackHoleBolas, GiClover, } from "react-icons/gi";
 import { TbSquareLetterZ, TbLetterM, } from "react-icons/tb";
-import Link from "next/link";
-import ThemeToggle from "@/components/ThemeToggle";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -173,9 +174,12 @@ export default function Chat() {
   const [selectedModel, setSelectedModel] = useState<Model>(models[0]);
   const [showPersonaMenu, setShowPersonaMenu] = useState(false);
   const [showModelMenu, setShowModelMenu] = useState(false);
-  const [modelSearch, setModelSearch] = useState("");  
+  const [modelSearch, setModelSearch] = useState("");
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
   
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -212,8 +216,23 @@ export default function Chat() {
     model.name.toLowerCase().includes(modelSearch.toLowerCase())
   );
 
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      setSelectedImage(file);
+    }
+  };
+
+  const handleVoiceRecord = () => {
+    if (!isRecording) {
+      setIsRecording(true);
+    } else {
+      setIsRecording(false);
+    }
+  };
+
   const handleSend = async () => {
-    if (!input.trim() || loading) return;
+    if ((!input.trim() && !selectedImage) || loading) return;
 
     const userMessage: Message = {
       role: "user",
@@ -223,6 +242,7 @@ export default function Chat() {
 
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
+    setSelectedImage(null);
     setLoading(true);
     setTyping(true);
 
@@ -319,17 +339,18 @@ export default function Chat() {
 
   const PersonaIcon = personaConfig[persona].icon;
   const ModelIcon = selectedModel.icon;
+  const isGeminiModel = selectedModel.id === "gemini";
 
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
       <header className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg border-b border-slate-200 dark:border-slate-700 px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between shadow-sm sticky top-0 z-10">
         <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-          <Link
-            href="/"
+          <button
+            onClick={() => window.location.href = "/"}
             className="p-1.5 sm:p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors flex-shrink-0"
           >
             <FaHome className="text-slate-600 dark:text-slate-300" size={18} />
-          </Link>
+          </button>
 
           <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
             <div className="relative flex-shrink-0">
@@ -421,10 +442,6 @@ export default function Chat() {
           >
             <FaTrash size={14} />
           </button>
-
-          <div className="hidden lg:block flex-shrink-0">
-            <ThemeToggle />
-          </div>
         </div>
       </header>
 
@@ -570,120 +587,180 @@ export default function Chat() {
           <div className="relative bg-slate-100/50 dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-700 p-2 sm:p-3">
             <div className="flex gap-2 items-end">
               <div className="flex-1 flex flex-col gap-2">
-                <div className="flex items-center gap-2 px-2">
-                  <div className="relative">
-                    <button
-                      onClick={() => {
-                        setShowModelMenu(!showModelMenu);
-                        setModelSearch("");
-                      }}
-                      className="flex items-center gap-1.5 px-2 py-1.5 hover:bg-slate-200/50 dark:hover:bg-slate-700/50 rounded-lg transition-all group"
-                    >
-                      <ModelIcon className="text-slate-600 dark:text-slate-300 text-sm sm:text-base" />
-                      <span className="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300 truncate max-w-[100px] sm:max-w-[150px]">
-                        {selectedModel.name}
-                      </span>
-                      <FaChevronDown
-                        size={10}
-                        className={`text-slate-500 dark:text-slate-400 transition-transform ${showModelMenu ? "rotate-180" : ""}`}
-                      />
-                    </button>
-
-                    {showModelMenu && (
-                      <>
-                        <div 
-                          className="fixed inset-0 z-10" 
-                          onClick={() => setShowModelMenu(false)}
+                <div className="relative">
+                  <div className="flex items-center gap-2 px-3 py-2">
+                    <div className="relative">
+                      <button
+                        onClick={() => {
+                          setShowModelMenu(!showModelMenu);
+                          setModelSearch("");
+                        }}
+                        className="flex items-center gap-1.5 px-2 py-1 hover:bg-slate-200/50 dark:hover:bg-slate-700/50 rounded-lg transition-all"
+                      >
+                        <ModelIcon className="text-slate-600 dark:text-slate-300 text-sm" />
+                        <span className="text-xs font-medium text-slate-600 dark:text-slate-300 truncate max-w-[80px] sm:max-w-[120px]">
+                          {selectedModel.name}
+                        </span>
+                        <FaChevronDown
+                          size={8}
+                          className={`text-slate-500 dark:text-slate-400 transition-transform ${showModelMenu ? "rotate-180" : ""}`}
                         />
-                        <div className="absolute bottom-full left-0 mb-2 w-72 sm:w-80 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden z-20">
-                          <div className="p-3 border-b border-slate-200 dark:border-slate-700">
-                            <div className="relative">
-                              <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs" />
-                              <input
-                                type="text"
-                                value={modelSearch}
-                                onChange={(e) => setModelSearch(e.target.value)}
-                                placeholder="Search models..."
-                                className="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:border-sky-400 dark:focus:border-sky-500 text-slate-800 dark:text-slate-200 placeholder-slate-400 transition-colors"
-                                autoFocus
-                              />
+                      </button>
+
+                      {showModelMenu && (
+                        <>
+                          <div 
+                            className="fixed inset-0 z-10" 
+                            onClick={() => setShowModelMenu(false)}
+                          />
+                          <div className="absolute bottom-full left-0 mb-2 w-72 sm:w-80 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden z-20">
+                            <div className="p-3 border-b border-slate-200 dark:border-slate-700">
+                              <div className="relative">
+                                <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs" />
+                                <input
+                                  type="text"
+                                  value={modelSearch}
+                                  onChange={(e) => setModelSearch(e.target.value)}
+                                  placeholder="Search models..."
+                                  className="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:border-sky-400 dark:focus:border-sky-500 text-slate-800 dark:text-slate-200 placeholder-slate-400 transition-colors"
+                                  autoFocus
+                                />
+                              </div>
+                            </div>
+                            <div className="max-h-80 overflow-y-auto">
+                              {filteredModels.length > 0 ? (
+                                filteredModels.map((model) => {
+                                  const Icon = model.icon;
+                                  return (
+                                    <button
+                                      key={model.id}
+                                      onClick={() => {
+                                        setSelectedModel(model);
+                                        setShowModelMenu(false);
+                                        setModelSearch("");
+                                      }}
+                                      className={`w-full px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all ${
+                                        selectedModel.id === model.id ? "bg-sky-50 dark:bg-sky-900/20" : ""
+                                      }`}
+                                    >
+                                      <div className="flex items-center gap-3">
+                                        <Icon className="text-slate-600 dark:text-slate-300 text-lg flex-shrink-0" />
+                                        <div className="flex-1 min-w-0">
+                                          <div className="font-semibold text-slate-800 dark:text-slate-200 text-sm truncate">
+                                            {model.name}
+                                          </div>
+                                        </div>
+                                        {selectedModel.id === model.id && (
+                                          <FaCircle size={8} className="text-sky-500 flex-shrink-0" />
+                                        )}
+                                      </div>
+                                    </button>
+                                  );
+                                })
+                              ) : (
+                                <div className="px-4 py-8 text-center text-slate-500 dark:text-slate-400 text-sm">
+                                  No models found
+                                </div>
+                              )}
                             </div>
                           </div>
-                          <div className="max-h-80 overflow-y-auto">
-                            {filteredModels.length > 0 ? (
-                              filteredModels.map((model) => {
-                                const Icon = model.icon;
-                                return (
-                                  <button
-                                    key={model.id}
-                                    onClick={() => {
-                                      setSelectedModel(model);
-                                      setShowModelMenu(false);
-                                      setModelSearch("");
-                                    }}
-                                    className={`w-full px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all ${
-                                      selectedModel.id === model.id ? "bg-sky-50 dark:bg-sky-900/20" : ""
-                                    }`}
-                                  >
-                                    <div className="flex items-center gap-3">
-                                      <Icon className="text-slate-600 dark:text-slate-300 text-lg flex-shrink-0" />
-                                      <div className="flex-1 min-w-0">
-                                        <div className="font-semibold text-slate-800 dark:text-slate-200 text-sm truncate">
-                                          {model.name}
-                                        </div>
-                                      </div>
-                                      {selectedModel.id === model.id && (
-                                        <FaCircle size={8} className="text-sky-500 flex-shrink-0" />
-                                      )}
-                                    </div>
-                                  </button>
-                                );
-                              })
-                            ) : (
-                              <div className="px-4 py-8 text-center text-slate-500 dark:text-slate-400 text-sm">
-                                No models found
-                              </div>
-                            )}
-                          </div>
-                        </div>
+                        </>
+                      )}
+                    </div>
+
+                    {isGeminiModel && (
+                      <>
+                        <input
+                          ref={imageInputRef}
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageSelect}
+                          className="hidden"
+                        />
+                        <button
+                          onClick={() => imageInputRef.current?.click()}
+                          className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-all text-slate-600 dark:text-slate-300"
+                          title="Upload image"
+                        >
+                          <FaImage size={16} />
+                        </button>
                       </>
                     )}
                   </div>
-                </div>
 
-                <textarea
-                  ref={inputRef}
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder="Ask anything or @mention"
+                  {selectedImage && (
+                    <div className="px-3 pb-2">
+                      <div className="relative inline-block">
+                        <img
+                          src={URL.createObjectURL(selectedImage)}
+                          alt="Selected"
+                          className="h-20 rounded-lg border-2 border-slate-300 dark:border-slate-600"
+                        />
+                        <button
+                          onClick={() => setSelectedImage(null)}
+                          className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors shadow-lg"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  <textarea
+                    ref={inputRef}
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Ask anything or @mention"
+                    disabled={loading}
+                    rows={1}
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 focus:border-sky-400 dark:focus:border-sky-500 rounded-xl resize-none outline-none text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm sm:text-base max-h-32 shadow-sm"
+                    style={{
+                      minHeight: "44px",
+                    }}
+                    onInput={(e) => {
+                      const target = e.target as HTMLTextAreaElement;
+                      target.style.height = "44px";
+                      target.style.height = Math.min(target.scrollHeight, 128) + "px";
+                    }}
+                  />
+                </div>
+              </div>
+
+              {!input.trim() && !selectedImage && isGeminiModel ? (
+                <button
+                  onClick={handleVoiceRecord}
                   disabled={loading}
-                  rows={1}
-                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 focus:border-sky-400 dark:focus:border-sky-500 rounded-xl resize-none outline-none text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm sm:text-base max-h-32 shadow-sm"
+                  className={`px-3 sm:px-4 py-2.5 sm:py-3 ${
+                    isRecording 
+                      ? "bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700" 
+                      : "bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700"
+                  } disabled:from-slate-300 disabled:to-slate-400 dark:disabled:from-slate-600 dark:disabled:to-slate-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl disabled:shadow-none transition-all disabled:cursor-not-allowed flex items-center justify-center gap-2 group flex-shrink-0`}
                   style={{
                     minHeight: "44px",
                   }}
-                  onInput={(e) => {
-                    const target = e.target as HTMLTextAreaElement;
-                    target.style.height = "44px";
-                    target.style.height = Math.min(target.scrollHeight, 128) + "px";
+                >
+                  {isRecording ? (
+                    <FaStop size={14} className="animate-pulse" />
+                  ) : (
+                    <FaMicrophone size={14} className="group-hover:scale-110 transition-transform" />
+                  )}
+                </button>
+              ) : (
+                <button
+                  onClick={handleSend}
+                  disabled={(!input.trim() && !selectedImage) || loading}
+                  className="px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 disabled:from-slate-300 disabled:to-slate-400 dark:disabled:from-slate-600 dark:disabled:to-slate-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl disabled:shadow-none transition-all disabled:cursor-not-allowed flex items-center justify-center gap-2 group flex-shrink-0"
+                  style={{
+                    minHeight: "44px",
                   }}
-                />
-              </div>
-
-              <button
-                onClick={handleSend}
-                disabled={!input.trim() || loading}
-                className="px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 disabled:from-slate-300 disabled:to-slate-400 dark:disabled:from-slate-600 dark:disabled:to-slate-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl disabled:shadow-none transition-all disabled:cursor-not-allowed flex items-center justify-center gap-2 group flex-shrink-0"
-                style={{
-                  minHeight: "44px",
-                }}
-              >
-                <FaPaperPlane
-                  size={14}
-                  className={`${loading ? "animate-pulse" : "group-hover:translate-x-0.5 group-hover:-translate-y-0.5"} transition-transform`}
-                />
-              </button>
+                >
+                  <FaPaperPlane
+                    size={14}
+                    className={`${loading ? "animate-pulse" : "group-hover:translate-x-0.5 group-hover:-translate-y-0.5"} transition-transform`}
+                  />
+                </button>
+              )}
             </div>
           </div>
         </div>
