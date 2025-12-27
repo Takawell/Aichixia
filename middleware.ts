@@ -10,14 +10,14 @@ const redis = new Redis({
 
 const chatMinuteLimit = new Ratelimit({
   redis: redis,
-  limiter: Ratelimit.slidingWindow(20, "1 m"),
+  limiter: Ratelimit.slidingWindow(50, "1 m"),
   analytics: true,
   prefix: "ratelimit:chat:minute",
 });
 
 const chatHourLimit = new Ratelimit({
   redis: redis,
-  limiter: Ratelimit.slidingWindow(60, "1 h"),
+  limiter: Ratelimit.slidingWindow(150, "1 h"),
   analytics: true,
   prefix: "ratelimit:chat:hour",
 });
@@ -31,14 +31,14 @@ const chatDayLimit = new Ratelimit({
 
 const modelsMinuteLimit = new Ratelimit({
   redis: redis,
-  limiter: Ratelimit.slidingWindow(10, "1 m"),
+  limiter: Ratelimit.slidingWindow(20, "1 m"),
   analytics: true,
   prefix: "ratelimit:models:minute",
 });
 
 const modelsHourLimit = new Ratelimit({
   redis: redis,
-  limiter: Ratelimit.slidingWindow(40, "1 h"),
+  limiter: Ratelimit.slidingWindow(60, "1 h"),
   analytics: true,
   prefix: "ratelimit:models:hour",
 });
@@ -51,33 +51,33 @@ const modelsDayLimit = new Ratelimit({
 });
 
 export async function middleware(request: NextRequest) {
-  const ip = request.ip ?? request.headers.get("x-forwarded-for") ?? "127.0.0.1";
   const pathname = request.nextUrl.pathname;
 
+  if (!pathname.startsWith("/api/chat") && !pathname.startsWith("/api/models")) {
+    return NextResponse.next();
+  }
+
+  const GLOBAL_KEY = "api-total-usage";
+
   let minuteCheck, hourCheck, dayCheck;
-  let routeType = "";
 
   if (pathname.startsWith("/api/chat")) {
-    routeType = "chat";
-    minuteCheck = await chatMinuteLimit.limit(ip);
-    hourCheck = await chatHourLimit.limit(ip);
-    dayCheck = await chatDayLimit.limit(ip);
-  } else if (pathname.startsWith("/api/models")) {
-    routeType = "models";
-    minuteCheck = await modelsMinuteLimit.limit(ip);
-    hourCheck = await modelsHourLimit.limit(ip);
-    dayCheck = await modelsDayLimit.limit(ip);
+    minuteCheck = await chatMinuteLimit.limit(GLOBAL_KEY);
+    hourCheck = await chatHourLimit.limit(GLOBAL_KEY);
+    dayCheck = await chatDayLimit.limit(GLOBAL_KEY);
   } else {
-    return NextResponse.next();
+    minuteCheck = await modelsMinuteLimit.limit(GLOBAL_KEY);
+    hourCheck = await modelsHourLimit.limit(GLOBAL_KEY);
+    dayCheck = await modelsDayLimit.limit(GLOBAL_KEY);
   }
 
   if (!minuteCheck.success) {
     const retryAfter = Math.floor((minuteCheck.reset - Date.now()) / 1000);
     return NextResponse.json(
       {
-        error: "Rate limit exceeded. Please try again later.",
+        error: "API rate limit exceeded. Service temporarily unavailable.",
         retryAfter: retryAfter,
-        limit: `${minuteCheck.limit} requests per minute`,
+        limit: `${minuteCheck.limit} requests per minute (global)`,
         remaining: 0
       },
       {
@@ -96,9 +96,9 @@ export async function middleware(request: NextRequest) {
     const retryAfter = Math.floor((hourCheck.reset - Date.now()) / 1000);
     return NextResponse.json(
       {
-        error: "Rate limit exceeded. Please try again later.",
+        error: "API rate limit exceeded. Service temporarily unavailable.",
         retryAfter: retryAfter,
-        limit: `${hourCheck.limit} requests per hour`,
+        limit: `${hourCheck.limit} requests per hour (global)`,
         remaining: 0
       },
       {
@@ -117,9 +117,9 @@ export async function middleware(request: NextRequest) {
     const retryAfter = Math.floor((dayCheck.reset - Date.now()) / 1000);
     return NextResponse.json(
       {
-        error: "Rate limit exceeded. Please try again later.",
+        error: "API rate limit exceeded. Service temporarily unavailable.",
         retryAfter: retryAfter,
-        limit: `${dayCheck.limit} requests per day`,
+        limit: `${dayCheck.limit} requests per day (global)`,
         remaining: 0
       },
       {
