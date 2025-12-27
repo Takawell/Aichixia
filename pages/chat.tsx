@@ -93,13 +93,6 @@ const models: Model[] = [
     color: "from-[#1835D4] to-[#010B24]",
   },
   {
-    id: "gpt4mini",
-    name: "GPT-4 Mini",
-    endpoint: "/api/models/openai",
-    icon: SiOpenai,
-    color: "from-green-500 to-emerald-500",
-  },
-  {
     id: "mistral",
     name: "Mistral 3.1",
     endpoint: "/api/models/mistral",
@@ -107,11 +100,11 @@ const models: Model[] = [
     color: "from-[#FF4F00] to-[#FF9000]",
   },
   {
-    id: "deepseek",
-    name: "DeepSeek V3.2",
-    endpoint: "/api/models/deepseek",
-    icon: GiSpermWhale,
-    color: "from-cyan-500 to-blue-500",
+    id: "gpt4mini",
+    name: "GPT-4 Mini",
+    endpoint: "/api/models/openai",
+    icon: SiOpenai,
+    color: "from-green-500 to-emerald-500",
   },
   {
     id: "llama",
@@ -133,6 +126,13 @@ const models: Model[] = [
     endpoint: "/api/models/gemini",
     icon: SiGooglegemini,
     color: "from-indigo-500 to-purple-500",
+  },
+  {
+    id: "deepseek",
+    name: "DeepSeek V3.2",
+    endpoint: "/api/models/deepseek",
+    icon: GiSpermWhale,
+    color: "from-cyan-500 to-blue-500",
   },
   {
     id: "compound",
