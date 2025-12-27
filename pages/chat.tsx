@@ -17,7 +17,7 @@ import {
 } from "react-icons/fa";
 import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, } from "react-icons/si";
 import { GiSpermWhale, GiPowerLightning, GiBlackHoleBolas, GiClover, } from "react-icons/gi";
-import { TbSquareLetterZ } from "react-icons/tb";
+import { TbSquareLetterZ, TbLetterM, } from "react-icons/tb";
 import Link from "next/link";
 import ThemeToggle from "@/components/ThemeToggle";
 import ReactMarkdown from "react-markdown";
@@ -100,8 +100,15 @@ const models: Model[] = [
     color: "from-green-500 to-emerald-500",
   },
   {
+    id: "mistral",
+    name: "Mistral 3.1",
+    endpoint: "/api/models/mistral",
+    icon: TbLetterM,
+    color: "from-[#FF4F00] to-[#FF9000]",
+  },
+  {
     id: "deepseek",
-    name: "DeepSeek V3",
+    name: "DeepSeek V3.2",
     endpoint: "/api/models/deepseek",
     icon: GiSpermWhale,
     color: "from-cyan-500 to-blue-500",
@@ -289,6 +296,7 @@ export default function Chat() {
       kimi: "bg-[#0091FF]",
       openai: "bg-slate-800",
       gemini: "bg-blue-500",
+      mistral: "bg-[#FF4F00]",
       deepseek: "bg-indigo-500",
       qwen: "bg-violet-700",
       gptoss: "bg-pink-500",
