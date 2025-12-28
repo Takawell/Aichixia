@@ -82,6 +82,14 @@ const models: Model[] = [
     type: "text",
   },
   {
+    id: "flux",
+    name: "Flux 2",
+    endpoint: "/api/models/flux",
+    icon: SiFlux,
+    color: "from-purple-500 to-pink-500",
+    type: "image",
+  },
+  {
     id: "kimi",
     name: "Kimi K2",
     endpoint: "/api/models/kimi",
@@ -112,14 +120,6 @@ const models: Model[] = [
     icon: SiOpenai,
     color: "from-green-500 to-emerald-500",
     type: "text",
-  },
-  {
-    id: "flux",
-    name: "Flux 1 Schnell",
-    endpoint: "/api/models/flux",
-    icon: SiFlux,
-    color: "from-purple-500 to-pink-500",
-    type: "image",
   },
   {
     id: "llama",
