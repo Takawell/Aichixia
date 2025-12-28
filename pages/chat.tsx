@@ -15,7 +15,7 @@ import {
   FaQuestion,
   FaSearch,
 } from "react-icons/fa";
-import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, } from "react-icons/si";
+import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiFlux, } from "react-icons/si";
 import { GiSpermWhale, GiPowerLightning, GiBlackHoleBolas, GiClover, } from "react-icons/gi";
 import { TbSquareLetterZ, TbLetterM, } from "react-icons/tb";
 import Link from "next/link";
@@ -38,6 +38,7 @@ type Model = {
   endpoint: string;
   icon: any;
   color: string;
+  type?: "text" | "image";
 };
 
 const personaConfig: Record<
@@ -71,12 +72,21 @@ const personaConfig: Record<
 };
 
 const models: Model[] = [
-    {
+  {
     id: "aichixia",
     name: "Aichixia | Auto",
     endpoint: "/api/chat",
     icon: GiBlackHoleBolas,
     color: "from-sky-500 to-blue-500",
+    type: "text",
+  },
+  {
+    id: "flux",
+    name: "Flux 1 Schnell",
+    endpoint: "/api/models/flux",
+    icon: SiFlux,
+    color: "from-purple-500 to-pink-500",
+    type: "image",
   },
   {
     id: "kimi",
@@ -84,6 +94,7 @@ const models: Model[] = [
     endpoint: "/api/models/kimi",
     icon: SiDigikeyelectronics,
     color: "from-blue-500 to-black-500",
+    type: "text",
   },
   {
     id: "glm",
@@ -91,6 +102,7 @@ const models: Model[] = [
     endpoint: "/api/models/glm",
     icon: TbSquareLetterZ,
     color: "from-[#1835D4] to-[#010B24]",
+    type: "text",
   },
   {
     id: "mistral",
@@ -98,6 +110,7 @@ const models: Model[] = [
     endpoint: "/api/models/mistral",
     icon: TbLetterM,
     color: "from-[#FF4F00] to-[#FF9000]",
+    type: "text",
   },
   {
     id: "gpt4mini",
@@ -105,6 +118,7 @@ const models: Model[] = [
     endpoint: "/api/models/openai",
     icon: SiOpenai,
     color: "from-green-500 to-emerald-500",
+    type: "text",
   },
   {
     id: "llama",
@@ -112,6 +126,7 @@ const models: Model[] = [
     endpoint: "/api/models/llama",
     icon: SiMeta,
     color: "from-orange-500 to-red-500",
+    type: "text",
   },
   {
     id: "gptoss",
@@ -119,6 +134,7 @@ const models: Model[] = [
     endpoint: "/api/models/gptoss",
     icon: SiOpenai,
     color: "from-pink-500 to-rose-500",
+    type: "text",
   },
   {
     id: "gemini",
@@ -126,6 +142,7 @@ const models: Model[] = [
     endpoint: "/api/models/gemini",
     icon: SiGooglegemini,
     color: "from-indigo-500 to-purple-500",
+    type: "text",
   },
   {
     id: "deepseek",
@@ -133,6 +150,7 @@ const models: Model[] = [
     endpoint: "/api/models/deepseek",
     icon: GiSpermWhale,
     color: "from-cyan-500 to-blue-500",
+    type: "text",
   },
   {
     id: "compound",
@@ -140,6 +158,7 @@ const models: Model[] = [
     endpoint: "/api/models/compound",
     icon: GiPowerLightning,
     color: "from-orange-500 to-blue-500",
+    type: "text",
   },
   {
     id: "claude",
@@ -147,6 +166,7 @@ const models: Model[] = [
     endpoint: "/api/models/claude",
     icon: SiAnthropic,
     color: "from-orange-500 to-purple-500",
+    type: "text",
   },
   {
     id: "qwen",
@@ -154,6 +174,7 @@ const models: Model[] = [
     endpoint: "/api/models/qwen",
     icon: SiAlibabacloud,
     color: "from-purple-500 to-pink-500",
+    type: "text",
   },
   {
     id: "cohere",
@@ -161,6 +182,7 @@ const models: Model[] = [
     endpoint: "/api/models/cohere",
     icon: GiClover,
     color: "from-emerald-500 to-purple-500",
+    type: "text",
   },
 ];
 
@@ -234,14 +256,18 @@ export default function Chat() {
       const response = await fetch(selectedModel.endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: userMessage.content,
-          history: messages.slice(-10).map((m) => ({
-            role: m.role,
-            content: m.content,
-          })),
-          persona: persona === "tsundere" ? undefined : personaConfig[persona].description,
-        }),
+        body: JSON.stringify(
+          selectedModel.type === "image"
+            ? { prompt: userMessage.content, steps: 4 }
+            : {
+                message: userMessage.content,
+                history: messages.slice(-10).map((m) => ({
+                  role: m.role,
+                  content: m.content,
+                })),
+                persona: persona === "tsundere" ? undefined : personaConfig[persona].description,
+              }
+        ),
       });
 
       const data = await response.json();
@@ -254,7 +280,9 @@ export default function Chat() {
 
       const aiMessage: Message = {
         role: "assistant",
-        content: data.reply,
+        content: selectedModel.type === "image" 
+          ? `![Generated Image](data:image/jpeg;base64,${data.imageBase64})`
+          : data.reply,
         timestamp: new Date(),
         provider: data.provider,
       };
@@ -303,7 +331,8 @@ export default function Chat() {
       claude: "bg-[#d97757]",
       cohere: "bg-[#3d5941]",
       compound: "bg-[#F55036]",
-      llama: "bg-[#0668E1]" 
+      llama: "bg-[#0668E1]",
+      flux: "bg-purple-500"
     };
 
     return (
@@ -495,7 +524,7 @@ export default function Chat() {
                   }`}
                 >
                   {msg.role === "assistant" ? (
-                    <div className="prose prose-sm sm:prose-base dark:prose-invert max-w-none prose-p:my-2 prose-headings:my-3 prose-ul:my-2 prose-ol:my-2 prose-li:my-1">
+                    <div className="prose prose-sm sm:prose-base dark:prose-invert max-w-none prose-p:my-2 prose-headings:my-3 prose-ul:my-2 prose-ol:my-2 prose-li:my-1 prose-img:rounded-lg prose-img:shadow-lg">
                       <ReactMarkdown remarkPlugins={[remarkGfm]}>
                         {msg.content}
                       </ReactMarkdown>
@@ -546,7 +575,7 @@ export default function Chat() {
                         {selectedModel.name}
                       </div>
                       <div className="text-[10px] text-slate-500 dark:text-slate-400">
-                        Thinking...
+                        {selectedModel.type === "image" ? "Generating..." : "Thinking..."}
                       </div>
                     </div>
                   </div>
@@ -608,7 +637,8 @@ export default function Chat() {
                                 autoFocus
                               />
                             </div>
-                          </div>
+                          </div
+
                           <div className="max-h-80 overflow-y-auto">
                             {filteredModels.length > 0 ? (
                               filteredModels.map((model) => {
@@ -630,6 +660,9 @@ export default function Chat() {
                                       <div className="flex-1 min-w-0">
                                         <div className="font-semibold text-slate-800 dark:text-slate-200 text-sm truncate">
                                           {model.name}
+                                        </div>
+                                        <div className="text-[10px] text-slate-500 dark:text-slate-400">
+                                          {model.type === "image" ? "Image Generation" : "Text Generation"}
                                         </div>
                                       </div>
                                       {selectedModel.id === model.id && (
@@ -656,7 +689,7 @@ export default function Chat() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder="Ask anything or @mention"
+                  placeholder={selectedModel.type === "image" ? "Describe the image you want to generate..." : "Ask anything or @mention"}
                   disabled={loading}
                   rows={1}
                   className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 focus:border-sky-400 dark:focus:border-sky-500 rounded-xl resize-none outline-none text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm sm:text-base max-h-32 shadow-sm"
