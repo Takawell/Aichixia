@@ -19,6 +19,7 @@
     "react-icons": "^5.2.1",
     "react-markdown": "^9.0.0",
     "remark-gfm": "^4.0.0",
+    "tavily": "^0.0.7",
     "tailwindcss": "^3.4.1",
     "postcss": "^8.4.31",
     "autoprefixer": "^10.4.17",
