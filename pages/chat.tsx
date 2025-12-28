@@ -637,7 +637,7 @@ export default function Chat() {
                                 autoFocus
                               />
                             </div>
-                          </div
+                          </div>
 
                           <div className="max-h-80 overflow-y-auto">
                             {filteredModels.length > 0 ? (
