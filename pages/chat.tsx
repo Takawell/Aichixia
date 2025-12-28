@@ -28,6 +28,7 @@ type Message = {
   content: string;
   timestamp: Date;
   provider?: string;
+  isImage?: boolean;
 };
 
 type Persona = "tsundere" | "friendly" | "professional" | "kawaii";
@@ -81,14 +82,6 @@ const models: Model[] = [
     type: "text",
   },
   {
-    id: "flux",
-    name: "Flux 1 Schnell",
-    endpoint: "/api/models/flux",
-    icon: SiFlux,
-    color: "from-purple-500 to-pink-500",
-    type: "image",
-  },
-  {
     id: "kimi",
     name: "Kimi K2",
     endpoint: "/api/models/kimi",
@@ -119,6 +112,14 @@ const models: Model[] = [
     icon: SiOpenai,
     color: "from-green-500 to-emerald-500",
     type: "text",
+  },
+  {
+    id: "flux",
+    name: "Flux 1 Schnell",
+    endpoint: "/api/models/flux",
+    icon: SiFlux,
+    color: "from-purple-500 to-pink-500",
+    type: "image",
   },
   {
     id: "llama",
@@ -280,11 +281,10 @@ export default function Chat() {
 
       const aiMessage: Message = {
         role: "assistant",
-        content: selectedModel.type === "image" 
-          ? `![Generated Image](data:image/jpeg;base64,${data.imageBase64})`
-          : data.reply,
+        content: selectedModel.type === "image" ? data.imageBase64 : data.reply,
         timestamp: new Date(),
         provider: data.provider,
+        isImage: selectedModel.type === "image",
       };
 
       setMessages((prev) => [...prev, aiMessage]);
@@ -524,11 +524,19 @@ export default function Chat() {
                   }`}
                 >
                   {msg.role === "assistant" ? (
-                    <div className="prose prose-sm sm:prose-base dark:prose-invert max-w-none prose-p:my-2 prose-headings:my-3 prose-ul:my-2 prose-ol:my-2 prose-li:my-1 prose-img:rounded-lg prose-img:shadow-lg">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                        {msg.content}
-                      </ReactMarkdown>
-                    </div>
+                    msg.isImage ? (
+                      <img 
+                        src={`data:image/jpeg;base64,${msg.content}`}
+                        alt="Generated Image"
+                        className="rounded-lg shadow-lg max-w-full h-auto"
+                      />
+                    ) : (
+                      <div className="prose prose-sm sm:prose-base dark:prose-invert max-w-none prose-p:my-2 prose-headings:my-3 prose-ul:my-2 prose-ol:my-2 prose-li:my-1">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                          {msg.content}
+                        </ReactMarkdown>
+                      </div>
+                    )
                   ) : (
                     <p className="text-xs sm:text-sm md:text-base whitespace-pre-wrap break-words leading-relaxed">
                       {msg.content}
@@ -638,7 +646,6 @@ export default function Chat() {
                               />
                             </div>
                           </div>
-
                           <div className="max-h-80 overflow-y-auto">
                             {filteredModels.length > 0 ? (
                               filteredModels.map((model) => {
