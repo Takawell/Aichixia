@@ -1,6 +1,6 @@
 const CLOUDFLARE_API_KEY = process.env.CLOUDFLARE_API_KEY;
 const CLOUDFLARE_ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID;
-const FLUX_MODEL = "@cf/black-forest-labs/flux-2-dev";
+const FLUX_MODEL = process.env.FLUX_MODEL || "@cf/black-forest-labs/flux-2-dev";
 
 if (!CLOUDFLARE_API_KEY || !CLOUDFLARE_ACCOUNT_ID) {
   console.warn("[lib/flux] Warning: CLOUDFLARE credentials not set in env.");
