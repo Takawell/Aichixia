@@ -36,6 +36,34 @@ const base = "https://aichixia.vercel.app";
 
 type CodeLanguage = 'javascript' | 'python' | 'bash' | 'php';
 
+const SpeedIndicator = ({ level }: { level: number }) => {
+  return (
+    <div className="flex items-center gap-0.5">
+      {[...Array(4)].map((_, i) => (
+        <FaBolt
+          key={i}
+          className={`${i < level ? 'text-sky-500 dark:text-sky-400' : 'text-zinc-300 dark:text-zinc-700'}`}
+          size={10}
+        />
+      ))}
+    </div>
+  );
+};
+
+const QualityIndicator = ({ level }: { level: number }) => {
+  return (
+    <div className="flex items-center gap-0.5">
+      {[...Array(5)].map((_, i) => (
+        <FaStar
+          key={i}
+          className={`${i < level ? 'text-sky-500 dark:text-sky-400' : 'text-zinc-300 dark:text-zinc-700'}`}
+          size={10}
+        />
+      ))}
+    </div>
+  );
+};
+
 const Modal = ({ 
   isOpen, 
   onClose, 
@@ -52,8 +80,8 @@ const Modal = ({
   method: string;
   note?: string;
   modelInfo?: {
-    speed: string;
-    quality: string;
+    speed: number;
+    quality: number;
     useCase: string;
     contextWindow?: string;
   };
@@ -175,32 +203,32 @@ print_r($data);`;
   if (!mounted && !isOpen) return null;
 
   return (
-    <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+    <div className={`fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 transition-all duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
       <div 
         className={`absolute inset-0 bg-black/70 dark:bg-black/90 backdrop-blur-md transition-all duration-300 ${isOpen ? 'opacity-100' : 'opacity-0'}`}
         onClick={onClose} 
       />
-      <div className={`relative bg-white dark:bg-zinc-950 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden transition-all duration-500 border border-zinc-200 dark:border-zinc-800 ${isOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}>
-        <div className="relative bg-gradient-to-r from-zinc-900 via-neutral-900 to-stone-900 dark:from-black dark:via-zinc-950 dark:to-neutral-950 p-6 border-b border-sky-400/20">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-gradient-to-br from-sky-400 to-blue-500 rounded-lg shadow-lg shadow-sky-400/20">
-                <FaCode className="text-white" size={24} />
+      <div className={`relative bg-white dark:bg-zinc-950 rounded-xl sm:rounded-2xl shadow-2xl max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-hidden transition-all duration-500 border border-zinc-200 dark:border-zinc-800 ${isOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}>
+        <div className="relative bg-gradient-to-r from-zinc-900 via-neutral-900 to-stone-900 dark:from-black dark:via-zinc-950 dark:to-neutral-950 p-4 sm:p-6 border-b border-sky-400/20">
+          <div className="flex items-center justify-between mb-3 sm:mb-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="p-1.5 sm:p-2 bg-gradient-to-br from-sky-400 to-blue-500 rounded-lg shadow-lg shadow-sky-400/20">
+                <FaCode className="text-white" size={18} />
               </div>
-              <h3 className="text-2xl font-bold text-white">Endpoint Details</h3>
+              <h3 className="text-lg sm:text-2xl font-bold text-white">Endpoint Details</h3>
             </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-white/10 rounded-lg transition-all duration-200"
+              className="p-1.5 sm:p-2 hover:bg-white/10 rounded-lg transition-all duration-200"
             >
-              <FaTimes className="text-white" size={20} />
+              <FaTimes className="text-white" size={18} />
             </button>
           </div>
 
-          <div className="flex gap-2 mt-4">
+          <div className="flex gap-1.5 sm:gap-2">
             <button
               onClick={() => setActiveTab('overview')}
-              className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-200 ${
+              className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-semibold text-xs sm:text-sm transition-all duration-200 ${
                 activeTab === 'overview'
                   ? 'bg-gradient-to-r from-sky-400 to-blue-500 text-white shadow-lg shadow-sky-400/30'
                   : 'bg-white/10 text-white/70 hover:bg-white/20'
@@ -210,26 +238,26 @@ print_r($data);`;
             </button>
             <button
               onClick={() => setActiveTab('examples')}
-              className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-200 ${
+              className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-semibold text-xs sm:text-sm transition-all duration-200 ${
                 activeTab === 'examples'
                   ? 'bg-gradient-to-r from-sky-400 to-blue-500 text-white shadow-lg shadow-sky-400/30'
                   : 'bg-white/10 text-white/70 hover:bg-white/20'
               }`}
             >
-              Code Examples
+              Examples
             </button>
           </div>
         </div>
 
-        <div className="p-6 space-y-6 overflow-auto max-h-[calc(90vh-180px)] bg-white dark:bg-zinc-950">
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 overflow-auto max-h-[calc(95vh-140px)] sm:max-h-[calc(90vh-180px)] bg-white dark:bg-zinc-950">
           {activeTab === 'overview' ? (
             <>
               <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <FaServer className="text-sky-500 dark:text-sky-400" size={16} />
+                <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                  <FaServer className="text-sky-500 dark:text-sky-400" size={14} />
                   <h4 className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">Method</h4>
                 </div>
-                <span className="inline-block px-4 py-2 bg-gradient-to-r from-sky-400 to-blue-500 text-white rounded-lg font-bold text-sm shadow-lg shadow-sky-400/30">
+                <span className="inline-block px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-sky-400 to-blue-500 text-white rounded-lg font-bold text-xs sm:text-sm shadow-lg shadow-sky-400/30">
                   {method}
                 </span>
               </div>
@@ -237,33 +265,33 @@ print_r($data);`;
               <div className="border-t border-zinc-200 dark:border-zinc-800" />
 
               <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <FaInfoCircle className="text-sky-500 dark:text-sky-400" size={16} />
+                <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                  <FaInfoCircle className="text-sky-500 dark:text-sky-400" size={14} />
                   <h4 className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">Description</h4>
                 </div>
-                <p className="text-zinc-700 dark:text-zinc-300 text-sm leading-relaxed">{desc}</p>
+                <p className="text-zinc-700 dark:text-zinc-300 text-xs sm:text-sm leading-relaxed">{desc}</p>
               </div>
 
               {modelInfo && (
                 <>
                   <div className="border-t border-zinc-200 dark:border-zinc-800" />
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-lg p-4 border border-zinc-200 dark:border-zinc-800">
-                      <div className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1">Speed</div>
-                      <div className="text-lg font-bold text-zinc-900 dark:text-white">{modelInfo.speed}</div>
+                  <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                    <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-lg p-3 sm:p-4 border border-zinc-200 dark:border-zinc-800">
+                      <div className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1.5">Speed</div>
+                      <SpeedIndicator level={modelInfo.speed} />
                     </div>
-                    <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-lg p-4 border border-zinc-200 dark:border-zinc-800">
-                      <div className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1">Quality</div>
-                      <div className="text-lg font-bold text-zinc-900 dark:text-white">{modelInfo.quality}</div>
+                    <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-lg p-3 sm:p-4 border border-zinc-200 dark:border-zinc-800">
+                      <div className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1.5">Quality</div>
+                      <QualityIndicator level={modelInfo.quality} />
                     </div>
-                    <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-lg p-4 border border-zinc-200 dark:border-zinc-800 col-span-2">
+                    <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-lg p-3 sm:p-4 border border-zinc-200 dark:border-zinc-800 col-span-2">
                       <div className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1">Use Case</div>
-                      <div className="text-sm font-medium text-zinc-900 dark:text-white">{modelInfo.useCase}</div>
+                      <div className="text-xs sm:text-sm font-medium text-zinc-900 dark:text-white">{modelInfo.useCase}</div>
                     </div>
                     {modelInfo.contextWindow && (
-                      <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-lg p-4 border border-zinc-200 dark:border-zinc-800 col-span-2">
+                      <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-lg p-3 sm:p-4 border border-zinc-200 dark:border-zinc-800 col-span-2">
                         <div className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1">Context Window</div>
-                        <div className="text-sm font-medium text-zinc-900 dark:text-white">{modelInfo.contextWindow}</div>
+                        <div className="text-xs sm:text-sm font-medium text-zinc-900 dark:text-white">{modelInfo.contextWindow}</div>
                       </div>
                     )}
                   </div>
@@ -273,25 +301,25 @@ print_r($data);`;
               <div className="border-t border-zinc-200 dark:border-zinc-800" />
 
               <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <FaCode className="text-sky-500 dark:text-sky-400" size={16} />
+                <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                  <FaCode className="text-sky-500 dark:text-sky-400" size={14} />
                   <h4 className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">Endpoint URL</h4>
                 </div>
-                <div className="bg-zinc-100 dark:bg-black rounded-lg p-4 mb-3 border border-zinc-200 dark:border-zinc-800">
-                  <code className="text-sky-500 dark:text-sky-400 text-sm break-all font-mono">{path}</code>
+                <div className="bg-zinc-100 dark:bg-black rounded-lg p-3 sm:p-4 mb-2 sm:mb-3 border border-zinc-200 dark:border-zinc-800">
+                  <code className="text-sky-500 dark:text-sky-400 text-[10px] sm:text-xs break-all font-mono">{path}</code>
                 </div>
                 <button
                   onClick={() => copy(path)}
-                  className="w-full px-4 py-3 bg-gradient-to-r from-sky-400 to-blue-500 hover:from-sky-500 hover:to-blue-600 text-white rounded-lg font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-sky-400/30"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gradient-to-r from-sky-400 to-blue-500 hover:from-sky-500 hover:to-blue-600 text-white rounded-lg font-semibold text-xs sm:text-sm transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-sky-400/30"
                 >
                   {copied ? (
                     <>
-                      <FaCheckCircle size={16} />
+                      <FaCheckCircle size={14} />
                       <span>Copied!</span>
                     </>
                   ) : (
                     <>
-                      <FaCopy size={16} />
+                      <FaCopy size={14} />
                       <span>Copy URL</span>
                     </>
                   )}
@@ -301,12 +329,12 @@ print_r($data);`;
               {note && (
                 <>
                   <div className="border-t border-zinc-200 dark:border-zinc-800" />
-                  <div className="bg-sky-50 dark:bg-sky-950/20 border-l-4 border-sky-400 dark:border-sky-500 rounded-lg p-4">
-                    <div className="flex items-start gap-3">
-                      <FaLightbulb className="text-sky-500 dark:text-sky-400 mt-0.5 flex-shrink-0" size={18} />
+                  <div className="bg-sky-50 dark:bg-sky-950/20 border-l-4 border-sky-400 dark:border-sky-500 rounded-lg p-3 sm:p-4">
+                    <div className="flex items-start gap-2 sm:gap-3">
+                      <FaLightbulb className="text-sky-500 dark:text-sky-400 mt-0.5 flex-shrink-0" size={16} />
                       <div>
-                        <h4 className="text-sm font-semibold text-sky-600 dark:text-sky-400 mb-1">Note</h4>
-                        <p className="text-zinc-700 dark:text-zinc-300 text-sm leading-relaxed">{note}</p>
+                        <h4 className="text-xs sm:text-sm font-semibold text-sky-600 dark:text-sky-400 mb-1">Note</h4>
+                        <p className="text-zinc-700 dark:text-zinc-300 text-xs sm:text-sm leading-relaxed">{note}</p>
                       </div>
                     </div>
                   </div>
@@ -315,12 +343,12 @@ print_r($data);`;
             </>
           ) : (
             <>
-              <div className="flex gap-2 flex-wrap">
+              <div className="flex gap-1.5 sm:gap-2 flex-wrap">
                 {(['javascript', 'python', 'bash', 'php'] as CodeLanguage[]).map((lang) => (
                   <button
                     key={lang}
                     onClick={() => setActiveLanguage(lang)}
-                    className={`px-3 py-1.5 rounded-lg font-semibold text-xs transition-all duration-200 ${
+                    className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg font-semibold text-[10px] sm:text-xs transition-all duration-200 ${
                       activeLanguage === lang
                         ? 'bg-gradient-to-r from-sky-400 to-blue-500 text-white shadow-lg shadow-sky-400/30'
                         : 'bg-zinc-100 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800'
@@ -334,16 +362,16 @@ print_r($data);`;
               <div className="relative">
                 <button
                   onClick={() => copy(generateCodeExample(activeLanguage))}
-                  className="absolute top-3 right-3 z-10 px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-white rounded-lg text-xs font-semibold transition-all duration-200 flex items-center gap-2"
+                  className="absolute top-2 sm:top-3 right-2 sm:right-3 z-10 px-2 sm:px-3 py-1 sm:py-1.5 bg-zinc-800 hover:bg-zinc-700 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-white rounded-lg text-[10px] sm:text-xs font-semibold transition-all duration-200 flex items-center gap-1.5"
                 >
                   {copied ? (
                     <>
-                      <FaCheckCircle size={12} />
+                      <FaCheckCircle size={10} />
                       <span>Copied!</span>
                     </>
                   ) : (
                     <>
-                      <FaCopy size={12} />
+                      <FaCopy size={10} />
                       <span>Copy</span>
                     </>
                   )}
@@ -353,8 +381,8 @@ print_r($data);`;
                   style={isDark ? oneDark : oneLight}
                   customStyle={{
                     borderRadius: '0.75rem',
-                    padding: '1.5rem',
-                    fontSize: '0.875rem',
+                    padding: '1rem',
+                    fontSize: '0.75rem',
                     border: isDark ? '1px solid #27272a' : '1px solid #e4e4e7',
                   }}
                   showLineNumbers
@@ -363,18 +391,18 @@ print_r($data);`;
                 </SyntaxHighlighter>
               </div>
 
-              <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-lg p-4 border border-zinc-200 dark:border-zinc-800">
+              <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-lg p-3 sm:p-4 border border-zinc-200 dark:border-zinc-800">
                 <div className="flex items-center gap-2 mb-2">
-                  <FaInfoCircle className="text-sky-500 dark:text-sky-400" size={14} />
-                  <h4 className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">Expected Response</h4>
+                  <FaInfoCircle className="text-sky-500 dark:text-sky-400" size={12} />
+                  <h4 className="text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">Expected Response</h4>
                 </div>
                 <SyntaxHighlighter
                   language="json"
                   style={isDark ? oneDark : oneLight}
                   customStyle={{
                     borderRadius: '0.5rem',
-                    padding: '1rem',
-                    fontSize: '0.75rem',
+                    padding: '0.75rem',
+                    fontSize: '0.65rem',
                     margin: 0,
                   }}
                 >
@@ -400,10 +428,10 @@ print_r($data);`;
 const StatusBadge = ({ active, label }: { active: boolean; label: string }) => {
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-white text-xs font-semibold shadow-lg transition-all duration-300
+      className={`inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-white text-[10px] sm:text-xs font-semibold shadow-lg transition-all duration-300
       ${active ? "bg-gradient-to-r from-emerald-500 to-green-500 shadow-emerald-400/30" : "bg-gradient-to-r from-rose-500 to-red-500 shadow-rose-400/30"}`}
     >
-      {active ? <FaCheckCircle size={10} /> : <FaTimesCircle size={10} />} {label}
+      {active ? <FaCheckCircle size={8} /> : <FaTimesCircle size={8} />} {label}
     </span>
   );
 };
@@ -424,8 +452,8 @@ const Row = ({
   overrideLabel?: string;
   note?: string;
   modelInfo?: {
-    speed: string;
-    quality: string;
+    speed: number;
+    quality: number;
     useCase: string;
     contextWindow?: string;
   };
@@ -434,22 +462,22 @@ const Row = ({
   
   return (
     <>
-      <div className="group bg-white dark:bg-zinc-950 hover:bg-zinc-50 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 transition-all duration-300 cursor-pointer hover:shadow-xl hover:shadow-sky-400/10 dark:hover:shadow-sky-400/20">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-start gap-3 flex-1 min-w-0">
-            <span className="px-3 py-1.5 bg-gradient-to-r from-sky-400 to-blue-500 text-white rounded-lg font-bold text-xs whitespace-nowrap shadow-lg shadow-sky-400/30">
+      <div className="group bg-white dark:bg-zinc-950 hover:bg-zinc-50 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg sm:rounded-xl p-3 sm:p-5 transition-all duration-300 cursor-pointer hover:shadow-xl hover:shadow-sky-400/10 dark:hover:shadow-sky-400/20">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+          <div className="flex items-start gap-2 sm:gap-3 flex-1 min-w-0">
+            <span className="px-2 sm:px-3 py-1 sm:py-1.5 bg-gradient-to-r from-sky-400 to-blue-500 text-white rounded-lg font-bold text-[10px] sm:text-xs whitespace-nowrap shadow-lg shadow-sky-400/30">
               {method}
             </span>
             <div className="flex-1 min-w-0">
-              <p className="text-zinc-900 dark:text-white text-sm font-semibold mb-1.5">{desc}</p>
-              <p className="text-zinc-500 dark:text-zinc-400 text-xs font-mono truncate">{path.replace(base, '')}</p>
+              <p className="text-zinc-900 dark:text-white text-xs sm:text-sm font-semibold mb-1 sm:mb-1.5">{desc}</p>
+              <p className="text-zinc-500 dark:text-zinc-400 text-[10px] sm:text-xs font-mono truncate">{path.replace(base, '')}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             <StatusBadge active={active} label={overrideLabel ?? (active ? "Active" : "Inactive")} />
             <button
               onClick={() => setShowModal(true)}
-              className="px-4 py-2 bg-zinc-900 dark:bg-white hover:bg-zinc-800 dark:hover:bg-zinc-100 text-white dark:text-zinc-900 rounded-lg font-semibold text-xs transition-all duration-200 shadow-lg"
+              className="px-3 sm:px-4 py-1.5 sm:py-2 bg-zinc-900 dark:bg-white hover:bg-zinc-800 dark:hover:bg-zinc-100 text-white dark:text-zinc-900 rounded-lg font-semibold text-[10px] sm:text-xs transition-all duration-200 shadow-lg"
             >
               Details
             </button>
@@ -472,14 +500,14 @@ const Row = ({
 
 const FeatureCard = ({ icon: Icon, title, description }: any) => {
   return (
-    <div className="group bg-white dark:bg-zinc-950 hover:bg-zinc-50 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-6 transition-all duration-300 hover:shadow-xl hover:shadow-sky-400/10 dark:hover:shadow-sky-400/20 hover:-translate-y-1">
-      <div className="flex items-start gap-4">
-        <div className="p-3 bg-gradient-to-br from-sky-400 to-blue-500 rounded-xl flex-shrink-0 shadow-lg shadow-sky-400/30">
-          <Icon className="text-white" size={24} />
+    <div className="group bg-white dark:bg-zinc-950 hover:bg-zinc-50 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg sm:rounded-xl p-4 sm:p-6 transition-all duration-300 hover:shadow-xl hover:shadow-sky-400/10 dark:hover:shadow-sky-400/20 hover:-translate-y-1">
+      <div className="flex items-start gap-3 sm:gap-4">
+        <div className="p-2 sm:p-3 bg-gradient-to-br from-sky-400 to-blue-500 rounded-lg sm:rounded-xl flex-shrink-0 shadow-lg shadow-sky-400/30">
+          <Icon className="text-white" size={20} />
         </div>
         <div>
-          <h3 className="text-lg font-bold text-zinc-900 dark:text-white mb-2">{title}</h3>
-          <p className="text-zinc-600 dark:text-zinc-400 text-sm leading-relaxed">{description}</p>
+          <h3 className="text-sm sm:text-lg font-bold text-zinc-900 dark:text-white mb-1 sm:mb-2">{title}</h3>
+          <p className="text-zinc-600 dark:text-zinc-400 text-xs sm:text-sm leading-relaxed">{description}</p>
         </div>
       </div>
     </div>
@@ -493,25 +521,25 @@ const ModelCard = ({ icon: Icon, name, endpoint, color, description, speed, qual
     <>
       <button
         onClick={() => setShowModal(true)}
-        className="group bg-white dark:bg-zinc-950 hover:bg-zinc-50 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 transition-all duration-300 hover:shadow-xl hover:shadow-sky-400/10 dark:hover:shadow-sky-400/20 hover:-translate-y-1 text-left w-full"
+        className="group bg-white dark:bg-zinc-950 hover:bg-zinc-50 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg sm:rounded-xl p-3 sm:p-5 transition-all duration-300 hover:shadow-xl hover:shadow-sky-400/10 dark:hover:shadow-sky-400/20 hover:-translate-y-1 text-left w-full"
       >
-        <div className="flex items-start gap-4">
-          <div className={`p-3 bg-gradient-to-br ${color} rounded-xl flex-shrink-0 shadow-lg`}>
-            <Icon className="text-white" size={24} />
+        <div className="flex items-start gap-3 sm:gap-4">
+          <div className={`p-2 sm:p-3 bg-gradient-to-br ${color} rounded-lg sm:rounded-xl flex-shrink-0 shadow-lg`}>
+            <Icon className="text-white" size={20} />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="text-lg font-bold text-zinc-900 dark:text-white mb-1">{name}</h3>
-            <p className="text-zinc-600 dark:text-zinc-400 text-sm mb-3">{description}</p>
-            <div className="flex gap-4 text-xs">
+            <h3 className="text-sm sm:text-lg font-bold text-zinc-900 dark:text-white mb-1">{name}</h3>
+            <p className="text-zinc-600 dark:text-zinc-400 text-xs sm:text-sm mb-2 sm:mb-3">{description}</p>
+            <div className="flex gap-3 sm:gap-4 text-[10px] sm:text-xs">
               <div className="flex items-center gap-1">
-                <FaBolt className="text-sky-500" size={12} />
+                <FaBolt className="text-sky-500 flex-shrink-0" size={10} />
                 <span className="text-zinc-500 dark:text-zinc-500">Speed:</span>
-                <span className="ml-1 font-semibold text-zinc-900 dark:text-white">{speed}</span>
+                <SpeedIndicator level={speed} />
               </div>
               <div className="flex items-center gap-1">
-                <FaStar className="text-sky-500" size={12} />
+                <FaStar className="text-sky-500 flex-shrink-0" size={10} />
                 <span className="text-zinc-500 dark:text-zinc-500">Quality:</span>
-                <span className="ml-1 font-semibold text-zinc-900 dark:text-white">{quality}</span>
+                <QualityIndicator level={quality} />
               </div>
             </div>
           </div>
@@ -549,29 +577,30 @@ export default function Docs() {
   return (
     <main className="min-h-screen bg-zinc-50 dark:bg-black text-zinc-900 dark:text-white transition-colors duration-300">
       <div className={`fixed top-0 left-0 right-0 z-30 transition-all duration-300 ${scrolled ? 'bg-white/80 dark:bg-black/80 backdrop-blur-xl border-b border-zinc-200 dark:border-zinc-900 shadow-lg' : 'bg-transparent'}`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-xl transition-all duration-300 ${scrolled ? 'bg-gradient-to-br from-sky-400 to-blue-500' : 'bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800'} shadow-lg`}>
-              <FaBookOpen className={`${scrolled ? 'text-white' : 'text-sky-500 dark:text-sky-400'}`} size={28} />
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-3 sm:py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className={`p-1.5 sm:p-2 rounded-lg sm:rounded-xl transition-all duration-300 ${scrolled ? 'bg-gradient-to-br from-sky-400 to-blue-500' : 'bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800'} shadow-lg`}>
+              <FaBookOpen className={`${scrolled ? 'text-white' : 'text-sky-500 dark:text-sky-400'}`} size={20} />
             </div>
-            <h1 className="text-2xl font-black text-zinc-900 dark:text-white">Aichixia API</h1>
+            <h1 className="text-lg sm:text-2xl font-black text-zinc-900 dark:text-white">Aichixia API</h1>
           </div>
           <ThemeToggle />
         </div>
       </div>
 
-      <div className="relative pt-32 pb-20 overflow-hidden">
+      <div className="relative pt-24 sm:pt-32 pb-12 sm:pb-20 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-sky-50 via-zinc-50 to-zinc-50 dark:from-zinc-950/50 dark:via-black dark:to-black pointer-events-none" />
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-sky-400/20 dark:bg-sky-400/10 rounded-full blur-3xl" />
-        <div className="absolute top-20 right-1/4 w-96 h-96 bg-blue-500/20 dark:bg-blue-500/10 rounded-full blur-3xl" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-sky-100 dark:bg-sky-950/30 border border-sky-200 dark:border-sky-900 rounded-full text-sky-600 dark:text-sky-400 text-sm font-semibold mb-6">
-              <FaStar size={14} />
+        <div className="absolute top-0 left-1/4 w-64 sm:w-96 h-64 sm:h-96 bg-sky-400/20 dark:bg-sky-400/10 rounded-full blur-3xl" />
+        <div className="absolute top-12 sm:top-20 right-1/4 w-64 sm:w-96 h-64 sm:h-96 bg-blue-500/20 dark:bg-blue-500/10 rounded-full blur-3xl" />
+        
+        <div className="relative max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
+          <div className="max-w-4xl mx-auto text-center mb-12 sm:mb-16">
+            <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-sky-100 dark:bg-sky-950/30 border border-sky-200 dark:border-sky-900 rounded-full text-sky-600 dark:text-sky-400 text-xs sm:text-sm font-semibold mb-4 sm:mb-6">
+              <FaStar size={12} />
               <span>Free & Open API</span>
             </div>
             
-            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black mb-6 leading-tight">
+            <h2 className="text-3xl sm:text-4xl lg:text-6xl font-black mb-4 sm:mb-6 leading-tight">
               <span className="bg-gradient-to-r from-sky-500 to-blue-500 dark:from-sky-400 dark:to-blue-400 bg-clip-text text-transparent">
                 Aichixia API
               </span>
@@ -579,31 +608,31 @@ export default function Docs() {
               <span className="text-zinc-900 dark:text-white">Powered by AI</span>
             </h2>
             
-            <p className="text-zinc-600 dark:text-zinc-400 text-lg mb-8 leading-relaxed max-w-2xl mx-auto">
+            <p className="text-zinc-600 dark:text-zinc-400 text-sm sm:text-base lg:text-lg mb-6 sm:mb-8 leading-relaxed max-w-2xl mx-auto px-4">
               Centralized API for anime, manga, manhwa, manhua, and light novels. Powered by AniList database with multi-provider AI intelligence.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
               <Link
                 href="/chat"
-                className="group inline-flex items-center justify-center gap-3 px-6 py-3.5 bg-gradient-to-r from-sky-400 to-blue-500 hover:from-sky-500 hover:to-blue-600 text-white rounded-xl font-bold transition-all duration-300 shadow-lg shadow-sky-400/30 hover:shadow-xl hover:shadow-sky-400/40 hover:-translate-y-0.5"
+                className="group inline-flex items-center justify-center gap-2 sm:gap-3 px-5 sm:px-6 py-3 sm:py-3.5 bg-gradient-to-r from-sky-400 to-blue-500 hover:from-sky-500 hover:to-blue-600 text-white rounded-lg sm:rounded-xl font-bold transition-all duration-300 shadow-lg shadow-sky-400/30 hover:shadow-xl hover:shadow-sky-400/40 hover:-translate-y-0.5 text-sm sm:text-base"
               >
-                <FaComments size={20} />
+                <FaComments size={18} />
                 <span>Try AI Chat</span>
-                <FaChevronRight className="group-hover:translate-x-1 transition-transform" size={14} />
+                <FaChevronRight className="group-hover:translate-x-1 transition-transform" size={12} />
               </Link>
               
               <a
                 href="#endpoints"
-                className="inline-flex items-center justify-center gap-3 px-6 py-3.5 bg-white dark:bg-zinc-950 hover:bg-zinc-100 dark:hover:bg-zinc-900 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-800 rounded-xl font-bold transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+                className="inline-flex items-center justify-center gap-2 sm:gap-3 px-5 sm:px-6 py-3 sm:py-3.5 bg-white dark:bg-zinc-950 hover:bg-zinc-100 dark:hover:bg-zinc-900 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-800 rounded-lg sm:rounded-xl font-bold transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 text-sm sm:text-base"
               >
-                <FaRocket size={20} />
+                <FaRocket size={18} />
                 <span>Explore Endpoints</span>
               </a>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-20">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-12 sm:mb-20">
             <FeatureCard
               icon={FaFilm}
               title="Rich Data"
@@ -621,15 +650,15 @@ export default function Docs() {
             />
           </div>
 
-          <section id="endpoints" className="mb-20 scroll-mt-20">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="p-3 bg-gradient-to-br from-sky-400 to-blue-500 rounded-xl shadow-lg shadow-sky-400/30">
-                <FaFilm className="text-white" size={24} />
+          <section id="endpoints" className="mb-12 sm:mb-20 scroll-mt-20">
+            <div className="flex items-center gap-2 sm:gap-3 mb-6 sm:mb-8">
+              <div className="p-2 sm:p-3 bg-gradient-to-br from-sky-400 to-blue-500 rounded-lg sm:rounded-xl shadow-lg shadow-sky-400/30">
+                <FaFilm className="text-white" size={20} />
               </div>
-              <h2 className="text-3xl font-black text-zinc-900 dark:text-white">API Endpoints</h2>
+              <h2 className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white">API Endpoints</h2>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               <Row 
                 method="GET" 
                 path={`${base}/api/aichixia?category=anime&action=search&query={text}`} 
@@ -713,12 +742,12 @@ export default function Docs() {
             </div>
           </section>
 
-          <section className="mb-20">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="p-3 bg-gradient-to-br from-sky-400 to-blue-500 rounded-xl shadow-lg shadow-sky-400/30">
-                <FaComments className="text-white" size={24} />
+          <section className="mb-12 sm:mb-20">
+            <div className="flex items-center gap-2 sm:gap-3 mb-6 sm:mb-8">
+              <div className="p-2 sm:p-3 bg-gradient-to-br from-sky-400 to-blue-500 rounded-lg sm:rounded-xl shadow-lg shadow-sky-400/30">
+                <FaComments className="text-white" size={20} />
               </div>
-              <h2 className="text-3xl font-black text-zinc-900 dark:text-white">AI Chat</h2>
+              <h2 className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white">AI Chat</h2>
             </div>
             
             <Row 
@@ -728,56 +757,56 @@ export default function Docs() {
               note="Send POST with JSON: { message: 'text', persona: 'optional' }. Auto-switches between OpenAI, Gemini, Deepseek, Qwen, GPT-OSS, Llama."
             />
             
-            <div className="mt-6 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl p-6 shadow-lg">
-              <h3 className="text-sm font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-                <FaBrain size={16} className="text-sky-500 dark:text-sky-400" />
+            <div className="mt-4 sm:mt-6 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg sm:rounded-xl p-4 sm:p-6 shadow-lg">
+              <h3 className="text-xs sm:text-sm font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider mb-3 sm:mb-4 flex items-center gap-2">
+                <FaBrain size={14} className="text-sky-500 dark:text-sky-400" />
                 AI Provider Chain
               </h3>
-              <div className="flex flex-wrap items-center gap-2 text-xs mb-4">
-                <span className="px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-green-500 text-white rounded-full font-semibold shadow-lg shadow-emerald-400/30">OpenAI</span>
-                <FaChevronRight className="text-zinc-400" size={10} />
-                <span className="px-3 py-1.5 bg-gradient-to-r from-indigo-500 to-blue-500 text-white rounded-full font-semibold shadow-lg shadow-indigo-400/30">Gemini</span>
-                <FaChevronRight className="text-zinc-400" size={10} />
-                <span className="px-3 py-1.5 bg-gradient-to-r from-violet-500 to-purple-500 text-white rounded-full font-semibold shadow-lg shadow-violet-400/30">Deepseek</span>
-                <FaChevronRight className="text-zinc-400" size={10} />
-                <span className="px-3 py-1.5 bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white rounded-full font-semibold shadow-lg shadow-purple-400/30">Qwen</span>
-                <FaChevronRight className="text-zinc-400" size={10} />
-                <span className="px-3 py-1.5 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-full font-semibold shadow-lg shadow-pink-400/30">GPT-OSS</span>
-                <FaChevronRight className="text-zinc-400" size={10} />
-                <span className="px-3 py-1.5 bg-gradient-to-r from-rose-500 to-red-500 text-white rounded-full font-semibold shadow-lg shadow-rose-400/30">Llama</span>
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs mb-3 sm:mb-4">
+                <span className="px-2 sm:px-3 py-1 sm:py-1.5 bg-gradient-to-r from-emerald-500 to-green-500 text-white rounded-full font-semibold shadow-lg shadow-emerald-400/30">OpenAI</span>
+                <FaChevronRight className="text-zinc-400" size={8} />
+                <span className="px-2 sm:px-3 py-1 sm:py-1.5 bg-gradient-to-r from-indigo-500 to-blue-500 text-white rounded-full font-semibold shadow-lg shadow-indigo-400/30">Gemini</span>
+                <FaChevronRight className="text-zinc-400" size={8} />
+                <span className="px-2 sm:px-3 py-1 sm:py-1.5 bg-gradient-to-r from-violet-500 to-purple-500 text-white rounded-full font-semibold shadow-lg shadow-violet-400/30">Deepseek</span>
+                <FaChevronRight className="text-zinc-400" size={8} />
+                <span className="px-2 sm:px-3 py-1 sm:py-1.5 bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white rounded-full font-semibold shadow-lg shadow-purple-400/30">Qwen</span>
+                <FaChevronRight className="text-zinc-400" size={8} />
+                <span className="px-2 sm:px-3 py-1 sm:py-1.5 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-full font-semibold shadow-lg shadow-pink-400/30">GPT-OSS</span>
+                <FaChevronRight className="text-zinc-400" size={8} />
+                <span className="px-2 sm:px-3 py-1 sm:py-1.5 bg-gradient-to-r from-rose-500 to-red-500 text-white rounded-full font-semibold shadow-lg shadow-rose-400/30">Llama</span>
               </div>
-              <p className="text-zinc-600 dark:text-zinc-400 text-sm">
+              <p className="text-zinc-600 dark:text-zinc-400 text-xs sm:text-sm">
                 Automatic fallback ensures 99.9% uptime with intelligent provider switching
               </p>
             </div>
           </section>
 
-          <section className="mb-20">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="p-3 bg-gradient-to-br from-sky-400 to-blue-500 rounded-xl shadow-lg shadow-sky-400/30">
-                <FaRobot className="text-white" size={24} />
+          <section className="mb-12 sm:mb-20">
+            <div className="flex items-center gap-2 sm:gap-3 mb-6 sm:mb-8">
+              <div className="p-2 sm:p-3 bg-gradient-to-br from-sky-400 to-blue-500 rounded-lg sm:rounded-xl shadow-lg shadow-sky-400/30">
+                <FaRobot className="text-white" size={20} />
               </div>
-              <h2 className="text-3xl font-black text-zinc-900 dark:text-white">AI Models</h2>
+              <h2 className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white">AI Models</h2>
             </div>
 
-            <div className="mb-6 bg-sky-50 dark:bg-sky-950/20 border border-sky-200 dark:border-sky-900 rounded-xl p-4">
-              <div className="flex items-start gap-3">
-                <FaInfoCircle className="text-sky-500 dark:text-sky-400 mt-0.5" size={16} />
-                <p className="text-zinc-700 dark:text-zinc-300 text-sm">
+            <div className="mb-4 sm:mb-6 bg-sky-50 dark:bg-sky-950/20 border border-sky-200 dark:border-sky-900 rounded-lg sm:rounded-xl p-3 sm:p-4">
+              <div className="flex items-start gap-2 sm:gap-3">
+                <FaInfoCircle className="text-sky-500 dark:text-sky-400 mt-0.5" size={14} />
+                <p className="text-zinc-700 dark:text-zinc-300 text-xs sm:text-sm">
                   Target specific AI models for consistent responses from a particular provider. All models support web search capabilities.
                 </p>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8">
               <ModelCard
                 icon={SiDigikeyelectronics}
                 name="Kimi K2"
                 endpoint="/api/models/kimi"
                 color="from-blue-600 to-cyan-600"
                 description="Superior tool calling and complex reasoning"
-                speed="⚡⚡⚡"
-                quality="⭐⭐⭐⭐⭐"
+                speed={3}
+                quality={5}
               />
               <ModelCard
                 icon={TbSquareLetterZ}
@@ -785,8 +814,8 @@ export default function Docs() {
                 endpoint="/api/models/glm"
                 color="from-blue-700 to-indigo-900"
                 description="Multilingual excellence with strong reasoning"
-                speed="⚡⚡⚡"
-                quality="⭐⭐⭐⭐"
+                speed={3}
+                quality={4}
               />
               <ModelCard
                 icon={TbLetterM}
@@ -794,8 +823,8 @@ export default function Docs() {
                 endpoint="/api/models/mistral"
                 color="from-orange-600 to-amber-600"
                 description="Fast inference with European focus"
-                speed="⚡⚡⚡⚡"
-                quality="⭐⭐⭐⭐"
+                speed={4}
+                quality={4}
               />
               <ModelCard
                 icon={SiOpenai}
@@ -803,8 +832,8 @@ export default function Docs() {
                 endpoint="/api/models/openai"
                 color="from-emerald-600 to-green-600"
                 description="Balanced performance for general tasks"
-                speed="⚡⚡⚡"
-                quality="⭐⭐⭐⭐"
+                speed={3}
+                quality={4}
               />
               <ModelCard
                 icon={SiMeta}
@@ -812,8 +841,8 @@ export default function Docs() {
                 endpoint="/api/models/llama"
                 color="from-blue-600 to-indigo-700"
                 description="Efficient open-source powerhouse"
-                speed="⚡⚡⚡⚡"
-                quality="⭐⭐⭐⭐"
+                speed={4}
+                quality={4}
               />
               <ModelCard
                 icon={SiOpenai}
@@ -821,8 +850,8 @@ export default function Docs() {
                 endpoint="/api/models/gptoss"
                 color="from-pink-600 to-rose-600"
                 description="Large open-source with browser search"
-                speed="⚡⚡⚡"
-                quality="⭐⭐⭐⭐"
+                speed={3}
+                quality={4}
               />
               <ModelCard
                 icon={SiGooglegemini}
@@ -830,8 +859,8 @@ export default function Docs() {
                 endpoint="/api/models/gemini"
                 color="from-indigo-600 to-purple-600"
                 description="Multimodal understanding and accuracy"
-                speed="⚡⚡⚡⚡"
-                quality="⭐⭐⭐⭐⭐"
+                speed={4}
+                quality={5}
               />
               <ModelCard
                 icon={GiSpermWhale}
@@ -839,8 +868,8 @@ export default function Docs() {
                 endpoint="/api/models/deepseek"
                 color="from-cyan-600 to-blue-600"
                 description="Deep reasoning and code generation"
-                speed="⚡⚡⚡"
-                quality="⭐⭐⭐⭐⭐"
+                speed={3}
+                quality={5}
               />
               <ModelCard
                 icon={GiPowerLightning}
@@ -848,8 +877,8 @@ export default function Docs() {
                 endpoint="/api/models/compound"
                 color="from-orange-600 to-red-600"
                 description="Multi-model agentic system with tools"
-                speed="⚡⚡⚡⚡"
-                quality="⭐⭐⭐⭐⭐"
+                speed={4}
+                quality={5}
               />
               <ModelCard
                 icon={SiAnthropic}
@@ -857,8 +886,8 @@ export default function Docs() {
                 endpoint="/api/models/claude"
                 color="from-orange-600 to-amber-700"
                 description="Fast, capable, and balanced Anthropic model"
-                speed="⚡⚡⚡⚡"
-                quality="⭐⭐⭐⭐"
+                speed={4}
+                quality={4}
               />
               <ModelCard
                 icon={SiAlibabacloud}
@@ -866,8 +895,8 @@ export default function Docs() {
                 endpoint="/api/models/qwen"
                 color="from-purple-600 to-fuchsia-600"
                 description="Specialized in coding and Asian languages"
-                speed="⚡⚡⚡"
-                quality="⭐⭐⭐⭐⭐"
+                speed={3}
+                quality={5}
               />
               <ModelCard
                 icon={GiClover}
@@ -875,17 +904,17 @@ export default function Docs() {
                 endpoint="/api/models/cohere"
                 color="from-emerald-600 to-teal-600"
                 description="Enterprise-grade with excellent tool use"
-                speed="⚡⚡⚡"
-                quality="⭐⭐⭐⭐"
+                speed={3}
+                quality={4}
               />
             </div>
 
-            <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl p-6 shadow-lg">
-              <div className="flex items-start gap-3 mb-4">
-                <FaImage className="text-sky-500 dark:text-sky-400 mt-1" size={20} />
+            <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg sm:rounded-xl p-4 sm:p-6 shadow-lg">
+              <div className="flex items-start gap-2 sm:gap-3 mb-3 sm:mb-4">
+                <FaImage className="text-sky-500 dark:text-sky-400 mt-1" size={18} />
                 <div>
-                  <h3 className="text-lg font-bold text-zinc-900 dark:text-white mb-1">Image Generation</h3>
-                  <p className="text-zinc-600 dark:text-zinc-400 text-sm">Create stunning AI-generated images with Flux 2</p>
+                  <h3 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-white mb-1">Image Generation</h3>
+                  <p className="text-zinc-600 dark:text-zinc-400 text-xs sm:text-sm">Create stunning AI-generated images with Flux 2</p>
                 </div>
               </div>
               <Row 
@@ -894,85 +923,85 @@ export default function Docs() {
                 desc="Generate images with Flux 2 model" 
                 note="Send POST with JSON: { prompt: 'description', steps: 4 }. Returns base64 encoded image."
                 modelInfo={{
-                  speed: "⚡⚡⚡⚡",
-                  quality: "⭐⭐⭐⭐⭐",
+                  speed: 4,
+                  quality: 5,
                   useCase: "Text-to-image generation with photorealistic results",
                 }}
               />
             </div>
           </section>
 
-          <section className="mb-20">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="p-3 bg-gradient-to-br from-sky-400 to-blue-500 rounded-xl shadow-lg shadow-sky-400/30">
-                <FaInfoCircle className="text-white" size={24} />
+          <section className="mb-12 sm:mb-20">
+            <div className="flex items-center gap-2 sm:gap-3 mb-6 sm:mb-8">
+              <div className="p-2 sm:p-3 bg-gradient-to-br from-sky-400 to-blue-500 rounded-lg sm:rounded-xl shadow-lg shadow-sky-400/30">
+                <FaInfoCircle className="text-white" size={20} />
               </div>
-              <h2 className="text-3xl font-black text-zinc-900 dark:text-white">Important Notes</h2>
+              <h2 className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white">Important Notes</h2>
             </div>
             
-            <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl p-8 shadow-lg">
-              <div className="space-y-6">
-                <div className="flex items-start gap-4 p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-lg border border-zinc-200 dark:border-zinc-800">
-                  <div className="p-2 bg-sky-100 dark:bg-sky-950/30 rounded-lg flex-shrink-0">
-                    <FaLayerGroup className="text-sky-500 dark:text-sky-400" size={20} />
+            <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg sm:rounded-xl p-4 sm:p-8 shadow-lg">
+              <div className="space-y-4 sm:space-y-6">
+                <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-lg border border-zinc-200 dark:border-zinc-800">
+                  <div className="p-1.5 sm:p-2 bg-sky-100 dark:bg-sky-950/30 rounded-lg flex-shrink-0">
+                    <FaLayerGroup className="text-sky-500 dark:text-sky-400" size={16} />
                   </div>
                   <div>
-                    <strong className="text-zinc-900 dark:text-white block mb-2 text-sm font-bold">Categories:</strong>
-                    <span className="text-zinc-600 dark:text-zinc-400 text-sm">anime, manga, manhwa, manhua, ln</span>
+                    <strong className="text-zinc-900 dark:text-white block mb-1 sm:mb-2 text-xs sm:text-sm font-bold">Categories:</strong>
+                    <span className="text-zinc-600 dark:text-zinc-400 text-xs sm:text-sm">anime, manga, manhwa, manhua, ln</span>
                   </div>
                 </div>
                 
-                <div className="flex items-start gap-4 p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-lg border border-zinc-200 dark:border-zinc-800">
-                  <div className="p-2 bg-sky-100 dark:bg-sky-950/30 rounded-lg flex-shrink-0">
-                    <FaCode className="text-sky-500 dark:text-sky-400" size={20} />
+                <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-lg border border-zinc-200 dark:border-zinc-800">
+                  <div className="p-1.5 sm:p-2 bg-sky-100 dark:bg-sky-950/30 rounded-lg flex-shrink-0">
+                    <FaCode className="text-sky-500 dark:text-sky-400" size={16} />
                   </div>
                   <div>
-                    <strong className="text-zinc-900 dark:text-white block mb-2 text-sm font-bold">Required Parameters:</strong>
-                    <div className="text-zinc-600 dark:text-zinc-400 space-y-2 text-sm">
-                      <div><code className="bg-sky-100 dark:bg-sky-950/30 px-2 py-1 rounded text-sky-600 dark:text-sky-400 font-mono text-xs">id</code> for detail, character, staff, recommendations</div>
-                      <div><code className="bg-sky-100 dark:bg-sky-950/30 px-2 py-1 rounded text-sky-600 dark:text-sky-400 font-mono text-xs">query</code> for search</div>
-                      <div><code className="bg-sky-100 dark:bg-sky-950/30 px-2 py-1 rounded text-sky-600 dark:text-sky-400 font-mono text-xs">genre</code> for top-genre</div>
+                    <strong className="text-zinc-900 dark:text-white block mb-1 sm:mb-2 text-xs sm:text-sm font-bold">Required Parameters:</strong>
+                    <div className="text-zinc-600 dark:text-zinc-400 space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
+                      <div><code className="bg-sky-100 dark:bg-sky-950/30 px-2 py-1 rounded text-sky-600 dark:text-sky-400 font-mono text-[10px] sm:text-xs">id</code> for detail, character, staff, recommendations</div>
+                      <div><code className="bg-sky-100 dark:bg-sky-950/30 px-2 py-1 rounded text-sky-600 dark:text-sky-400 font-mono text-[10px] sm:text-xs">query</code> for search</div>
+                      <div><code className="bg-sky-100 dark:bg-sky-950/30 px-2 py-1 rounded text-sky-600 dark:text-sky-400 font-mono text-[10px] sm:text-xs">genre</code> for top-genre</div>
                     </div>
                   </div>
                 </div>
                 
-                <div className="flex items-start gap-4 p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-lg border border-zinc-200 dark:border-zinc-800">
-                  <div className="p-2 bg-sky-100 dark:bg-sky-950/30 rounded-lg flex-shrink-0">
-                    <FaComments className="text-sky-500 dark:text-sky-400" size={20} />
+                <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-lg border border-zinc-200 dark:border-zinc-800">
+                  <div className="p-1.5 sm:p-2 bg-sky-100 dark:bg-sky-950/30 rounded-lg flex-shrink-0">
+                    <FaComments className="text-sky-500 dark:text-sky-400" size={16} />
                   </div>
                   <div>
-                    <strong className="text-zinc-900 dark:text-white block mb-2 text-sm font-bold">Chat Persona:</strong>
-                    <span className="text-zinc-600 dark:text-zinc-400 text-sm">Default is tsundere, or send custom persona in POST body</span>
+                    <strong className="text-zinc-900 dark:text-white block mb-1 sm:mb-2 text-xs sm:text-sm font-bold">Chat Persona:</strong>
+                    <span className="text-zinc-600 dark:text-zinc-400 text-xs sm:text-sm">Default is tsundere, or send custom persona in POST body</span>
                   </div>
                 </div>
                 
-                <div className="flex items-start gap-4 p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-lg border border-zinc-200 dark:border-zinc-800">
-                  <div className="p-2 bg-sky-100 dark:bg-sky-950/30 rounded-lg flex-shrink-0">
-                    <FaServer className="text-sky-500 dark:text-sky-400" size={20} />
+                <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-lg border border-zinc-200 dark:border-zinc-800">
+                  <div className="p-1.5 sm:p-2 bg-sky-100 dark:bg-sky-950/30 rounded-lg flex-shrink-0">
+                    <FaServer className="text-sky-500 dark:text-sky-400" size={16} />
                   </div>
                   <div>
-                    <strong className="text-zinc-900 dark:text-white block mb-2 text-sm font-bold">Rate Limit:</strong>
-                    <span className="text-zinc-600 dark:text-zinc-400 text-sm">Please be respectful with API usage</span>
+                    <strong className="text-zinc-900 dark:text-white block mb-1 sm:mb-2 text-xs sm:text-sm font-bold">Rate Limit:</strong>
+                    <span className="text-zinc-600 dark:text-zinc-400 text-xs sm:text-sm">Please be respectful with API usage</span>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4 p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-lg border border-zinc-200 dark:border-zinc-800">
-                  <div className="p-2 bg-sky-100 dark:bg-sky-950/30 rounded-lg flex-shrink-0">
-                    <FaBrain className="text-sky-500 dark:text-sky-400" size={20} />
+                <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-lg border border-zinc-200 dark:border-zinc-800">
+                  <div className="p-1.5 sm:p-2 bg-sky-100 dark:bg-sky-950/30 rounded-lg flex-shrink-0">
+                    <FaBrain className="text-sky-500 dark:text-sky-400" size={16} />
                   </div>
                   <div>
-                    <strong className="text-zinc-900 dark:text-white block mb-2 text-sm font-bold">Model Selection:</strong>
-                    <span className="text-zinc-600 dark:text-zinc-400 text-sm">Use /api/chat for auto-fallback or /api/models/&#123;provider&#125; for specific models</span>
+                    <strong className="text-zinc-900 dark:text-white block mb-1 sm:mb-2 text-xs sm:text-sm font-bold">Model Selection:</strong>
+                    <span className="text-zinc-600 dark:text-zinc-400 text-xs sm:text-sm">Use /api/chat for auto-fallback or /api/models/&#123;provider&#125; for specific models</span>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4 p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-lg border border-zinc-200 dark:border-zinc-800">
-                  <div className="p-2 bg-sky-100 dark:bg-sky-950/30 rounded-lg flex-shrink-0">
-                    <FaGlobe className="text-sky-500 dark:text-sky-400" size={20} />
+                <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-lg border border-zinc-200 dark:border-zinc-800">
+                  <div className="p-1.5 sm:p-2 bg-sky-100 dark:bg-sky-950/30 rounded-lg flex-shrink-0">
+                    <FaGlobe className="text-sky-500 dark:text-sky-400" size={16} />
                   </div>
                   <div>
-                    <strong className="text-zinc-900 dark:text-white block mb-2 text-sm font-bold">Web Search:</strong>
-                    <span className="text-zinc-600 dark:text-zinc-400 text-sm">Most models support automatic web search when needed for current information</span>
+                    <strong className="text-zinc-900 dark:text-white block mb-1 sm:mb-2 text-xs sm:text-sm font-bold">Web Search:</strong>
+                    <span className="text-zinc-600 dark:text-zinc-400 text-xs sm:text-sm">Most models support automatic web search when needed for current information</span>
                   </div>
                 </div>
               </div>
@@ -981,24 +1010,24 @@ export default function Docs() {
         </div>
       </div>
 
-      <footer className="border-t border-zinc-200 dark:border-zinc-900 py-12 bg-white dark:bg-black">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col items-center gap-6 text-center">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-gradient-to-br from-sky-400 to-blue-500 rounded-xl shadow-lg shadow-sky-400/30">
-                <FaBookOpen className="text-white" size={24} />
+      <footer className="border-t border-zinc-200 dark:border-zinc-900 py-8 sm:py-12 bg-white dark:bg-black">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
+          <div className="flex flex-col items-center gap-4 sm:gap-6 text-center">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="p-2 sm:p-3 bg-gradient-to-br from-sky-400 to-blue-500 rounded-lg sm:rounded-xl shadow-lg shadow-sky-400/30">
+                <FaBookOpen className="text-white" size={20} />
               </div>
-              <h3 className="text-2xl font-black text-zinc-900 dark:text-white">Aichixia API</h3>
+              <h3 className="text-xl sm:text-2xl font-black text-zinc-900 dark:text-white">Aichixia API</h3>
             </div>
             
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-4 sm:gap-6">
               <a 
                 href="https://github.com/Takawell/Aichixia" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-zinc-600 dark:text-zinc-400 hover:text-sky-500 dark:hover:text-sky-400 transition-colors duration-200"
               >
-                <FaGithub size={24} />
+                <FaGithub size={20} />
               </a>
               <a 
                 href="https://tiktok.com/putrawangyyy" 
@@ -1006,7 +1035,7 @@ export default function Docs() {
                 rel="noopener noreferrer"
                 className="text-zinc-600 dark:text-zinc-400 hover:text-sky-500 dark:hover:text-sky-400 transition-colors duration-200"
               >
-                <FaTiktok size={24} />
+                <FaTiktok size={20} />
               </a>
             </div>
 
