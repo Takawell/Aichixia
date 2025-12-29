@@ -29,11 +29,19 @@ import {
   FaChartLine,
   FaGithub,
   FaTiktok,
+  FaImage,
 } from "react-icons/fa";
+import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiFlux, } from "react-icons/si";
+import { GiSpermWhale, GiPowerLightning, GiBlackHoleBolas, GiClover, } from "react-icons/gi";
+import { TbSquareLetterZ, TbLetterM, } from "react-icons/tb";
 import ThemeToggle from "@/components/ThemeToggle";
 import Link from "next/link";
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { oneDark, oneLight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 
 const base = "https://aichixia.vercel.app";
+
+type CodeLanguage = 'javascript' | 'python' | 'bash' | 'php';
 
 const Modal = ({ 
   isOpen, 
@@ -41,7 +49,8 @@ const Modal = ({
   path, 
   desc, 
   method,
-  note 
+  note,
+  modelInfo
 }: { 
   isOpen: boolean; 
   onClose: () => void; 
@@ -49,10 +58,28 @@ const Modal = ({
   desc: string;
   method: string;
   note?: string;
+  modelInfo?: {
+    speed: string;
+    quality: string;
+    useCase: string;
+    contextWindow?: string;
+  };
 }) => {
   const [copied, setCopied] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [activeTab, setActiveTab] = useState<'overview' | 'examples'>('overview');
+  const [activeLanguage, setActiveLanguage] = useState<CodeLanguage>('javascript');
+  const [isDark, setIsDark] = useState(false);
   
+  useEffect(() => {
+    setIsDark(document.documentElement.classList.contains('dark'));
+    const observer = new MutationObserver(() => {
+      setIsDark(document.documentElement.classList.contains('dark'));
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
+
   useEffect(() => {
     if (isOpen) {
       setMounted(true);
@@ -64,10 +91,92 @@ const Modal = ({
     }
   }, [isOpen]);
   
-  const copy = () => {
-    navigator.clipboard.writeText(path);
+  const copy = (text: string) => {
+    navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const generateCodeExample = (lang: CodeLanguage) => {
+    const isPost = method === 'POST';
+    const endpoint = path.replace(base, '');
+    
+    if (lang === 'javascript') {
+      if (isPost) {
+        return `const response = await fetch('${path}', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    message: 'Your message here',
+    persona: 'tsundere' // optional
+  })
+});
+
+const data = await response.json();
+console.log(data.reply);`;
+      } else {
+        return `const response = await fetch('${path}');
+const data = await response.json();
+console.log(data);`;
+      }
+    } else if (lang === 'python') {
+      if (isPost) {
+        return `import requests
+
+response = requests.post('${path}', 
+  json={
+    'message': 'Your message here',
+    'persona': 'tsundere'
+  }
+)
+
+data = response.json()
+print(data['reply'])`;
+      } else {
+        return `import requests
+
+response = requests.get('${path}')
+data = response.json()
+print(data)`;
+      }
+    } else if (lang === 'bash') {
+      if (isPost) {
+        return `curl -X POST '${path}' \\
+  -H 'Content-Type: application/json' \\
+  -d '{
+    "message": "Your message here",
+    "persona": "tsundere"
+  }'`;
+      } else {
+        return `curl '${path}'`;
+      }
+    } else if (lang === 'php') {
+      if (isPost) {
+        return `<?php
+$ch = curl_init('${path}');
+curl_setopt($ch, CURLOPT_POST, 1);
+curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+  'message' => 'Your message here',
+  'persona' => 'tsundere'
+]));
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+  'Content-Type: application/json'
+]);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+$response = curl_exec($ch);
+$data = json_decode($response);
+echo $data->reply;`;
+      } else {
+        return `<?php
+$response = file_get_contents('${path}');
+$data = json_decode($response);
+print_r($data);`;
+      }
+    }
+    return '';
   };
 
   if (!mounted && !isOpen) return null;
@@ -75,87 +184,217 @@ const Modal = ({
   return (
     <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
       <div 
-        className={`absolute inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-md transition-all duration-300 ${isOpen ? 'opacity-100' : 'opacity-0'}`}
+        className={`absolute inset-0 bg-black/70 dark:bg-black/90 backdrop-blur-md transition-all duration-300 ${isOpen ? 'opacity-100' : 'opacity-0'}`}
         onClick={onClose} 
       />
-      <div className={`relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden transition-all duration-500 border border-slate-200 dark:border-slate-700 ${isOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}>
-        <div className="relative bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800 p-6">
+      <div className={`relative bg-white dark:bg-zinc-950 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden transition-all duration-500 border border-zinc-200 dark:border-zinc-800 ${isOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}>
+        <div className="relative bg-gradient-to-r from-zinc-900 via-neutral-900 to-stone-900 dark:from-black dark:via-zinc-950 dark:to-neutral-950 p-6 border-b border-amber-500/20">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
+              <div className="p-2 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg shadow-lg shadow-amber-500/20">
                 <FaCode className="text-white" size={24} />
               </div>
               <h3 className="text-2xl font-bold text-white">Endpoint Details</h3>
             </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-white/20 rounded-lg transition-all duration-200"
+              className="p-2 hover:bg-white/10 rounded-lg transition-all duration-200"
             >
               <FaTimes className="text-white" size={20} />
             </button>
           </div>
-        </div>
 
-        <div className="p-6 space-y-6 overflow-auto max-h-[calc(90vh-100px)] bg-white dark:bg-slate-900">
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <FaServer className="text-blue-600 dark:text-blue-400" size={16} />
-              <h4 className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Method</h4>
-            </div>
-            <span className="inline-block px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg font-bold text-sm shadow-lg shadow-blue-500/30">
-              {method}
-            </span>
-          </div>
-
-          <div className="border-t border-slate-200 dark:border-slate-700" />
-
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <FaInfoCircle className="text-blue-600 dark:text-blue-400" size={16} />
-              <h4 className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Description</h4>
-            </div>
-            <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">{desc}</p>
-          </div>
-
-          <div className="border-t border-slate-200 dark:border-slate-700" />
-
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <FaCode className="text-blue-600 dark:text-blue-400" size={16} />
-              <h4 className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Endpoint URL</h4>
-            </div>
-            <div className="bg-slate-100 dark:bg-slate-950 rounded-lg p-4 mb-3 border border-slate-200 dark:border-slate-800">
-              <code className="text-blue-600 dark:text-blue-400 text-sm break-all font-mono">{path}</code>
-            </div>
+          <div className="flex gap-2 mt-4">
             <button
-              onClick={copy}
-              className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-lg font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-blue-500/30"
+              onClick={() => setActiveTab('overview')}
+              className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-200 ${
+                activeTab === 'overview'
+                  ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/30'
+                  : 'bg-white/10 text-white/70 hover:bg-white/20'
+              }`}
             >
-              {copied ? (
-                <>
-                  <FaCheckCircle size={16} />
-                  <span>Copied!</span>
-                </>
-              ) : (
-                <>
-                  <FaCopy size={16} />
-                  <span>Copy URL</span>
-                </>
-              )}
+              Overview
+            </button>
+            <button
+              onClick={() => setActiveTab('examples')}
+              className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-200 ${
+                activeTab === 'examples'
+                  ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/30'
+                  : 'bg-white/10 text-white/70 hover:bg-white/20'
+              }`}
+            >
+              Code Examples
             </button>
           </div>
+        </div>
 
-          {note && (
+        <div className="p-6 space-y-6 overflow-auto max-h-[calc(90vh-180px)] bg-white dark:bg-zinc-950">
+          {activeTab === 'overview' ? (
             <>
-              <div className="border-t border-slate-200 dark:border-slate-700" />
-              <div className="bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500 dark:border-amber-400 rounded-lg p-4">
-                <div className="flex items-start gap-3">
-                  <FaLightbulb className="text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" size={18} />
-                  <div>
-                    <h4 className="text-sm font-semibold text-amber-700 dark:text-amber-400 mb-1">Note</h4>
-                    <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">{note}</p>
-                  </div>
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <FaServer className="text-amber-600 dark:text-amber-500" size={16} />
+                  <h4 className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">Method</h4>
                 </div>
+                <span className="inline-block px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-lg font-bold text-sm shadow-lg shadow-amber-500/30">
+                  {method}
+                </span>
+              </div>
+
+              <div className="border-t border-zinc-200 dark:border-zinc-800" />
+
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <FaInfoCircle className="text-amber-600 dark:text-amber-500" size={16} />
+                  <h4 className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">Description</h4>
+                </div>
+                <p className="text-zinc-700 dark:text-zinc-300 text-sm leading-relaxed">{desc}</p>
+              </div>
+
+              {modelInfo && (
+                <>
+                  <div className="border-t border-zinc-200 dark:border-zinc-800" />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-lg p-4 border border-zinc-200 dark:border-zinc-800">
+                      <div className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1">Speed</div>
+                      <div className="text-lg font-bold text-zinc-900 dark:text-white">{modelInfo.speed}</div>
+                    </div>
+                    <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-lg p-4 border border-zinc-200 dark:border-zinc-800">
+                      <div className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1">Quality</div>
+                      <div className="text-lg font-bold text-zinc-900 dark:text-white">{modelInfo.quality}</div>
+                    </div>
+                    <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-lg p-4 border border-zinc-200 dark:border-zinc-800 col-span-2">
+                      <div className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1">Use Case</div>
+                      <div className="text-sm font-medium text-zinc-900 dark:text-white">{modelInfo.useCase}</div>
+                    </div>
+                    {modelInfo.contextWindow && (
+                      <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-lg p-4 border border-zinc-200 dark:border-zinc-800 col-span-2">
+                        <div className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1">Context Window</div>
+                        <div className="text-sm font-medium text-zinc-900 dark:text-white">{modelInfo.contextWindow}</div>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+
+              <div className="border-t border-zinc-200 dark:border-zinc-800" />
+
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <FaCode className="text-amber-600 dark:text-amber-500" size={16} />
+                  <h4 className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">Endpoint URL</h4>
+                </div>
+                <div className="bg-zinc-100 dark:bg-black rounded-lg p-4 mb-3 border border-zinc-200 dark:border-zinc-800">
+                  <code className="text-amber-600 dark:text-amber-500 text-sm break-all font-mono">{path}</code>
+                </div>
+                <button
+                  onClick={() => copy(path)}
+                  className="w-full px-4 py-3 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white rounded-lg font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-amber-500/30"
+                >
+                  {copied ? (
+                    <>
+                      <FaCheckCircle size={16} />
+                      <span>Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <FaCopy size={16} />
+                      <span>Copy URL</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {note && (
+                <>
+                  <div className="border-t border-zinc-200 dark:border-zinc-800" />
+                  <div className="bg-amber-50 dark:bg-amber-950/20 border-l-4 border-amber-500 dark:border-amber-600 rounded-lg p-4">
+                    <div className="flex items-start gap-3">
+                      <FaLightbulb className="text-amber-600 dark:text-amber-500 mt-0.5 flex-shrink-0" size={18} />
+                      <div>
+                        <h4 className="text-sm font-semibold text-amber-700 dark:text-amber-400 mb-1">Note</h4>
+                        <p className="text-zinc-700 dark:text-zinc-300 text-sm leading-relaxed">{note}</p>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+            </>
+          ) : (
+            <>
+              <div className="flex gap-2 flex-wrap">
+                {(['javascript', 'python', 'bash', 'php'] as CodeLanguage[]).map((lang) => (
+                  <button
+                    key={lang}
+                    onClick={() => setActiveLanguage(lang)}
+                    className={`px-3 py-1.5 rounded-lg font-semibold text-xs transition-all duration-200 ${
+                      activeLanguage === lang
+                        ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/30'
+                        : 'bg-zinc-100 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800'
+                    }`}
+                  >
+                    {lang.charAt(0).toUpperCase() + lang.slice(1)}
+                  </button>
+                ))}
+              </div>
+
+              <div className="relative">
+                <button
+                  onClick={() => copy(generateCodeExample(activeLanguage))}
+                  className="absolute top-3 right-3 z-10 px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-white rounded-lg text-xs font-semibold transition-all duration-200 flex items-center gap-2"
+                >
+                  {copied ? (
+                    <>
+                      <FaCheckCircle size={12} />
+                      <span>Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <FaCopy size={12} />
+                      <span>Copy</span>
+                    </>
+                  )}
+                </button>
+                <SyntaxHighlighter
+                  language={activeLanguage === 'bash' ? 'bash' : activeLanguage}
+                  style={isDark ? oneDark : oneLight}
+                  customStyle={{
+                    borderRadius: '0.75rem',
+                    padding: '1.5rem',
+                    fontSize: '0.875rem',
+                    border: isDark ? '1px solid #27272a' : '1px solid #e4e4e7',
+                  }}
+                  showLineNumbers
+                >
+                  {generateCodeExample(activeLanguage)}
+                </SyntaxHighlighter>
+              </div>
+
+              <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-lg p-4 border border-zinc-200 dark:border-zinc-800">
+                <div className="flex items-center gap-2 mb-2">
+                  <FaInfoCircle className="text-amber-600 dark:text-amber-500" size={14} />
+                  <h4 className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">Expected Response</h4>
+                </div>
+                <SyntaxHighlighter
+                  language="json"
+                  style={isDark ? oneDark : oneLight}
+                  customStyle={{
+                    borderRadius: '0.5rem',
+                    padding: '1rem',
+                    fontSize: '0.75rem',
+                    margin: 0,
+                  }}
+                >
+                  {method === 'POST' 
+                    ? `{
+  "reply": "Response text here",
+  "provider": "model-name"
+}`
+                    : `{
+  "data": [...],
+  "count": 10
+}`}
+                </SyntaxHighlighter>
               </div>
             </>
           )}
@@ -169,7 +408,7 @@ const StatusBadge = ({ active, label }: { active: boolean; label: string }) => {
   return (
     <span
       className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-white text-xs font-semibold shadow-lg transition-all duration-300
-      ${active ? "bg-emerald-600 dark:bg-emerald-500 shadow-emerald-500/30" : "bg-rose-600 dark:bg-rose-500 shadow-rose-500/30"}`}
+      ${active ? "bg-gradient-to-r from-emerald-600 to-green-600 shadow-emerald-500/30" : "bg-gradient-to-r from-rose-600 to-red-600 shadow-rose-500/30"}`}
     >
       {active ? <FaCheckCircle size={10} /> : <FaTimesCircle size={10} />} {label}
     </span>
@@ -183,6 +422,7 @@ const Row = ({
   active = true,
   overrideLabel,
   note,
+  modelInfo,
 }: {
   method: string;
   path: string;
@@ -190,27 +430,33 @@ const Row = ({
   active?: boolean;
   overrideLabel?: string;
   note?: string;
+  modelInfo?: {
+    speed: string;
+    quality: string;
+    useCase: string;
+    contextWindow?: string;
+  };
 }) => {
   const [showModal, setShowModal] = useState(false);
   
   return (
     <>
-      <div className="group bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-5 transition-all duration-300 cursor-pointer hover:shadow-xl hover:shadow-blue-500/10 dark:hover:shadow-blue-500/20">
+      <div className="group bg-white dark:bg-zinc-950 hover:bg-zinc-50 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 transition-all duration-300 cursor-pointer hover:shadow-xl hover:shadow-amber-500/10 dark:hover:shadow-amber-500/20">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-start gap-3 flex-1 min-w-0">
-            <span className="px-3 py-1.5 bg-blue-600 dark:bg-blue-500 text-white rounded-lg font-bold text-xs whitespace-nowrap shadow-lg shadow-blue-500/30">
+            <span className="px-3 py-1.5 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-lg font-bold text-xs whitespace-nowrap shadow-lg shadow-amber-500/30">
               {method}
             </span>
             <div className="flex-1 min-w-0">
-              <p className="text-slate-900 dark:text-white text-sm font-semibold mb-1.5">{desc}</p>
-              <p className="text-slate-500 dark:text-slate-400 text-xs font-mono truncate">{path.replace(base, '')}</p>
+              <p className="text-zinc-900 dark:text-white text-sm font-semibold mb-1.5">{desc}</p>
+              <p className="text-zinc-500 dark:text-zinc-400 text-xs font-mono truncate">{path.replace(base, '')}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             <StatusBadge active={active} label={overrideLabel ?? (active ? "Active" : "Inactive")} />
             <button
               onClick={() => setShowModal(true)}
-              className="px-4 py-2 bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900 rounded-lg font-semibold text-xs transition-all duration-200 shadow-lg"
+              className="px-4 py-2 bg-zinc-900 dark:bg-white hover:bg-zinc-800 dark:hover:bg-zinc-100 text-white dark:text-zinc-900 rounded-lg font-semibold text-xs transition-all duration-200 shadow-lg"
             >
               Details
             </button>
@@ -225,6 +471,7 @@ const Row = ({
         desc={desc}
         method={method}
         note={note}
+        modelInfo={modelInfo}
       />
     </>
   );
@@ -232,17 +479,64 @@ const Row = ({
 
 const FeatureCard = ({ icon: Icon, title, description }: any) => {
   return (
-    <div className="group bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10 dark:hover:shadow-blue-500/20 hover:-translate-y-1">
+    <div className="group bg-white dark:bg-zinc-950 hover:bg-zinc-50 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-6 transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/10 dark:hover:shadow-amber-500/20 hover:-translate-y-1">
       <div className="flex items-start gap-4">
-        <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-700 dark:from-blue-500 dark:to-blue-600 rounded-xl flex-shrink-0 shadow-lg shadow-blue-500/30">
+        <div className="p-3 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex-shrink-0 shadow-lg shadow-amber-500/30">
           <Icon className="text-white" size={24} />
         </div>
         <div>
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">{title}</h3>
-          <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">{description}</p>
+          <h3 className="text-lg font-bold text-zinc-900 dark:text-white mb-2">{title}</h3>
+          <p className="text-zinc-600 dark:text-zinc-400 text-sm leading-relaxed">{description}</p>
         </div>
       </div>
     </div>
+  );
+};
+
+const ModelCard = ({ icon: Icon, name, endpoint, color, description, speed, quality }: any) => {
+  const [showModal, setShowModal] = useState(false);
+  
+  return (
+    <>
+      <button
+        onClick={() => setShowModal(true)}
+        className="group bg-white dark:bg-zinc-950 hover:bg-zinc-50 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/10 dark:hover:shadow-amber-500/20 hover:-translate-y-1 text-left w-full"
+      >
+        <div className="flex items-start gap-4">
+          <div className={`p-3 bg-gradient-to-br ${color} rounded-xl flex-shrink-0 shadow-lg`}>
+            <Icon className="text-white" size={24} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h3 className="text-lg font-bold text-zinc-900 dark:text-white mb-1">{name}</h3>
+            <p className="text-zinc-600 dark:text-zinc-400 text-sm mb-3">{description}</p>
+            <div className="flex gap-4 text-xs">
+              <div>
+                <span className="text-zinc-500 dark:text-zinc-500">Speed:</span>
+                <span className="ml-1 font-semibold text-zinc-900 dark:text-white">{speed}</span>
+              </div>
+              <div>
+                <span className="text-zinc-500 dark:text-zinc-500">Quality:</span>
+                <span className="ml-1 font-semibold text-zinc-900 dark:text-white">{quality}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </button>
+
+      <Modal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        path={`${base}${endpoint}`}
+        desc={description}
+        method="POST"
+        note="Send POST with JSON body containing 'message' and optional 'persona' fields."
+        modelInfo={{
+          speed,
+          quality,
+          useCase: description,
+        }}
+      />
+    </>
   );
 };
 
@@ -258,47 +552,47 @@ export default function Docs() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors duration-300">
-      <div className={`fixed top-0 left-0 right-0 z-30 transition-all duration-300 ${scrolled ? 'bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 shadow-lg' : 'bg-transparent'}`}>
+    <main className="min-h-screen bg-zinc-50 dark:bg-black text-zinc-900 dark:text-white transition-colors duration-300">
+      <div className={`fixed top-0 left-0 right-0 z-30 transition-all duration-300 ${scrolled ? 'bg-white/80 dark:bg-black/80 backdrop-blur-xl border-b border-zinc-200 dark:border-zinc-900 shadow-lg' : 'bg-transparent'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-xl transition-all duration-300 ${scrolled ? 'bg-blue-600 dark:bg-blue-500' : 'bg-white dark:bg-slate-900'} shadow-lg`}>
-              <FaBookOpen className={`${scrolled ? 'text-white' : 'text-blue-600 dark:text-blue-400'}`} size={28} />
+            <div className={`p-2 rounded-xl transition-all duration-300 ${scrolled ? 'bg-gradient-to-br from-amber-500 to-orange-600' : 'bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800'} shadow-lg`}>
+              <FaBookOpen className={`${scrolled ? 'text-white' : 'text-amber-600 dark:text-amber-500'}`} size={28} />
             </div>
-            <h1 className="text-2xl font-black text-slate-900 dark:text-white">Aichixia API</h1>
+            <h1 className="text-2xl font-black text-zinc-900 dark:text-white">Aichixia API</h1>
           </div>
           <ThemeToggle />
         </div>
       </div>
 
       <div className="relative pt-32 pb-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-blue-100 via-slate-50 to-slate-50 dark:from-blue-950/30 dark:via-slate-950 dark:to-slate-950 pointer-events-none" />
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/20 dark:bg-blue-500/10 rounded-full blur-3xl" />
-        <div className="absolute top-20 right-1/4 w-96 h-96 bg-purple-500/20 dark:bg-purple-500/10 rounded-full blur-3xl" />
+        <div className="absolute inset-0 bg-gradient-to-b from-amber-50 via-zinc-50 to-zinc-50 dark:from-zinc-950/50 dark:via-black dark:to-black pointer-events-none" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-amber-500/20 dark:bg-amber-500/10 rounded-full blur-3xl" />
+        <div className="absolute top-20 right-1/4 w-96 h-96 bg-orange-500/20 dark:bg-orange-500/10 rounded-full blur-3xl" />
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-full text-blue-700 dark:text-blue-400 text-sm font-semibold mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-100 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 rounded-full text-amber-700 dark:text-amber-400 text-sm font-semibold mb-6">
               <FaStar size={14} />
               <span>Free & Open API</span>
             </div>
             
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black mb-6 leading-tight">
-              <span className="bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-amber-600 to-orange-600 dark:from-amber-400 dark:to-orange-400 bg-clip-text text-transparent">
                 Aichixia API
               </span>
               <br />
-              <span className="text-slate-900 dark:text-white">Powered by AI</span>
+              <span className="text-zinc-900 dark:text-white">Powered by AI</span>
             </h2>
             
-            <p className="text-slate-600 dark:text-slate-400 text-lg mb-8 leading-relaxed max-w-2xl mx-auto">
+            <p className="text-zinc-600 dark:text-zinc-400 text-lg mb-8 leading-relaxed max-w-2xl mx-auto">
               Centralized API for anime, manga, manhwa, manhua, and light novels. Powered by AniList database with multi-provider AI intelligence.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 href="/chat"
-                className="group inline-flex items-center justify-center gap-3 px-6 py-3.5 bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-500 dark:to-blue-600 hover:from-blue-700 hover:to-blue-800 dark:hover:from-blue-600 dark:hover:to-blue-700 text-white rounded-xl font-bold transition-all duration-300 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 hover:-translate-y-0.5"
+                className="group inline-flex items-center justify-center gap-3 px-6 py-3.5 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white rounded-xl font-bold transition-all duration-300 shadow-lg shadow-amber-500/30 hover:shadow-xl hover:shadow-amber-500/40 hover:-translate-y-0.5"
               >
                 <FaComments size={20} />
                 <span>Try AI Chat</span>
@@ -307,7 +601,7 @@ export default function Docs() {
               
               <a
                 href="#endpoints"
-                className="inline-flex items-center justify-center gap-3 px-6 py-3.5 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-xl font-bold transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+                className="inline-flex items-center justify-center gap-3 px-6 py-3.5 bg-white dark:bg-zinc-950 hover:bg-zinc-100 dark:hover:bg-zinc-900 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-800 rounded-xl font-bold transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
               >
                 <FaRocket size={20} />
                 <span>Explore Endpoints</span>
@@ -324,7 +618,7 @@ export default function Docs() {
             <FeatureCard
               icon={FaBrain}
               title="Multi-AI"
-              description="Smart fallback system with 6 AI providers ensuring 99.9% uptime"
+              description="Smart fallback system with 14 AI providers ensuring 99.9% uptime"
             />
             <FeatureCard
               icon={FaRocket}
@@ -335,10 +629,10 @@ export default function Docs() {
 
           <section id="endpoints" className="mb-20 scroll-mt-20">
             <div className="flex items-center gap-3 mb-8">
-              <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-700 dark:from-blue-500 dark:to-blue-600 rounded-xl shadow-lg shadow-blue-500/30">
+              <div className="p-3 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl shadow-lg shadow-amber-500/30">
                 <FaFilm className="text-white" size={24} />
               </div>
-              <h2 className="text-3xl font-black text-slate-900 dark:text-white">API Endpoints</h2>
+              <h2 className="text-3xl font-black text-zinc-900 dark:text-white">API Endpoints</h2>
             </div>
 
             <div className="space-y-4">
@@ -427,10 +721,10 @@ export default function Docs() {
 
           <section className="mb-20">
             <div className="flex items-center gap-3 mb-8">
-              <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-700 dark:from-blue-500 dark:to-blue-600 rounded-xl shadow-lg shadow-blue-500/30">
+              <div className="p-3 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl shadow-lg shadow-amber-500/30">
                 <FaComments className="text-white" size={24} />
               </div>
-              <h2 className="text-3xl font-black text-slate-900 dark:text-white">AI Chat</h2>
+              <h2 className="text-3xl font-black text-zinc-900 dark:text-white">AI Chat</h2>
             </div>
             
             <Row 
@@ -440,25 +734,25 @@ export default function Docs() {
               note="Send POST with JSON: { message: 'text', persona: 'optional' }. Auto-switches between OpenAI, Gemini, Deepseek, Qwen, GPT-OSS, Llama."
             />
             
-            <div className="mt-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow-lg">
-              <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-                <FaBrain size={16} className="text-blue-600 dark:text-blue-400" />
+            <div className="mt-6 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl p-6 shadow-lg">
+              <h3 className="text-sm font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                <FaBrain size={16} className="text-amber-600 dark:text-amber-500" />
                 AI Provider Chain
               </h3>
               <div className="flex flex-wrap items-center gap-2 text-xs mb-4">
-                <span className="px-3 py-1.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-full font-semibold shadow-lg shadow-blue-500/30">OpenAI</span>
-                <FaChevronRight className="text-slate-400" size={10} />
-                <span className="px-3 py-1.5 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-full font-semibold shadow-lg shadow-indigo-500/30">Gemini</span>
-                <FaChevronRight className="text-slate-400" size={10} />
-                <span className="px-3 py-1.5 bg-gradient-to-r from-violet-600 to-violet-700 text-white rounded-full font-semibold shadow-lg shadow-violet-500/30">Deepseek</span>
-                <FaChevronRight className="text-slate-400" size={10} />
-                <span className="px-3 py-1.5 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-full font-semibold shadow-lg shadow-purple-500/30">Qwen</span>
-                <FaChevronRight className="text-slate-400" size={10} />
-                <span className="px-3 py-1.5 bg-gradient-to-r from-pink-600 to-pink-700 text-white rounded-full font-semibold shadow-lg shadow-pink-500/30">GPT-OSS</span>
-                <FaChevronRight className="text-slate-400" size={10} />
-                <span className="px-3 py-1.5 bg-gradient-to-r from-rose-600 to-rose-700 text-white rounded-full font-semibold shadow-lg shadow-rose-500/30">Llama</span>
+                <span className="px-3 py-1.5 bg-gradient-to-r from-emerald-600 to-green-600 text-white rounded-full font-semibold shadow-lg shadow-emerald-500/30">OpenAI</span>
+                <FaChevronRight className="text-zinc-400" size={10} />
+                <span className="px-3 py-1.5 bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-full font-semibold shadow-lg shadow-indigo-500/30">Gemini</span>
+                <FaChevronRight className="text-zinc-400" size={10} />
+                <span className="px-3 py-1.5 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-full font-semibold shadow-lg shadow-violet-500/30">Deepseek</span>
+                <FaChevronRight className="text-zinc-400" size={10} />
+                <span className="px-3 py-1.5 bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white rounded-full font-semibold shadow-lg shadow-purple-500/30">Qwen</span>
+                <FaChevronRight className="text-zinc-400" size={10} />
+                <span className="px-3 py-1.5 bg-gradient-to-r from-pink-600 to-rose-600 text-white rounded-full font-semibold shadow-lg shadow-pink-500/30">GPT-OSS</span>
+                <FaChevronRight className="text-zinc-400" size={10} />
+                <span className="px-3 py-1.5 bg-gradient-to-r from-rose-600 to-red-600 text-white rounded-full font-semibold shadow-lg shadow-rose-500/30">Llama</span>
               </div>
-              <p className="text-slate-600 dark:text-slate-400 text-sm">
+              <p className="text-zinc-600 dark:text-zinc-400 text-sm">
                 Automatic fallback ensures 99.9% uptime with intelligent provider switching
               </p>
             </div>
@@ -466,122 +760,225 @@ export default function Docs() {
 
           <section className="mb-20">
             <div className="flex items-center gap-3 mb-8">
-              <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-700 dark:from-blue-500 dark:to-blue-600 rounded-xl shadow-lg shadow-blue-500/30">
+              <div className="p-3 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl shadow-lg shadow-amber-500/30">
                 <FaRobot className="text-white" size={24} />
               </div>
-              <h2 className="text-3xl font-black text-slate-900 dark:text-white">Specific AI Models</h2>
+              <h2 className="text-3xl font-black text-zinc-900 dark:text-white">AI Models</h2>
             </div>
 
-            <div className="mb-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+            <div className="mb-6 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900 rounded-xl p-4">
               <div className="flex items-start gap-3">
-                <FaInfoCircle className="text-blue-600 dark:text-blue-400 mt-0.5" size={16} />
-                <p className="text-slate-700 dark:text-slate-300 text-sm">
-                  Target specific AI models for consistent responses from a particular provider.
+                <FaInfoCircle className="text-amber-600 dark:text-amber-500 mt-0.5" size={16} />
+                <p className="text-zinc-700 dark:text-zinc-300 text-sm">
+                  Target specific AI models for consistent responses from a particular provider. All models support web search capabilities.
                 </p>
               </div>
             </div>
 
-            <div className="space-y-4">
-              <Row 
-                method="POST" 
-                path={`${base}/api/models/deepseek`} 
-                desc="Chat with Deepseek AI model" 
-                note="Excels at code generation and technical discussions with deep reasoning."
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+              <ModelCard
+                icon={SiDigikeyelectronics}
+                name="Kimi K2"
+                endpoint="/api/models/kimi"
+                color="from-blue-600 to-cyan-600"
+                description="Superior tool calling and complex reasoning"
+                speed="⚡⚡⚡"
+                quality="⭐⭐⭐⭐⭐"
               />
-              <Row 
-                method="POST" 
-                path={`${base}/api/models/openai`} 
-                desc="Chat with OpenAI GPT model" 
-                note="Balanced performance for general conversations and creative tasks."
+              <ModelCard
+                icon={TbSquareLetterZ}
+                name="GLM 4.6"
+                endpoint="/api/models/glm"
+                color="from-blue-700 to-indigo-900"
+                description="Multilingual excellence with strong reasoning"
+                speed="⚡⚡⚡"
+                quality="⭐⭐⭐⭐"
               />
-              <Row 
-                method="POST" 
-                path={`${base}/api/models/gemini`} 
-                desc="Chat with Google Gemini model" 
-                note="Excellent multimodal understanding and factual accuracy."
+              <ModelCard
+                icon={TbLetterM}
+                name="Mistral 3.1"
+                endpoint="/api/models/mistral"
+                color="from-orange-600 to-amber-600"
+                description="Fast inference with European focus"
+                speed="⚡⚡⚡⚡"
+                quality="⭐⭐⭐⭐"
               />
-              <Row 
-                method="POST" 
-                path={`${base}/api/models/qwen`} 
-                desc="Chat with Qwen AI model" 
-                note="Specializes in multilingual support and Asian language processing."
+              <ModelCard
+                icon={SiOpenai}
+                name="GPT-4 Mini"
+                endpoint="/api/models/openai"
+                color="from-emerald-600 to-green-600"
+                description="Balanced performance for general tasks"
+                speed="⚡⚡⚡"
+                quality="⭐⭐⭐⭐"
               />
-              <Row 
-                method="POST" 
-                path={`${base}/api/models/gptoss`} 
-                desc="Chat with GPT-OSS model" 
-                note="Open-source model compatibility with fast inference."
+              <ModelCard
+                icon={SiMeta}
+                name="Llama 3.3 70B"
+                endpoint="/api/models/llama"
+                color="from-blue-600 to-indigo-700"
+                description="Efficient open-source powerhouse"
+                speed="⚡⚡⚡⚡"
+                quality="⭐⭐⭐⭐"
               />
+              <ModelCard
+                icon={SiOpenai}
+                name="GPT-OSS 120B"
+                endpoint="/api/models/gptoss"
+                color="from-pink-600 to-rose-600"
+                description="Large open-source with browser search"
+                speed="⚡⚡⚡"
+                quality="⭐⭐⭐⭐"
+              />
+              <ModelCard
+                icon={SiGooglegemini}
+                name="Gemini 3 Flash"
+                endpoint="/api/models/gemini"
+                color="from-indigo-600 to-purple-600"
+                description="Multimodal understanding and accuracy"
+                speed="⚡⚡⚡⚡"
+                quality="⭐⭐⭐⭐⭐"
+              />
+              <ModelCard
+                icon={GiSpermWhale}
+                name="DeepSeek V3.2"
+                endpoint="/api/models/deepseek"
+                color="from-cyan-600 to-blue-600"
+                description="Deep reasoning and code generation"
+                speed="⚡⚡⚡"
+                quality="⭐⭐⭐⭐⭐"
+              />
+              <ModelCard
+                icon={GiPowerLightning}
+                name="Groq Compound"
+                endpoint="/api/models/compound"
+                color="from-orange-600 to-red-600"
+                description="Multi-model agentic system with tools"
+                speed="⚡⚡⚡⚡"
+                quality="⭐⭐⭐⭐⭐"
+              />
+              <ModelCard
+                icon={SiAnthropic}
+                name="Claude Haiku 4.5"
+                endpoint="/api/models/claude"
+                color="from-orange-600 to-amber-700"
+                description="Fast, capable, and balanced Anthropic model"
+                speed="⚡⚡⚡⚡"
+                quality="⭐⭐⭐⭐"
+              />
+              <ModelCard
+                icon={SiAlibabacloud}
+                name="Qwen3 Coder 480B"
+                endpoint="/api/models/qwen"
+                color="from-purple-600 to-fuchsia-600"
+                description="Specialized in coding and Asian languages"
+                speed="⚡⚡⚡"
+                quality="⭐⭐⭐⭐⭐"
+              />
+              <ModelCard
+                icon={GiClover}
+                name="Cohere Command A"
+                endpoint="/api/models/cohere"
+                color="from-emerald-600 to-teal-600"
+                description="Enterprise-grade with excellent tool use"
+                speed="⚡⚡⚡"
+                quality="⭐⭐⭐⭐"
+              />
+            </div>
+
+            <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl p-6 shadow-lg">
+              <div className="flex items-start gap-3 mb-4">
+                <FaImage className="text-amber-600 dark:text-amber-500 mt-1" size={20} />
+                <div>
+                  <h3 className="text-lg font-bold text-zinc-900 dark:text-white mb-1">Image Generation</h3>
+                  <p className="text-zinc-600 dark:text-zinc-400 text-sm">Create stunning AI-generated images with Flux 2</p>
+                </div>
+              </div>
               <Row 
                 method="POST" 
-                path={`${base}/api/models/llama`} 
-                desc="Chat with Llama model" 
-                note="Efficient performance for resource-constrained scenarios."
+                path={`${base}/api/models/flux`} 
+                desc="Generate images with Flux 2 model" 
+                note="Send POST with JSON: { prompt: 'description', steps: 4 }. Returns base64 encoded image."
+                modelInfo={{
+                  speed: "⚡⚡⚡⚡",
+                  quality: "⭐⭐⭐⭐⭐",
+                  useCase: "Text-to-image generation with photorealistic results",
+                }}
               />
             </div>
           </section>
 
           <section className="mb-20">
             <div className="flex items-center gap-3 mb-8">
-              <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-700 dark:from-blue-500 dark:to-blue-600 rounded-xl shadow-lg shadow-blue-500/30">
+              <div className="p-3 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl shadow-lg shadow-amber-500/30">
                 <FaInfoCircle className="text-white" size={24} />
               </div>
-              <h2 className="text-3xl font-black text-slate-900 dark:text-white">Important Notes</h2>
+              <h2 className="text-3xl font-black text-zinc-900 dark:text-white">Important Notes</h2>
             </div>
             
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-8 shadow-lg">
+            <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl p-8 shadow-lg">
               <div className="space-y-6">
-                <div className="flex items-start gap-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
-                  <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex-shrink-0">
-                    <FaLayerGroup className="text-blue-600 dark:text-blue-400" size={20} />
+                <div className="flex items-start gap-4 p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-lg border border-zinc-200 dark:border-zinc-800">
+                  <div className="p-2 bg-amber-100 dark:bg-amber-950/30 rounded-lg flex-shrink-0">
+                    <FaLayerGroup className="text-amber-600 dark:text-amber-500" size={20} />
                   </div>
                   <div>
-                    <strong className="text-slate-900 dark:text-white block mb-2 text-sm font-bold">Categories:</strong>
-                    <span className="text-slate-600 dark:text-slate-400 text-sm">anime, manga, manhwa, manhua, ln</span>
+                    <strong className="text-zinc-900 dark:text-white block mb-2 text-sm font-bold">Categories:</strong>
+                    <span className="text-zinc-600 dark:text-zinc-400 text-sm">anime, manga, manhwa, manhua, ln</span>
                   </div>
                 </div>
                 
-                <div className="flex items-start gap-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
-                  <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex-shrink-0">
-                    <FaCode className="text-blue-600 dark:text-blue-400" size={20} />
+                <div className="flex items-start gap-4 p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-lg border border-zinc-200 dark:border-zinc-800">
+                  <div className="p-2 bg-amber-100 dark:bg-amber-950/30 rounded-lg flex-shrink-0">
+                    <FaCode className="text-amber-600 dark:text-amber-500" size={20} />
                   </div>
                   <div>
-                    <strong className="text-slate-900 dark:text-white block mb-2 text-sm font-bold">Required Parameters:</strong>
-                    <div className="text-slate-600 dark:text-slate-400 space-y-2 text-sm">
-                      <div><code className="bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded text-blue-700 dark:text-blue-400 font-mono text-xs">id</code> for detail, character, staff, recommendations</div>
-                      <div><code className="bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded text-blue-700 dark:text-blue-400 font-mono text-xs">query</code> for search</div>
-                      <div><code className="bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded text-blue-700 dark:text-blue-400 font-mono text-xs">genre</code> for top-genre</div>
+                    <strong className="text-zinc-900 dark:text-white block mb-2 text-sm font-bold">Required Parameters:</strong>
+                    <div className="text-zinc-600 dark:text-zinc-400 space-y-2 text-sm">
+                      <div><code className="bg-amber-100 dark:bg-amber-950/30 px-2 py-1 rounded text-amber-700 dark:text-amber-400 font-mono text-xs">id</code> for detail, character, staff, recommendations</div>
+                      <div><code className="bg-amber-100 dark:bg-amber-950/30 px-2 py-1 rounded text-amber-700 dark:text-amber-400 font-mono text-xs">query</code> for search</div>
+                      <div><code className="bg-amber-100 dark:bg-amber-950/30 px-2 py-1 rounded text-amber-700 dark:text-amber-400 font-mono text-xs">genre</code> for top-genre</div>
                     </div>
                   </div>
                 </div>
                 
-                <div className="flex items-start gap-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
-                  <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex-shrink-0">
-                    <FaComments className="text-blue-600 dark:text-blue-400" size={20} />
+                <div className="flex items-start gap-4 p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-lg border border-zinc-200 dark:border-zinc-800">
+                  <div className="p-2 bg-amber-100 dark:bg-amber-950/30 rounded-lg flex-shrink-0">
+                    <FaComments className="text-amber-600 dark:text-amber-500" size={20} />
                   </div>
                   <div>
-                    <strong className="text-slate-900 dark:text-white block mb-2 text-sm font-bold">Chat Persona:</strong>
-                    <span className="text-slate-600 dark:text-slate-400 text-sm">Default is tsundere, or send custom persona in POST body</span>
+                    <strong className="text-zinc-900 dark:text-white block mb-2 text-sm font-bold">Chat Persona:</strong>
+                    <span className="text-zinc-600 dark:text-zinc-400 text-sm">Default is tsundere, or send custom persona in POST body</span>
                   </div>
                 </div>
                 
-                <div className="flex items-start gap-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
-                  <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex-shrink-0">
-                    <FaServer className="text-blue-600 dark:text-blue-400" size={20} />
+                <div className="flex items-start gap-4 p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-lg border border-zinc-200 dark:border-zinc-800">
+                  <div className="p-2 bg-amber-100 dark:bg-amber-950/30 rounded-lg flex-shrink-0">
+                    <FaServer className="text-amber-600 dark:text-amber-500" size={20} />
                   </div>
                   <div>
-                    <strong className="text-slate-900 dark:text-white block mb-2 text-sm font-bold">Rate Limit:</strong>
-                    <span className="text-slate-600 dark:text-slate-400 text-sm">Please be respectful with API usage</span>
+                    <strong className="text-zinc-900 dark:text-white block mb-2 text-sm font-bold">Rate Limit:</strong>
+                    <span className="text-zinc-600 dark:text-zinc-400 text-sm">Please be respectful with API usage</span>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
-                  <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex-shrink-0">
-                    <FaBrain className="text-blue-600 dark:text-blue-400" size={20} />
+                <div className="flex items-start gap-4 p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-lg border border-zinc-200 dark:border-zinc-800">
+                  <div className="p-2 bg-amber-100 dark:bg-amber-950/30 rounded-lg flex-shrink-0">
+                    <FaBrain className="text-amber-600 dark:text-amber-500" size={20} />
                   </div>
                   <div>
-                    <strong className="text-slate-900 dark:text-white block mb-2 text-sm font-bold">Model Selection:</strong>
-                    <span className="text-slate-600 dark:text-slate-400 text-sm">Use /api/chat for auto-fallback or /api/models/&#123;provider&#125; for specific models</span>
+                    <strong className="text-zinc-900 dark:text-white block mb-2 text-sm font-bold">Model Selection:</strong>
+                    <span className="text-zinc-600 dark:text-zinc-400 text-sm">Use /api/chat for auto-fallback or /api/models/&#123;provider&#125; for specific models</span>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4 p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-lg border border-zinc-200 dark:border-zinc-800">
+                  <div className="p-2 bg-amber-100 dark:bg-amber-950/30 rounded-lg flex-shrink-0">
+                    <FaGlobe className="text-amber-600 dark:text-amber-500" size={20} />
+                  </div>
+                  <div>
+                    <strong className="text-zinc-900 dark:text-white block mb-2 text-sm font-bold">Web Search:</strong>
+                    <span className="text-zinc-600 dark:text-zinc-400 text-sm">Most models support automatic web search when needed for current information</span>
                   </div>
                 </div>
               </div>
@@ -590,14 +987,14 @@ export default function Docs() {
         </div>
       </div>
 
-      <footer className="border-t border-slate-200 dark:border-slate-800 py-12 bg-white dark:bg-slate-950">
+      <footer className="border-t border-zinc-200 dark:border-zinc-900 py-12 bg-white dark:bg-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col items-center gap-6 text-center">
             <div className="flex items-center gap-3">
-              <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-700 dark:from-blue-500 dark:to-blue-600 rounded-xl shadow-lg shadow-blue-500/30">
+              <div className="p-3 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl shadow-lg shadow-amber-500/30">
                 <FaBookOpen className="text-white" size={24} />
               </div>
-              <h3 className="text-2xl font-black text-slate-900 dark:text-white">Aichixia API</h3>
+              <h3 className="text-2xl font-black text-zinc-900 dark:text-white">Aichixia API</h3>
             </div>
             
             <div className="flex items-center gap-6">
@@ -605,7 +1002,7 @@ export default function Docs() {
                 href="https://github.com/Takawell/Aichixia" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+                className="text-zinc-600 dark:text-zinc-400 hover:text-amber-600 dark:hover:text-amber-500 transition-colors duration-200"
               >
                 <FaGithub size={24} />
               </a>
@@ -613,20 +1010,20 @@ export default function Docs() {
                 href="https://tiktok.com/putrawangyyy" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+                className="text-zinc-600 dark:text-zinc-400 hover:text-amber-600 dark:hover:text-amber-500 transition-colors duration-200"
               >
                 <FaTiktok size={24} />
               </a>
             </div>
 
-            <div className="w-full max-w-md h-px bg-gradient-to-r from-transparent via-slate-300 dark:via-slate-700 to-transparent"></div>
+            <div className="w-full max-w-md h-px bg-gradient-to-r from-transparent via-zinc-300 dark:via-zinc-800 to-transparent"></div>
 
-            <div className="flex items-center gap-2 text-slate-500 dark:text-slate-500">
+            <div className="flex items-center gap-2 text-zinc-500 dark:text-zinc-500">
               <FaTerminal size={14} />
               <span className="text-sm">© {new Date().getFullYear()} Aichixia - Anime-first AI Assistant</span>
             </div>
             
-            <p className="text-xs font-black text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text tracking-widest">BY TAKAWELL</p>
+            <p className="text-xs font-black text-transparent bg-gradient-to-r from-amber-600 to-orange-600 dark:from-amber-400 dark:to-orange-400 bg-clip-text tracking-widest">BY TAKAWELL</p>
           </div>
         </div>
       </footer>
