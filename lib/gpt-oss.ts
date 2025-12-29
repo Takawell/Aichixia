@@ -46,7 +46,7 @@ export async function chatGptOss(
   }
 
   try {
-    const response = await client.chat.completions.create({
+    const requestBody: any = {
       model: GROQ_MODEL_OSS,
       messages: history.map((m) => ({
         role: m.role,
@@ -54,10 +54,13 @@ export async function chatGptOss(
       })),
       temperature: opts?.temperature ?? 0.8,
       max_tokens: opts?.maxTokens ?? 4096,
-      ...(opts?.enableSearch !== false && {
-        tools: [{ type: "browser_search" }]
-      }),
-    });
+    };
+
+    if (opts?.enableSearch !== false) {
+      requestBody.tools = [{ type: "browser_search" }];
+    }
+
+    const response = await client.chat.completions.create(requestBody);
 
     const reply =
       response.choices[0]?.message?.content?.trim() ??
@@ -114,14 +117,14 @@ export function buildPersonaSystemGptOss(
     return {
       role: "system",
       content:
-        "You are Aichixia 5.0, Always respond in under 2 short sentences.",
+        "You are Aichixia 5.0. Always respond in under 2 short sentences.",
     };
   }
   if (persona === "developer") {
     return {
       role: "system",
       content:
-        "You are Aichixia 4.5 (GPT-OSS), a developer-focused assistant. Provide clear technical explanations and code blocks.",
+        "You are Aichixia 5.0, a developer-focused assistant. Provide clear technical explanations and code blocks.",
     };
   }
   return { role: "system", content: String(persona) };
