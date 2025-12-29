@@ -18,6 +18,7 @@
     "react-dom": "18.3.1",
     "react-icons": "^5.2.1",
     "react-markdown": "^9.0.0",
+    "react-syntax-highlighter": "^15.6.1",
     "remark-gfm": "^4.0.0",
     "tailwindcss": "^3.4.1",
     "@tavily/core": "^0.5.12",
@@ -30,6 +31,7 @@
   "devDependencies": {
     "@types/node": "20.11.30",
     "@types/react": "18.3.3",
+    "@types/react-syntax-highlighter": "^15.5.13",
     "autoprefixer": "^10.4.19",
     "eslint": "8.57.0",
     "eslint-config-next": "14.2.4",
