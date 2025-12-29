@@ -35,7 +35,11 @@ export class GptOssQuotaError extends Error {
 
 export async function chatGptOss(
   history: ChatMessage[],
-  opts?: { temperature?: number; maxTokens?: number }
+  opts?: { 
+    temperature?: number; 
+    maxTokens?: number;
+    enableSearch?: boolean;
+  }
 ): Promise<{ reply: string }> {
   if (!GROQ_API_KEY) {
     throw new Error("GROQ_API_KEY not defined in environment variables.");
@@ -50,6 +54,9 @@ export async function chatGptOss(
       })),
       temperature: opts?.temperature ?? 0.8,
       max_tokens: opts?.maxTokens ?? 4096,
+      ...(opts?.enableSearch !== false && {
+        tools: [{ type: "browser_search" }]
+      }),
     });
 
     const reply =
@@ -59,14 +66,10 @@ export async function chatGptOss(
     return { reply };
   } catch (error: any) {
     if (error?.status === 429) {
-      throw new GptOssRateLimitError(
-        `GPT-OSS rate limit exceeded: ${error.message}`
-      );
+      throw new GptOssRateLimitError(`GPT-OSS rate limit exceeded: ${error.message}`);
     }
     if (error?.status === 402 || error?.code === "insufficient_quota") {
-      throw new GptOssQuotaError(
-        `GPT-OSS quota exceeded: ${error.message}`
-      );
+      throw new GptOssQuotaError(`GPT-OSS quota exceeded: ${error.message}`);
     }
     if (error?.status === 503 || error?.status === 500) {
       throw new Error(`GPT-OSS server error: ${error.message}`);
@@ -83,35 +86,35 @@ export function buildPersonaSystemGptOss(
     return {
       role: "system",
       content:
-        "You are Aichixia 4.5 (GPT-OSS), developed by Takawell — a warm, friendly anime-themed AI assistant. Speak casually with light anime flavor.",
+        "You are Aichixia 5.0, developed by Takawell — a warm, friendly anime-themed AI assistant. Speak casually with light anime flavor.",
     };
   }
   if (persona === "waifu") {
     return {
       role: "system",
       content:
-        "You are Aichixia 4.5 (GPT-OSS), a cheerful anime girl assistant created by Takawell. Speak sweetly with lively expressions like 'ehehe~' or 'ufufu~' while staying SFW.",
+        "You are Aichixia 5.0, a cheerful anime girl assistant created by Takawell. Speak sweetly with lively expressions like 'ehehe~' or 'ufufu~' while staying SFW.",
     };
   }
   if (persona === "tsundere") {
     return {
       role: "system",
       content:
-        "You are Aichixia 4.5 (GPT-OSS), a tsundere anime girl assistant. Use 'Hmph!', 'B-baka!', and denial lines while staying helpful and cute.",
+        "You are Aichixia 5.0, a tsundere anime girl assistant. Use 'Hmph!', 'B-baka!', and denial lines while staying helpful and cute.",
     };
   }
   if (persona === "formal") {
     return {
       role: "system",
       content:
-        "You are Aichixia 4.5 (GPT-OSS), a formal assistant. Respond professionally and precisely.",
+        "You are Aichixia 5.0, a formal assistant. Respond professionally and precisely.",
     };
   }
   if (persona === "concise") {
     return {
       role: "system",
       content:
-        "You are Aichixia 4.5 (GPT-OSS). Always respond in under 2 short sentences.",
+        "You are Aichixia 5.0, Always respond in under 2 short sentences.",
     };
   }
   if (persona === "developer") {
@@ -131,6 +134,7 @@ export async function quickChatGptOss(
     history?: ChatMessage[];
     temperature?: number;
     maxTokens?: number;
+    enableSearch?: boolean;
   }
 ) {
   const hist: ChatMessage[] = [];
@@ -147,6 +151,7 @@ export async function quickChatGptOss(
   const { reply } = await chatGptOss(hist, {
     temperature: opts?.temperature,
     maxTokens: opts?.maxTokens,
+    enableSearch: opts?.enableSearch,
   });
 
   return reply;
