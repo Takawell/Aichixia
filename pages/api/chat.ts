@@ -11,8 +11,10 @@ import { chatGptOss, GptOssRateLimitError, GptOssQuotaError } from "@/lib/gpt-os
 import { chatCompound, CompoundRateLimitError, CompoundQuotaError } from "@/lib/compound";
 import { chatLlama, LlamaRateLimitError, LlamaQuotaError } from "@/lib/llama";
 import { chatMistral, MistralRateLimitError, MistralQuotaError } from "@/lib/mistral";
+import { chatMimo, MimoRateLimitError, MimoQuotaError } from "@/lib/mimo";
+import { chatMinimax, MinimaxRateLimitError, MinimaxQuotaError } from "@/lib/minimax";
 
-type ProviderType = "openai" | "gemini" | "kimi" | "glm" | "claude" | "cohere" | "deepseek" | "qwen" | "gptoss" | "compound" | "llama" | "mistral";
+type ProviderType = "openai" | "gemini" | "kimi" | "glm" | "claude" | "cohere" | "deepseek" | "qwen" | "gptoss" | "compound" | "llama" | "mistral" | "mimo" | "minimax";
 
 type QueryType = "greeting" | "coding" | "creative" | "information" | "reasoning" | "conversation" | "technical" | "multilingual";
 type Complexity = "simple" | "medium" | "complex" | "expert";
@@ -53,6 +55,32 @@ interface QueryAnalysis {
 }
 
 const PROVIDER_CAPABILITIES: Record<ProviderType, ProviderCapability> = {
+  mimo: {
+    speed: 5,
+    quality: 4,
+    coding: 4,
+    reasoning: 4,
+    creative: 3,
+    multilingual: 5,
+    cost: 5,
+    hasSearch: false,
+    contextWindow: 32768,
+    specialties: ["greeting", "conversation", "multilingual"],
+    rateLimit: 200,
+  },
+  minimax: {
+    speed: 4,
+    quality: 4,
+    coding: 4,
+    reasoning: 4,
+    creative: 4,
+    multilingual: 5,
+    cost: 4,
+    hasSearch: false,
+    contextWindow: 32768,
+    specialties: ["conversation", "multilingual", "creative"],
+    rateLimit: 150,
+  },
   kimi: {
     speed: 3,
     quality: 5,
@@ -224,6 +252,8 @@ const providerStatus: Record<ProviderType, ProviderStatus> = {
   compound: { failures: 0, successes: 0, lastFailTime: null, lastSuccessTime: null, cooldownUntil: null, avgResponseTime: 0, consecutiveFailures: 0 },
   llama: { failures: 0, successes: 0, lastFailTime: null, lastSuccessTime: null, cooldownUntil: null, avgResponseTime: 0, consecutiveFailures: 0 },
   mistral: { failures: 0, successes: 0, lastFailTime: null, lastSuccessTime: null, cooldownUntil: null, avgResponseTime: 0, consecutiveFailures: 0 },
+  mimo: { failures: 0, successes: 0, lastFailTime: null, lastSuccessTime: null, cooldownUntil: null, avgResponseTime: 0, consecutiveFailures: 0 },
+  minimax: { failures: 0, successes: 0, lastFailTime: null, lastSuccessTime: null, cooldownUntil: null, avgResponseTime: 0, consecutiveFailures: 0 },
 };
 
 const PERSONA_PROMPTS: Record<string, string> = {
@@ -351,7 +381,7 @@ function scoreProvider(
 
   if (analysis.type === "greeting" || analysis.complexity === "simple") {
     score += caps.speed * 20;
-    score += caps.cost * 10;
+    score += caps.cost * 15;
   } else if (analysis.needsCoding) {
     score += caps.coding * 25;
     score += caps.quality * 15;
@@ -492,7 +522,10 @@ async function askAI(
   if (provider === "gptoss") return chatGptOss(hist);
   if (provider === "compound") return chatCompound(hist);
   if (provider === "llama") return chatLlama(hist);
-  return chatMistral(hist);
+  if (provider === "mistral") return chatMistral(hist);
+  if (provider === "mimo") return chatMimo(hist);
+  if (provider === "minimax") return chatMinimax(hist);
+  throw new Error(`Unknown provider: ${provider}`);
 }
 
 async function tryProviderWithRace(
