@@ -10,35 +10,35 @@ const redis = new Redis({
 
 const globalDayLimit = new Ratelimit({
   redis: redis,
-  limiter: Ratelimit.slidingWindow(200, "1 d"),
+  limiter: Ratelimit.slidingWindow(100, "1 d"),
   analytics: true,
   prefix: "ratelimit:global:day",
 });
 
 const chatMinuteLimit = new Ratelimit({
   redis: redis,
-  limiter: Ratelimit.slidingWindow(50, "1 m"),
+  limiter: Ratelimit.slidingWindow(10, "1 m"),
   analytics: true,
   prefix: "ratelimit:chat:minute",
 });
 
 const chatHourLimit = new Ratelimit({
   redis: redis,
-  limiter: Ratelimit.slidingWindow(150, "1 h"),
+  limiter: Ratelimit.slidingWindow(50, "1 h"),
   analytics: true,
   prefix: "ratelimit:chat:hour",
 });
 
 const modelsMinuteLimit = new Ratelimit({
   redis: redis,
-  limiter: Ratelimit.slidingWindow(20, "1 m"),
+  limiter: Ratelimit.slidingWindow(5, "1 m"),
   analytics: true,
   prefix: "ratelimit:models:minute",
 });
 
 const modelsHourLimit = new Ratelimit({
   redis: redis,
-  limiter: Ratelimit.slidingWindow(60, "1 h"),
+  limiter: Ratelimit.slidingWindow(30, "1 h"),
   analytics: true,
   prefix: "ratelimit:models:hour",
 });
@@ -60,7 +60,7 @@ export async function middleware(request: NextRequest) {
       {
         error: "Global API rate limit exceeded. All endpoints temporarily unavailable.",
         retryAfter: retryAfter,
-        limit: "200 requests per day (global across all endpoints)",
+        limit: "100 requests per day (shared across all users)",
         remaining: 0
       },
       {
@@ -75,14 +75,17 @@ export async function middleware(request: NextRequest) {
     );
   }
 
+  const ip = request.ip ?? request.headers.get("x-forwarded-for") ?? "anonymous";
+  const identifier = ip;
+
   let minuteCheck, hourCheck;
 
   if (pathname.startsWith("/api/chat")) {
-    minuteCheck = await chatMinuteLimit.limit(GLOBAL_KEY);
-    hourCheck = await chatHourLimit.limit(GLOBAL_KEY);
+    minuteCheck = await chatMinuteLimit.limit(identifier);
+    hourCheck = await chatHourLimit.limit(identifier);
   } else {
-    minuteCheck = await modelsMinuteLimit.limit(GLOBAL_KEY);
-    hourCheck = await modelsHourLimit.limit(GLOBAL_KEY);
+    minuteCheck = await modelsMinuteLimit.limit(identifier);
+    hourCheck = await modelsHourLimit.limit(identifier);
   }
 
   if (!minuteCheck.success) {
