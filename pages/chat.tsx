@@ -365,8 +365,7 @@ export default function Chat() {
       compound: "bg-[#F55036]",
       llama: "bg-[#0668E1]",
       flux: "bg-purple-500",
-      minimax: "bg-red-500",
-      deepseek-v: "bg-blue-500"
+      minimax: "bg-red-500"
     };
 
     return (
