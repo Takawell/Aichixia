@@ -366,8 +366,7 @@ export default function Chat() {
       llama: "bg-[#0668E1]",
       flux: "bg-purple-500",
       minimax: "bg-red-500",
-      deepseek-v: "bg-blue-500",
-      qwen3: "bg-purple-500"
+      deepseek-v: "bg-blue-500"
     };
 
     return (
