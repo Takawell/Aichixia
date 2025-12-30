@@ -49,7 +49,7 @@ export async function chatMinimax(
         content: m.content,
       })),
       temperature: opts?.temperature ?? 0.7,
-      max_tokens: opts?.maxTokens ?? 4096,
+      max_tokens: opts?.maxTokens ?? 1000,
     });
 
     const reply =
