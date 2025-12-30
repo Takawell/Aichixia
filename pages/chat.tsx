@@ -15,7 +15,7 @@ import {
   FaQuestion,
   FaSearch,
 } from "react-icons/fa";
-import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiFlux, } from "react-icons/si";
+import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiFlux, SiXiaomi, SiMaze, } from "react-icons/si";
 import { GiSpermWhale, GiPowerLightning, GiBlackHoleBolas, GiClover, } from "react-icons/gi";
 import { TbSquareLetterZ, TbLetterM, } from "react-icons/tb";
 import Link from "next/link";
@@ -138,11 +138,27 @@ const models: Model[] = [
     type: "text",
   },
   {
+    id: "mimo",
+    name: "MiMo V2 Flash",
+    endpoint: "/api/models/mimo",
+    icon: SiXiaomi,
+    color: "from-blue-500 to-purple-500",
+    type: "text",
+  },
+  {
     id: "gemini",
     name: "Gemini 3 Flash",
     endpoint: "/api/models/gemini",
     icon: SiGooglegemini,
     color: "from-indigo-500 to-purple-500",
+    type: "text",
+  },
+  {
+    id: "minimax",
+    name: "MiniMax M2.1",
+    endpoint: "/api/models/minimax",
+    icon: SiMaze,
+    color: "from-cyan-500 to-blue-500",
     type: "text",
   },
   {
@@ -198,8 +214,7 @@ export default function Chat() {
   const [showModelMenu, setShowModelMenu] = useState(false);
   const [modelSearch, setModelSearch] = useState("");  
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLTextAreaElement>(null);
-  
+  const inputRef = useRef<HTMLTextAreaElement>(null);  
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -322,6 +337,7 @@ export default function Chat() {
     const colors: Record<string, string> = {
       glm: "bg-[#1835D4]",
       kimi: "bg-[#0091FF]",
+      mimo: "bg-[#FFB800]",
       openai: "bg-slate-800",
       gemini: "bg-blue-500",
       mistral: "bg-[#FF4F00]",
@@ -332,7 +348,8 @@ export default function Chat() {
       cohere: "bg-[#3d5941]",
       compound: "bg-[#F55036]",
       llama: "bg-[#0668E1]",
-      flux: "bg-purple-500"
+      flux: "bg-purple-500",
+      minimax: "bg-red-500"
     };
 
     return (
