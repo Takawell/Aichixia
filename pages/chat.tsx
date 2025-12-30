@@ -106,14 +106,6 @@ const models: Model[] = [
     type: "text",
   },
   {
-    id: "qwen3",
-    name: "Qwen3 235b",
-    endpoint: "/api/models/qwen3",
-    icon: SiMatternet,
-    color: "from-purple-500 to-pink-500",
-    type: "text",
-  },
-  {
     id: "mistral",
     name: "Mistral 3.1",
     endpoint: "/api/models/mistral",
@@ -127,6 +119,14 @@ const models: Model[] = [
     endpoint: "/api/models/openai",
     icon: SiOpenai,
     color: "from-green-500 to-emerald-500",
+    type: "text",
+  },
+  {
+    id: "qwen3",
+    name: "Qwen3 235B",
+    endpoint: "/api/models/qwen3",
+    icon: SiMatternet,
+    color: "from-purple-500 to-pink-500",
     type: "text",
   },
   {
@@ -365,7 +365,9 @@ export default function Chat() {
       compound: "bg-[#F55036]",
       llama: "bg-[#0668E1]",
       flux: "bg-purple-500",
-      minimax: "bg-red-500"
+      minimax: "bg-red-500",
+      deepseek-v: "bg-blue-500",
+      qwen3: "bg-purple-500"
     };
 
     return (
