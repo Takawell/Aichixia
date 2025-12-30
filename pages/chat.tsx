@@ -15,7 +15,7 @@ import {
   FaQuestion,
   FaSearch,
 } from "react-icons/fa";
-import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiFlux, SiXiaomi, SiMaze, } from "react-icons/si";
+import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiFlux, SiXiaomi, SiMaze, SiMatternet, } from "react-icons/si";
 import { GiSpermWhale, GiPowerLightning, GiBlackHoleBolas, GiClover, } from "react-icons/gi";
 import { TbSquareLetterZ, TbLetterM, } from "react-icons/tb";
 import Link from "next/link";
@@ -106,6 +106,14 @@ const models: Model[] = [
     type: "text",
   },
   {
+    id: "qwen3",
+    name: "Qwen3 235b",
+    endpoint: "/api/models/qwen3",
+    icon: SiMatternet,
+    color: "from-purple-500 to-pink-500",
+    type: "text",
+  },
+  {
     id: "mistral",
     name: "Mistral 3.1",
     endpoint: "/api/models/mistral",
@@ -159,6 +167,14 @@ const models: Model[] = [
     endpoint: "/api/models/mimo",
     icon: SiXiaomi,
     color: "from-blue-500 to-purple-500",
+    type: "text",
+  },
+  {
+    id: "deepseek-v",
+    name: "DeepSeek V3.1",
+    endpoint: "/api/models/deepseek-v",
+    icon: GiSpermWhale,
+    color: "from-cyan-500 to-blue-500",
     type: "text",
   },
   {
