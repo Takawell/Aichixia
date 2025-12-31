@@ -1,20 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import {
-  FaPaperPlane,
-  FaTrash,
-  FaUser,
-  FaHome,
-  FaCircle,
-  FaChevronDown,
-  FaAngry,
-  FaSmile,
-  FaBriefcase,
-  FaHeart,
-  FaFire,
-  FaBook,
-  FaQuestion,
-  FaSearch,
-} from "react-icons/fa";
+import { FaPaperPlane, FaTrash, FaUser, FaHome, FaCircle, FaChevronDown, FaAngry, FaSmile, FaBriefcase, FaHeart, FaFire, FaBook, FaQuestion, FaSearch } from "react-icons/fa";
 import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiFlux, SiXiaomi, SiMaze, SiMatternet, } from "react-icons/si";
 import { GiSpermWhale, GiPowerLightning, GiBlackHoleBolas, GiClover, } from "react-icons/gi";
 import { TbSquareLetterZ, TbLetterM, } from "react-icons/tb";
@@ -231,6 +216,7 @@ export default function Chat() {
   const [modelSearch, setModelSearch] = useState("");  
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);  
+  
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
