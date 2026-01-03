@@ -1,0 +1,49 @@
+{
+  "name": "@aichixia/sdk",
+  "version": "1.0.0",
+  "description": "Official Aichixia AI SDK - Access multiple AI models through a simple, unified interface",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
+    "prepublishOnly": "npm run build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "ai",
+    "aichixia",
+    "sdk",
+    "llm",
+    "chatbot",
+    "gemini",
+    "openai",
+    "claude",
+    "deepseek",
+    "artificial-intelligence",
+    "machine-learning",
+    "natural-language-processing"
+  ],
+  "author": "Takawell",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/takawell/aichixia.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Takawell/Aichixia/issues"
+  },
+  "homepage": "https://aichixia.vercel.app",
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "typescript": "^5.3.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
