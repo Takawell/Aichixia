@@ -752,7 +752,7 @@ const PROVIDER_CAPABILITIES: Record<ProviderType, ProviderCapability> = {
     cost: 4,
     hasSearch: false,
     contextWindow: 32000,
-    specialties: ["conversation", "technical", "webdev", "european"],
+    specialties: ["conversation", "technical", "webdev"],
     rateLimit: 100,
     bestFor: ["european languages", "fast inference", "technical content", "efficiency", "french", "spanish", "italian", "web development", "modern frameworks", "european tech stack", "multilingual europe"],
     weaknesses: ["very long context", "mobile dev", "extreme specialization", "asian languages", "entertainment"],
