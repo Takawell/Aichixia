@@ -3235,9 +3235,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
     }
 
-    console.log(`[Ultra Smart Router] Query: "${message.substring(0, 70)}..."`);
-    console.log(`[Ultra Smart Router] Analysis: ${generateAnalysisReport(analysis)}`);
-    console.log(`[Ultra Smart Router] Top 5 providers:`, rankedProviders.slice(0, 5));
+    console.log(`[Routing] Query: "${message.substring(0, 70)}..."`);
+    console.log(`[Routing] Analysis: ${generateAnalysisReport(analysis)}`);
+    console.log(`[Routing] Top 5 providers:`, rankedProviders.slice(0, 5));
 
     try {
       const result = await tryProviderWithAdaptiveRacing(
@@ -3248,7 +3248,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         analysis
       );
 
-      console.log(`[Ultra Smart Router] ✓ Success with ${result.provider} (${result.responseTime}ms)`);
+      console.log(`[Routing] ✓ Success with ${result.provider} (${result.responseTime}ms)`);
       
       const providerStats = providerStatus[result.provider];
       const successRate = providerStats.successes / Math.max(1, providerStats.successes + providerStats.failures);
@@ -3315,14 +3315,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       });
     } catch (err: any) {
-      console.error(`[Ultra Smart Router] ✗ All providers failed:`, err.message);
+      console.error(`[Routing] ✗ All providers failed:`, err.message);
       
       const failureDetails = rankedProviders.slice(0, 5).map(p => {
         const status = providerStatus[p];
         return `${p} (failures: ${status.consecutiveFailures}, cooldown: ${status.cooldownUntil ? 'yes' : 'no'})`;
       }).join(", ");
       
-      console.error(`[Ultra Smart Router] Provider status:`, failureDetails);
+      console.error(`[Routing] Provider status:`, failureDetails);
       
       return res.status(500).json({ 
         error: "Hmph! Everything is broken right now... I-I'll fix it later! B-baka!",
@@ -3339,7 +3339,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
   } catch (err: any) {
-    console.error(`[Ultra Smart Router] Handler error:`, err);
+    console.error(`[Routing] Handler error:`, err);
     return res.status(500).json({ 
       error: err.message || "Internal server error",
       details: process.env.NODE_ENV === "development" ? err.stack : undefined
