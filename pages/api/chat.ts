@@ -267,12 +267,12 @@ const PROVIDER_CAPABILITIES: Record<ProviderType, ProviderCapability> = {
     optimalComplexity: ["trivial", "simple"],
   },
   kimi: {
-    speed: 3,
+    speed: 4,
     quality: 5,
     coding: 5,
     reasoning: 5,
     creative: 4,
-    multilingual: 4,
+    multilingual: 5,
     mobile: 4,
     fullstack: 5,
     agentic: 5,
@@ -2866,10 +2866,10 @@ function getRankedProviders(analysis: QueryAnalysis): ProviderType[] {
   const validProviders = scored.filter(p => p.score > 0);
 
   if (validProviders.length > 0) {
-    console.log(`[Ultra Smart Router] Top provider: ${validProviders[0].provider} (score: ${validProviders[0].score.toFixed(2)}, confidence: ${(validProviders[0].confidence * 100).toFixed(1)}%)`);
-    console.log(`[Ultra Smart Router] Reasoning:`, validProviders[0].reasoning);
+    console.log(`[Routing] Top provider: ${validProviders[0].provider} (score: ${validProviders[0].score.toFixed(2)}, confidence: ${(validProviders[0].confidence * 100).toFixed(1)}%)`);
+    console.log(`[Routing] Reasoning:`, validProviders[0].reasoning);
     if (validProviders.length > 1) {
-      console.log(`[Ultra Smart Router] Runner-up: ${validProviders[1].provider} (score: ${validProviders[1].score.toFixed(2)}, confidence: ${(validProviders[1].confidence * 100).toFixed(1)}%)`);
+      console.log(`[Routing] Runner-up: ${validProviders[1].provider} (score: ${validProviders[1].score.toFixed(2)}, confidence: ${(validProviders[1].confidence * 100).toFixed(1)}%)`);
     }
   }
 
@@ -3101,7 +3101,7 @@ async function tryProviderWithAdaptiveRacing(
       
       const remainingProviders = providers.slice(1);
       if (remainingProviders.length > 0) {
-        console.log(`[Ultra Smart Router] ${topProviders[0]} failed (${isRateLimit ? 'rate limit' : 'error'}), trying next provider`);
+        console.log(`[Routing] ${topProviders[0]} failed (${isRateLimit ? 'rate limit' : 'error'}), trying next provider`);
         return tryProviderWithAdaptiveRacing(remainingProviders, message, history, persona, analysis);
       }
       throw error;
@@ -3139,12 +3139,12 @@ async function tryProviderWithAdaptiveRacing(
 
   try {
     const result = await Promise.race(racePromises);
-    console.log(`[Ultra Smart Router] Race won by ${result.provider} in ${result.responseTime}ms`);
+    console.log(`[Routing] Race won by ${result.provider} in ${result.responseTime}ms`);
     return result;
   } catch (error) {
     const remainingProviders = providers.slice(maxParallel);
     if (remainingProviders.length > 0) {
-      console.log(`[Ultra Smart Router] All racing providers failed, cascading to remaining providers`);
+      console.log(`[Routing] All racing providers failed, cascading to remaining providers`);
       return tryProviderWithAdaptiveRacing(remainingProviders, message, history, persona, analysis);
     }
     throw error;
