@@ -508,7 +508,7 @@ const PROVIDER_CAPABILITIES: Record<ProviderType, ProviderCapability> = {
     contextWindow: 32768,
     specialties: ["coding", "multilingual", "technical", "algorithm", "mathematics", "chinese"],
     rateLimit: 60,
-    bestFor: ["coding", "chinese language", "asian languages", "technical writing", "multilingual code", "algorithm implementation", "competitive programming", "math problems", "chinese tech stack", "mandarin documentation", "mathematics", "algebra", "geometry", "number theory", "discrete math", "calculus", "statistics", "probability theory", "mathematical proofs"],
+    bestFor: ["coding", "asian languages", "technical writing", "multilingual code", "algorithm implementation", "competitive programming", "math problems", "chinese tech stack", "mandarin documentation", "mathematics", "algebra", "geometry", "number theory", "discrete math", "calculus", "statistics", "probability theory", "mathematical proofs"],
     weaknesses: ["creative writing in english", "western frameworks", "entertainment", "casual english chat"],
     optimalComplexity: ["medium", "complex", "expert", "advanced"],
   },
