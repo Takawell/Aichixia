@@ -3073,7 +3073,6 @@ async function tryProviderWithAdaptiveRacing(
   }
 
   const topProviders = providers.slice(0, Math.min(maxParallel, providers.length));
-  
   if (topProviders.length === 1 || (!analysis.requiresSpeed && analysis.priority === "low")) {
     const startTime = Date.now();
     try {
@@ -3345,4 +3344,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       error: err.message || "Internal server error",
       details: process.env.NODE_ENV === "development" ? err.stack : undefined
     });
+  }
 }
