@@ -12,9 +12,6 @@ export type ChatMessage = {
 
 const CEREBRAS_API_KEY = process.env.CEREBRAS_API_KEY;
 const TAVILY_API_KEY = process.env.TAVILY_API_KEY;
-const CLOUDFLARE_API_KEY = process.env.CLOUDFLARE_API_KEY;
-const CLOUDFLARE_ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID;
-const FLUX_MODEL = process.env.FLUX_MODEL || "@cf/black-forest-labs/flux-2-dev";
 const GLM_MODEL = process.env.GLM_MODEL || "zai-glm-4.6";
 
 if (!CEREBRAS_API_KEY) {
@@ -23,10 +20,6 @@ if (!CEREBRAS_API_KEY) {
 
 if (!TAVILY_API_KEY) {
   console.warn("[lib/glm] Warning: TAVILY_API_KEY not set in env. Search will be disabled.");
-}
-
-if (!CLOUDFLARE_API_KEY || !CLOUDFLARE_ACCOUNT_ID) {
-  console.warn("[lib/glm] Warning: CLOUDFLARE credentials not set in env. Image generation will be disabled.");
 }
 
 const client = new OpenAI({
@@ -50,39 +43,6 @@ const SEARCH_TOOL = {
         }
       },
       required: ["query"]
-    }
-  }
-};
-
-const IMAGE_GENERATE_TOOL = {
-  type: "function" as const,
-  function: {
-    name: "image_generate",
-    description: "Generate an image based on a text prompt using FLUX 2 Dev model. Use this when user asks to create, draw, generate, or make an image/picture/art.",
-    parameters: {
-      type: "object",
-      properties: {
-        prompt: {
-          type: "string",
-          description: "Detailed description of the image to generate. Be specific about style, colors, composition, and subject."
-        },
-        steps: {
-          type: "number",
-          description: "Number of inference steps (1-50). Default: 30",
-          default: 30
-        },
-        width: {
-          type: "number",
-          description: "Image width in pixels. Default: 1024",
-          default: 1024
-        },
-        height: {
-          type: "number",
-          description: "Image height in pixels. Default: 1024",
-          default: 1024
-        }
-      },
-      required: ["prompt"]
     }
   }
 };
@@ -128,75 +88,22 @@ async function executeWebSearch(query: string): Promise<string> {
   }
 }
 
-async function executeImageGenerate(
-  prompt: string, 
-  steps: number = 30, 
-  width: number = 1024, 
-  height: number = 1024
-): Promise<{ result: string; imageBase64?: string }> {
-  if (!CLOUDFLARE_API_KEY || !CLOUDFLARE_ACCOUNT_ID) {
-    return { result: "Image generation unavailable: Cloudflare credentials not configured." };
-  }
-
-  try {
-    const formData = new FormData();
-    formData.append("prompt", prompt);
-    formData.append("steps", String(steps));
-    formData.append("width", String(width));
-    formData.append("height", String(height));
-
-    const response = await fetch(
-      `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/ai/run/${FLUX_MODEL}`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${CLOUDFLARE_API_KEY}`,
-        },
-        body: formData,
-      }
-    );
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Cloudflare API error: ${response.status} - ${errorText}`);
-    }
-
-    const data = await response.json();
-    const imageBase64 = data.result.image;
-    
-    return {
-      result: `Image generated successfully!\nPrompt: "${prompt}"\nSteps: ${steps}\nSize: ${width}x${height}`,
-      imageBase64
-    };
-  } catch (error: any) {
-    console.error("[lib/glm] Cloudflare image generation error:", error);
-    return { result: `Image generation error: ${error.message || "Unknown error occurred"}` };
-  }
-}
-
 export async function chatGlm(
   history: ChatMessage[],
   opts?: { 
     temperature?: number; 
     maxTokens?: number;
     enableSearch?: boolean;
-    enableImageGen?: boolean;
   }
-): Promise<{ reply: string; imageBase64?: string }> {
+): Promise<{ reply: string }> {
   if (!CEREBRAS_API_KEY) {
     throw new Error("CEREBRAS_API_KEY not defined in environment variables.");
   }
 
   const enableSearch = opts?.enableSearch !== false && tavilyClient !== null;
-  const enableImageGen = opts?.enableImageGen !== false && CLOUDFLARE_API_KEY && CLOUDFLARE_ACCOUNT_ID;
-  const maxIterations = 5;
+  const maxIterations = 3;
   let iterations = 0;
   let messages = [...history];
-  let generatedImageBase64: string | undefined;
-
-  const tools = [];
-  if (enableSearch) tools.push(SEARCH_TOOL);
-  if (enableImageGen) tools.push(IMAGE_GENERATE_TOOL);
 
   try {
     while (iterations < maxIterations) {
@@ -212,7 +119,7 @@ export async function chatGlm(
         })),
         temperature: opts?.temperature ?? 0.8,
         max_tokens: opts?.maxTokens ?? 4096,
-        ...(tools.length > 0 && { tools }),
+        ...(enableSearch && { tools: [SEARCH_TOOL] }),
       });
 
       const choice = response.choices[0];
@@ -226,45 +133,26 @@ export async function chatGlm(
         });
 
         for (const toolCall of message.tool_calls) {
-          let toolResult: string;
-
           if (toolCall.function.name === "web_search") {
             const args = JSON.parse(toolCall.function.arguments);
-            toolResult = await executeWebSearch(args.query);
-          } else if (toolCall.function.name === "image_generate") {
-            const args = JSON.parse(toolCall.function.arguments);
-            const { result, imageBase64 } = await executeImageGenerate(
-              args.prompt, 
-              args.steps || 30, 
-              args.width || 1024, 
-              args.height || 1024
-            );
-            toolResult = result;
-            if (imageBase64) {
-              generatedImageBase64 = imageBase64;
-            }
-          } else {
-            toolResult = "Unknown tool called.";
-          }
+            const searchResult = await executeWebSearch(args.query);
 
-          messages.push({
-            role: "tool",
-            content: toolResult,
-            tool_call_id: toolCall.id,
-          });
+            messages.push({
+              role: "tool",
+              content: searchResult,
+              tool_call_id: toolCall.id,
+            });
+          }
         }
 
         continue;
       }
 
       const reply = message.content?.trim() ?? "Hmph! I can't answer that right now... not that I care!";
-      return { reply, imageBase64: generatedImageBase64 };
+      return { reply };
     }
 
-    return { 
-      reply: "Hmph! This is taking too long... I-I'll need you to ask again!",
-      imageBase64: generatedImageBase64
-    };
+    return { reply: "Hmph! This is taking too long... I-I'll need you to ask again!" };
 
   } catch (error: any) {
     if (error?.status === 429) {
@@ -347,7 +235,6 @@ export async function quickChatGlm(
     temperature?: number;
     maxTokens?: number;
     enableSearch?: boolean;
-    enableImageGen?: boolean;
   }
 ) {
   const hist: ChatMessage[] = [];
@@ -361,14 +248,13 @@ export async function quickChatGlm(
   }
   hist.push({ role: "user", content: userMessage });
 
-  const { reply, imageBase64 } = await chatGlm(hist, {
+  const { reply } = await chatGlm(hist, {
     temperature: opts?.temperature,
     maxTokens: opts?.maxTokens,
     enableSearch: opts?.enableSearch,
-    enableImageGen: opts?.enableImageGen,
   });
 
-  return { reply, imageBase64 };
+  return reply;
 }
 
 export default {
