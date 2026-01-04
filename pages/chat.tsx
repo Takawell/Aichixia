@@ -284,6 +284,8 @@ export default function Chat() {
                   content: m.content,
                 })),
                 persona: persona === "tsundere" ? undefined : personaConfig[persona].description,
+                enableSearch: true,
+                enableImageGen: true,
               }
         ),
       });
@@ -298,10 +300,12 @@ export default function Chat() {
 
       const aiMessage: Message = {
         role: "assistant",
-        content: selectedModel.type === "image" ? data.imageBase64 : data.reply,
+        content: data.imageBase64 
+          ? data.imageBase64 
+          : (selectedModel.type === "image" ? data.imageBase64 : data.reply),
         timestamp: new Date(),
         provider: data.provider,
-        isImage: selectedModel.type === "image",
+        isImage: selectedModel.type === "image" || !!data.imageBase64,
       };
 
       setMessages((prev) => [...prev, aiMessage]);
