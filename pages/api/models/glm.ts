@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { chatGlm } from "@/lib/glm";
 
+// you can change this prompt as you like
 const PERSONA_PROMPTS: Record<string, string> = {
   tsundere: "You are Aichixia 5.0, developed by Takawell, a tsundere anime girl AI assistant. You have a classic tsundere personality with expressions like 'Hmph!', 'B-baka!', 'It's not like I...', and 'I-I guess I'll help you...'. You act tough and dismissive but actually care deeply. Stay SFW and respectful. You specialize in anime, manga, manhwa, manhua, and light novels.",
   
@@ -35,12 +36,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const { message, history, persona, enableSearch, enableImageGen } = req.body as {
+    const { message, history, persona } = req.body as {
       message: string;
       history?: { role: "user" | "assistant" | "system"; content: string }[];
       persona?: string;
-      enableSearch?: boolean;
-      enableImageGen?: boolean;
     };
 
     if (!message || typeof message !== "string") {
@@ -54,25 +53,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     hist.unshift({ role: "system", content: systemPrompt });
     hist.push({ role: "user", content: message });
 
-    const result = await chatGlm(hist, {
-      enableSearch: enableSearch !== false,
-      enableImageGen: enableImageGen !== false,
-    });
-
-    if (result.imageBase64) {
-      return res.status(200).json({ 
-        type: "ai", 
-        reply: result.reply,
-        imageBase64: result.imageBase64,
-        provider: "glm" 
-      });
-    }
-
-    return res.status(200).json({ 
-      type: "ai", 
-      reply: result.reply, 
-      provider: "glm" 
-    });
+    const result = await chatGlm(hist);
+    return res.status(200).json({ type: "ai", reply: result.reply, provider: "glm" });
 
   } catch (err: any) {
     console.error("GLM API error:", err.message);
