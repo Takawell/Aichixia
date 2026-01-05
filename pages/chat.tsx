@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { FaPaperPlane, FaTrash, FaUser, FaHome, FaCircle, FaChevronDown, FaAngry, FaSmile, FaBriefcase, FaHeart, FaFire, FaBook, FaQuestion, FaSearch, FaCode } from "react-icons/fa";
-import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiFlux, SiXiaomi, SiMaze, SiMatternet, } from "react-icons/si";
+import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiFlux, SiXiaomi, SiMaze, SiMatternet, SiImagedotsc } from "react-icons/si";
 import { GiSpermWhale, GiPowerLightning, GiBlackHoleBolas, GiClover, GiFire } from "react-icons/gi";
 import { TbSquareLetterZ, TbLetterM, } from "react-icons/tb";
 import Link from "next/link";
@@ -75,14 +75,6 @@ const models: Model[] = [
     type: "image",
   },
   {
-    id: "phoenix",
-    name: "Phoenix 1.0",
-    endpoint: "/api/models/phoenix",
-    icon: GiFire,
-    color: "from-red-500 to-orange-500",
-    type: "image",
-  },
-  {
     id: "kimi",
     name: "Kimi K2",
     endpoint: "/api/models/kimi",
@@ -115,6 +107,14 @@ const models: Model[] = [
     type: "text",
   },
   {
+    id: "phoenix",
+    name: "Phoenix 1.0",
+    endpoint: "/api/models/phoenix",
+    icon: GiFire,
+    color: "from-red-500 to-orange-500",
+    type: "image",
+  },
+  {
     id: "qwen3",
     name: "Qwen3 235B",
     endpoint: "/api/models/qwen3",
@@ -145,6 +145,14 @@ const models: Model[] = [
     icon: SiOpenai,
     color: "from-pink-500 to-rose-500",
     type: "text",
+  },
+  {
+    id: "lucid",
+    name: "Lucid Origin",
+    endpoint: "/api/models/lucid",
+    icon: SiImagedotsc,
+    color: "from-red-500 to-orange-500",
+    type: "image",
   },
   {
     id: "gemini",
@@ -359,6 +367,7 @@ export default function Chat() {
       compound: "bg-[#F55036]",
       llama: "bg-[#0668E1]",
       flux: "bg-purple-500",
+      lucid: "bg-teal-500",
       phoenix: "bg-orange-500",
       minimax: "bg-red-500"
     };
