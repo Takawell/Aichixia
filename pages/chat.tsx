@@ -123,14 +123,6 @@ const models: Model[] = [
     type: "text",
   },
   {
-    id: "kat",
-    name: "KAT Coder Pro",
-    endpoint: "/api/models/kat",
-    icon: FaCode,
-    color: "from-violet-500 to-purple-500",
-    type: "text",
-  },
-  {
     id: "llama",
     name: "Llama 3.3 70B",
     endpoint: "/api/models/llama",
@@ -345,7 +337,6 @@ export default function Chat() {
     if (!provider) return null;
 
     const colors: Record<string, string> = {
-      kat: "bg-violet-600",
       glm: "bg-[#1835D4]",
       kimi: "bg-[#0091FF]",
       mimo: "bg-[#FFB800]",
