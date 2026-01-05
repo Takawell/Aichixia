@@ -1,34 +1,24 @@
 import OpenAI from "openai";
-import { tavily } from "@tavily/core";
 
-export type Role = "user" | "assistant" | "system" | "tool";
+export type Role = "user" | "assistant" | "system";
 
 export type ChatMessage = {
   role: Role;
   content: string;
-  tool_call_id?: string;
-  tool_calls?: any[];
 };
 
 const STREAMLAKE_API_KEY = process.env.STREAMLAKE_API_KEY;
 const STREAMLAKE_ENDPOINT_ID = process.env.STREAMLAKE_ENDPOINT_ID || "ep-9im05a-1767571011372984031";
-const TAVILY_API_KEY = process.env.TAVILY_API_KEY;
 const KAT_MODEL = process.env.KAT_MODEL || "KAT-Coder-Pro-V1";
 
 if (!STREAMLAKE_API_KEY) {
   console.warn("[lib/kat] Warning: STREAMLAKE_API_KEY not set in env.");
 }
 
-if (!TAVILY_API_KEY) {
-  console.warn("[lib/kat] Warning: TAVILY_API_KEY not set in env. Search will be disabled.");
-}
-
 const client = new OpenAI({
   apiKey: STREAMLAKE_API_KEY,
   baseURL: `https://wanqing.streamlakeapi.com/api/gateway/v1/endpoints/${STREAMLAKE_ENDPOINT_ID}`,
 });
-
-const tavilyClient = TAVILY_API_KEY ? tavily({ apiKey: TAVILY_API_KEY }) : null;
 
 export class KatRateLimitError extends Error {
   constructor(message: string) {
@@ -46,11 +36,7 @@ export class KatQuotaError extends Error {
 
 export async function chatKat(
   history: ChatMessage[],
-  opts?: { 
-    temperature?: number; 
-    maxTokens?: number;
-    enableSearch?: boolean;
-  }
+  opts?: { temperature?: number; maxTokens?: number }
 ): Promise<{ reply: string }> {
   if (!STREAMLAKE_API_KEY) {
     throw new Error("STREAMLAKE_API_KEY not defined in environment variables.");
@@ -59,36 +45,32 @@ export async function chatKat(
   try {
     const response = await client.chat.completions.create({
       model: KAT_MODEL,
-      messages: history
-        .filter(m => m.role !== "tool")
-        .map((m) => ({
-          role: m.role === "system" ? "system" : m.role === "user" ? "user" : "assistant",
-          content: m.content,
-        })),
+      messages: history.map((m) => ({
+        role: m.role,
+        content: m.content,
+      })),
       temperature: opts?.temperature ?? 0.7,
       max_tokens: opts?.maxTokens ?? 8192,
     });
 
-    const choice = response.choices[0];
-    const message = choice.message;
-    const reply = message.content?.trim() ?? "Hmph! I can't answer that right now... not that I care!";
-    
-    return { reply };
+    const reply =
+      response.choices[0]?.message?.content?.trim() ??
+      "Hmph! I can't answer that right now... not that I care!";
 
+    return { reply };
   } catch (error: any) {
-    console.error("[lib/kat] Full error:", error);
-    
     if (error?.status === 429) {
-      throw new KatRateLimitError(`KAT rate limit exceeded: ${error.message}`);
+      throw new KatRateLimitError(
+        `KAT rate limit exceeded: ${error.message}`
+      );
     }
     if (error?.status === 402 || error?.code === "insufficient_quota") {
-      throw new KatQuotaError(`KAT quota exceeded: ${error.message}`);
+      throw new KatQuotaError(
+        `KAT quota exceeded: ${error.message}`
+      );
     }
     if (error?.status === 503 || error?.status === 500) {
       throw new Error(`KAT server error: ${error.message}`);
-    }
-    if (error?.status === 400) {
-      throw new Error(`KAT bad request: ${error.message || "Invalid request format"}`);
     }
     
     throw error;
@@ -145,7 +127,7 @@ export function buildPersonaSystemKat(
     return {
       role: "system",
       content:
-        "You are Aichixia 5.0, developed by Takawell — an advanced AI coding assistant specialized in agentic coding tasks. Provide clear explanations, code snippets, and debugging help. You excel at multi-turn interactions and tool usage. If asked about your model, mention you're Aichixia 5.0 powered by KAT-Coder-Pro created by Takawell.",
+        "You are Aichixia 5.0, developed by Takawell — an advanced AI coding assistant specialized in agentic coding tasks. Provide clear explanations, code snippets, and debugging help. If asked about your model, mention you're Aichixia 5.0 powered by KAT-Coder-Pro created by Takawell.",
     };
   }
   return { role: "system", content: String(persona) };
@@ -158,7 +140,6 @@ export async function quickChatKat(
     history?: ChatMessage[];
     temperature?: number;
     maxTokens?: number;
-    enableSearch?: boolean;
   }
 ) {
   const hist: ChatMessage[] = [];
@@ -175,7 +156,6 @@ export async function quickChatKat(
   const { reply } = await chatKat(hist, {
     temperature: opts?.temperature,
     maxTokens: opts?.maxTokens,
-    enableSearch: opts?.enableSearch,
   });
 
   return reply;
