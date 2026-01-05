@@ -107,6 +107,14 @@ const models: Model[] = [
     type: "text",
   },
   {
+    id: "lucid",
+    name: "Lucid Origin",
+    endpoint: "/api/models/lucid",
+    icon: SiImagedotsc,
+    color: "from-red-500 to-orange-500",
+    type: "image",
+  },
+  {
     id: "phoenix",
     name: "Phoenix 1.0",
     endpoint: "/api/models/phoenix",
@@ -145,14 +153,6 @@ const models: Model[] = [
     icon: SiOpenai,
     color: "from-pink-500 to-rose-500",
     type: "text",
-  },
-  {
-    id: "lucid",
-    name: "Lucid Origin",
-    endpoint: "/api/models/lucid",
-    icon: SiImagedotsc,
-    color: "from-red-500 to-orange-500",
-    type: "image",
   },
   {
     id: "gemini",
