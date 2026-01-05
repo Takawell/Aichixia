@@ -11,6 +11,7 @@ export type ChatMessage = {
 };
 
 const STREAMLAKE_API_KEY = process.env.STREAMLAKE_API_KEY;
+const STREAMLAKE_ENDPOINT_ID = process.env.STREAMLAKE_ENDPOINT_ID || "ep-9im05a-1767571011372984031";
 const TAVILY_API_KEY = process.env.TAVILY_API_KEY;
 const KAT_MODEL = process.env.KAT_MODEL || "KAT-Coder-Pro-V1";
 
@@ -24,7 +25,7 @@ if (!TAVILY_API_KEY) {
 
 const client = new OpenAI({
   apiKey: STREAMLAKE_API_KEY,
-  baseURL: "https://wanqing.streamlakeapi.com/v1",
+  baseURL: `https://wanqing.streamlakeapi.com/api/gateway/v1/endpoints/${STREAMLAKE_ENDPOINT_ID}`,
 });
 
 const tavilyClient = TAVILY_API_KEY ? tavily({ apiKey: TAVILY_API_KEY }) : null;
