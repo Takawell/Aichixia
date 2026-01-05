@@ -69,8 +69,10 @@ export async function generatePhoenix(
       throw new Error(`Phoenix API error: ${response.status} - ${errorText}`);
     }
 
-    const data = await response.json();
-    return { imageBase64: data.result.image };
+    const arrayBuffer = await response.arrayBuffer();
+    const base64 = Buffer.from(arrayBuffer).toString('base64');
+    
+    return { imageBase64: base64 };
   } catch (error: any) {
     if (error instanceof PhoenixRateLimitError || error instanceof PhoenixQuotaError) {
       throw error;
