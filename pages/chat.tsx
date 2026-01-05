@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { FaPaperPlane, FaTrash, FaUser, FaHome, FaCircle, FaChevronDown, FaAngry, FaSmile, FaBriefcase, FaHeart, FaFire, FaBook, FaQuestion, FaSearch, FaCode } from "react-icons/fa";
 import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiFlux, SiXiaomi, SiMaze, SiMatternet, } from "react-icons/si";
-import { GiSpermWhale, GiPowerLightning, GiBlackHoleBolas, GiClover, } from "react-icons/gi";
+import { GiSpermWhale, GiPowerLightning, GiBlackHoleBolas, GiClover, GiFire } from "react-icons/gi";
 import { TbSquareLetterZ, TbLetterM, } from "react-icons/tb";
 import Link from "next/link";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -72,6 +72,14 @@ const models: Model[] = [
     endpoint: "/api/models/flux",
     icon: SiFlux,
     color: "from-purple-500 to-pink-500",
+    type: "image",
+  },
+  {
+    id: "phoenix",
+    name: "Phoenix 1.0",
+    endpoint: "/api/models/phoenix",
+    icon: GiFire,
+    color: "from-red-500 to-orange-500",
     type: "image",
   },
   {
@@ -351,6 +359,7 @@ export default function Chat() {
       compound: "bg-[#F55036]",
       llama: "bg-[#0668E1]",
       flux: "bg-purple-500",
+      phoenix: "bg-orange-500",
       minimax: "bg-red-500"
     };
 
