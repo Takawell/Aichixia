@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { FaPaperPlane, FaTrash, FaUser, FaHome, FaCircle, FaChevronDown, FaAngry, FaSmile, FaBriefcase, FaHeart, FaFire, FaBook, FaQuestion, FaSearch } from "react-icons/fa";
+import { FaPaperPlane, FaTrash, FaUser, FaHome, FaCircle, FaChevronDown, FaAngry, FaSmile, FaBriefcase, FaHeart, FaFire, FaBook, FaQuestion, FaSearch, FaCode } from "react-icons/fa";
 import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiFlux, SiXiaomi, SiMaze, SiMatternet, } from "react-icons/si";
 import { GiSpermWhale, GiPowerLightning, GiBlackHoleBolas, GiClover, } from "react-icons/gi";
 import { TbSquareLetterZ, TbLetterM, } from "react-icons/tb";
@@ -120,6 +120,14 @@ const models: Model[] = [
     endpoint: "/api/models/minimax",
     icon: SiMaze,
     color: "from-cyan-500 to-blue-500",
+    type: "text",
+  },
+  {
+    id: "kat",
+    name: "KAT Coder Pro",
+    endpoint: "/api/models/kat",
+    icon: FaCode,
+    color: "from-violet-500 to-purple-500",
     type: "text",
   },
   {
@@ -337,6 +345,7 @@ export default function Chat() {
     if (!provider) return null;
 
     const colors: Record<string, string> = {
+      kat: "bg-violet-600",
       glm: "bg-[#1835D4]",
       kimi: "bg-[#0091FF]",
       mimo: "bg-[#FFB800]",
