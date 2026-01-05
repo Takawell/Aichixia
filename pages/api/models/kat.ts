@@ -35,11 +35,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const { message, history, persona, enableSearch } = req.body as {
+    const { message, history, persona } = req.body as {
       message: string;
       history?: { role: "user" | "assistant" | "system"; content: string }[];
       persona?: string;
-      enableSearch?: boolean;
     };
 
     if (!message || typeof message !== "string") {
@@ -53,15 +52,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     hist.unshift({ role: "system", content: systemPrompt });
     hist.push({ role: "user", content: message });
 
-    const result = await chatKat(hist, {
-      enableSearch: enableSearch !== false,
-    });
-
-    return res.status(200).json({ 
-      type: "ai", 
-      reply: result.reply, 
-      provider: "kat" 
-    });
+    const result = await chatKat(hist);
+    return res.status(200).json({ type: "ai", reply: result.reply, provider: "kat" });
 
   } catch (err: any) {
     console.error("KAT API error:", err.message);
