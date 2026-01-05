@@ -69,10 +69,16 @@ export async function generateLucid(
       throw new Error(`Lucid API error: ${response.status} - ${errorText}`);
     }
 
-    const arrayBuffer = await response.arrayBuffer();
-    const base64 = Buffer.from(arrayBuffer).toString('base64');
+    const contentType = response.headers.get('content-type');
     
-    return { imageBase64: base64 };
+    if (contentType?.includes('application/json')) {
+      const data = await response.json();
+      return { imageBase64: data.result.image };
+    } else {
+      const arrayBuffer = await response.arrayBuffer();
+      const base64 = Buffer.from(arrayBuffer).toString('base64');
+      return { imageBase64: base64 };
+    }
   } catch (error: any) {
     if (error instanceof LucidRateLimitError || error instanceof LucidQuotaError) {
       throw error;
