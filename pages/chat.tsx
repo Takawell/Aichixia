@@ -195,20 +195,20 @@ const models: Model[] = [
     type: "text",
   },
   {
-    id: "nano",
-    name: "Nano Banana Pro",
-    endpoint: "/api/models/nano",
-    icon: SiGooglegemini,
-    color: "from-yellow-400 to-orange-400",
-    type: "image",
-  },
-  {
     id: "claude",
     name: "Claude Haiku 4.5",
     endpoint: "/api/models/claude",
     icon: SiAnthropic,
     color: "from-orange-500 to-purple-500",
     type: "text",
+  },
+  {
+    id: "nano",
+    name: "Nano Banana Pro",
+    endpoint: "/api/models/nano",
+    icon: SiGooglegemini,
+    color: "from-yellow-400 to-orange-400",
+    type: "image",
   },
   {
     id: "qwen",
