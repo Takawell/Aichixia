@@ -28,6 +28,20 @@ export async function generateNano(
   }
 
   try {
+    const requestBody = {
+      contents: [
+        {
+          parts: [{ text: prompt }],
+        },
+      ],
+      generationConfig: {
+        responseModalities: ["IMAGE"],
+      },
+    };
+
+    console.log("[lib/nano] Request URL:", `https://generativelanguage.googleapis.com/v1beta/models/${NANO_MODEL}:generateContent`);
+    console.log("[lib/nano] Request body:", JSON.stringify(requestBody, null, 2));
+
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${NANO_MODEL}:generateContent`,
       {
@@ -36,41 +50,41 @@ export async function generateNano(
           "x-goog-api-key": GEMINI_API_KEY,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [{ text: prompt }],
-            },
-          ],
-          generationConfig: {
-            responseModalities: ["IMAGE"],
-          },
-        }),
+        body: JSON.stringify(requestBody),
       }
     );
 
+    console.log("[lib/nano] Response status:", response.status);
+    console.log("[lib/nano] Response headers:", Object.fromEntries(response.headers.entries()));
+
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error("[lib/nano] Error response body:", errorText);
+
       if (response.status === 429) {
-        throw new NanoRateLimitError("Nano Banana rate limit exceeded");
+        throw new NanoRateLimitError(`Nano Banana rate limit exceeded: ${errorText}`);
       }
       if (response.status === 402) {
-        throw new NanoQuotaError("Nano Banana quota exceeded");
+        throw new NanoQuotaError(`Nano Banana quota exceeded: ${errorText}`);
       }
-      const errorText = await response.text();
       throw new Error(`Nano Banana API error: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
+    console.log("[lib/nano] Success response:", JSON.stringify(data, null, 2));
+
     const imagePart = data.candidates?.[0]?.content?.parts?.find(
       (part: any) => part.inlineData
     );
 
     if (!imagePart?.inlineData?.data) {
+      console.error("[lib/nano] No image data found in response:", data);
       throw new Error("No image data in response");
     }
 
     return { imageBase64: imagePart.inlineData.data };
   } catch (error: any) {
+    console.error("[lib/nano] Caught error:", error);
     if (error instanceof NanoRateLimitError || error instanceof NanoQuotaError) {
       throw error;
     }
