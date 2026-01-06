@@ -1,5 +1,5 @@
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const NANO_MODEL = process.env.NANO_MODEL || "gemini-3-pro-image-preview";
+const NANO_MODEL = process.env.NANO_MODEL || "gemini-2.5-flash-image";
 
 if (!GEMINI_API_KEY) {
   console.warn("[lib/nano] Warning: GEMINI_API_KEY not set in env.");
