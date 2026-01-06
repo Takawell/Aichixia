@@ -27,22 +27,23 @@ export async function generateNano(
     throw new Error("GEMINI_API_KEY not defined in environment variables.");
   }
 
-  try {
-    const requestBody = {
-      contents: [
-        {
-          parts: [{ text: prompt }],
-        },
-      ],
-      generationConfig: {
-        responseModalities: ["IMAGE"],
+  const requestBody = {
+    contents: [
+      {
+        parts: [{ text: prompt }],
       },
-    };
+    ],
+    generationConfig: {
+      responseModalities: ["IMAGE"],
+    },
+  };
 
-    console.log("[lib/nano] Request URL:", `https://generativelanguage.googleapis.com/v1beta/models/${NANO_MODEL}:generateContent`);
-    console.log("[lib/nano] Request body:", JSON.stringify(requestBody, null, 2));
+  console.log("[lib/nano] Request URL:", `https://generativelanguage.googleapis.com/v1beta/models/${NANO_MODEL}:generateContent`);
+  console.log("[lib/nano] Request body:", JSON.stringify(requestBody, null, 2));
 
-    const response = await fetch(
+  let response;
+  try {
+    response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${NANO_MODEL}:generateContent`,
       {
         method: "POST",
@@ -53,43 +54,49 @@ export async function generateNano(
         body: JSON.stringify(requestBody),
       }
     );
-
-    console.log("[lib/nano] Response status:", response.status);
-    console.log("[lib/nano] Response headers:", Object.fromEntries(response.headers.entries()));
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("[lib/nano] Error response body:", errorText);
-
-      if (response.status === 429) {
-        throw new NanoRateLimitError(`Nano Banana rate limit exceeded: ${errorText}`);
-      }
-      if (response.status === 402) {
-        throw new NanoQuotaError(`Nano Banana quota exceeded: ${errorText}`);
-      }
-      throw new Error(`Nano Banana API error: ${response.status} - ${errorText}`);
-    }
-
-    const data = await response.json();
-    console.log("[lib/nano] Success response:", JSON.stringify(data, null, 2));
-
-    const imagePart = data.candidates?.[0]?.content?.parts?.find(
-      (part: any) => part.inlineData
-    );
-
-    if (!imagePart?.inlineData?.data) {
-      console.error("[lib/nano] No image data found in response:", data);
-      throw new Error("No image data in response");
-    }
-
-    return { imageBase64: imagePart.inlineData.data };
-  } catch (error: any) {
-    console.error("[lib/nano] Caught error:", error);
-    if (error instanceof NanoRateLimitError || error instanceof NanoQuotaError) {
-      throw error;
-    }
-    throw error;
+    console.log("[lib/nano] Fetch completed, status:", response.status);
+  } catch (fetchError: any) {
+    console.error("[lib/nano] Fetch failed:", fetchError.message);
+    throw new Error(`Network error: ${fetchError.message}`);
   }
+
+  console.log("[lib/nano] Response status:", response.status);
+  console.log("[lib/nano] Response headers:", Object.fromEntries(response.headers.entries()));
+
+  const responseText = await response.text();
+  console.log("[lib/nano] Response body (raw):", responseText);
+
+  if (!response.ok) {
+    console.error("[lib/nano] Error response:", responseText);
+
+    if (response.status === 429) {
+      throw new NanoRateLimitError(`Nano Banana rate limit exceeded: ${responseText}`);
+    }
+    if (response.status === 402) {
+      throw new NanoQuotaError(`Nano Banana quota exceeded: ${responseText}`);
+    }
+    throw new Error(`Nano Banana API error: ${response.status} - ${responseText}`);
+  }
+
+  let data;
+  try {
+    data = JSON.parse(responseText);
+    console.log("[lib/nano] Parsed response:", JSON.stringify(data, null, 2));
+  } catch (parseError) {
+    console.error("[lib/nano] JSON parse failed:", parseError);
+    throw new Error("Invalid JSON response from API");
+  }
+
+  const imagePart = data.candidates?.[0]?.content?.parts?.find(
+    (part: any) => part.inlineData
+  );
+
+  if (!imagePart?.inlineData?.data) {
+    console.error("[lib/nano] No image data found. Full response:", data);
+    throw new Error("No image data in response");
+  }
+
+  return { imageBase64: imagePart.inlineData.data };
 }
 
 export async function quickGenerateNano(prompt: string, opts?: { aspectRatio?: string }) {
