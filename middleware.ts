@@ -10,7 +10,7 @@ const redis = new Redis({
 
 const globalDayLimit = new Ratelimit({
   redis: redis,
-  limiter: Ratelimit.slidingWindow(100, "1 d"),
+  limiter: Ratelimit.slidingWindow(50, "1 d"),
   analytics: true,
   prefix: "ratelimit:global:day",
 });
@@ -60,7 +60,7 @@ export async function middleware(request: NextRequest) {
       {
         error: "Global API rate limit exceeded. All endpoints temporarily unavailable.",
         retryAfter: retryAfter,
-        limit: "100 requests per day (shared across all users)",
+        limit: "50 requests per day (shared across all users)",
         remaining: 0
       },
       {
