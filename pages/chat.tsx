@@ -195,6 +195,14 @@ const models: Model[] = [
     type: "text",
   },
   {
+    id: "nano",
+    name: "Nano Banana Pro",
+    endpoint: "/api/models/nano",
+    icon: SiGooglegemini,
+    color: "from-yellow-400 to-orange-400",
+    type: "image",
+  },
+  {
     id: "claude",
     name: "Claude Haiku 4.5",
     endpoint: "/api/models/claude",
@@ -355,6 +363,7 @@ export default function Chat() {
     const colors: Record<string, string> = {
       glm: "bg-[#1835D4]",
       kimi: "bg-[#0091FF]",
+      nano: "bg-[#BDAA5D]",
       mimo: "bg-[#FFB800]",
       openai: "bg-slate-800",
       gemini: "bg-blue-500",
