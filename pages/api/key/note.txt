@@ -1,0 +1,1 @@
+Want to try our premium models? You can get a free API key by simply opening an issue! I implemented this key system solely to prevent abuse and ensure fair usage for everyone.
