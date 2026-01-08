@@ -8,142 +8,238 @@ const redis = new Redis({
   token: process.env.UPSTASH_REDIS_REST_TOKEN!,
 });
 
-const globalDayLimit = new Ratelimit({
-  redis: redis,
-  limiter: Ratelimit.slidingWindow(50, "1 d"),
+const VALID_API_KEYS = new Set(
+  process.env.VALID_API_KEYS?.split(",").map(k => k.trim()).filter(Boolean) || []
+);
+
+const publicDayLimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(100, "1 d"),
   analytics: true,
-  prefix: "ratelimit:global:day",
+  prefix: "ratelimit:public:day",
 });
 
-const chatMinuteLimit = new Ratelimit({
-  redis: redis,
-  limiter: Ratelimit.slidingWindow(10, "1 m"),
+const publicMinuteLimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(20, "1 m"),
   analytics: true,
-  prefix: "ratelimit:chat:minute",
+  prefix: "ratelimit:public:minute",
 });
 
-const chatHourLimit = new Ratelimit({
-  redis: redis,
-  limiter: Ratelimit.slidingWindow(50, "1 h"),
+const premiumDayLimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(200, "1 d"),
   analytics: true,
-  prefix: "ratelimit:chat:hour",
+  prefix: "ratelimit:premium:day",
 });
 
-const modelsMinuteLimit = new Ratelimit({
-  redis: redis,
-  limiter: Ratelimit.slidingWindow(5, "1 m"),
+const premiumMinuteLimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(30, "1 m"),
   analytics: true,
-  prefix: "ratelimit:models:minute",
+  prefix: "ratelimit:premium:minute",
 });
 
-const modelsHourLimit = new Ratelimit({
-  redis: redis,
-  limiter: Ratelimit.slidingWindow(30, "1 h"),
+const premiumHourLimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(100, "1 h"),
   analytics: true,
-  prefix: "ratelimit:models:hour",
+  prefix: "ratelimit:premium:hour",
+});
+
+const premiumLoginAttempts = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(3, "15 m"),
+  analytics: true,
+  prefix: "ratelimit:premium:login",
 });
 
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
+  if (pathname.startsWith("/key/")) {
+    const apiKey = 
+      request.headers.get("x-api-key") || 
+      request.headers.get("authorization")?.replace("Bearer ", "");
+    
+    const ip = request.ip ?? request.headers.get("x-forwarded-for") ?? "anonymous";
+    
+    const loginAttemptCheck = await premiumLoginAttempts.limit(ip);
+    
+    if (!apiKey) {
+      return NextResponse.json(
+        { 
+          error: "Missing API key",
+          message: "x-api-key header or Authorization Bearer token required"
+        },
+        { status: 401 }
+      );
+    }
+
+    if (!VALID_API_KEYS.has(apiKey)) {
+      if (!loginAttemptCheck.success) {
+        return NextResponse.json(
+          {
+            error: "Too many invalid attempts",
+            message: "Temporarily blocked. Try again later.",
+            retryAfter: Math.floor((loginAttemptCheck.reset - Date.now()) / 1000)
+          },
+          { 
+            status: 429,
+            headers: {
+              "Retry-After": Math.floor((loginAttemptCheck.reset - Date.now()) / 1000).toString()
+            }
+          }
+        );
+      }
+      
+      return NextResponse.json(
+        { 
+          error: "Invalid API key",
+          message: "The provided API key is not valid"
+        },
+        { status: 401 }
+      );
+    }
+
+    const keyDayCheck = await premiumDayLimit.limit(apiKey);
+    if (!keyDayCheck.success) {
+      return NextResponse.json(
+        {
+          error: "Daily limit exceeded",
+          limit: "200 requests per day",
+          resetAt: new Date(keyDayCheck.reset).toISOString(),
+          remaining: 0
+        },
+        { 
+          status: 429,
+          headers: {
+            "X-RateLimit-Limit": "200",
+            "X-RateLimit-Remaining": "0",
+            "X-RateLimit-Reset": keyDayCheck.reset.toString(),
+            "Retry-After": Math.floor((keyDayCheck.reset - Date.now()) / 1000).toString()
+          }
+        }
+      );
+    }
+
+    const keyMinuteCheck = await premiumMinuteLimit.limit(apiKey);
+    if (!keyMinuteCheck.success) {
+      return NextResponse.json(
+        {
+          error: "Rate limit exceeded",
+          limit: "30 requests per minute",
+          resetAt: new Date(keyMinuteCheck.reset).toISOString(),
+          remaining: 0
+        },
+        { 
+          status: 429,
+          headers: {
+            "X-RateLimit-Limit": "30",
+            "X-RateLimit-Remaining": "0",
+            "X-RateLimit-Reset": keyMinuteCheck.reset.toString(),
+            "Retry-After": Math.floor((keyMinuteCheck.reset - Date.now()) / 1000).toString()
+          }
+        }
+      );
+    }
+
+    const keyHourCheck = await premiumHourLimit.limit(apiKey);
+    if (!keyHourCheck.success) {
+      return NextResponse.json(
+        {
+          error: "Hourly limit exceeded",
+          limit: "100 requests per hour",
+          resetAt: new Date(keyHourCheck.reset).toISOString(),
+          remaining: 0
+        },
+        { 
+          status: 429,
+          headers: {
+            "X-RateLimit-Limit": "100",
+            "X-RateLimit-Remaining": "0",
+            "X-RateLimit-Reset": keyHourCheck.reset.toString(),
+            "Retry-After": Math.floor((keyHourCheck.reset - Date.now()) / 1000).toString()
+          }
+        }
+      );
+    }
+
+    const response = NextResponse.next();
+    response.headers.set("X-RateLimit-Tier", "premium");
+    response.headers.set("X-RateLimit-Day-Remaining", keyDayCheck.remaining.toString());
+    response.headers.set("X-RateLimit-Day-Limit", "200");
+    response.headers.set("X-RateLimit-Minute-Remaining", keyMinuteCheck.remaining.toString());
+    response.headers.set("X-RateLimit-Minute-Limit", "30");
+    response.headers.set("X-RateLimit-Hour-Remaining", keyHourCheck.remaining.toString());
+    response.headers.set("X-RateLimit-Hour-Limit", "100");
+    return response;
+  }
+
   if (!pathname.startsWith("/api/chat") && !pathname.startsWith("/api/models")) {
     return NextResponse.next();
   }
 
-  const GLOBAL_KEY = "api-total-usage";
-
-  const globalCheck = await globalDayLimit.limit(GLOBAL_KEY);
-
-  if (!globalCheck.success) {
-    const retryAfter = Math.floor((globalCheck.reset - Date.now()) / 1000);
-    return NextResponse.json(
-      {
-        error: "Global API rate limit exceeded. All endpoints temporarily unavailable.",
-        retryAfter: retryAfter,
-        limit: "50 requests per day (shared across all users)",
-        remaining: 0
-      },
-      {
-        status: 429,
-        headers: {
-          "X-RateLimit-Global-Limit": globalCheck.limit.toString(),
-          "X-RateLimit-Global-Remaining": globalCheck.remaining.toString(),
-          "X-RateLimit-Global-Reset": globalCheck.reset.toString(),
-          "Retry-After": retryAfter.toString(),
-        },
-      }
-    );
-  }
-
   const ip = request.ip ?? request.headers.get("x-forwarded-for") ?? "anonymous";
-  const identifier = ip;
 
-  let minuteCheck, hourCheck;
-
-  if (pathname.startsWith("/api/chat")) {
-    minuteCheck = await chatMinuteLimit.limit(identifier);
-    hourCheck = await chatHourLimit.limit(identifier);
-  } else {
-    minuteCheck = await modelsMinuteLimit.limit(identifier);
-    hourCheck = await modelsHourLimit.limit(identifier);
-  }
-
-  if (!minuteCheck.success) {
-    const retryAfter = Math.floor((minuteCheck.reset - Date.now()) / 1000);
+  const dayCheck = await publicDayLimit.limit(ip);
+  if (!dayCheck.success) {
     return NextResponse.json(
       {
-        error: "API rate limit exceeded. Service temporarily unavailable.",
-        retryAfter: retryAfter,
-        limit: `${minuteCheck.limit} requests per minute`,
+        error: "Daily rate limit exceeded",
+        message: "Public API limit reached. Consider using premium endpoints for higher limits.",
+        limit: "100 requests per day",
+        resetAt: new Date(dayCheck.reset).toISOString(),
         remaining: 0
       },
-      {
+      { 
         status: 429,
         headers: {
-          "X-RateLimit-Limit": minuteCheck.limit.toString(),
-          "X-RateLimit-Remaining": minuteCheck.remaining.toString(),
-          "X-RateLimit-Reset": minuteCheck.reset.toString(),
-          "Retry-After": retryAfter.toString(),
-        },
+          "X-RateLimit-Tier": "public",
+          "X-RateLimit-Limit": "100",
+          "X-RateLimit-Remaining": "0",
+          "X-RateLimit-Reset": dayCheck.reset.toString(),
+          "Retry-After": Math.floor((dayCheck.reset - Date.now()) / 1000).toString()
+        }
       }
     );
   }
 
-  if (!hourCheck.success) {
-    const retryAfter = Math.floor((hourCheck.reset - Date.now()) / 1000);
+  const minuteCheck = await publicMinuteLimit.limit(ip);
+  if (!minuteCheck.success) {
     return NextResponse.json(
       {
-        error: "API rate limit exceeded. Service temporarily unavailable.",
-        retryAfter: retryAfter,
-        limit: `${hourCheck.limit} requests per hour`,
+        error: "Rate limit exceeded",
+        limit: "20 requests per minute",
+        resetAt: new Date(minuteCheck.reset).toISOString(),
         remaining: 0
       },
-      {
+      { 
         status: 429,
         headers: {
-          "X-RateLimit-Limit": hourCheck.limit.toString(),
-          "X-RateLimit-Remaining": hourCheck.remaining.toString(),
-          "X-RateLimit-Reset": hourCheck.reset.toString(),
-          "Retry-After": retryAfter.toString(),
-        },
+          "X-RateLimit-Limit": "20",
+          "X-RateLimit-Remaining": "0",
+          "X-RateLimit-Reset": minuteCheck.reset.toString(),
+          "Retry-After": Math.floor((minuteCheck.reset - Date.now()) / 1000).toString()
+        }
       }
     );
   }
 
   const response = NextResponse.next();
-  response.headers.set("X-RateLimit-Global-Limit", globalCheck.limit.toString());
-  response.headers.set("X-RateLimit-Global-Remaining", globalCheck.remaining.toString());
-  response.headers.set("X-RateLimit-Limit-Minute", minuteCheck.limit.toString());
-  response.headers.set("X-RateLimit-Remaining-Minute", minuteCheck.remaining.toString());
-  response.headers.set("X-RateLimit-Limit-Hour", hourCheck.limit.toString());
-  response.headers.set("X-RateLimit-Remaining-Hour", hourCheck.remaining.toString());
-
+  response.headers.set("X-RateLimit-Tier", "public");
+  response.headers.set("X-RateLimit-Day-Remaining", dayCheck.remaining.toString());
+  response.headers.set("X-RateLimit-Day-Limit", "100");
+  response.headers.set("X-RateLimit-Minute-Remaining", minuteCheck.remaining.toString());
+  response.headers.set("X-RateLimit-Minute-Limit", "20");
+  
   return response;
 }
 
 export const config = {
   matcher: [
     "/api/chat/:path*",
-    "/api/models/:path*"
+    "/api/models/:path*",
+    "/key/:path*"
   ],
 };
