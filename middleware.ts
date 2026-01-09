@@ -8,6 +8,10 @@ const redis = new Redis({
   token: process.env.UPSTASH_REDIS_REST_TOKEN!,
 });
 
+const BLOCKED_IPS = process.env.BLOCKED_IPS 
+  ? process.env.BLOCKED_IPS.split(',').map(ip => ip.trim())
+  : [];
+
 const globalDayLimit = new Ratelimit({
   redis: redis,
   limiter: Ratelimit.slidingWindow(50, "1 d"),
@@ -52,6 +56,17 @@ export async function middleware(request: NextRequest) {
 
   const ip = request.ip ?? request.headers.get("x-forwarded-for") ?? "anonymous";
   const timestamp = new Date().toISOString();
+
+  if (BLOCKED_IPS.includes(ip)) {
+    console.log(`[${timestamp}] PERMANENTLY BLOCKED - IP: ${ip}, Path: ${pathname}, Reason: IP Blacklisted`);
+    return NextResponse.json(
+      { 
+        error: "Access denied. Your IP has been blocked due to policy violation.",
+        blocked: true 
+      },
+      { status: 403 }
+    );
+  }
 
   console.log(`[${timestamp}] API Access - IP: ${ip}, Path: ${pathname}`);
 
