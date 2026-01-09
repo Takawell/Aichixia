@@ -50,12 +50,18 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  const ip = request.ip ?? request.headers.get("x-forwarded-for") ?? "anonymous";
+  const timestamp = new Date().toISOString();
+
+  console.log(`[${timestamp}] API Access - IP: ${ip}, Path: ${pathname}`);
+
   const GLOBAL_KEY = "api-total-usage";
 
   const globalCheck = await globalDayLimit.limit(GLOBAL_KEY);
 
   if (!globalCheck.success) {
     const retryAfter = Math.floor((globalCheck.reset - Date.now()) / 1000);
+    console.log(`[${timestamp}] BLOCKED (Global Limit) - IP: ${ip}, Path: ${pathname}, Retry After: ${retryAfter}s`);
     return NextResponse.json(
       {
         error: "Global API rate limit exceeded. All endpoints temporarily unavailable.",
@@ -75,7 +81,6 @@ export async function middleware(request: NextRequest) {
     );
   }
 
-  const ip = request.ip ?? request.headers.get("x-forwarded-for") ?? "anonymous";
   const identifier = ip;
 
   let minuteCheck, hourCheck;
@@ -90,6 +95,7 @@ export async function middleware(request: NextRequest) {
 
   if (!minuteCheck.success) {
     const retryAfter = Math.floor((minuteCheck.reset - Date.now()) / 1000);
+    console.log(`[${timestamp}] BLOCKED (Minute Limit) - IP: ${ip}, Path: ${pathname}, Retry After: ${retryAfter}s`);
     return NextResponse.json(
       {
         error: "API rate limit exceeded. Service temporarily unavailable.",
@@ -111,6 +117,7 @@ export async function middleware(request: NextRequest) {
 
   if (!hourCheck.success) {
     const retryAfter = Math.floor((hourCheck.reset - Date.now()) / 1000);
+    console.log(`[${timestamp}] BLOCKED (Hour Limit) - IP: ${ip}, Path: ${pathname}, Retry After: ${retryAfter}s`);
     return NextResponse.json(
       {
         error: "API rate limit exceeded. Service temporarily unavailable.",
@@ -129,6 +136,8 @@ export async function middleware(request: NextRequest) {
       }
     );
   }
+
+  console.log(`[${timestamp}] ALLOWED - IP: ${ip}, Path: ${pathname}, Global Remaining: ${globalCheck.remaining}, Minute Remaining: ${minuteCheck.remaining}, Hour Remaining: ${hourCheck.remaining}`);
 
   const response = NextResponse.next();
   response.headers.set("X-RateLimit-Global-Limit", globalCheck.limit.toString());
