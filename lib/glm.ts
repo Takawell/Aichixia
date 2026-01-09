@@ -12,7 +12,7 @@ export type ChatMessage = {
 
 const CEREBRAS_API_KEY = process.env.CEREBRAS_API_KEY;
 const TAVILY_API_KEY = process.env.TAVILY_API_KEY;
-const GLM_MODEL = process.env.GLM_MODEL || "zai-glm-4.6";
+const GLM_MODEL = process.env.GLM_MODEL || "zai-glm-4.7";
 
 if (!CEREBRAS_API_KEY) {
   console.warn("[lib/glm] Warning: CEREBRAS_API_KEY not set in env.");
