@@ -84,7 +84,7 @@ const models: Model[] = [
   },
   {
     id: "glm",
-    name: "GLM 4.6",
+    name: "GLM 4.7",
     endpoint: "/api/models/glm",
     icon: TbSquareLetterZ,
     color: "from-[#1835D4] to-[#010B24]",
