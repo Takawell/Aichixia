@@ -100,7 +100,7 @@ const models: Model[] = [
   },
   {
     id: "gpt4mini",
-    name: "GPT-4 Mini",
+    name: "GPT-5 Mini",
     endpoint: "/api/models/openai",
     icon: SiOpenai,
     color: "from-green-500 to-emerald-500",
