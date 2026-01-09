@@ -8,7 +8,7 @@ export type ChatMessage = {
 };
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4o-mini";
+const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-5-mini";
 
 if (!OPENAI_API_KEY) {
   console.warn("[lib/openai] Warning: OPENAI_API_KEY not set in env.");
