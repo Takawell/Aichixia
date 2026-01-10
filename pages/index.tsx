@@ -3,6 +3,7 @@ import { FaBookOpen, FaFilm, FaComments, FaTerminal, FaCheckCircle, FaTimesCircl
 import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiFlux, SiXiaomi, SiMaze, SiImagedotsc } from "react-icons/si";
 import { GiSpermWhale, GiPowerLightning, GiBlackHoleBolas, GiClover, GiFire } from "react-icons/gi";
 import { TbSquareLetterZ, TbLetterM } from "react-icons/tb";
+import { FaXTwitter } from "react-icons/fa6";
 import ThemeToggle from "@/components/ThemeToggle";
 import Link from "next/link";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -698,7 +699,7 @@ const response = await client.chat.completions.create({
                 <div className="flex items-start gap-2 p-3 bg-sky-50 dark:bg-sky-950/30 rounded-lg border border-sky-200 dark:border-sky-900">
                   <FaShieldAlt className="text-sky-500 dark:text-sky-400 mt-0.5 flex-shrink-0" size={14} />
                   <p className="text-xs sm:text-sm text-sky-700 dark:text-sky-300">
-                    Get your API key from the <Link href="/auth/login" className="font-bold underline">console</Link> to start using authenticated endpoints with rate limiting and usage tracking.
+                    Get your API key from the <Link href="/console" className="font-bold underline">console</Link> to start using authenticated endpoints with rate limiting and usage tracking.
                   </p>
                 </div>
               </div>
@@ -846,16 +847,7 @@ const response = await client.chat.completions.create({
               <div className="p-2 sm:p-3 bg-gradient-to-br from-sky-400 to-blue-500 rounded-lg sm:rounded-xl shadow-lg shadow-sky-400/30">
                 <FaComments className="text-white" size={20} />
               </div>
-              <h2 className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white">AI Chat (Legacy)</h2>
-            </div>
-
-            <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900 rounded-lg p-4 mb-4">
-              <div className="flex items-start gap-2 sm:gap-3">
-                <FaInfoCircle className="text-amber-600 dark:text-amber-400 mt-0.5" size={16} />
-                <p className="text-xs sm:text-sm text-amber-800 dark:text-amber-300">
-                  <strong>Note:</strong> This endpoint is maintained for backward compatibility. We recommend using <code className="bg-amber-100 dark:bg-amber-900/30 px-1.5 py-0.5 rounded text-amber-700 dark:text-amber-400">/api/v1/chat/completions</code> for new projects.
-                </p>
-              </div>
+              <h2 className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white">AI Chat</h2>
             </div>
             
             <Row 
@@ -894,16 +886,7 @@ const response = await client.chat.completions.create({
               <div className="p-2 sm:p-3 bg-gradient-to-br from-sky-400 to-blue-500 rounded-lg sm:rounded-xl shadow-lg shadow-sky-400/30">
                 <FaRobot className="text-white" size={20} />
               </div>
-              <h2 className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white">AI Models (Legacy)</h2>
-            </div>
-
-            <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900 rounded-lg p-4 mb-6">
-              <div className="flex items-start gap-2 sm:gap-3">
-                <FaInfoCircle className="text-amber-600 dark:text-amber-400 mt-0.5" size={16} />
-                <p className="text-xs sm:text-sm text-amber-800 dark:text-amber-300">
-                  <strong>Legacy endpoints:</strong> These endpoints are maintained for backward compatibility. For new integrations, use <code className="bg-amber-100 dark:bg-amber-900/30 px-1.5 py-0.5 rounded text-amber-700 dark:text-amber-400">/api/v1/chat/completions</code> with the model parameter.
-                </p>
-              </div>
+              <h2 className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white">AI Models</h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8">
@@ -1052,7 +1035,7 @@ const response = await client.chat.completions.create({
                 quality={4}
               />
               <ModelCard
-                icon={GiBlackHoleBolas}
+                icon={FaXTwitter}
                 name="Grok 3"
                 endpoint="/api/models/grok"
                 color="from-slate-600 to-zinc-800"
@@ -1136,7 +1119,7 @@ const response = await client.chat.completions.create({
                   <div>
                     <strong className="text-zinc-900 dark:text-white block mb-1 sm:mb-2 text-xs sm:text-sm font-bold">Authentication:</strong>
                     <span className="text-zinc-600 dark:text-zinc-400 text-xs sm:text-sm">
-                      Get your API key from the <Link href="/auth/login" className="text-sky-600 dark:text-sky-400 font-semibold hover:underline">console</Link>. Use header: <code className="bg-sky-100 dark:bg-sky-950/30 px-1.5 py-0.5 rounded text-sky-600 dark:text-sky-400 font-mono text-[10px]">Authorization: Bearer YOUR_KEY</code>
+                      Get your API key from the <Link href="/console" className="text-sky-600 dark:text-sky-400 font-semibold hover:underline">console</Link>. Use header: <code className="bg-sky-100 dark:bg-sky-950/30 px-1.5 py-0.5 rounded text-sky-600 dark:text-sky-400 font-mono text-[10px]">Authorization: Bearer YOUR_KEY</code>
                     </span>
                   </div>
                 </div>
@@ -1222,7 +1205,7 @@ const response = await client.chat.completions.create({
             
             <div className="flex items-center gap-4 sm:gap-6">
               <Link 
-                href="/auth/login"
+                href="/console"
                 className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400 hover:text-sky-500 dark:hover:text-sky-400 transition-colors duration-200 text-sm font-semibold"
               >
                 <FaKey size={16} />
