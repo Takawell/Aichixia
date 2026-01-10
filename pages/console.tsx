@@ -75,7 +75,7 @@ export default function Console() {
   const checkUser = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
-      window.location.href = '/login';
+      window.location.href = '/auth/login';
       return;
     }
     setUser(session.user);
@@ -202,7 +202,7 @@ export default function Console() {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    window.location.href = '/auth/login';
+    window.location.href = '/login';
   };
 
   const chartData = usageData.map(d => ({
@@ -533,7 +533,8 @@ export default function Console() {
                               <span className="hidden lg:inline">Revoke</span>
                             </button>
                           </div>
-                          </div>
+                        </div>
+                      </div>
                     ))
                   )}
                 </div>
