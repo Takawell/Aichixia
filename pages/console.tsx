@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { FiKey, FiActivity, FiSettings, FiLogOut, FiCopy, FiTrash2, FiPlus, FiCheck, FiX, FiEdit2, FiSave, FiMenu, FiSun, FiMoon, FiAlertCircle, FiCheckCircle, FiClock, FiTrendingUp, FiUsers, FiZap, FiLock } from 'react-icons/fi';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import { FiKey, FiActivity, FiSettings, FiLogOut, FiCopy, FiTrash2, FiPlus, FiCheck, FiX, FiEdit2, FiSave, FiMenu, FiAlertCircle, FiCheckCircle, FiClock, FiTrendingUp, FiZap } from 'react-icons/fi';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import ThemeToggle from '@/components/ThemeToggle';
 
 type ApiKey = {
   id: string;
@@ -60,7 +61,6 @@ export default function Console() {
   const [editingName, setEditingName] = useState('');
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-  const [darkMode, setDarkMode] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'keys' | 'activity' | 'settings'>('overview');
 
@@ -211,72 +211,72 @@ export default function Console() {
   }));
 
   return (
-    <div className={`min-h-screen ${darkMode ? 'dark bg-slate-950' : 'bg-slate-50'}`}>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
       <div className="flex h-screen overflow-hidden">
-        <aside className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-transform duration-300`}>
+        <aside className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg border-r border-slate-200 dark:border-slate-700 transition-transform duration-300`}>
           <div className="flex flex-col h-full">
-            <div className="p-6 border-b border-slate-200 dark:border-slate-800">
+            <div className="p-4 sm:p-6 border-b border-slate-200 dark:border-slate-700">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                <div className="w-10 h-10 bg-gradient-to-br from-sky-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
                   <FiZap className="text-white text-xl" />
                 </div>
                 <div>
-                  <h1 className="text-lg font-bold text-slate-900 dark:text-white">Aichixia</h1>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">API Console</p>
+                  <h1 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">Aichixia</h1>
+                  <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400">API Console</p>
                 </div>
               </div>
             </div>
 
-            <nav className="flex-1 p-4 space-y-2">
+            <nav className="flex-1 p-3 sm:p-4 space-y-1 sm:space-y-2">
               <button
                 onClick={() => { setActiveTab('overview'); setSidebarOpen(false); }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${activeTab === 'overview' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                className={`w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-lg transition-all text-sm sm:text-base ${activeTab === 'overview' ? 'bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50'}`}
               >
-                <FiTrendingUp className="text-lg" />
+                <FiTrendingUp className="text-base sm:text-lg" />
                 <span className="font-medium">Overview</span>
               </button>
 
               <button
                 onClick={() => { setActiveTab('keys'); setSidebarOpen(false); }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${activeTab === 'keys' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                className={`w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-lg transition-all text-sm sm:text-base ${activeTab === 'keys' ? 'bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50'}`}
               >
-                <FiKey className="text-lg" />
+                <FiKey className="text-base sm:text-lg" />
                 <span className="font-medium">API Keys</span>
               </button>
 
               <button
                 onClick={() => { setActiveTab('activity'); setSidebarOpen(false); }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${activeTab === 'activity' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                className={`w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-lg transition-all text-sm sm:text-base ${activeTab === 'activity' ? 'bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50'}`}
               >
-                <FiActivity className="text-lg" />
+                <FiActivity className="text-base sm:text-lg" />
                 <span className="font-medium">Activity</span>
               </button>
 
               <button
                 onClick={() => { setActiveTab('settings'); setSidebarOpen(false); }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${activeTab === 'settings' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                className={`w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-lg transition-all text-sm sm:text-base ${activeTab === 'settings' ? 'bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50'}`}
               >
-                <FiSettings className="text-lg" />
+                <FiSettings className="text-base sm:text-lg" />
                 <span className="font-medium">Settings</span>
               </button>
             </nav>
 
-            <div className="p-4 border-t border-slate-200 dark:border-slate-800">
-              <div className="flex items-center gap-3 mb-4 px-4 py-3 bg-slate-100 dark:bg-slate-800 rounded-lg">
-                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold">
+            <div className="p-3 sm:p-4 border-t border-slate-200 dark:border-slate-700">
+              <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4 px-3 sm:px-4 py-2 sm:py-3 bg-slate-100 dark:bg-slate-700/50 rounded-lg">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-sky-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm sm:text-base">
                   {user?.email?.[0]?.toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{user?.email}</p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Free Plan</p>
+                  <p className="text-xs sm:text-sm font-medium text-slate-800 dark:text-white truncate">{user?.email}</p>
+                  <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400">Free Plan</p>
                 </div>
               </div>
 
               <button
                 onClick={handleSignOut}
-                className="w-full flex items-center gap-3 px-4 py-3 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
+                className="w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all text-sm sm:text-base"
               >
-                <FiLogOut className="text-lg" />
+                <FiLogOut className="text-base sm:text-lg" />
                 <span className="font-medium">Sign Out</span>
               </button>
             </div>
@@ -284,74 +284,71 @@ export default function Console() {
         </aside>
 
         <div className="flex-1 flex flex-col overflow-hidden">
-          <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 lg:px-8 py-4">
+          <header className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg border-b border-slate-200 dark:border-slate-700 px-3 sm:px-4 lg:px-8 py-3 sm:py-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
                 <button
                   onClick={() => setSidebarOpen(!sidebarOpen)}
-                  className="lg:hidden p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                  className="lg:hidden p-2 hover:bg-slate-100 dark:hover:bg-slate-700/50 rounded-lg transition-colors"
                 >
-                  <FiMenu className="text-xl text-slate-600 dark:text-slate-400" />
+                  <FiMenu className="text-lg sm:text-xl text-slate-600 dark:text-slate-400" />
                 </button>
-                <div>
-                  <h2 className="text-xl lg:text-2xl font-bold text-slate-900 dark:text-white">
+                <div className="min-w-0">
+                  <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-slate-800 dark:text-white truncate">
                     {activeTab === 'overview' && 'Dashboard Overview'}
                     {activeTab === 'keys' && 'API Keys'}
                     {activeTab === 'activity' && 'Recent Activity'}
                     {activeTab === 'settings' && 'Settings'}
                   </h2>
-                  <p className="text-sm text-slate-500 dark:text-slate-400">
-                    {activeTab === 'overview' && 'Monitor your API usage and performance'}
+                  <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 truncate">
+                    {activeTab === 'overview' && 'Monitor your API usage'}
                     {activeTab === 'keys' && 'Manage your API keys'}
-                    {activeTab === 'activity' && 'View recent API requests'}
+                    {activeTab === 'activity' && 'View recent requests'}
                     {activeTab === 'settings' && 'Configure your account'}
                   </p>
                 </div>
               </div>
 
-              <button
-                onClick={() => setDarkMode(!darkMode)}
-                className="p-3 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-              >
-                {darkMode ? <FiSun className="text-xl text-yellow-500" /> : <FiMoon className="text-xl text-slate-600" />}
-              </button>
+              <div className="flex-shrink-0">
+                <ThemeToggle />
+              </div>
             </div>
           </header>
 
-          <main className="flex-1 overflow-y-auto p-4 lg:p-8">
+          <main className="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-8">
             {activeTab === 'overview' && (
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 hover:shadow-lg transition-shadow">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                        <FiActivity className="text-2xl text-blue-600 dark:text-blue-400" />
+              <div className="space-y-4 sm:space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
+                  <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6 hover:shadow-lg transition-shadow">
+                    <div className="flex items-center justify-between mb-3 sm:mb-4">
+                      <div className="p-2 sm:p-3 bg-sky-50 dark:bg-sky-900/20 rounded-lg">
+                        <FiActivity className="text-xl sm:text-2xl text-sky-600 dark:text-sky-400" />
                       </div>
-                      <span className="text-xs font-medium text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-full">Live</span>
+                      <span className="text-[10px] sm:text-xs font-medium text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-full">Live</span>
                     </div>
-                    <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Total Requests</h3>
-                    <p className="text-3xl font-bold text-slate-900 dark:text-white">{stats.totalRequests.toLocaleString()}</p>
+                    <h3 className="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Total Requests</h3>
+                    <p className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-white">{stats.totalRequests.toLocaleString()}</p>
                   </div>
 
-                  <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 hover:shadow-lg transition-shadow">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                        <FiKey className="text-2xl text-purple-600 dark:text-purple-400" />
+                  <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6 hover:shadow-lg transition-shadow">
+                    <div className="flex items-center justify-between mb-3 sm:mb-4">
+                      <div className="p-2 sm:p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                        <FiKey className="text-xl sm:text-2xl text-purple-600 dark:text-purple-400" />
                       </div>
                     </div>
-                    <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Active Keys</h3>
-                    <p className="text-3xl font-bold text-slate-900 dark:text-white">{stats.activeKeys}</p>
+                    <h3 className="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Active Keys</h3>
+                    <p className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-white">{stats.activeKeys}</p>
                   </div>
 
-                  <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 hover:shadow-lg transition-shadow">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
-                        <FiZap className="text-2xl text-orange-600 dark:text-orange-400" />
+                  <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6 hover:shadow-lg transition-shadow">
+                    <div className="flex items-center justify-between mb-3 sm:mb-4">
+                      <div className="p-2 sm:p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                        <FiZap className="text-xl sm:text-2xl text-orange-600 dark:text-orange-400" />
                       </div>
                     </div>
-                    <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Rate Limit</h3>
+                    <h3 className="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Rate Limit</h3>
                     <div className="flex items-end gap-2">
-                      <p className="text-3xl font-bold text-slate-900 dark:text-white">{stats.rateLimitUsage}%</p>
+                      <p className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-white">{stats.rateLimitUsage}%</p>
                       <div className="flex-1 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden mb-2">
                         <div
                           className={`h-full rounded-full transition-all ${stats.rateLimitUsage > 80 ? 'bg-red-500' : stats.rateLimitUsage > 50 ? 'bg-orange-500' : 'bg-green-500'}`}
@@ -362,59 +359,60 @@ export default function Console() {
                   </div>
                 </div>
 
-                <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">Usage Over Time</h3>
-                  <ResponsiveContainer width="100%" height={300}>
+                <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
+                  <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white mb-4 sm:mb-6">Usage Over Time</h3>
+                  <ResponsiveContainer width="100%" height={250}>
                     <AreaChart data={chartData}>
                       <defs>
                         <linearGradient id="colorRequests" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                          <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                          <stop offset="5%" stopColor="#0ea5e9" stopOpacity={0.3}/>
+                          <stop offset="95%" stopColor="#0ea5e9" stopOpacity={0}/>
                         </linearGradient>
                       </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? '#1e293b' : '#e2e8f0'} />
-                      <XAxis dataKey="date" stroke={darkMode ? '#64748b' : '#94a3b8'} />
-                      <YAxis stroke={darkMode ? '#64748b' : '#94a3b8'} />
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-700" />
+                      <XAxis dataKey="date" className="text-xs fill-slate-600 dark:fill-slate-400" />
+                      <YAxis className="text-xs fill-slate-600 dark:fill-slate-400" />
                       <Tooltip
                         contentStyle={{
-                          backgroundColor: darkMode ? '#0f172a' : '#ffffff',
-                          border: `1px solid ${darkMode ? '#1e293b' : '#e2e8f0'}`,
+                          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                          border: '1px solid #e2e8f0',
                           borderRadius: '8px',
                         }}
+                        wrapperClassName="dark:bg-slate-800 dark:border-slate-700"
                       />
-                      <Area type="monotone" dataKey="requests" stroke="#3b82f6" fillOpacity={1} fill="url(#colorRequests)" />
+                      <Area type="monotone" dataKey="requests" stroke="#0ea5e9" fillOpacity={1} fill="url(#colorRequests)" />
                     </AreaChart>
                   </ResponsiveContainer>
                 </div>
 
-                <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">Quick Actions</h3>
+                <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
+                  <div className="flex items-center justify-between mb-4 sm:mb-6">
+                    <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">Quick Actions</h3>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <button
                       onClick={() => { setActiveTab('keys'); setShowCreateModal(true); }}
-                      className="flex items-center gap-4 p-4 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-lg hover:border-blue-500 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-all group"
+                      className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg hover:border-sky-500 dark:hover:border-sky-500 hover:bg-sky-50 dark:hover:bg-sky-900/10 transition-all group"
                     >
-                      <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg group-hover:scale-110 transition-transform">
-                        <FiPlus className="text-xl text-blue-600 dark:text-blue-400" />
+                      <div className="p-2 sm:p-3 bg-sky-50 dark:bg-sky-900/20 rounded-lg group-hover:scale-110 transition-transform">
+                        <FiPlus className="text-lg sm:text-xl text-sky-600 dark:text-sky-400" />
                       </div>
                       <div className="text-left">
-                        <p className="font-semibold text-slate-900 dark:text-white">Create API Key</p>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">Generate a new API key</p>
+                        <p className="text-sm sm:text-base font-semibold text-slate-800 dark:text-white">Create API Key</p>
+                        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">Generate a new key</p>
                       </div>
                     </button>
 
                     <button
                       onClick={() => setActiveTab('activity')}
-                      className="flex items-center gap-4 p-4 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-lg hover:border-purple-500 dark:hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/10 transition-all group"
+                      className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg hover:border-purple-500 dark:hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/10 transition-all group"
                     >
-                      <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg group-hover:scale-110 transition-transform">
-                        <FiActivity className="text-xl text-purple-600 dark:text-purple-400" />
+                      <div className="p-2 sm:p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg group-hover:scale-110 transition-transform">
+                        <FiActivity className="text-lg sm:text-xl text-purple-600 dark:text-purple-400" />
                       </div>
                       <div className="text-left">
-                        <p className="font-semibold text-slate-900 dark:text-white">View Activity</p>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">Check recent requests</p>
+                        <p className="text-sm sm:text-base font-semibold text-slate-800 dark:text-white">View Activity</p>
+                        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">Check recent requests</p>
                       </div>
                     </button>
                   </div>
@@ -423,38 +421,38 @@ export default function Console() {
             )}
 
             {activeTab === 'keys' && (
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 <div className="flex justify-end">
                   <button
                     onClick={() => setShowCreateModal(true)}
-                    className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg font-medium shadow-lg hover:shadow-xl transition-all"
+                    className="flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white rounded-lg font-medium shadow-lg hover:shadow-xl transition-all text-sm sm:text-base"
                   >
-                    <FiPlus className="text-lg" />
+                    <FiPlus className="text-base sm:text-lg" />
                     Create New Key
                   </button>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   {keys.length === 0 ? (
-                    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-12 text-center">
-                      <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <FiKey className="text-3xl text-slate-400" />
+                    <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl border border-slate-200 dark:border-slate-700 p-8 sm:p-12 text-center">
+                      <div className="w-12 h-12 sm:w-16 sm:h-16 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                        <FiKey className="text-2xl sm:text-3xl text-slate-400" />
                       </div>
-                      <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">No API Keys Yet</h3>
-                      <p className="text-slate-500 dark:text-slate-400 mb-6">Create your first API key to get started</p>
+                      <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white mb-2">No API Keys Yet</h3>
+                      <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 mb-4 sm:mb-6">Create your first API key to get started</p>
                       <button
                         onClick={() => setShowCreateModal(true)}
-                        className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+                        className="px-4 sm:px-6 py-2 sm:py-3 bg-sky-600 hover:bg-sky-700 text-white rounded-lg font-medium transition-colors text-sm sm:text-base"
                       >
                         Create API Key
                       </button>
                     </div>
                   ) : (
                     keys.map((key) => (
-                      <div key={key.id} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 hover:shadow-lg transition-all">
-                        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                      <div key={key.id} className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6 hover:shadow-lg transition-all">
+                        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4">
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-3 mb-3">
+                            <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
                               <div className={`w-2 h-2 rounded-full ${key.is_active ? 'bg-green-500' : 'bg-red-500'} animate-pulse`} />
                               {editingKeyId === key.id ? (
                                 <div className="flex items-center gap-2 flex-1">
@@ -462,51 +460,51 @@ export default function Console() {
                                     type="text"
                                     value={editingName}
                                     onChange={(e) => setEditingName(e.target.value)}
-                                    className="flex-1 px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white outline-none focus:border-blue-500"
+                                    className="flex-1 px-2 sm:px-3 py-1.5 sm:py-2 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm sm:text-base text-slate-800 dark:text-white outline-none focus:border-sky-500"
                                     autoFocus
                                   />
                                   <button
                                     onClick={() => handleUpdateKeyName(key.id)}
-                                    className="p-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+                                    className="p-1.5 sm:p-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
                                   >
-                                    <FiSave />
+                                    <FiSave className="text-sm sm:text-base" />
                                   </button>
                                   <button
                                     onClick={() => { setEditingKeyId(null); setEditingName(''); }}
-                                    className="p-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-colors"
+                                    className="p-1.5 sm:p-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-colors"
                                   >
-                                    <FiX />
+                                    <FiX className="text-sm sm:text-base" />
                                   </button>
                                 </div>
                               ) : (
                                 <>
-                                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">{key.name}</h3>
+                                  <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white truncate">{key.name}</h3>
                                   <button
                                     onClick={() => { setEditingKeyId(key.id); setEditingName(key.name); }}
-                                    className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                                    className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
                                   >
-                                    <FiEdit2 className="text-slate-400" />
+                                    <FiEdit2 className="text-sm text-slate-400" />
                                   </button>
-                                </>
+                               </>
                               )}
                             </div>
 
-                            <div className="flex items-center gap-2 mb-4">
-                              <code className="px-3 py-2 bg-slate-100 dark:bg-slate-800 rounded-lg font-mono text-sm text-slate-900 dark:text-white">
+                            <div className="flex items-center gap-2 mb-3 sm:mb-4">
+                              <code className="px-2 sm:px-3 py-1.5 sm:py-2 bg-slate-100 dark:bg-slate-700 rounded-lg font-mono text-xs sm:text-sm text-slate-800 dark:text-white truncate flex-1">
                                 {key.prefix}
                               </code>
                               <button
                                 onClick={() => copyToClipboard(key.key, key.id)}
-                                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                                className="p-1.5 sm:p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors flex-shrink-0"
                               >
-                                {copiedKey === key.id ? <FiCheck className="text-green-500" /> : <FiCopy className="text-slate-400" />}
+                                {copiedKey === key.id ? <FiCheck className="text-green-500 text-sm sm:text-base" /> : <FiCopy className="text-slate-400 text-sm sm:text-base" />}
                               </button>
                             </div>
 
                             <div className="space-y-2">
-                              <div className="flex items-center justify-between text-sm">
+                              <div className="flex items-center justify-between text-xs sm:text-sm">
                                 <span className="text-slate-500 dark:text-slate-400">Usage</span>
-                                <span className="font-semibold text-slate-900 dark:text-white">
+                                <span className="font-semibold text-slate-800 dark:text-white">
                                   {key.requests_used.toLocaleString()} / {key.rate_limit.toLocaleString()}
                                 </span>
                               </div>
@@ -518,7 +516,7 @@ export default function Console() {
                               </div>
                             </div>
 
-                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-3">
+                            <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 mt-2 sm:mt-3">
                               Created {new Date(key.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                             </p>
                           </div>
@@ -527,9 +525,9 @@ export default function Console() {
                             <button
                               onClick={() => { setSelectedKey(key); setShowRevokeModal(true); }}
                               disabled={!key.is_active}
-                              className="flex items-center gap-2 px-4 py-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
                             >
-                              <FiTrash2 />
+                              <FiTrash2 className="text-sm sm:text-base" />
                               <span className="hidden lg:inline">Revoke</span>
                             </button>
                           </div>
@@ -542,43 +540,43 @@ export default function Console() {
             )}
 
             {activeTab === 'activity' && (
-              <div className="space-y-6">
-                <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-                  <div className="p-6 border-b border-slate-200 dark:border-slate-800">
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">Recent Requests</h3>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Last 20 API requests</p>
+              <div className="space-y-4 sm:space-y-6">
+                <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+                  <div className="p-4 sm:p-6 border-b border-slate-200 dark:border-slate-700">
+                    <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">Recent Requests</h3>
+                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">Last 20 API requests</p>
                   </div>
 
                   {logs.length === 0 ? (
-                    <div className="p-12 text-center">
-                      <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <FiActivity className="text-3xl text-slate-400" />
+                    <div className="p-8 sm:p-12 text-center">
+                      <div className="w-12 h-12 sm:w-16 sm:h-16 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                        <FiActivity className="text-2xl sm:text-3xl text-slate-400" />
                       </div>
-                      <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">No Activity Yet</h3>
-                      <p className="text-slate-500 dark:text-slate-400">Your API requests will appear here</p>
+                      <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white mb-2">No Activity Yet</h3>
+                      <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400">Your API requests will appear here</p>
                     </div>
                   ) : (
-                    <div className="divide-y divide-slate-200 dark:divide-slate-800">
+                    <div className="divide-y divide-slate-200 dark:divide-slate-700">
                       {logs.map((log) => (
-                        <div key={log.id} className="p-4 lg:p-6 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                        <div key={log.id} className="p-3 sm:p-4 lg:p-6 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+                          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4">
                             <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-3 mb-2">
+                              <div className="flex items-center gap-2 sm:gap-3 mb-2 flex-wrap">
                                 <div className={`w-2 h-2 rounded-full ${log.status >= 200 && log.status < 300 ? 'bg-green-500' : 'bg-red-500'}`} />
-                                <span className="font-mono text-sm font-semibold text-slate-900 dark:text-white">{log.model}</span>
-                                <span className={`px-2 py-0.5 rounded text-xs font-medium ${log.status >= 200 && log.status < 300 ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'}`}>
+                                <span className="font-mono text-xs sm:text-sm font-semibold text-slate-800 dark:text-white">{log.model}</span>
+                                <span className={`px-2 py-0.5 rounded text-[10px] sm:text-xs font-medium ${log.status >= 200 && log.status < 300 ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'}`}>
                                   {log.status}
                                 </span>
                               </div>
-                              <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">{log.endpoint}</p>
-                              <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
+                              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mb-2 truncate">{log.endpoint}</p>
+                              <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-[10px] sm:text-xs text-slate-500 dark:text-slate-400">
                                 <div className="flex items-center gap-1">
-                                  <FiClock />
+                                  <FiClock className="text-xs sm:text-sm" />
                                   <span>{new Date(log.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
                                 </div>
                                 {log.latency_ms && (
                                   <div className="flex items-center gap-1">
-                                    <FiZap />
+                                    <FiZap className="text-xs sm:text-sm" />
                                     <span>{log.latency_ms}ms</span>
                                   </div>
                                 )}
@@ -587,7 +585,7 @@ export default function Console() {
                                 )}
                               </div>
                               {log.error_message && (
-                                <div className="mt-2 p-2 bg-red-50 dark:bg-red-900/20 rounded text-xs text-red-600 dark:text-red-400">
+                                <div className="mt-2 p-2 bg-red-50 dark:bg-red-900/20 rounded text-[10px] sm:text-xs text-red-600 dark:text-red-400 break-words">
                                   {log.error_message}
                                 </div>
                               )}
@@ -595,9 +593,9 @@ export default function Console() {
 
                             <div className="flex items-center gap-2">
                               {log.status >= 200 && log.status < 300 ? (
-                                <FiCheckCircle className="text-green-500 text-xl" />
+                                <FiCheckCircle className="text-green-500 text-lg sm:text-xl" />
                               ) : (
-                                <FiAlertCircle className="text-red-500 text-xl" />
+                                <FiAlertCircle className="text-red-500 text-lg sm:text-xl" />
                               )}
                             </div>
                           </div>
@@ -610,56 +608,38 @@ export default function Console() {
             )}
 
             {activeTab === 'settings' && (
-              <div className="space-y-6">
-                <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">Account Information</h3>
-                  <div className="space-y-4">
+              <div className="space-y-4 sm:space-y-6">
+                <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
+                  <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white mb-4 sm:mb-6">Account Information</h3>
+                  <div className="space-y-3 sm:space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Email</label>
+                      <label className="block text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Email</label>
                       <input
                         type="email"
                         value={user?.email || ''}
                         disabled
-                        className="w-full px-4 py-3 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white"
+                        className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-sm sm:text-base text-slate-800 dark:text-white"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Plan</label>
-                      <div className="px-4 py-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                        <p className="text-sm font-semibold text-blue-900 dark:text-blue-100">Free Plan</p>
-                        <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">1,000 requests per day</p>
+                      <label className="block text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Plan</label>
+                      <div className="px-3 sm:px-4 py-2 sm:py-3 bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800 rounded-lg">
+                        <p className="text-xs sm:text-sm font-semibold text-sky-900 dark:text-sky-100">Free Plan</p>
+                        <p className="text-[10px] sm:text-xs text-sky-700 dark:text-sky-300 mt-1">1,000 requests per day</p>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">Preferences</h3>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium text-slate-900 dark:text-white">Dark Mode</p>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">Toggle dark mode theme</p>
-                      </div>
-                      <button
-                        onClick={() => setDarkMode(!darkMode)}
-                        className={`relative w-14 h-8 rounded-full transition-colors ${darkMode ? 'bg-blue-600' : 'bg-slate-300'}`}
-                      >
-                        <div className={`absolute top-1 left-1 w-6 h-6 bg-white rounded-full transition-transform ${darkMode ? 'translate-x-6' : ''}`} />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-red-50 dark:bg-red-900/20 rounded-xl border-2 border-red-200 dark:border-red-800 p-6">
-                  <div className="flex items-start gap-3 mb-4">
-                    <FiAlertCircle className="text-red-600 dark:text-red-400 text-xl flex-shrink-0 mt-0.5" />
+                <div className="bg-red-50 dark:bg-red-900/20 rounded-xl border-2 border-red-200 dark:border-red-800 p-4 sm:p-6">
+                  <div className="flex items-start gap-2 sm:gap-3 mb-3 sm:mb-4">
+                    <FiAlertCircle className="text-red-600 dark:text-red-400 text-lg sm:text-xl flex-shrink-0 mt-0.5" />
                     <div>
-                      <h3 className="text-lg font-bold text-red-900 dark:text-red-100 mb-2">Danger Zone</h3>
-                      <p className="text-sm text-red-700 dark:text-red-300">Once you delete your account, there is no going back. Please be certain.</p>
+                      <h3 className="text-base sm:text-lg font-bold text-red-900 dark:text-red-100 mb-2">Danger Zone</h3>
+                      <p className="text-xs sm:text-sm text-red-700 dark:text-red-300">Once you delete your account, there is no going back. Please be certain.</p>
                     </div>
                   </div>
-                  <button className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors">
+                  <button className="px-4 sm:px-6 py-2 sm:py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors text-sm sm:text-base">
                     Delete Account
                   </button>
                 </div>
@@ -671,59 +651,59 @@ export default function Console() {
 
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-6 shadow-2xl">
+          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 max-w-md w-full p-4 sm:p-6 shadow-2xl">
             {createdKey ? (
               <div>
-                <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <FiCheck className="text-2xl text-green-600 dark:text-green-400" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <FiCheck className="text-xl sm:text-2xl text-green-600 dark:text-green-400" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white text-center mb-2">API Key Created!</h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400 text-center mb-6">Save this key securely. You won't be able to see it again.</p>
+                <h3 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-white text-center mb-2">API Key Created!</h3>
+                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 text-center mb-4 sm:mb-6">Save this key securely. You won't be able to see it again.</p>
                 
-                <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-lg mb-6">
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">Your API Key</p>
+                <div className="p-3 sm:p-4 bg-slate-100 dark:bg-slate-700 rounded-lg mb-4 sm:mb-6">
+                  <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 mb-2">Your API Key</p>
                   <div className="flex items-center gap-2">
-                    <code className="flex-1 font-mono text-sm text-slate-900 dark:text-white break-all">{createdKey}</code>
+                    <code className="flex-1 font-mono text-xs sm:text-sm text-slate-800 dark:text-white break-all">{createdKey}</code>
                     <button
                       onClick={() => copyToClipboard(createdKey, 'created')}
-                      className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors flex-shrink-0"
+                      className="p-2 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition-colors flex-shrink-0"
                     >
-                      {copiedKey === 'created' ? <FiCheck className="text-green-500" /> : <FiCopy className="text-slate-400" />}
+                      {copiedKey === 'created' ? <FiCheck className="text-green-500 text-sm sm:text-base" /> : <FiCopy className="text-slate-400 text-sm sm:text-base" />}
                     </button>
                   </div>
                 </div>
 
                 <button
                   onClick={() => { setShowCreateModal(false); setCreatedKey(null); }}
-                  className="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+                  className="w-full px-4 sm:px-6 py-2 sm:py-3 bg-sky-600 hover:bg-sky-700 text-white rounded-lg font-medium transition-colors text-sm sm:text-base"
                 >
                   Done
                 </button>
               </div>
             ) : (
               <div>
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6">Create New API Key</h3>
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Key Name</label>
+                <h3 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-white mb-4 sm:mb-6">Create New API Key</h3>
+                <div className="mb-4 sm:mb-6">
+                  <label className="block text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Key Name</label>
                   <input
                     type="text"
                     value={newKeyName}
                     onChange={(e) => setNewKeyName(e.target.value)}
                     placeholder="e.g., Production Key"
-                    className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white outline-none focus:border-blue-500"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm sm:text-base text-slate-800 dark:text-white outline-none focus:border-sky-500"
                     autoFocus
                   />
                 </div>
-                <div className="flex gap-3">
+                <div className="flex gap-2 sm:gap-3">
                   <button
                     onClick={() => { setShowCreateModal(false); setNewKeyName(''); }}
-                    className="flex-1 px-6 py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-white rounded-lg font-medium transition-colors"
+                    className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-white rounded-lg font-medium transition-colors text-sm sm:text-base"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleCreateKey}
-                    className="flex-1 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+                    className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-sky-600 hover:bg-sky-700 text-white rounded-lg font-medium transition-colors text-sm sm:text-base"
                   >
                     Create Key
                   </button>
@@ -736,24 +716,24 @@ export default function Console() {
 
       {showRevokeModal && selectedKey && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-6 shadow-2xl">
-            <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-              <FiAlertCircle className="text-2xl text-red-600 dark:text-red-400" />
+          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 max-w-md w-full p-4 sm:p-6 shadow-2xl">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+              <FiAlertCircle className="text-xl sm:text-2xl text-red-600 dark:text-red-400" />
             </div>
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white text-center mb-2">Revoke API Key?</h3>
-            <p className="text-sm text-slate-500 dark:text-slate-400 text-center mb-6">
-              Are you sure you want to revoke <span className="font-semibold text-slate-900 dark:text-white">{selectedKey.name}</span>? This action cannot be undone.
+            <h3 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-white text-center mb-2">Revoke API Key?</h3>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 text-center mb-4 sm:mb-6">
+              Are you sure you want to revoke <span className="font-semibold text-slate-800 dark:text-white">{selectedKey.name}</span>? This action cannot be undone.
             </p>
-            <div className="flex gap-3">
+            <div className="flex gap-2 sm:gap-3">
               <button
                 onClick={() => { setShowRevokeModal(false); setSelectedKey(null); }}
-                className="flex-1 px-6 py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-white rounded-lg font-medium transition-colors"
+                className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-white rounded-lg font-medium transition-colors text-sm sm:text-base"
               >
                 Cancel
               </button>
               <button
                 onClick={handleRevokeKey}
-                className="flex-1 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
+                className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors text-sm sm:text-base"
               >
                 Revoke Key
               </button>
@@ -764,9 +744,9 @@ export default function Console() {
 
       {toast && (
         <div className="fixed bottom-4 right-4 z-50 animate-in slide-in-from-bottom-5">
-          <div className={`flex items-center gap-3 px-6 py-4 rounded-lg shadow-lg ${toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'} text-white`}>
-            {toast.type === 'success' ? <FiCheckCircle className="text-xl" /> : <FiAlertCircle className="text-xl" />}
-            <p className="font-medium">{toast.message}</p>
+          <div className={`flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-4 rounded-lg shadow-lg ${toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'} text-white`}>
+            {toast.type === 'success' ? <FiCheckCircle className="text-lg sm:text-xl" /> : <FiAlertCircle className="text-lg sm:text-xl" />}
+            <p className="font-medium text-sm sm:text-base">{toast.message}</p>
           </div>
         </div>
       )}
