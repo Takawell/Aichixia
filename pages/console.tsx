@@ -202,7 +202,7 @@ export default function Console() {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    window.location.href = '/login';
+    window.location.href = '/auth/login';
   };
 
   const chartData = usageData.map(d => ({
