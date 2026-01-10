@@ -1,32 +1,8 @@
 import { useState, useEffect } from "react";
-import {
-  FaBookOpen,
-  FaFilm,
-  FaComments,
-  FaTerminal,
-  FaCheckCircle,
-  FaTimesCircle,
-  FaCopy,
-  FaRocket,
-  FaChevronRight,
-  FaBrain,
-  FaCode,
-  FaServer,
-  FaLightbulb,
-  FaTimes,
-  FaInfoCircle,
-  FaStar,
-  FaGlobe,
-  FaLayerGroup,
-  FaRobot,
-  FaBolt,
-  FaGithub,
-  FaTiktok,
-  FaImage,
-} from "react-icons/fa";
-import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiFlux, } from "react-icons/si";
-import { GiSpermWhale, GiPowerLightning, GiBlackHoleBolas, GiClover, } from "react-icons/gi";
-import { TbSquareLetterZ, TbLetterM, } from "react-icons/tb";
+import { FaBookOpen, FaFilm, FaComments, FaTerminal, FaCheckCircle, FaTimesCircle, FaCopy, FaRocket, FaChevronRight, FaBrain, FaCode, FaServer, FaLightbulb, FaTimes, FaInfoCircle, FaStar, FaGlobe, FaLayerGroup, FaRobot, FaBolt, FaGithub, FaTiktok, FaImage, FaKey, FaShieldAlt, FaExternalLinkAlt } from "react-icons/fa";
+import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiFlux, SiXiaomi, SiMaze, SiImagedotsc } from "react-icons/si";
+import { GiSpermWhale, GiPowerLightning, GiBlackHoleBolas, GiClover, GiFire } from "react-icons/gi";
+import { TbSquareLetterZ, TbLetterM } from "react-icons/tb";
 import ThemeToggle from "@/components/ThemeToggle";
 import Link from "next/link";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -584,7 +560,16 @@ export default function Docs() {
             </div>
             <h1 className="text-lg sm:text-2xl font-black text-zinc-900 dark:text-white">Aichixia API</h1>
           </div>
-          <ThemeToggle />
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Link
+              href="/console"
+              className="hidden sm:flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-white dark:bg-zinc-950 hover:bg-zinc-100 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg font-semibold text-xs sm:text-sm transition-all duration-200 shadow-lg"
+            >
+              <FaKey size={14} />
+              <span>Console</span>
+            </Link>
+            <ThemeToggle />
+          </div>
         </div>
       </div>
 
@@ -629,6 +614,14 @@ export default function Docs() {
                 <FaRocket size={18} />
                 <span>Explore Endpoints</span>
               </a>
+
+              <Link
+                href="/console"
+                className="inline-flex items-center justify-center gap-2 sm:gap-3 px-5 sm:px-6 py-3 sm:py-3.5 bg-zinc-900 dark:bg-white hover:bg-zinc-800 dark:hover:bg-zinc-100 text-white dark:text-zinc-900 rounded-lg sm:rounded-xl font-bold transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 text-sm sm:text-base"
+              >
+                <FaKey size={18} />
+                <span>Get API Key</span>
+              </Link>
             </div>
           </div>
 
@@ -641,14 +634,120 @@ export default function Docs() {
             <FeatureCard
               icon={FaBrain}
               title="Multi-AI"
-              description="Smart fallback system with 14 AI providers ensuring 99.9% uptime"
+              description="Smart fallback system with 20+ AI providers ensuring 99.9% uptime"
             />
             <FeatureCard
-              icon={FaRocket}
-              title="Fast & Free"
-              description="Lightning-fast responses with no authentication required"
+              icon={FaShieldAlt}
+              title="Secure & Fast"
+              description="API key authentication with rate limiting and lightning-fast responses"
             />
           </div>
+
+          <section className="mb-12 sm:mb-20">
+            <div className="bg-gradient-to-r from-sky-50 to-blue-50 dark:from-sky-950/20 dark:to-blue-950/20 border-2 border-sky-200 dark:border-sky-900 rounded-xl sm:rounded-2xl p-6 sm:p-8 shadow-xl">
+              <div className="flex items-start gap-3 sm:gap-4 mb-4 sm:mb-6">
+                <div className="p-2 sm:p-3 bg-gradient-to-br from-sky-400 to-blue-500 rounded-lg shadow-lg">
+                  <FaRobot className="text-white" size={24} />
+                </div>
+                <div>
+                  <h3 className="text-xl sm:text-2xl font-black text-zinc-900 dark:text-white mb-2">OpenAI-Compatible Endpoint</h3>
+                  <p className="text-zinc-600 dark:text-zinc-400 text-sm sm:text-base">Use our unified API with OpenAI SDK for seamless integration</p>
+                </div>
+              </div>
+
+              <div className="bg-white dark:bg-zinc-950 rounded-lg sm:rounded-xl p-4 sm:p-6 border border-zinc-200 dark:border-zinc-800 mb-4">
+                <div className="flex items-center justify-between mb-3">
+                  <code className="text-sky-500 dark:text-sky-400 text-xs sm:text-sm font-mono">POST /api/v1/chat/completions</code>
+                  <span className="px-2 sm:px-3 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-full text-[10px] sm:text-xs font-bold">Recommended</span>
+                </div>
+                <p className="text-zinc-600 dark:text-zinc-400 text-xs sm:text-sm mb-4">
+                  Compatible with OpenAI SDK - use any of our 20+ models with a single endpoint. Supports authentication, rate limiting, and request logging.
+                </p>
+                
+                <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-lg p-3 sm:p-4 mb-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <FaCode className="text-sky-500 dark:text-sky-400" size={12} />
+                    <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Quick Start</span>
+                  </div>
+                  <SyntaxHighlighter
+                    language="javascript"
+                    style={oneDark}
+                    customStyle={{
+                      borderRadius: '0.5rem',
+                      padding: '0.75rem',
+                      fontSize: '0.7rem',
+                      margin: 0,
+                    }}
+                  >
+{`import OpenAI from "openai";
+
+const client = new OpenAI({
+  apiKey: "your-api-key",
+  baseURL: "${base}/api/v1"
+});
+
+const response = await client.chat.completions.create({
+  model: "deepseek-v3.2",
+  messages: [
+    { role: "user", content: "Hello!" }
+  ]
+});`}
+                  </SyntaxHighlighter>
+                </div>
+
+                <div className="flex items-start gap-2 p-3 bg-sky-50 dark:bg-sky-950/30 rounded-lg border border-sky-200 dark:border-sky-900">
+                  <FaShieldAlt className="text-sky-500 dark:text-sky-400 mt-0.5 flex-shrink-0" size={14} />
+                  <p className="text-xs sm:text-sm text-sky-700 dark:text-sky-300">
+                    Get your API key from the <Link href="/auth/login" className="font-bold underline">console</Link> to start using authenticated endpoints with rate limiting and usage tracking.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="bg-white dark:bg-zinc-950 rounded-lg p-4 border border-zinc-200 dark:border-zinc-800">
+                  <div className="flex items-center gap-2 mb-2">
+                    <FaCheckCircle className="text-emerald-500" size={16} />
+                    <h4 className="font-bold text-sm text-zinc-900 dark:text-white">Benefits</h4>
+                  </div>
+                  <ul className="space-y-1.5 text-xs text-zinc-600 dark:text-zinc-400">
+                    <li className="flex items-center gap-2">
+                      <div className="w-1 h-1 bg-sky-500 rounded-full" />
+                      <span>OpenAI SDK compatible</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="w-1 h-1 bg-sky-500 rounded-full" />
+                      <span>20+ AI models in one API</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="w-1 h-1 bg-sky-500 rounded-full" />
+                      <span>Usage analytics & tracking</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="w-1 h-1 bg-sky-500 rounded-full" />
+                      <span>Secure API key authentication</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="bg-white dark:bg-zinc-950 rounded-lg p-4 border border-zinc-200 dark:border-zinc-800">
+                  <div className="flex items-center gap-2 mb-2">
+                    <FaLayerGroup className="text-sky-500" size={16} />
+                    <h4 className="font-bold text-sm text-zinc-900 dark:text-white">Available Models</h4>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {['deepseek-v3.2', 'gpt-5-mini', 'claude-haiku-4.5', 'gemini-3-flash', 'grok-3', 'llama-3.3-70b'].map((model) => (
+                      <span key={model} className="px-2 py-0.5 bg-sky-100 dark:bg-sky-950/30 text-sky-700 dark:text-sky-400 rounded text-[10px] font-mono">
+                        {model}
+                      </span>
+                    ))}
+                    <span className="px-2 py-0.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded text-[10px] font-semibold">
+                      +14 more
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
 
           <section id="endpoints" className="mb-12 sm:mb-20 scroll-mt-20">
             <div className="flex items-center gap-2 sm:gap-3 mb-6 sm:mb-8">
@@ -699,13 +798,13 @@ export default function Docs() {
                 method="GET" 
                 path={`${base}/api/aichixia?action=trending&category=anime&page=1&perPage=20`} 
                 desc="Get currently trending anime and manga" 
-                note={`Returns a list of the most popular trending titles right now. Supports category filtering and pagination.`}
+                note="Returns a list of the most popular trending titles right now. Supports category filtering and pagination."
               />
               <Row 
                 method="GET" 
                 path={`${base}/api/aichixia?category=anime&action=seasonal&season=<SEASON>&year=<YEAR>&page=<PAGE>&perPage=<PERPAGE>`} 
                 desc="Get seasonal anime releases" 
-                note={`Returns anime airing within the specified season and year. Params 'season' and 'year' are required.`}
+                note="Returns anime airing within the specified season and year. Params 'season' and 'year' are required."
               />
               <Row 
                 method="GET" 
@@ -747,7 +846,16 @@ export default function Docs() {
               <div className="p-2 sm:p-3 bg-gradient-to-br from-sky-400 to-blue-500 rounded-lg sm:rounded-xl shadow-lg shadow-sky-400/30">
                 <FaComments className="text-white" size={20} />
               </div>
-              <h2 className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white">AI Chat</h2>
+              <h2 className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white">AI Chat (Legacy)</h2>
+            </div>
+
+            <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900 rounded-lg p-4 mb-4">
+              <div className="flex items-start gap-2 sm:gap-3">
+                <FaInfoCircle className="text-amber-600 dark:text-amber-400 mt-0.5" size={16} />
+                <p className="text-xs sm:text-sm text-amber-800 dark:text-amber-300">
+                  <strong>Note:</strong> This endpoint is maintained for backward compatibility. We recommend using <code className="bg-amber-100 dark:bg-amber-900/30 px-1.5 py-0.5 rounded text-amber-700 dark:text-amber-400">/api/v1/chat/completions</code> for new projects.
+                </p>
+              </div>
             </div>
             
             <Row 
@@ -786,14 +894,14 @@ export default function Docs() {
               <div className="p-2 sm:p-3 bg-gradient-to-br from-sky-400 to-blue-500 rounded-lg sm:rounded-xl shadow-lg shadow-sky-400/30">
                 <FaRobot className="text-white" size={20} />
               </div>
-              <h2 className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white">AI Models</h2>
+              <h2 className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white">AI Models (Legacy)</h2>
             </div>
 
-            <div className="mb-4 sm:mb-6 bg-sky-50 dark:bg-sky-950/20 border border-sky-200 dark:border-sky-900 rounded-lg sm:rounded-xl p-3 sm:p-4">
+            <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900 rounded-lg p-4 mb-6">
               <div className="flex items-start gap-2 sm:gap-3">
-                <FaInfoCircle className="text-sky-500 dark:text-sky-400 mt-0.5" size={14} />
-                <p className="text-zinc-700 dark:text-zinc-300 text-xs sm:text-sm">
-                  Target specific AI models for consistent responses from a particular provider. All models support web search capabilities.
+                <FaInfoCircle className="text-amber-600 dark:text-amber-400 mt-0.5" size={16} />
+                <p className="text-xs sm:text-sm text-amber-800 dark:text-amber-300">
+                  <strong>Legacy endpoints:</strong> These endpoints are maintained for backward compatibility. For new integrations, use <code className="bg-amber-100 dark:bg-amber-900/30 px-1.5 py-0.5 rounded text-amber-700 dark:text-amber-400">/api/v1/chat/completions</code> with the model parameter.
                 </p>
               </div>
             </div>
@@ -810,7 +918,7 @@ export default function Docs() {
               />
               <ModelCard
                 icon={TbSquareLetterZ}
-                name="GLM 4.6"
+                name="GLM 4.7"
                 endpoint="/api/models/glm"
                 color="from-blue-700 to-indigo-900"
                 description="Multilingual excellence with strong reasoning"
@@ -828,7 +936,7 @@ export default function Docs() {
               />
               <ModelCard
                 icon={SiOpenai}
-                name="GPT-4 Mini"
+                name="GPT-5 Mini"
                 endpoint="/api/models/openai"
                 color="from-emerald-600 to-green-600"
                 description="Balanced performance for general tasks"
@@ -872,6 +980,15 @@ export default function Docs() {
                 quality={5}
               />
               <ModelCard
+                icon={GiSpermWhale}
+                name="DeepSeek V3.1"
+                endpoint="/api/models/deepseek-v"
+                color="from-cyan-600 to-teal-600"
+                description="Previous generation DeepSeek model"
+                speed={3}
+                quality={5}
+              />
+              <ModelCard
                 icon={GiPowerLightning}
                 name="Groq Compound"
                 endpoint="/api/models/compound"
@@ -899,6 +1016,15 @@ export default function Docs() {
                 quality={5}
               />
               <ModelCard
+                icon={SiAlibabacloud}
+                name="Qwen3 235B"
+                endpoint="/api/models/qwen3"
+                color="from-purple-500 to-pink-500"
+                description="Large multilingual model with strong reasoning"
+                speed={3}
+                quality={5}
+              />
+              <ModelCard
                 icon={GiClover}
                 name="Cohere Command A"
                 endpoint="/api/models/cohere"
@@ -907,6 +1033,33 @@ export default function Docs() {
                 speed={3}
                 quality={4}
               />
+              <ModelCard
+                icon={SiXiaomi}
+                name="MiMo V2 Flash"
+                endpoint="/api/models/mimo"
+                color="from-blue-600 to-purple-600"
+                description="Fast Chinese-English bilingual model"
+                speed={4}
+                quality={4}
+              />
+              <ModelCard
+                icon={SiMaze}
+                name="MiniMax M2.1"
+                endpoint="/api/models/minimax"
+                color="from-cyan-500 to-blue-500"
+                description="Balanced performance with good reasoning"
+                speed={3}
+                quality={4}
+              />
+              <ModelCard
+                icon={GiBlackHoleBolas}
+                name="Grok 3"
+                endpoint="/api/models/grok"
+                color="from-slate-600 to-zinc-800"
+                description="xAI's flagship model with real-time data"
+                speed={3}
+                quality={5}
+              />
             </div>
 
             <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg sm:rounded-xl p-4 sm:p-6 shadow-lg">
@@ -914,20 +1067,55 @@ export default function Docs() {
                 <FaImage className="text-sky-500 dark:text-sky-400 mt-1" size={18} />
                 <div>
                   <h3 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-white mb-1">Image Generation</h3>
-                  <p className="text-zinc-600 dark:text-zinc-400 text-xs sm:text-sm">Create stunning AI-generated images with Flux 2</p>
+                  <p className="text-zinc-600 dark:text-zinc-400 text-xs sm:text-sm">Create stunning AI-generated images</p>
                 </div>
               </div>
-              <Row 
-                method="POST" 
-                path={`${base}/api/models/flux`} 
-                desc="Generate images with Flux 2 model" 
-                note="Send POST with JSON: { prompt: 'description', steps: 4 }. Returns base64 encoded image."
-                modelInfo={{
-                  speed: 4,
-                  quality: 5,
-                  useCase: "Text-to-image generation with photorealistic results",
-                }}
-              />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <Row 
+                  method="POST" 
+                  path={`${base}/api/models/flux`} 
+                  desc="Flux 2 - Photorealistic image generation" 
+                  note="Send POST with JSON: { prompt: 'description', steps: 4 }. Returns base64 encoded image."
+                  modelInfo={{
+                    speed: 4,
+                    quality: 5,
+                    useCase: "Text-to-image generation with photorealistic results",
+                  }}
+                />
+                <Row 
+                  method="POST" 
+                  path={`${base}/api/models/lucid`} 
+                  desc="Lucid Origin - Creative image synthesis" 
+                  note="Send POST with JSON: { prompt: 'description', steps: 4 }. Returns base64 encoded image."
+                  modelInfo={{
+                    speed: 4,
+                    quality: 5,
+                    useCase: "Artistic and creative image generation",
+                  }}
+                />
+                <Row 
+                  method="POST" 
+                  path={`${base}/api/models/phoenix`} 
+                  desc="Phoenix 1.0 - Fast image generation" 
+                  note="Send POST with JSON: { prompt: 'description', steps: 4 }. Returns base64 encoded image."
+                  modelInfo={{
+                    speed: 4,
+                    quality: 4,
+                    useCase: "Quick artistic image generation",
+                  }}
+                />
+                <Row 
+                  method="POST" 
+                  path={`${base}/api/models/nano`} 
+                  desc="Nano Banana Pro - Compact image model" 
+                  note="Send POST with JSON: { prompt: 'description', steps: 4 }. Returns base64 encoded image."
+                  modelInfo={{
+                    speed: 4,
+                    quality: 4,
+                    useCase: "Lightweight image generation",
+                  }}
+                />
+              </div>
             </div>
           </section>
 
@@ -941,6 +1129,18 @@ export default function Docs() {
             
             <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg sm:rounded-xl p-4 sm:p-8 shadow-lg">
               <div className="space-y-4 sm:space-y-6">
+                <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-lg border border-zinc-200 dark:border-zinc-800">
+                  <div className="p-1.5 sm:p-2 bg-sky-100 dark:bg-sky-950/30 rounded-lg flex-shrink-0">
+                    <FaKey className="text-sky-500 dark:text-sky-400" size={16} />
+                  </div>
+                  <div>
+                    <strong className="text-zinc-900 dark:text-white block mb-1 sm:mb-2 text-xs sm:text-sm font-bold">Authentication:</strong>
+                    <span className="text-zinc-600 dark:text-zinc-400 text-xs sm:text-sm">
+                      Get your API key from the <Link href="/auth/login" className="text-sky-600 dark:text-sky-400 font-semibold hover:underline">console</Link>. Use header: <code className="bg-sky-100 dark:bg-sky-950/30 px-1.5 py-0.5 rounded text-sky-600 dark:text-sky-400 font-mono text-[10px]">Authorization: Bearer YOUR_KEY</code>
+                    </span>
+                  </div>
+                </div>
+
                 <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-lg border border-zinc-200 dark:border-zinc-800">
                   <div className="p-1.5 sm:p-2 bg-sky-100 dark:bg-sky-950/30 rounded-lg flex-shrink-0">
                     <FaLayerGroup className="text-sky-500 dark:text-sky-400" size={16} />
@@ -981,7 +1181,7 @@ export default function Docs() {
                   </div>
                   <div>
                     <strong className="text-zinc-900 dark:text-white block mb-1 sm:mb-2 text-xs sm:text-sm font-bold">Rate Limit:</strong>
-                    <span className="text-zinc-600 dark:text-zinc-400 text-xs sm:text-sm">Please be respectful with API usage</span>
+                    <span className="text-zinc-600 dark:text-zinc-400 text-xs sm:text-sm">1,000 requests per day with API key. Track usage in console dashboard.</span>
                   </div>
                 </div>
 
@@ -991,7 +1191,7 @@ export default function Docs() {
                   </div>
                   <div>
                     <strong className="text-zinc-900 dark:text-white block mb-1 sm:mb-2 text-xs sm:text-sm font-bold">Model Selection:</strong>
-                    <span className="text-zinc-600 dark:text-zinc-400 text-xs sm:text-sm">Use /api/chat for auto-fallback or /api/models/&#123;provider&#125; for specific models</span>
+                    <span className="text-zinc-600 dark:text-zinc-400 text-xs sm:text-sm">Use <code className="bg-sky-100 dark:bg-sky-950/30 px-1.5 py-0.5 rounded text-sky-600 dark:text-sky-400 font-mono text-[10px]">/api/v1/chat/completions</code> with model parameter for best experience</span>
                   </div>
                 </div>
 
@@ -1021,6 +1221,14 @@ export default function Docs() {
             </div>
             
             <div className="flex items-center gap-4 sm:gap-6">
+              <Link 
+                href="/auth/login"
+                className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400 hover:text-sky-500 dark:hover:text-sky-400 transition-colors duration-200 text-sm font-semibold"
+              >
+                <FaKey size={16} />
+                <span>API Console</span>
+                <FaExternalLinkAlt size={12} />
+              </Link>
               <a 
                 href="https://github.com/Takawell/Aichixia" 
                 target="_blank" 
@@ -1030,7 +1238,7 @@ export default function Docs() {
                 <FaGithub size={20} />
               </a>
               <a 
-                href="https://tiktok.com/putrawangyyy" 
+                href="https://tiktok.com/@putrawangyyy" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-zinc-600 dark:text-zinc-400 hover:text-sky-500 dark:hover:text-sky-400 transition-colors duration-200"
@@ -1040,7 +1248,6 @@ export default function Docs() {
             </div>
 
             <div className="w-full max-w-md h-px bg-gradient-to-r from-transparent via-zinc-300 dark:via-zinc-800 to-transparent"></div>
-
             <div className="flex items-center gap-2 text-zinc-500 dark:text-zinc-500">
               <FaTerminal size={14} />
               <span className="text-sm">© {new Date().getFullYear()} Aichixia - Anime-first AI Assistant</span>
