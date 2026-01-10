@@ -49,11 +49,8 @@ const AVAILABLE_MODELS = [
   { id: 'deepseek-v3.2', name: 'DeepSeek V3.2', category: 'Advanced' },
   { id: 'deepseek-v3.1', name: 'DeepSeek V3.1', category: 'Advanced' },
   { id: 'gpt-5-mini', name: 'GPT-5 Mini', category: 'Fast' },
-  { id: 'gpt-4', name: 'GPT-4', category: 'Advanced' },
   { id: 'claude-haiku-4.5', name: 'Claude Haiku 4.5', category: 'Fast' },
-  { id: 'claude-3', name: 'Claude 3', category: 'Advanced' },
   { id: 'gemini-3-flash', name: 'Gemini 3 Flash', category: 'Fast' },
-  { id: 'gemini-pro', name: 'Gemini Pro', category: 'Advanced' },
   { id: 'kimi-k2', name: 'Kimi K2', category: 'Standard' },
   { id: 'glm-4.7', name: 'GLM 4.7', category: 'Standard' },
   { id: 'mistral-3.1', name: 'Mistral 3.1', category: 'Advanced' },
@@ -66,7 +63,6 @@ const AVAILABLE_MODELS = [
   { id: 'groq-compound', name: 'Groq Compound', category: 'Advanced' },
   { id: 'cohere-command-a', name: 'Cohere Command A', category: 'Standard' },
   { id: 'grok-3', name: 'Grok 3', category: 'Advanced' },
-  { id: 'grok-3-mini', name: 'Grok 3 Mini', category: 'Fast' },
 ];
 
 export default function Console() {
