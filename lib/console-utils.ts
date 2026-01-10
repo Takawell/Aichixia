@@ -3,8 +3,8 @@ import crypto from 'crypto';
 
 export function generateApiKey(): { key: string; prefix: string } {
   const randomBytes = crypto.randomBytes(32).toString('hex');
-  const key = `sk-${randomBytes}`;
-  const prefix = `sk-${randomBytes.slice(0, 8)}...`;
+  const key = `acv-${randomBytes}`;
+  const prefix = `acv-${randomBytes.slice(0, 8)}...`;
   return { key, prefix };
 }
 
