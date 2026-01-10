@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { FiKey, FiActivity, FiSettings, FiLogOut, FiCopy, FiTrash2, FiPlus, FiCheck, FiX, FiEdit2, FiSave, FiMenu, FiAlertCircle, FiCheckCircle, FiClock, FiTrendingUp, FiZap } from 'react-icons/fi';
+import { FiKey, FiActivity, FiSettings, FiLogOut, FiCopy, FiTrash2, FiPlus, FiCheck, FiX, FiEdit2, FiSave, FiMenu, FiAlertCircle, FiCheckCircle, FiClock, FiTrendingUp, FiZap, FiLayers } from 'react-icons/fi';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import ThemeToggle from '@/components/ThemeToggle';
 
@@ -45,6 +45,30 @@ type DailyUsage = {
   created_at: string;
 };
 
+const AVAILABLE_MODELS = [
+  { id: 'deepseek-v3.2', name: 'DeepSeek V3.2', category: 'Advanced' },
+  { id: 'deepseek-v3.1', name: 'DeepSeek V3.1', category: 'Advanced' },
+  { id: 'gpt-5-mini', name: 'GPT-5 Mini', category: 'Fast' },
+  { id: 'gpt-4', name: 'GPT-4', category: 'Advanced' },
+  { id: 'claude-haiku-4.5', name: 'Claude Haiku 4.5', category: 'Fast' },
+  { id: 'claude-3', name: 'Claude 3', category: 'Advanced' },
+  { id: 'gemini-3-flash', name: 'Gemini 3 Flash', category: 'Fast' },
+  { id: 'gemini-pro', name: 'Gemini Pro', category: 'Advanced' },
+  { id: 'kimi-k2', name: 'Kimi K2', category: 'Standard' },
+  { id: 'glm-4.7', name: 'GLM 4.7', category: 'Standard' },
+  { id: 'mistral-3.1', name: 'Mistral 3.1', category: 'Advanced' },
+  { id: 'qwen3-235b', name: 'Qwen3 235B', category: 'Advanced' },
+  { id: 'qwen3-coder-480b', name: 'Qwen3 Coder 480B', category: 'Specialized' },
+  { id: 'minimax-m2.1', name: 'MiniMax M2.1', category: 'Standard' },
+  { id: 'llama-3.3-70b', name: 'Llama 3.3 70B', category: 'Advanced' },
+  { id: 'gpt-oss-120b', name: 'GPT-OSS 120B', category: 'Advanced' },
+  { id: 'mimo-v2-flash', name: 'MiMo V2 Flash', category: 'Fast' },
+  { id: 'groq-compound', name: 'Groq Compound', category: 'Advanced' },
+  { id: 'cohere-command-a', name: 'Cohere Command A', category: 'Standard' },
+  { id: 'grok-3', name: 'Grok 3', category: 'Advanced' },
+  { id: 'grok-3-mini', name: 'Grok 3 Mini', category: 'Fast' },
+];
+
 export default function Console() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -54,6 +78,7 @@ export default function Console() {
   const [stats, setStats] = useState({ totalRequests: 0, activeKeys: 0, rateLimitUsage: 0 });
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showRevokeModal, setShowRevokeModal] = useState(false);
+  const [showModelsModal, setShowModelsModal] = useState(false);
   const [selectedKey, setSelectedKey] = useState<ApiKey | null>(null);
   const [newKeyName, setNewKeyName] = useState('');
   const [createdKey, setCreatedKey] = useState<string | null>(null);
@@ -63,12 +88,14 @@ export default function Console() {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'keys' | 'activity' | 'settings'>('overview');
+  const [actionLoading, setActionLoading] = useState(false);
+  const [modelSearch, setModelSearch] = useState('');
 
   useEffect(() => {
     checkUser();
     const interval = setInterval(() => {
       if (user) fetchAllData();
-    }, 30000);
+    }, 21600000);
     return () => clearInterval(interval);
   }, [user]);
 
@@ -114,6 +141,7 @@ export default function Console() {
       return;
     }
 
+    setActionLoading(true);
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
 
@@ -127,6 +155,7 @@ export default function Console() {
     });
 
     const data = await res.json();
+    setActionLoading(false);
 
     if (res.ok) {
       setCreatedKey(data.key.key);
@@ -141,6 +170,7 @@ export default function Console() {
   const handleRevokeKey = async () => {
     if (!selectedKey) return;
 
+    setActionLoading(true);
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
 
@@ -152,6 +182,8 @@ export default function Console() {
       },
       body: JSON.stringify({ keyId: selectedKey.id }),
     });
+
+    setActionLoading(false);
 
     if (res.ok) {
       setShowRevokeModal(false);
@@ -166,6 +198,7 @@ export default function Console() {
   const handleUpdateKeyName = async (keyId: string) => {
     if (!editingName.trim()) return;
 
+    setActionLoading(true);
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
 
@@ -177,6 +210,8 @@ export default function Console() {
       },
       body: JSON.stringify({ keyId, name: editingName }),
     });
+
+    setActionLoading(false);
 
     if (res.ok) {
       setEditingKeyId(null);
@@ -209,6 +244,17 @@ export default function Console() {
     date: new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
     requests: d.requests_count,
   }));
+
+  const filteredModels = AVAILABLE_MODELS.filter(model =>
+    model.name.toLowerCase().includes(modelSearch.toLowerCase()) ||
+    model.id.toLowerCase().includes(modelSearch.toLowerCase())
+  );
+
+  const groupedModels = filteredModels.reduce((acc, model) => {
+    if (!acc[model.category]) acc[model.category] = [];
+    acc[model.category].push(model);
+    return acc;
+  }, {} as Record<string, typeof AVAILABLE_MODELS>);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
@@ -259,6 +305,16 @@ export default function Console() {
                 <FiSettings className="text-base sm:text-lg" />
                 <span className="font-medium">Settings</span>
               </button>
+
+              <div className="pt-2 border-t border-slate-200 dark:border-slate-700 mt-2">
+                <button
+                  onClick={() => setShowModelsModal(true)}
+                  className="w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-lg transition-all text-sm sm:text-base text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50"
+                >
+                  <FiLayers className="text-base sm:text-lg" />
+                  <span className="font-medium">Available Models</span>
+                </button>
+              </div>
             </nav>
 
             <div className="p-3 sm:p-4 border-t border-slate-200 dark:border-slate-700">
@@ -465,7 +521,8 @@ export default function Console() {
                                   />
                                   <button
                                     onClick={() => handleUpdateKeyName(key.id)}
-                                    className="p-1.5 sm:p-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+                                    disabled={actionLoading}
+                                    className="p-1.5 sm:p-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors disabled:opacity-50"
                                   >
                                     <FiSave className="text-sm sm:text-base" />
                                   </button>
@@ -485,7 +542,7 @@ export default function Console() {
                                   >
                                     <FiEdit2 className="text-sm text-slate-400" />
                                   </button>
-                               </>
+                                </>
                               )}
                             </div>
 
@@ -650,8 +707,8 @@ export default function Console() {
       </div>
 
       {showCreateModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 max-w-md w-full p-4 sm:p-6 shadow-2xl">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 max-w-md w-full p-4 sm:p-6 shadow-2xl animate-in zoom-in-95 duration-200">
             {createdKey ? (
               <div>
                 <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
@@ -690,22 +747,31 @@ export default function Console() {
                     value={newKeyName}
                     onChange={(e) => setNewKeyName(e.target.value)}
                     placeholder="e.g., Production Key"
-                    className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm sm:text-base text-slate-800 dark:text-white outline-none focus:border-sky-500"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm sm:text-base text-slate-800 dark:text-white outline-none focus:border-sky-500 transition-colors"
                     autoFocus
                   />
                 </div>
                 <div className="flex gap-2 sm:gap-3">
                   <button
                     onClick={() => { setShowCreateModal(false); setNewKeyName(''); }}
-                    className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-white rounded-lg font-medium transition-colors text-sm sm:text-base"
+                    disabled={actionLoading}
+                    className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-white rounded-lg font-medium transition-colors text-sm sm:text-base disabled:opacity-50"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleCreateKey}
-                    className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-sky-600 hover:bg-sky-700 text-white rounded-lg font-medium transition-colors text-sm sm:text-base"
+                    disabled={actionLoading}
+                    className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-sky-600 hover:bg-sky-700 text-white rounded-lg font-medium transition-colors text-sm sm:text-base disabled:opacity-50 flex items-center justify-center gap-2"
                   >
-                    Create Key
+                    {actionLoading ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <span>Creating...</span>
+                      </>
+                    ) : (
+                      'Create Key'
+                    )}
                   </button>
                 </div>
               </div>
@@ -715,8 +781,8 @@ export default function Console() {
       )}
 
       {showRevokeModal && selectedKey && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 max-w-md w-full p-4 sm:p-6 shadow-2xl">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 max-w-md w-full p-4 sm:p-6 shadow-2xl animate-in zoom-in-95 duration-200">
             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
               <FiAlertCircle className="text-xl sm:text-2xl text-red-600 dark:text-red-400" />
             </div>
@@ -727,23 +793,97 @@ export default function Console() {
             <div className="flex gap-2 sm:gap-3">
               <button
                 onClick={() => { setShowRevokeModal(false); setSelectedKey(null); }}
-                className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-white rounded-lg font-medium transition-colors text-sm sm:text-base"
+                disabled={actionLoading}
+                className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-white rounded-lg font-medium transition-colors text-sm sm:text-base disabled:opacity-50"
               >
                 Cancel
               </button>
               <button
                 onClick={handleRevokeKey}
-                className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors text-sm sm:text-base"
+                disabled={actionLoading}
+                className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors text-sm sm:text-base disabled:opacity-50 flex items-center justify-center gap-2"
               >
-                Revoke Key
+                {actionLoading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span>Revoking...</span>
+                  </>
+                ) : (
+                  'Revoke Key'
+                )}
               </button>
             </div>
           </div>
         </div>
       )}
 
+      {showModelsModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="p-4 sm:p-6 border-b border-slate-200 dark:border-slate-700">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-white">Available Models</h3>
+                <button
+                  onClick={() => setShowModelsModal(false)}
+                  className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                >
+                  <FiX className="text-xl text-slate-600 dark:text-slate-400" />
+                </button>
+              </div>
+              <input
+                type="text"
+                value={modelSearch}
+                onChange={(e) => setModelSearch(e.target.value)}
+                placeholder="Search models..."
+                className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm sm:text-base text-slate-800 dark:text-white outline-none focus:border-sky-500 transition-colors"
+              />
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+              {Object.keys(groupedModels).length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-slate-500 dark:text-slate-400">No models found</p>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {Object.entries(groupedModels).map(([category, models]) => (
+                    <div key={category}>
+                      <h4 className="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-3">{category}</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {models.map((model) => (
+                          <div
+                            key={model.id}
+                            className="p-3 sm:p-4 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600 hover:border-sky-500 dark:hover:border-sky-500 transition-all"
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex-1 min-w-0">
+                                <h5 className="text-sm font-semibold text-slate-800 dark:text-white truncate">{model.name}</h5>
+                                <code className="text-xs text-slate-500 dark:text-slate-400 font-mono">{model.id}</code>
+                              </div>
+                              <button
+                                onClick={() => {
+                                  copyToClipboard(model.id, model.id);
+                                  setTimeout(() => setShowModelsModal(false), 1000);
+                                }}
+                                className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-600 rounded transition-colors flex-shrink-0"
+                              >
+                                {copiedKey === model.id ? <FiCheck className="text-green-500 text-sm" /> : <FiCopy className="text-slate-400 text-sm" />}
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {toast && (
-        <div className="fixed bottom-4 right-4 z-50 animate-in slide-in-from-bottom-5">
+        <div className="fixed bottom-4 right-4 z-50 animate-in slide-in-from-bottom-5 duration-200">
           <div className={`flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-4 rounded-lg shadow-lg ${toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'} text-white`}>
             {toast.type === 'success' ? <FiCheckCircle className="text-lg sm:text-xl" /> : <FiAlertCircle className="text-lg sm:text-xl" />}
             <p className="font-medium text-sm sm:text-base">{toast.message}</p>
@@ -754,7 +894,7 @@ export default function Console() {
       {sidebarOpen && (
         <div
           onClick={() => setSidebarOpen(false)}
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden animate-in fade-in duration-200"
         />
       )}
     </div>
