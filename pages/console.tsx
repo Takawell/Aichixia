@@ -501,8 +501,7 @@ export default function Console() {
             {activeTab === 'keys' && (
               <div className="space-y-4 sm:space-y-6">
                 <div className="flex justify-end">
-                  <button ```typescript
-                    onClick={() => setShowCreateModal(true)}
+                  <button onClick={() => setShowCreateModal(true)}
                     className="flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white rounded-lg font-medium shadow-lg hover:shadow-xl transition-all text-sm sm:text-base"
                   >
                     <FiPlus className="text-base sm:text-lg" />
