@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { FiKey, FiActivity, FiSettings, FiLogOut, FiCopy, FiTrash2, FiPlus, FiCheck, FiX, FiEdit2, FiSave, FiMenu, FiAlertCircle, FiCheckCircle, FiClock, FiTrendingUp, FiZap, FiLayers } from 'react-icons/fi';
+import { FiKey, FiActivity, FiSettings, FiLogOut, FiCopy, FiTrash2, FiPlus, FiCheck, FiX, FiEdit2, FiSave, FiMenu, FiAlertCircle, FiCheckCircle, FiClock, FiTrendingUp, FiZap, FiLayers, FiRefreshCw } from 'react-icons/fi';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import ThemeToggle from '@/components/ThemeToggle';
 
@@ -68,6 +68,7 @@ const AVAILABLE_MODELS = [
 export default function Console() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [keys, setKeys] = useState<ApiKey[]>([]);
   const [logs, setLogs] = useState<RequestLog[]>([]);
   const [usageData, setUsageData] = useState<DailyUsage[]>([]);
@@ -86,14 +87,11 @@ export default function Console() {
   const [activeTab, setActiveTab] = useState<'overview' | 'keys' | 'activity' | 'settings'>('overview');
   const [actionLoading, setActionLoading] = useState(false);
   const [modelSearch, setModelSearch] = useState('');
+  const [lastFetch, setLastFetch] = useState<number>(0);
 
   useEffect(() => {
     checkUser();
-    const interval = setInterval(() => {
-      if (user) fetchAllData();
-    }, 21600000);
-    return () => clearInterval(interval);
-  }, [user]);
+  }, []);
 
   const checkUser = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -105,30 +103,50 @@ export default function Console() {
     fetchAllData();
   };
 
-  const fetchAllData = async () => {
+  const fetchAllData = async (force = false) => {
+    const now = Date.now();
+    const twelveHours = 12 * 60 * 60 * 1000;
+
+    if (!force && now - lastFetch < twelveHours) {
+      return;
+    }
+
     setLoading(true);
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
 
     const token = session.access_token;
 
-    const [keysRes, statsRes, usageRes, logsRes] = await Promise.all([
-      fetch('/api/console/keys', { headers: { Authorization: `Bearer ${token}` } }),
-      fetch('/api/console/stats?type=total', { headers: { Authorization: `Bearer ${token}` } }),
-      fetch('/api/console/stats?type=usage&days=7', { headers: { Authorization: `Bearer ${token}` } }),
-      fetch('/api/console/stats?type=logs&limit=20', { headers: { Authorization: `Bearer ${token}` } }),
-    ]);
+    try {
+      const [keysRes, statsRes, usageRes, logsRes] = await Promise.all([
+        fetch('/api/console/keys', { headers: { Authorization: `Bearer ${token}` } }),
+        fetch('/api/console/stats?type=total', { headers: { Authorization: `Bearer ${token}` } }),
+        fetch('/api/console/stats?type=usage&days=7', { headers: { Authorization: `Bearer ${token}` } }),
+        fetch('/api/console/stats?type=logs&limit=20', { headers: { Authorization: `Bearer ${token}` } }),
+      ]);
 
-    const keysData = await keysRes.json();
-    const statsData = await statsRes.json();
-    const usageDataRes = await usageRes.json();
-    const logsData = await logsRes.json();
+      const keysData = await keysRes.json();
+      const statsData = await statsRes.json();
+      const usageDataRes = await usageRes.json();
+      const logsData = await logsRes.json();
 
-    setKeys(keysData.keys || []);
-    setStats(statsData.stats || { totalRequests: 0, activeKeys: 0, rateLimitUsage: 0 });
-    setUsageData(usageDataRes.usage || []);
-    setLogs(logsData.logs || []);
-    setLoading(false);
+      setKeys(keysData.keys || []);
+      setStats(statsData.stats || { totalRequests: 0, activeKeys: 0, rateLimitUsage: 0 });
+      setUsageData(usageDataRes.usage || []);
+      setLogs(logsData.logs || []);
+      setLastFetch(now);
+    } catch (error) {
+      console.error('Failed to fetch data:', error);
+      showToast('Failed to fetch data', 'error');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchAllData(true);
   };
 
   const handleCreateKey = async () => {
@@ -156,7 +174,7 @@ export default function Console() {
     if (res.ok) {
       setCreatedKey(data.key.key);
       setNewKeyName('');
-      fetchAllData();
+      fetchAllData(true);
       showToast('API key created successfully', 'success');
     } else {
       showToast(data.error || 'Failed to create key', 'error');
@@ -184,7 +202,7 @@ export default function Console() {
     if (res.ok) {
       setShowRevokeModal(false);
       setSelectedKey(null);
-      fetchAllData();
+      fetchAllData(true);
       showToast('API key revoked successfully', 'success');
     } else {
       showToast('Failed to revoke key', 'error');
@@ -212,7 +230,7 @@ export default function Console() {
     if (res.ok) {
       setEditingKeyId(null);
       setEditingName('');
-      fetchAllData();
+      fetchAllData(true);
       showToast('Key name updated', 'success');
     } else {
       showToast('Failed to update key name', 'error');
@@ -361,7 +379,15 @@ export default function Console() {
                 </div>
               </div>
 
-              <div className="flex-shrink-0">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleRefresh}
+                  disabled={refreshing}
+                  className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700/50 rounded-lg transition-colors disabled:opacity-50"
+                  title="Refresh data"
+                >
+                  <FiRefreshCw className={`text-lg text-slate-600 dark:text-slate-400 ${refreshing ? 'animate-spin' : ''}`} />
+                </button>
                 <ThemeToggle />
               </div>
             </div>
@@ -475,7 +501,7 @@ export default function Console() {
             {activeTab === 'keys' && (
               <div className="space-y-4 sm:space-y-6">
                 <div className="flex justify-end">
-                  <button
+                  <button ```typescript
                     onClick={() => setShowCreateModal(true)}
                     className="flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white rounded-lg font-medium shadow-lg hover:shadow-xl transition-all text-sm sm:text-base"
                   >
