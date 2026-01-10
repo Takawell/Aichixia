@@ -3,6 +3,7 @@ import { FaPaperPlane, FaTrash, FaUser, FaHome, FaCircle, FaChevronDown, FaAngry
 import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiFlux, SiXiaomi, SiMaze, SiMatternet, SiImagedotsc } from "react-icons/si";
 import { GiSpermWhale, GiPowerLightning, GiBlackHoleBolas, GiClover, GiFire } from "react-icons/gi";
 import { TbSquareLetterZ, TbLetterM, } from "react-icons/tb";
+import { FaXTwitter } from "react-icons/fa6";
 import Link from "next/link";
 import ThemeToggle from "@/components/ThemeToggle";
 import ReactMarkdown from "react-markdown";
@@ -73,6 +74,14 @@ const models: Model[] = [
     icon: SiFlux,
     color: "from-purple-500 to-pink-500",
     type: "image",
+  },
+  {
+    id: "grok",
+    name: "Grok 3",
+    endpoint: "/api/models/grok",
+    icon: FaXTwitter,
+    color: "from-slate-700 via-slate-900 to-black",
+    type: "text",
   },
   {
     id: "kimi",
@@ -362,6 +371,7 @@ export default function Chat() {
 
     const colors: Record<string, string> = {
       glm: "bg-[#1835D4]",
+      grok: "bg-[#000000] border border-slate-700",
       kimi: "bg-[#0091FF]",
       nano: "bg-[#BDAA5D]",
       mimo: "bg-[#FFB800]",
