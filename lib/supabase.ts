@@ -3,23 +3,11 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-console.log('🔍 Debug Supabase Config:');
-console.log('URL:', supabaseUrl);
-console.log('URL type:', typeof supabaseUrl);
-console.log('Anon Key exists:', !!supabaseAnonKey);
-console.log('Anon Key prefix:', supabaseAnonKey?.substring(0, 30));
-console.log('Anon Key length:', supabaseAnonKey?.length);
-
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('❌ Missing env variables!');
   throw new Error('Missing Supabase environment variables');
 }
 
-console.log('✅ Creating Supabase client...');
-
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-console.log('✅ Supabase client created');
 
 export type ApiKey = {
   id: string;
