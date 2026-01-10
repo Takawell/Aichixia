@@ -1,0 +1,22 @@
+[
+  { "id": "deepseek-v3.2", "name": "DeepSeek v3.2", "provider": "deepseek" },
+  { "id": "deepseek-v3.1", "name": "DeepSeek v3.1", "provider": "deepseek" },
+  { "id": "gpt-5-mini", "name": "GPT-5 Mini", "provider": "openai" },
+  { "id": "gpt-4", "name": "GPT-4", "provider": "openai" },
+  { "id": "claude-haiku-4.5", "name": "Claude Haiku 4.5", "provider": "claude" },
+  { "id": "gemini-3-flash", "name": "Gemini 3 Flash", "provider": "gemini" },
+  { "id": "gemini-pro", "name": "Gemini Pro", "provider": "gemini" },
+  { "id": "kimi-k2", "name": "Kimi K2", "provider": "kimi" },
+  { "id": "glm-4.7", "name": "GLM 4.7", "provider": "glm" },
+  { "id": "mistral-3.1", "name": "Mistral 3.1", "provider": "mistral" },
+  { "id": "qwen3-235b", "name": "Qwen 3 235B", "provider": "qwen" },
+  { "id": "qwen3-coder-480b", "name": "Qwen 3 Coder 480B", "provider": "qwen" },
+  { "id": "minimax-m2.1", "name": "MiniMax M2.1", "provider": "minimax" },
+  { "id": "llama-3.3-70b", "name": "Llama 3.3 70B", "provider": "llama" },
+  { "id": "gpt-oss-120b", "name": "GPT OSS 120B", "provider": "gptoss" },
+  { "id": "mimo-v2-flash", "name": "Mimo v2 Flash", "provider": "mimo" },
+  { "id": "groq-compound", "name": "Groq Compound", "provider": "compound" },
+  { "id": "cohere-command-a", "name": "Cohere Command A", "provider": "cohere" },
+  { "id": "grok-3", "name": "Grok 3", "provider": "grok" },
+  { "id": "grok-3-mini", "name": "Grok 3 Mini", "provider": "grok" }
+]
