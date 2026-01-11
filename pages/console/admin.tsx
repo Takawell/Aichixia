@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { FiUsers, FiGift, FiActivity, FiPlus, FiX, FiCheck, FiAlertCircle, FiCalendar, FiTrendingUp, FiShield, FiEdit2, FiTrash2, FiCopy, FiRefreshCw, FiSearch, FiFilter } from 'react-icons/fi';
+import { FiUsers, FiGift, FiActivity, FiPlus, FiX, FiCheck, FiAlertCircle, FiCalendar, FiTrendingUp, FiShield, FiEdit2, FiTrash2, FiCopy, FiRefreshCw, FiSearch, FiFilter, FiCheckCircle } from 'react-icons/fi';
 import ThemeToggle from '@/components/ThemeToggle';
 
 type PromoCode = {
