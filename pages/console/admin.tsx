@@ -610,7 +610,7 @@ export default function AdminDashboard() {
                                 setSelectedUser(user);
                                 setEditUser({
                                   plan: user.plan,
-                                  plan_expires_at: user.plan_expires_at || '',
+                                  plan_expires_at: user.plan_expires_at ? new Date(user.plan_expires_at).toISOString().slice(0, 16) : '',
                                 });
                                 setShowEditUserModal(true);
                               }}
@@ -698,7 +698,79 @@ export default function AdminDashboard() {
                 disabled={actionLoading}
                 className="flex-1 px-4 py-2 sm:py-3 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-white rounded-lg font-medium transition-colors text-sm disabled:opacity-50"
               >
-               Cancel
+                Cancel
+              </button>
+              <button
+                onClick={handleCreatePromo}
+                disabled={actionLoading}
+                className="flex-1 px-4 py-2 sm:py-3 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white rounded-lg font-medium transition-all text-sm disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {actionLoading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  'Create Promo'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showEditUserModal && selectedUser && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 max-w-md w-full p-4 sm:p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-white">Edit User Plan</h3>
+              <button
+                onClick={() => setShowEditUserModal(false)}
+                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+              >
+                <FiX className="text-xl text-slate-600 dark:text-slate-400" />
+              </button>
+            </div>
+
+            <div className="mb-4 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+              <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{selectedUser.email}</p>
+              {selectedUser.display_name && (
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{selectedUser.display_name}</p>
+              )}
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Plan</label>
+                <select
+                  value={editUser.plan}
+                  onChange={(e) => setEditUser({ ...editUser, plan: e.target.value })}
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm sm:text-base text-slate-800 dark:text-white outline-none focus:border-sky-500"
+                >
+                  <option value="free">Free (1,000 req/day)</option>
+                  <option value="pro">Pro (4,000 req/day)</option>
+                  <option value="enterprise">Enterprise (10,000 req/day)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Expires At (Optional)</label>
+                <input
+                  type="datetime-local"
+                  value={editUser.plan_expires_at}
+                  onChange={(e) => setEditUser({ ...editUser, plan_expires_at: e.target.value })}
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm sm:text-base text-slate-800 dark:text-white outline-none focus:border-sky-500"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setShowEditUserModal(false)}
+                disabled={actionLoading}
+                className="flex-1 px-4 py-2 sm:py-3 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-white rounded-lg font-medium transition-colors text-sm disabled:opacity-50"
+              >
+                Cancel
               </button>
               <button
                 onClick={handleUpdateUserPlan}
