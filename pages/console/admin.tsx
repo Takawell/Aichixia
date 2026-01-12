@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { FiUsers, FiGift, FiActivity, FiPlus, FiX, FiCheck, FiAlertCircle, FiCalendar, FiTrendingUp, FiShield, FiEdit2, FiCopy, FiRefreshCw, FiSearch, FiFilter, FiCheckCircle, FiLock } from 'react-icons/fi';
+import { FiUsers, FiGift, FiActivity, FiPlus, FiX, FiCheck, FiAlertCircle, FiCalendar, FiTrendingUp, FiServer, FiEdit2, FiCopy, FiRefreshCw, FiSearch, FiFilter, FiCheckCircle, FiLock } from 'react-icons/fi';
 import ThemeToggle from '@/components/ThemeToggle';
 
 type PromoCode = {
@@ -268,7 +268,7 @@ export default function AdminDashboard() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3 sm:gap-4">
             <div className="w-10 h-10 bg-gradient-to-br from-sky-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-              <FiShield className="text-white text-xl" />
+              <FiServer className="text-white text-xl" />
             </div>
             <div>
               <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-slate-800 dark:text-white">Admin Dashboard</h1>
