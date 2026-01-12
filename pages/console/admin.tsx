@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { FiUsers, FiGift, FiActivity, FiPlus, FiX, FiCheck, FiAlertCircle, FiCalendar, FiTrendingUp, FiShield, FiEdit2, FiTrash2, FiCopy, FiRefreshCw, FiSearch, FiFilter, FiCheckCircle } from 'react-icons/fi';
+import { FiUsers, FiGift, FiActivity, FiPlus, FiX, FiCheck, FiAlertCircle, FiCalendar, FiTrendingUp, FiShield, FiEdit2, FiCopy, FiRefreshCw, FiSearch, FiFilter, FiCheckCircle, FiLock } from 'react-icons/fi';
 import ThemeToggle from '@/components/ThemeToggle';
 
 type PromoCode = {
@@ -36,6 +36,7 @@ type User = {
 export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [accessDenied, setAccessDenied] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'promos' | 'redemptions' | 'users'>('overview');
   const [promoCodes, setPromoCodes] = useState<PromoCode[]>([]);
   const [redemptions, setRedemptions] = useState<Redemption[]>([]);
@@ -79,7 +80,8 @@ export default function AdminDashboard() {
 
     const data = await res.json();
     if (!data.settings?.is_admin) {
-      window.location.href = '/console';
+      setAccessDenied(true);
+      setLoading(false);
       return;
     }
 
@@ -232,18 +234,40 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-sky-50/20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900 flex items-center justify-center">
         <div className="w-12 h-12 border-4 border-sky-500/30 border-t-sky-500 rounded-full animate-spin" />
       </div>
     );
   }
 
+  if (accessDenied) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-sky-50/20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900 flex items-center justify-center p-4">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 max-w-md w-full p-8 shadow-2xl">
+          <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+            <FiLock className="text-3xl text-red-600 dark:text-red-400" />
+          </div>
+          <h2 className="text-2xl font-bold text-slate-800 dark:text-white text-center mb-2">Access Denied</h2>
+          <p className="text-slate-600 dark:text-slate-400 text-center mb-6">
+            You don't have permission to access the admin dashboard. This area is restricted to administrators only.
+          </p>
+          <button
+            onClick={() => window.location.href = '/console'}
+            className="w-full px-6 py-3 bg-sky-600 hover:bg-sky-700 text-white rounded-lg font-medium transition-colors"
+          >
+            Back to Console
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-sky-50/20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
       <header className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg border-b border-slate-200 dark:border-slate-700 px-3 sm:px-4 lg:px-8 py-3 sm:py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3 sm:gap-4">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center shadow-lg">
+            <div className="w-10 h-10 bg-gradient-to-br from-sky-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
               <FiShield className="text-white text-xl" />
             </div>
             <div>
@@ -268,40 +292,40 @@ export default function AdminDashboard() {
         <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4">
             <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl border border-slate-200 dark:border-slate-700 p-3 sm:p-4 hover:shadow-lg transition-shadow">
-              <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg w-fit mb-2">
-                <FiUsers className="text-lg sm:text-xl text-blue-600 dark:text-blue-400" />
+              <div className="p-2 bg-sky-50 dark:bg-sky-900/20 rounded-lg w-fit mb-2">
+                <FiUsers className="text-lg sm:text-xl text-sky-600 dark:text-sky-400" />
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400">Total Users</p>
               <p className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white">{stats.totalUsers}</p>
             </div>
 
             <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl border border-slate-200 dark:border-slate-700 p-3 sm:p-4 hover:shadow-lg transition-shadow">
-              <div className="p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg w-fit mb-2">
-                <FiGift className="text-lg sm:text-xl text-purple-600 dark:text-purple-400" />
+              <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg w-fit mb-2">
+                <FiGift className="text-lg sm:text-xl text-blue-600 dark:text-blue-400" />
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400">Active Promos</p>
               <p className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white">{stats.activePromos}</p>
             </div>
 
             <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl border border-slate-200 dark:border-slate-700 p-3 sm:p-4 hover:shadow-lg transition-shadow">
-              <div className="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg w-fit mb-2">
-                <FiActivity className="text-lg sm:text-xl text-green-600 dark:text-green-400" />
+              <div className="p-2 bg-cyan-50 dark:bg-cyan-900/20 rounded-lg w-fit mb-2">
+                <FiActivity className="text-lg sm:text-xl text-cyan-600 dark:text-cyan-400" />
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400">Redemptions</p>
               <p className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white">{stats.totalRedemptions}</p>
             </div>
 
             <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl border border-slate-200 dark:border-slate-700 p-3 sm:p-4 hover:shadow-lg transition-shadow">
-              <div className="p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg w-fit mb-2">
-                <FiTrendingUp className="text-lg sm:text-xl text-orange-600 dark:text-orange-400" />
+              <div className="p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg w-fit mb-2">
+                <FiTrendingUp className="text-lg sm:text-xl text-indigo-600 dark:text-indigo-400" />
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400">Pro Users</p>
               <p className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white">{stats.proUsers}</p>
             </div>
 
             <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl border border-slate-200 dark:border-slate-700 p-3 sm:p-4 hover:shadow-lg transition-shadow">
-              <div className="p-2 bg-pink-50 dark:bg-pink-900/20 rounded-lg w-fit mb-2">
-                <FiShield className="text-lg sm:text-xl text-pink-600 dark:text-pink-400" />
+              <div className="p-2 bg-violet-50 dark:bg-violet-900/20 rounded-lg w-fit mb-2">
+                <FiShield className="text-lg sm:text-xl text-violet-600 dark:text-violet-400" />
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400">Enterprise</p>
               <p className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white">{stats.enterpriseUsers}</p>
@@ -344,7 +368,7 @@ export default function AdminDashboard() {
               {activeTab === 'overview' && (
                 <div className="space-y-4 sm:space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="p-4 bg-gradient-to-br from-blue-50 to-sky-50 dark:from-blue-900/10 dark:to-sky-900/10 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <div className="p-4 bg-gradient-to-br from-sky-50 to-blue-50 dark:from-sky-900/10 dark:to-blue-900/10 rounded-lg border border-sky-200 dark:border-sky-800">
                       <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">Plan Distribution</h3>
                       <div className="space-y-2">
                         <div className="flex items-center justify-between text-xs sm:text-sm">
@@ -362,7 +386,7 @@ export default function AdminDashboard() {
                       </div>
                     </div>
 
-                    <div className="p-4 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/10 dark:to-pink-900/10 rounded-lg border border-purple-200 dark:border-purple-800">
+                    <div className="p-4 bg-gradient-to-br from-cyan-50 to-sky-50 dark:from-cyan-900/10 dark:to-sky-900/10 rounded-lg border border-cyan-200 dark:border-cyan-800">
                       <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">Promo Stats</h3>
                       <div className="space-y-2">
                         <div className="flex items-center justify-between text-xs sm:text-sm">
@@ -384,10 +408,10 @@ export default function AdminDashboard() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <button
                       onClick={() => { setActiveTab('promos'); setShowCreateModal(true); }}
-                      className="flex items-center gap-3 p-4 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg hover:border-purple-500 dark:hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/10 transition-all group"
+                      className="flex items-center gap-3 p-4 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg hover:border-sky-500 dark:hover:border-sky-500 hover:bg-sky-50 dark:hover:bg-sky-900/10 transition-all group"
                     >
-                      <div className="p-2 sm:p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg group-hover:scale-110 transition-transform">
-                        <FiPlus className="text-lg sm:text-xl text-purple-600 dark:text-purple-400" />
+                      <div className="p-2 sm:p-3 bg-sky-50 dark:bg-sky-900/20 rounded-lg group-hover:scale-110 transition-transform">
+                        <FiPlus className="text-lg sm:text-xl text-sky-600 dark:text-sky-400" />
                       </div>
                       <div className="text-left">
                         <p className="text-sm sm:text-base font-semibold text-slate-800 dark:text-white">Create Promo Code</p>
@@ -416,7 +440,7 @@ export default function AdminDashboard() {
                   <div className="flex justify-end">
                     <button
                       onClick={() => setShowCreateModal(true)}
-                      className="flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white rounded-lg font-medium shadow-lg hover:shadow-xl transition-all text-sm sm:text-base"
+                      className="flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white rounded-lg font-medium shadow-lg hover:shadow-xl transition-all text-sm sm:text-base"
                     >
                       <FiPlus className="text-base sm:text-lg" />
                       Create Promo
@@ -447,7 +471,7 @@ export default function AdminDashboard() {
                                 >
                                   {copiedCode === promo.id ? <FiCheck className="text-green-500 text-sm" /> : <FiCopy className="text-slate-400 text-sm" />}
                                 </button>
-                                <span className={`px-2 py-1 rounded text-xs font-medium ${promo.plan_type === 'enterprise' ? 'bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-400' : 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400'}`}>
+                                <span className={`px-2 py-1 rounded text-xs font-medium ${promo.plan_type === 'enterprise' ? 'bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400' : 'bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400'}`}>
                                   {promo.plan_type.toUpperCase()}
                                 </span>
                               </div>
@@ -560,7 +584,7 @@ export default function AdminDashboard() {
                                       {user.display_name || user.email}
                                     </p>
                                     {user.is_admin && (
-                                      <span className="px-2 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 rounded text-xs font-medium">
+                                      <span className="px-2 py-0.5 bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400 rounded text-xs font-medium">
                                         ADMIN
                                       </span>
                                     )}
@@ -571,7 +595,7 @@ export default function AdminDashboard() {
                                 </div>
                               </div>
                               <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
-                                <span className={`px-2 py-1 rounded font-medium ${user.plan === 'enterprise' ? 'bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-400' : user.plan === 'pro' ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400' : 'bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-300'}`}>
+                                <span className={`px-2 py-1 rounded font-medium ${user.plan === 'enterprise' ? 'bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400' : user.plan === 'pro' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400' : 'bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-300'}`}>
                                   {user.plan.toUpperCase()}
                                 </span>
                                 <span>{user.active_keys} keys</span>
@@ -674,79 +698,7 @@ export default function AdminDashboard() {
                 disabled={actionLoading}
                 className="flex-1 px-4 py-2 sm:py-3 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-white rounded-lg font-medium transition-colors text-sm disabled:opacity-50"
               >
-                Cancel
-              </button>
-              <button
-                onClick={handleCreatePromo}
-                disabled={actionLoading}
-                className="flex-1 px-4 py-2 sm:py-3 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white rounded-lg font-medium transition-all text-sm disabled:opacity-50 flex items-center justify-center gap-2"
-              >
-                {actionLoading ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Creating...
-                  </>
-                ) : (
-                  'Create Promo'
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showEditUserModal && selectedUser && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 max-w-md w-full p-4 sm:p-6 shadow-2xl animate-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-white">Edit User Plan</h3>
-              <button
-                onClick={() => setShowEditUserModal(false)}
-                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
-              >
-                <FiX className="text-xl text-slate-600 dark:text-slate-400" />
-              </button>
-            </div>
-
-            <div className="mb-4 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
-              <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{selectedUser.email}</p>
-              {selectedUser.display_name && (
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{selectedUser.display_name}</p>
-              )}
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Plan</label>
-                <select
-                  value={editUser.plan}
-                  onChange={(e) => setEditUser({ ...editUser, plan: e.target.value })}
-                  className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm sm:text-base text-slate-800 dark:text-white outline-none focus:border-sky-500"
-                >
-                  <option value="free">Free (1,000 req/day)</option>
-                  <option value="pro">Pro (4,000 req/day)</option>
-                  <option value="enterprise">Enterprise (10,000 req/day)</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Expires At (Optional)</label>
-                <input
-                  type="datetime-local"
-                  value={editUser.plan_expires_at}
-                  onChange={(e) => setEditUser({ ...editUser, plan_expires_at: e.target.value })}
-                  className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm sm:text-base text-slate-800 dark:text-white outline-none focus:border-sky-500"
-                />
-              </div>
-            </div>
-
-            <div className="flex gap-3 mt-6">
-              <button
-                onClick={() => setShowEditUserModal(false)}
-                disabled={actionLoading}
-                className="flex-1 px-4 py-2 sm:py-3 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-white rounded-lg font-medium transition-colors text-sm disabled:opacity-50"
-              >
-                Cancel
+               Cancel
               </button>
               <button
                 onClick={handleUpdateUserPlan}
