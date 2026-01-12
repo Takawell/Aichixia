@@ -15,6 +15,7 @@ import { chatMimo, MimoRateLimitError, MimoQuotaError } from "@/lib/mimo";
 import { chatMinimax, MinimaxRateLimitError, MinimaxQuotaError } from "@/lib/minimax";
 import { chatGrok } from "@/lib/grok";
 import { verifyApiKey, incrementUsage, logRequest, updateDailyUsage } from "@/lib/console-utils";
+import { getServiceSupabase } from "@/lib/supabase";
 
 type ChatFunction = (
   history: { role: "user" | "assistant" | "system"; content: string }[],
@@ -43,6 +44,8 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "grok-3": { fn: chatGrok, provider: "grok" },
   "grok-3-mini": { fn: chatGrok, provider: "grok" },
 };
+
+const LOCKED_MODELS_PRO = ['deepseek-v3.2', 'minimax-m2.1', 'claude-haiku-4.5', 'kimi-k2'];
 
 const RATE_LIMIT_ERRORS = [
   OpenAIRateLimitError,
@@ -82,6 +85,32 @@ function isRateLimitError(error: any): boolean {
 
 function isQuotaError(error: any): boolean {
   return QUOTA_ERRORS.some((ErrorClass) => error instanceof ErrorClass);
+}
+
+async function checkModelAccess(userId: string, model: string): Promise<{ allowed: boolean; error?: string }> {
+  const supabaseAdmin = getServiceSupabase();
+  
+  const { data: settings, error } = await supabaseAdmin
+    .from('user_settings')
+    .select('plan')
+    .eq('user_id', userId)
+    .single();
+
+  if (error || !settings) {
+    return { allowed: true };
+  }
+
+  const userPlan = settings.plan;
+  const modelLower = model.toLowerCase();
+
+  if (userPlan === 'free' && LOCKED_MODELS_PRO.includes(modelLower)) {
+    return { 
+      allowed: false, 
+      error: `Model '${model}' requires Pro or Enterprise plan. Upgrade your plan at https://aichixia.com/console` 
+    };
+  }
+
+  return { allowed: true };
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -174,6 +203,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           type: "invalid_request_error",
           param: "model",
           code: null,
+        },
+      });
+    }
+
+    const modelAccess = await checkModelAccess(apiKeyData.user_id, model);
+    
+    if (!modelAccess.allowed) {
+      await logRequest({
+        api_key_id: apiKeyData.id,
+        user_id: apiKeyData.user_id,
+        model: model,
+        endpoint: '/api/v1/chat/completions',
+        status: 403,
+        error_message: modelAccess.error || 'Model access denied',
+        ip_address: (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress || null,
+        user_agent: req.headers['user-agent'] || null,
+      });
+
+      return res.status(403).json({
+        error: {
+          message: modelAccess.error,
+          type: "insufficient_quota",
+          param: "model",
+          code: "model_access_denied",
         },
       });
     }
