@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { FiUsers, FiGift, FiActivity, FiPlus, FiX, FiCheck, FiAlertCircle, FiCalendar, FiTrendingUp, FiServer, FiEdit2, FiCopy, FiRefreshCw, FiSearch, FiFilter, FiCheckCircle, FiLock } from 'react-icons/fi';
+import { FaServer } from "react-icons/fa";
+import { FiUsers, FiGift, FiActivity, FiPlus, FiX, FiCheck, FiAlertCircle, FiCalendar, FiEdit2, FiCopy, FiRefreshCw, FiSearch, FiFilter, FiCheckCircle, FiLock } from 'react-icons/fi';
+import { RiVipDiamondLine, RiVipCrownLine } from "react-icons/ri";
 import ThemeToggle from '@/components/ThemeToggle';
 
 type PromoCode = {
@@ -268,7 +270,7 @@ export default function AdminDashboard() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3 sm:gap-4">
             <div className="w-10 h-10 bg-gradient-to-br from-sky-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-              <FiServer className="text-white text-xl" />
+              <FaServer className="text-white text-xl" />
             </div>
             <div>
               <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-slate-800 dark:text-white">Admin Dashboard</h1>
@@ -317,7 +319,7 @@ export default function AdminDashboard() {
 
             <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl border border-slate-200 dark:border-slate-700 p-3 sm:p-4 hover:shadow-lg transition-shadow">
               <div className="p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg w-fit mb-2">
-                <FiTrendingUp className="text-lg sm:text-xl text-indigo-600 dark:text-indigo-400" />
+                <RiVipDiamondLine className="text-lg sm:text-xl text-indigo-600 dark:text-indigo-400" />
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400">Pro Users</p>
               <p className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white">{stats.proUsers}</p>
@@ -325,7 +327,7 @@ export default function AdminDashboard() {
 
             <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl border border-slate-200 dark:border-slate-700 p-3 sm:p-4 hover:shadow-lg transition-shadow">
               <div className="p-2 bg-violet-50 dark:bg-violet-900/20 rounded-lg w-fit mb-2">
-                <FiShield className="text-lg sm:text-xl text-violet-600 dark:text-violet-400" />
+                <RiVipCrownLine className="text-lg sm:text-xl text-violet-600 dark:text-violet-400" />
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400">Enterprise</p>
               <p className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white">{stats.enterpriseUsers}</p>
