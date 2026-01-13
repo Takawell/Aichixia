@@ -145,9 +145,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const { error: updateKeysError } = await supabaseAdmin
           .from('api_keys')
           .update({ rate_limit: newRateLimit })
-          .eq('user_id', user.id);
+          .eq('user_id', user.id)
+          .eq('is_active', true);
 
-        if (updateKeysError) throw updateKeysError;
+        if (updateKeysError) {
+          console.error('Failed to update API keys rate limit:', updateKeysError);
+        }
 
         return res.status(200).json({
           message: 'Promo code redeemed successfully',
