@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { getServiceSupabase } from './supabase';
 import crypto from 'crypto';
 
 export function generateApiKey(): { key: string; prefix: string } {
@@ -118,7 +119,9 @@ export async function getRecentLogs(userId: string, limit: number = 20) {
 }
 
 export async function getUserKeys(userId: string) {
-  const { data, error } = await supabase
+  const supabaseAdmin = getServiceSupabase();
+  
+  const { data, error } = await supabaseAdmin
     .from('api_keys')
     .select('*')
     .eq('user_id', userId)
@@ -129,15 +132,28 @@ export async function getUserKeys(userId: string) {
 }
 
 export async function createApiKey(userId: string, name: string) {
+  const supabaseAdmin = getServiceSupabase();
+
+  const { data: settings } = await supabaseAdmin
+    .from('user_settings')
+    .select('plan')
+    .eq('user_id', userId)
+    .single();
+
+  const userPlan = settings?.plan || 'free';
+  const rateLimit = userPlan === 'enterprise' ? 10000 : userPlan === 'pro' ? 4000 : 1000;
+
   const { key, prefix } = generateApiKey();
 
-  const { data, error } = await supabase
+  const { data, error } = await supabaseAdmin
     .from('api_keys')
     .insert({
       user_id: userId,
       key,
       name,
       prefix,
+      rate_limit: rateLimit,
+      is_active: true,
     })
     .select()
     .single();
@@ -147,7 +163,9 @@ export async function createApiKey(userId: string, name: string) {
 }
 
 export async function revokeApiKey(userId: string, keyId: string) {
-  const { error } = await supabase
+  const supabaseAdmin = getServiceSupabase();
+  
+  const { error } = await supabaseAdmin
     .from('api_keys')
     .update({ is_active: false })
     .eq('id', keyId)
@@ -157,7 +175,9 @@ export async function revokeApiKey(userId: string, keyId: string) {
 }
 
 export async function updateApiKeyName(userId: string, keyId: string, newName: string) {
-  const { error } = await supabase
+  const supabaseAdmin = getServiceSupabase();
+  
+  const { error } = await supabaseAdmin
     .from('api_keys')
     .update({ name: newName })
     .eq('id', keyId)
