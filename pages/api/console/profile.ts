@@ -144,7 +144,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         const { error: updateKeysError } = await supabaseAdmin
           .from('api_keys')
-          .update({ rate_limit: newRateLimit })
+          .update({ rate_limit: newRateLimit, requests_used: 0 })
           .eq('user_id', user.id);
 
         if (updateKeysError) throw updateKeysError;
