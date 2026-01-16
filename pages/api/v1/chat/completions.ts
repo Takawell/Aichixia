@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { chatGemini } from "@/lib/gemini";
+import { chatAichixia, AichixiaRateLimitError, AichixiaQuotaError } from "@/lib/aichixia";
 import { chatOpenAI, OpenAIRateLimitError, OpenAIQuotaError } from "@/lib/openai";
 import { chatKimi, KimiRateLimitError, KimiQuotaError } from "@/lib/kimi";
 import { chatGlm, GlmRateLimitError, GlmQuotaError } from "@/lib/glm";
@@ -13,7 +14,7 @@ import { chatLlama, LlamaRateLimitError, LlamaQuotaError } from "@/lib/llama";
 import { chatMistral, MistralRateLimitError, MistralQuotaError } from "@/lib/mistral";
 import { chatMimo, MimoRateLimitError, MimoQuotaError } from "@/lib/mimo";
 import { chatMinimax, MinimaxRateLimitError, MinimaxQuotaError } from "@/lib/minimax";
-import { chatGrok } from "@/lib/grok";
+import { chatGrok, GrokRateLimitError, GrokQuotaError } from "@/lib/grok";
 import { verifyApiKey, incrementUsage, logRequest, updateDailyUsage } from "@/lib/console-utils";
 import { getServiceSupabase } from "@/lib/supabase";
 
@@ -43,9 +44,10 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "cohere-command-a": { fn: chatCohere, provider: "cohere" },
   "grok-3": { fn: chatGrok, provider: "grok" },
   "grok-3-mini": { fn: chatGrok, provider: "grok" },
+  "aichixia-thinking": { fn: chatAichixia, provider: "aichixia" },
 };
 
-const LOCKED_MODELS_PRO = ['deepseek-v3.2', 'minimax-m2.1', 'claude-haiku-4.5', 'kimi-k2'];
+const LOCKED_MODELS_PRO = ['deepseek-v3.2', 'minimax-m2.1', 'claude-haiku-4.5', 'kimi-k2', 'aichixia-thinking'];
 
 const RATE_LIMIT_ERRORS = [
   OpenAIRateLimitError,
@@ -61,6 +63,8 @@ const RATE_LIMIT_ERRORS = [
   MistralRateLimitError,
   MimoRateLimitError,
   MinimaxRateLimitError,
+  GrokRateLimitError,
+  AichixiaRateLimitError,
 ];
 
 const QUOTA_ERRORS = [
@@ -77,6 +81,8 @@ const QUOTA_ERRORS = [
   MistralQuotaError,
   MimoQuotaError,
   MinimaxQuotaError,
+  GrokQuotaError,
+  AichixiaQuotaError,
 ];
 
 function isRateLimitError(error: any): boolean {
