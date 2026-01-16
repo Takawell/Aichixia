@@ -346,8 +346,8 @@ Content-Type: application/json
 - **Response Time:** 1.5 seconds average
 
 **Tier 5 - GPT-5 Mini (Dense)**
-- **Parameters:** ~8 billion
-- **Architecture:** Dense transformer
+- **Parameters:** 87 billion
+- **Architecture:** Mixture of Experts
 - **Strengths:** Balanced quality-speed ratio, consistent performance
 - **Use Case:** General purpose, cost-efficient deployments
 - **Response Time:** 1.4 seconds average
@@ -367,14 +367,14 @@ Content-Type: application/json
 - **Response Time:** 1.3 seconds average
 
 **Tier 8 - Gemini 3 Flash (Dense)**
-- **Parameters:** ~15 billion (estimated)
-- **Architecture:** Dense transformer
+- **Parameters:** 1,2 trillion (estimated)
+- **Architecture:** Mixture of Experts
 - **Strengths:** Exceptional speed, multimodal understanding
 - **Use Case:** High-volume requests, simple queries
 - **Response Time:** 0.8 seconds average
 
 **Tier 9 - DeepSeek V3.2 (MoE)**
-- **Parameters:** 671 billion total, 37 billion activated
+- **Parameters:** 685 billion total, 37 billion activated
 - **Architecture:** Mixture of Experts
 - **Strengths:** Exceptional reasoning, math, coding
 - **Use Case:** Complex reasoning, technical queries
