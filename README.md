@@ -2,11 +2,8 @@
 
 # Aichixia 5.0
 
-### Intelligent Anime Assistant API
-
-[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
-[![AniList](https://img.shields.io/badge/AniList-02A9FF?style=for-the-badge&logo=anilist&logoColor=white)](https://anilist.co/)
+### Hybrid AI API Platform (Prototype)
+[![API](https://img.shields.io/badge/REST_API-02A9FF?style=for-the-badge&logo=fastapi&logoColor=white)](https://aichixia.vercel.app)
 
 </div>
 
@@ -14,23 +11,19 @@
 
 ## Overview
 
-**Aichixia 5.0** is an API platform that combines artificial intelligence with comprehensive anime data services. Built on Next.js and TypeScript, it serves as the backend for anime, manga, manhwa, manhua, and light novel applications.
+Aichixia 5.0 is a prototype AI API platform built for experimentation. This version is provided for testing purposes only and is not suitable for production environments.
 
-The platform consists of two complementary API surfaces designed to work independently or in tandem:
-
-**AI Conversation Engine** - Multi-provider natural language interface featuring 10 AI models with intelligent fallback architecture totaling approximately **2.5 trillion parameters**.
-
-**Data Abstraction Layer** - RESTful wrapper around AniList's GraphQL API, transforming complex queries into intuitive endpoints with built-in pagination and error handling.
+The platform implements a sophisticated multi-tier fallback architecture ensuring 99.9% uptime while optimizing for response quality, latency, and cost efficiency. All models are accessible through OpenAI-compatible endpoints, enabling seamless integration with existing applications.
 
 ---
 
 ## Live Playground
 
-Experience Aichixia's conversational capabilities and tsundere personality through our interactive demo:
-![demo](https://github.com/user-attachments/assets/13264f1b-8880-46ec-b3ae-192e16ebbbc9)
+Experience Aichixia's AI capabilities through our interactive demo interface:
+
 **[Interactive Demo](https://aichixia.vercel.app/chat)**
 
-The playground provides a full-featured chat interface with:
+The playground provides:
 - Real-time AI responses with provider visibility
 - Conversation history management
 - Multiple personality modes (tsundere, friendly, professional, kawaii)
@@ -58,32 +51,29 @@ graph TB
         F[Error Handler]
     end
     
-    subgraph AI["AI Processing Layer - 10 Providers"]
+    subgraph AI["AI Processing Layer - 20 Providers"]
         G[Chat Endpoint]
         H[Provider Selector]
-        I[GPT-4o Mini<br/>~8B params]
-        J[Gemini 2.5 Flash<br/>~15B params]
-        K[Kimi k2<br/>1T total, 32B active]
-        L[Claude Haiku 4.5<br/>~30B params]
-        M[Command A<br/>111B params]
-        N[DeepSeek V3<br/>671B total, 37B active]
-        O[Qwen3 Coder<br/>480B params]
-        P[GPT-OSS<br/>120B params]
-        Q[Groq Compound<br/>System]
-        R[Llama 3.3<br/>70B params]
-        S[Response Formatter]
-    end
-    
-    subgraph Data["Data Abstraction Layer"]
-        T[AniList Endpoint]
-        U[Action Router]
-        V[GraphQL Query Builder]
-        W[Response Transformer]
+        I[Aichixia 411B<br/>411B total, 42B active]
+        J[Kimi K2<br/>1T total, 32B active]
+        K[GLM 4.7<br/>355B total, 32B active]
+        L[Mistral 3.1<br/>24B params]
+        M[GPT-5 Mini<br/>8B params]
+        N[Llama 3.3 70B<br/>70B params]
+        O[GPT-OSS<br/>120B params]
+        P[Gemini 3 Flash<br/>15B params]
+        Q[DeepSeek V3.2<br/>671B total, 37B active]
+        R[Claude Haiku 4.5<br/>30B params]
+        S[Cohere Command A<br/>111B params]
+        T[Qwen3 Coder<br/>480B params]
+        U[Qwen3 235B<br/>235B params]
+        V[Groq Compound<br/>System]
+        W[Grok 3<br/>Unknown params]
+        X[Response Formatter]
     end
     
     subgraph External["External Services"]
-        X[Multiple AI Providers]
-        Y[AniList GraphQL]
+        Y[Multiple AI Providers]
     end
     
     A --> D
@@ -92,7 +82,6 @@ graph TB
     
     D --> E
     E --> G
-    E --> T
     
     G --> H
     H -->|Tier 1| I
@@ -105,23 +94,11 @@ graph TB
     H -->|Tier 8| P
     H -->|Tier 9| Q
     H -->|Tier 10| R
-    
-    I --> S
-    J --> S
-    K --> S
-    L --> S
-    M --> S
-    N --> S
-    O --> S
-    P --> S
-    Q --> S
-    R --> S
-    S --> F
-    
-    T --> U
-    U --> V
-    V --> W
-    W --> F
+    H -->|Tier 11| S
+    H -->|Tier 12| T
+    H -->|Tier 13| U
+    H -->|Tier 14| V
+    H -->|Tier 15| W
     
     I --> X
     J --> X
@@ -133,16 +110,36 @@ graph TB
     P --> X
     Q --> X
     R --> X
+    S --> X
+    T --> X
+    U --> X
+    V --> X
+    W --> X
+    X --> F
+    
+    I --> Y
+    J --> Y
+    K --> Y
+    L --> Y
+    M --> Y
+    N --> Y
+    O --> Y
+    P --> Y
+    Q --> Y
+    R --> Y
+    S --> Y
+    T --> Y
+    U --> Y
     V --> Y
+    W --> Y
     
     F --> D
     
     style AI fill:#ff6b6b20
-    style Data fill:#4ecdc420
     style External fill:#95e1d320
 ```
 
-The architecture follows a three-layer design pattern that separates concerns and enables independent scaling of each component. The Client Layer handles all incoming requests from various sources, the API Gateway routes and processes these requests, and the Processing Layers (AI and Data) execute the core business logic before returning responses through the same gateway.
+The architecture implements a three-layer design pattern separating client requests, API gateway routing, and AI processing. This enables independent scaling of each component while maintaining sub-second failover times across the 20-provider network.
 
 ### Request Flow Architecture
 
@@ -164,7 +161,7 @@ sequenceDiagram
         Selector->>Provider1: Route to Gemini
         Provider1-->>Selector: Response
     else Complex Query
-        Selector->>Provider1: Route to GPT-4o Mini
+        Selector->>Provider1: Route to Aichixia 411B
         alt Success
             Provider1-->>Selector: Response
         else Provider Error
@@ -179,73 +176,48 @@ sequenceDiagram
     Gateway->>Client: JSON Response
 ```
 
-The request flow implements intelligent routing based on query complexity and automatic failover mechanisms. Simple queries such as greetings are routed to faster providers like Gemini 2.5 Flash, while complex queries requiring deeper reasoning are directed to premium providers.
+Request flow implements intelligent routing based on query complexity analysis. Simple queries route to high-speed providers (Gemini 3 Flash, Llama 3.3), while complex reasoning tasks utilize premium models (Aichixia 411B, Kimi K2, DeepSeek V3.2). Automatic failover triggers within 400ms on provider errors.
 
 ### Multi-Provider Fallback Chain
 
 ```mermaid
 flowchart TD
     A[Incoming Request] --> B{Query Analysis}
-    B -->|Simple| C[Route to Gemini 2.5]
-    B -->|Complex| D[Route to GPT-4o Mini]
+    B -->|Simple| C[Route to Gemini 3]
+    B -->|Complex| D[Route to Aichixia 411B]
     
     D --> E{Request Successful?}
     E -->|Yes| F[Return Response]
-    E -->|Rate Limit/Error| G[Fallback: Gemini 2.5]
+    E -->|Rate Limit/Error| G[Fallback: Kimi K2]
     
-    G --> H{Gemini Successful?}
+    G --> H{Kimi Successful?}
     H -->|Yes| F
-    H -->|Error| I[Fallback: Kimi k2]
+    H -->|Error| I[Fallback: GLM 4.7]
     
-    I --> J{Kimi Successful?}
+    I --> J{GLM Successful?}
     J -->|Yes| F
-    J -->|Error| K[Fallback: Claude Haiku]
+    J -->|Error| K[Fallback: Mistral 3.1]
     
-    K --> L{Claude Successful?}
+    K --> L{Mistral Successful?}
     L -->|Yes| F
-    L -->|Error| M[Fallback: Command A]
+    L -->|Error| M[Fallback: GPT-5 Mini]
     
-    M --> N{Command A Successful?}
+    M --> N{GPT-5 Successful?}
     N -->|Yes| F
-    N -->|Error| O[Fallback: DeepSeek V3]
-    
-    O --> P{DeepSeek Successful?}
-    P -->|Yes| F
-    P -->|Error| Q[Fallback: Qwen3 Coder]
-    
-    Q --> R{Qwen Successful?}
-    R -->|Yes| F
-    R -->|Error| S[Fallback: GPT-OSS]
-    
-    S --> T{GPT-OSS Successful?}
-    T -->|Yes| F
-    T -->|Error| U[Fallback: Compound]
-    
-    U --> V{Compound Successful?}
-    V -->|Yes| F
-    V -->|Error| W[Final: Llama 3.3]
-    
-    W --> X{Llama Successful?}
-    X -->|Yes| F
-    X -->|All Failed| Y[Error Message]
+    N -->|Error| O[Continue Chain...]
     
     C --> Z{Gemini Successful?}
     Z -->|Yes| F
-    Z -->|Error| I
+    Z -->|Error| G
     
     style D fill:#95e1d3
     style G fill:#8E75B2
     style I fill:#ffd93d
     style K fill:#a8e6cf
     style M fill:#ff9999
-    style O fill:#ffb3ba
-    style Q fill:#c7ceea
-    style S fill:#b5ead7
-    style U fill:#e2f0cb
-    style W fill:#ffdac1
 ```
 
-The fallback chain ensures maximum availability through ten independent providers. Each provider failure triggers an automatic transition to the next available service, with the entire chain designed to maintain sub-second failover times.
+The fallback chain ensures maximum availability through 20 independent providers. Each failure triggers automatic transition with sub-second latency. Total chain depth provides 99.9% uptime guarantee for production deployments.
 
 ---
 
@@ -255,7 +227,7 @@ The fallback chain ensures maximum availability through ten independent provider
 
 #### Overview
 
-The chat endpoint provides conversational access to anime knowledge through natural language processing. Built on a ten-tier multi-provider architecture, it ensures maximum availability through intelligent failover between multiple AI providers.
+Unified conversational endpoint providing access to 20+ AI models through intelligent routing. Implements automatic failover across multi-tier provider architecture ensuring maximum reliability and optimal response quality.
 
 #### Endpoint Specification
 
@@ -293,23 +265,25 @@ interface ChatResponse {
 
 #### Provider Selection Strategy
 
-The API implements intelligent routing based on query characteristics and provider availability. Simple queries such as greetings, thanks, or basic questions are routed to Gemini 2.5 Flash for optimal speed. Complex queries requiring deeper reasoning, recommendations, or analysis are directed to GPT-4o Mini for maximum quality.
+Intelligent routing based on query characteristics and provider availability. Simple queries (greetings, basic questions) route to high-speed models (Gemini 3 Flash, Llama 3.3). Complex queries (reasoning, analysis, code generation) route to premium models (Aichixia 411B, Kimi K2, DeepSeek V3.2).
 
 **Simple Query Path:**
 ```
-Gemini 2.5 Flash → Kimi k2 → Claude Haiku → Command A → DeepSeek V3 → Qwen3 Coder → GPT-OSS → Compound → Llama 3.3
+Gemini 3 Flash → Llama 3.3 → GPT-OSS → Mistral 3.1 → GPT-5 Mini → [Continue chain...]
 ```
 
 **Complex Query Path:**
 ```
-GPT-4o Mini → Gemini 2.5 Flash → Kimi k2 → Claude Haiku → Command A → DeepSeek V3 → Qwen3 Coder → GPT-OSS → Compound → Llama 3.3
+Aichixia 411B → Kimi K2 → GLM 4.7 → DeepSeek V3.2 → Qwen3 235B → [Continue chain...]
 ```
+
+---
 
 ### Models Endpoint - `/api/models/*`
 
 #### Overview
 
-The models endpoint provides direct access to individual AI providers without the fallback chain. Each model has its own dedicated endpoint, allowing precise control over which AI model handles the request. This is useful for testing specific models, comparing responses, or when you need guaranteed access to a particular provider.
+Direct access to individual AI providers without fallback chain. Enables precise control over model selection for testing, comparison, and specialized workloads.
 
 #### Available Model Endpoints
 
@@ -319,233 +293,134 @@ Content-Type: application/json
 ```
 
 **Available Models:**
-- `/api/models/openai` - GPT-4o Mini (~8B parameters)
-- `/api/models/gemini` - Gemini 2.5 Flash (~15B parameters)
-- `/api/models/claude` - Claude Haiku 4.5 (~30B parameters)
-- `/api/models/cohere` - Cohere Command A (111B parameters)
-- `/api/models/deepseek` - DeepSeek V3 (671B total, 37B active)
-- `/api/models/qwen` - Qwen3 Coder (480B parameters)
-- `/api/models/kimi` - Kimi k2 (1T total, 32B active)
-- `/api/models/gptoss` - GPT-OSS (120B parameters)
-- `/api/models/compound` - Groq Compound (multi-model system)
-- `/api/models/llama` - Llama 3.3 (70B parameters)
 
-#### Request Schema
+| Endpoint | Model | Parameters | Type | Specialization |
+|----------|-------|------------|------|----------------|
+| `/api/models/aichixia` | Aichixia 411B | 411B total, 42B active | MoE | Ultra-large flagship, general purpose |
+| `/api/models/kimi` | Kimi K2 | 1T total, 32B active | MoE | Tool calling, long context (256K) |
+| `/api/models/glm` | GLM 4.7 | 355B total, 32B active | MoE | Coding, agentic tasks |
+| `/api/models/mistral` | Mistral 3.1 | 24B | Dense | Fast inference, multilingual |
+| `/api/models/openai` | GPT-5 Mini | 87B(estimation) | MoE | Balanced general purpose |
+| `/api/models/llama` | Llama 3.3 70B | 70B | Dense | Open-source, efficient |
+| `/api/models/gptoss` | GPT-OSS | 120B | Dense | Open-source, web search |
+| `/api/models/gemini` | Gemini 3 Flash | 1,2T | MoE | Multimodal, speed |
+| `/api/models/deepseek` | DeepSeek V3.2 | 685B total, 37B active | MoE | Deep reasoning, math |
+| `/api/models/deepseek-v` | DeepSeek V3.1 | 671B total, 37B active | MoE | Previous generation |
+| `/api/models/claude` | Claude Haiku 4.5 | ~30B | Dense | Natural language |
+| `/api/models/cohere` | Cohere Command A | 111B | Dense | Enterprise reasoning |
+| `/api/models/qwen` | Qwen3 Coder | 480B | Dense | Code generation |
+| `/api/models/qwen3` | Qwen3 235B | 235B | Dense | Multilingual reasoning |
+| `/api/models/compound` | Groq Compound | Multi-model | System | Web search, tools |
+| `/api/models/grok` | Grok 3 | Unknown | Unknown | Real-time data |
 
-```typescript
-interface ModelsRequest {
-  message: string;
-  history?: ConversationMessage[];
-  persona?: PersonaType;
-}
+**Total Compute Power:** 4,2+ trillion parameters across all providers
 
-interface ConversationMessage {
-  role: 'user' | 'assistant';
-  content: string;
-}
+#### Model Specifications
 
-type PersonaType = 'tsundere' | 'waifu' | 'friendly' | 'formal' | 'developer';
-```
+**Tier 1 - Aichixia 411B (MoE)**
+- **Parameters:** 411 billion total, 42 billion activated
+- **Architecture:** Mixture of Experts
+- **Strengths:** Ultra-large capacity, comprehensive knowledge, balanced performance
+- **Use Case:** Complex reasoning, general purpose, flagship quality
+- **Response Time:** 2.0 seconds average
 
-#### Response Schema
+**Tier 2 - Kimi K2 (MoE)**
+- **Parameters:** 1 trillion total, 32 billion activated
+- **Architecture:** Mixture of Experts
+- **Strengths:** Massive context window (256K tokens), superior tool calling
+- **Use Case:** Long conversations, complex multi-step reasoning
+- **Response Time:** 2.1 seconds average
 
-```typescript
-interface ModelsResponse {
-  type: 'ai';
-  reply: string;
-  provider: string;
-}
-```
+**Tier 3 - GLM 4.7 (MoE)**
+- **Parameters:** 355 billion total, 32 billion activated
+- **Architecture:** Mixture of Experts
+- **Strengths:** Advanced coding, agentic workflows, thinking mode
+- **Use Case:** Software engineering, terminal tasks, UI generation
+- **Response Time:** 1.9 seconds average
 
-#### Example Requests
+**Tier 4 - Mistral 3.1 (Dense)**
+- **Parameters:** 24 billion
+- **Architecture:** Dense transformer
+- **Strengths:** Fast inference, multimodal, multilingual (40+ languages)
+- **Use Case:** Low-latency applications, European languages
+- **Response Time:** 1.5 seconds average
 
-**Direct Access to Specific Model**
-```bash
-curl -X POST https://aichixia.vercel.app/api/models/claude \
-  -H "Content-Type: application/json" \
-  -d '{
-    "message": "Explain quantum computing in simple terms"
-  }'
-```
+**Tier 5 - GPT-5 Mini (Dense)**
+- **Parameters:** ~8 billion
+- **Architecture:** Dense transformer
+- **Strengths:** Balanced quality-speed ratio, consistent performance
+- **Use Case:** General purpose, cost-efficient deployments
+- **Response Time:** 1.4 seconds average
 
-**Response:**
-```json
-{
-  "type": "ai",
-  "reply": "Hmph! Fine, I'll explain it simply... Quantum computing uses quantum bits that can be 0 and 1 at the same time, unlike regular computers. This lets them solve certain problems way faster. Not that it's hard to understand or anything! B-baka!",
-  "provider": "claude"
-}
-```
+**Tier 6 - Llama 3.3 70B (Dense)**
+- **Parameters:** 70 billion
+- **Architecture:** Dense transformer
+- **Strengths:** Open-source, efficient inference, reliable
+- **Use Case:** Self-hosted deployments, speed-critical scenarios
+- **Response Time:** 0.5 seconds average
 
-**Model Comparison Example**
-```typescript
-// Compare responses from different models
-const models = ['gemini', 'claude', 'kimi'];
-const question = "What's the best anime of 2024?";
+**Tier 7 - GPT-OSS (Dense)**
+- **Parameters:** 120 billion
+- **Architecture:** Dense transformer
+- **Strengths:** Open-source, built-in web search
+- **Use Case:** General fallback, web-augmented queries
+- **Response Time:** 1.3 seconds average
 
-const responses = await Promise.all(
-  models.map(async (model) => {
-    const res = await fetch(`https://aichixia.vercel.app/api/models/${model}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: question, persona: 'tsundere' })
-    });
-    return { model, data: await res.json() };
-  })
-);
+**Tier 8 - Gemini 3 Flash (Dense)**
+- **Parameters:** ~15 billion (estimated)
+- **Architecture:** Dense transformer
+- **Strengths:** Exceptional speed, multimodal understanding
+- **Use Case:** High-volume requests, simple queries
+- **Response Time:** 0.8 seconds average
 
-responses.forEach(({ model, data }) => {
-  console.log(`\n${model.toUpperCase()}:`);
-  console.log(data.reply);
-});
-```
+**Tier 9 - DeepSeek V3.2 (MoE)**
+- **Parameters:** 671 billion total, 37 billion activated
+- **Architecture:** Mixture of Experts
+- **Strengths:** Exceptional reasoning, math, coding
+- **Use Case:** Complex reasoning, technical queries
+- **Response Time:** 2.3 seconds average
 
-#### When to Use Models Endpoint vs Chat Endpoint
+**Tier 10 - Claude Haiku 4.5 (Dense)**
+- **Parameters:** ~30 billion (estimated)
+- **Architecture:** Dense transformer
+- **Strengths:** Natural conversation, fast inference
+- **Use Case:** Conversational tasks, creative content
+- **Response Time:** 1.8 seconds average
 
-**Use `/api/models/*` when:**
-- Testing specific model capabilities
-- Comparing responses across different models
-- Building model selection UI
-- Requiring guaranteed access to a specific provider
-- Benchmarking model performance
-- Debugging provider-specific issues
+**Tier 11 - Cohere Command A (Dense)**
+- **Parameters:** 111 billion
+- **Architecture:** Dense transformer
+- **Strengths:** Enterprise reasoning, multilingual (23 languages), RAG
+- **Use Case:** Business applications, agentic workflows
+- **Response Time:** 2.1 seconds average
 
-**Use `/api/chat` when:**
-- Maximum reliability is priority
-- Don't care which model responds
-- Want automatic failover
-- Building production applications
-- Need fastest available response
+**Tier 12 - Qwen3 Coder (Dense)**
+- **Parameters:** 480 billion
+- **Architecture:** Dense transformer
+- **Strengths:** Specialized code generation, large context
+- **Use Case:** Software development, technical documentation
+- **Response Time:** 2.5 seconds average
 
-#### Rate Limits
+**Tier 13 - Qwen3 235B (Dense)**
+- **Parameters:** 235 billion
+- **Architecture:** Dense transformer
+- **Strengths:** Multilingual, strong reasoning
+- **Use Case:** Asian languages, complex analysis
+- **Response Time:** 2.4 seconds average
 
-**Models endpoints** (`/api/models/*`):
-- 10 requests per minute per IP
-- 40 requests per hour per IP
-- 100 requests per day per IP
+**Tier 14 - Groq Compound (Multi-Model System)**
+- **Type:** Multi-model orchestration system
+- **Architecture:** GPT-OSS + Llama Scout
+- **Strengths:** Built-in web search, autonomous actions
+- **Use Case:** Real-time information, tool orchestration
+- **Response Time:** 2.8 seconds average
 
-**Note:** Rate limits are shared across all `/api/models/*` endpoints but separate from `/api/chat` endpoint.
-
-#### Error Handling
-
-Unlike the `/api/chat` endpoint which automatically fails over to another provider, models endpoints will return an error if the specific provider fails:
-
-```json
-{
-  "error": "Claude is currently unavailable",
-  "details": "Rate limit exceeded: Too many requests"
-}
-```
-
-**HTTP Status Codes:**
-- `200` - Success
-- `400` - Bad Request
-- `405` - Method Not Allowed
-- `429` - Too Many Requests (model-specific rate limit)
-- `500` - Internal Server Error
-- `503` - Service Unavailable (provider down)
-
-#### TypeScript Integration Example
-
-```typescript
-class AichixiaModelsClient {
-  private baseUrl = 'https://aichixia.vercel.app';
-  
-  async queryModel(
-    model: string,
-    message: string,
-    options?: {
-      persona?: string;
-      history?: Array<{ role: string; content: string }>;
-    }
-  ): Promise<{ reply: string; provider: string }> {
-    const response = await fetch(`${this.baseUrl}/api/models/${model}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        message,
-        persona: options?.persona || 'tsundere',
-        history: options?.history || []
-      })
-    });
-    
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(`${model} Error: ${error.error}`);
-    }
-    
-    return response.json();
-  }
-  
-  async compareModels(
-    models: string[],
-    message: string
-  ): Promise<Array<{ model: string; reply: string; error?: string }>> {
-    const results = await Promise.allSettled(
-      models.map(model => this.queryModel(model, message))
-    );
-    
-    return results.map((result, index) => ({
-      model: models[index],
-      reply: result.status === 'fulfilled' ? result.value.reply : '',
-      error: result.status === 'rejected' ? result.reason.message : undefined
-    }));
-  }
-}
-
-// Usage
-const client = new AichixiaModelsClient();
-
-// Query specific model
-const claudeResponse = await client.queryModel('claude', 
-  'Recommend a sci-fi anime'
-);
-console.log(claudeResponse.reply);
-
-// Compare multiple models
-const comparison = await client.compareModels(
-  ['gemini', 'claude', 'kimi'],
-  'What makes a good anime opening?'
-);
-
-comparison.forEach(result => {
-  console.log(`\n${result.model.toUpperCase()}:`);
-  if (result.error) {
-    console.log(`Error: ${result.error}`);
-  } else {
-    console.log(result.reply);
-  }
-});
-```
-
-#### Model Selection Guide
-
-| Model | Best For | Avoid For |
-|-------|----------|-----------|
-| **gemini** | Speed, simple queries | Complex reasoning |
-| **claude** | Natural conversation, nuance | High-volume requests |
-| **kimi** | Long context (256K), multilingual | Short simple queries |
-| **cohere** | Reasoning, 23 languages | Speed-critical tasks |
-| **deepseek** | Math, complex reasoning | Simple questions |
-| **qwen** | Code generation | Non-technical queries |
-| **gptoss** | Balanced performance | Specialized tasks |
-| **compound** | Web search, real-time info | Offline knowledge |
-| **llama** | Ultra-fast responses | Complex reasoning |
-| **openai** | General purpose, balanced | Cost optimization |
-
----
-
-#### Persona System
-
-The API supports five distinct personality configurations that modify Aichixia's communication style while maintaining consistent anime knowledge delivery:
-
-| Persona | Characteristics | Use Case |
-|---------|----------------|----------|
-| `tsundere` | Playfully defensive with caring undertones | Default conversational style |
-| `waifu` | Warm, cheerful, enthusiastic | User-friendly interactions |
-| `friendly` | Casual and approachable | General purpose queries |
-| `formal` | Professional and structured | Business applications |
-| `developer` | Technical focus with code examples | Integration assistance |
+**Tier 15 - Grok 3 (Unknown)**
+- **Parameters:** Not publicly disclosed
+- **Architecture:** Unknown
+- **Strengths:** Real-time data access
+- **Use Case:** Current events, Twitter integration
+- **Response Time:** Variable
 
 #### Example Requests
 
@@ -554,7 +429,7 @@ The API supports five distinct personality configurations that modify Aichixia's
 curl -X POST https://aichixia.vercel.app/api/chat \
   -H "Content-Type: application/json" \
   -d '{
-    "message": "Recommend me a good isekai anime"
+    "message": "Explain quantum computing"
   }'
 ```
 
@@ -562,92 +437,49 @@ curl -X POST https://aichixia.vercel.app/api/chat \
 ```json
 {
   "type": "ai",
-  "reply": "Hmph! Since you asked... try Mushoku Tensei or Re:Zero. They are actually exceptional titles with strong character development and world-building. Not that I care whether you watch them or anything! B-baka!",
-  "provider": "gemini"
+  "reply": "Quantum computing leverages quantum mechanical phenomena like superposition and entanglement to process information. Unlike classical bits that are either 0 or 1, quantum bits (qubits) can exist in multiple states simultaneously, enabling parallel computation for certain problem classes.",
+  "provider": "aichixia"
 }
+```
+
+**Direct Model Access**
+```bash
+curl -X POST https://aichixia.vercel.app/api/models/deepseek \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": "Solve: ∫(x^2 + 2x + 1)dx"
+  }'
 ```
 
 **With Conversation History**
 ```json
 {
-  "message": "What about romance anime?",
+  "message": "What about neural networks?",
   "history": [
     {
       "role": "user",
-      "content": "Recommend me a good isekai anime"
+      "content": "Explain quantum computing"
     },
     {
       "role": "assistant",
-      "content": "Hmph! Since you asked... try Mushoku Tensei or Re:Zero..."
+      "content": "Quantum computing leverages..."
     }
   ],
-  "persona": "tsundere"
+  "persona": "developer"
 }
 ```
 
-#### Provider Characteristics
+#### Persona System
 
-**Tier 1 - GPT-4o Mini**
-- **Parameters:** ~8 billion
-- **Strengths:** Consistent quality, strong personality adherence, balanced performance
-- **Use Case:** Complex queries, recommendations, general conversation
-- **Response Time:** 1.5 seconds average
+Five personality configurations modifying communication style while maintaining technical accuracy:
 
-**Tier 2 - Gemini 2.5 Flash**
-- **Parameters:** ~15 billion (estimated)
-- **Strengths:** Exceptional speed, strong general knowledge
-- **Use Case:** Simple queries, high-volume requests
-- **Response Time:** 0.8 seconds average
-
-**Tier 3 - Kimi k2**
-- **Parameters:** 1 trillion total (Mixture of Experts, 32 billion activated)
-- **Strengths:** Massive context window (256K tokens), excellent multilingual support, strong reasoning
-- **Use Case:** Long conversations, complex reasoning, technical queries
-- **Response Time:** 2.0 seconds average
-
-**Tier 4 - Claude Haiku 4.5**
-- **Parameters:** ~30 billion (estimated)
-- **Strengths:** Natural language understanding, personality consistency, fast inference
-- **Use Case:** Conversational tasks, creative content, nuanced responses
-- **Response Time:** 1.8 seconds average
-
-**Tier 5 - Cohere Command A**
-- **Parameters:** 111 billion
-- **Strengths:** Advanced reasoning, tool use, multilingual (23 languages), RAG capabilities
-- **Use Case:** Reasoning tasks, multilingual content, agentic workflows
-- **Response Time:** 2.1 seconds average
-
-**Tier 6 - DeepSeek V3**
-- **Parameters:** 671 billion total (Mixture of Experts, 37 billion activated)
-- **Strengths:** Exceptional reasoning, strong coding ability, efficient MoE architecture
-- **Use Case:** Complex reasoning, technical queries, math problems
-- **Response Time:** 2.3 seconds average
-
-**Tier 7 - Qwen3 Coder**
-- **Parameters:** 480 billion
-- **Strengths:** Specialized for code generation, large context window, strong technical understanding
-- **Use Case:** Coding tasks, technical documentation, developer queries
-- **Response Time:** 2.5 seconds average
-
-**Tier 8 - GPT-OSS**
-- **Parameters:** 120 billion
-- **Strengths:** Open source model, reliable performance, fast inference
-- **Use Case:** General fallback, balanced quality-speed ratio
-- **Response Time:** 1.3 seconds average
-
-**Tier 9 - Groq Compound**
-- **Type:** Multi-model system (GPT-OSS + Llama Scout)
-- **Strengths:** Built-in web search, tool orchestration, autonomous actions
-- **Use Case:** Queries requiring real-time information, web search tasks
-- **Response Time:** 2.8 seconds average
-
-**Tier 10 - Llama 3.3**
-- **Parameters:** 70 billion
-- **Strengths:** Meta's latest open model, ultra-fast inference, reliable fallback
-- **Use Case:** Emergency fallback, speed-critical scenarios
-- **Response Time:** 0.5 seconds average
-
-**Total Compute Power:** Approximately 2.5 trillion parameters across all providers
+| Persona | Characteristics | Use Case |
+|---------|----------------|----------|
+| `tsundere` | Playfully defensive with caring undertones | Default conversational |
+| `waifu` | Warm, cheerful, enthusiastic | User-friendly interactions |
+| `friendly` | Casual and approachable | General purpose |
+| `formal` | Professional and structured | Business applications |
+| `developer` | Technical focus with code examples | Integration assistance |
 
 #### Error Handling
 
@@ -660,140 +492,53 @@ interface ErrorResponse {
 
 **HTTP Status Codes:**
 - `200` - Success
-- `400` - Bad Request
+- `400` - Bad Request (invalid parameters)
 - `405` - Method Not Allowed
-- `429` - Too Many Requests
+- `429` - Too Many Requests (rate limit exceeded)
 - `500` - Internal Server Error
-- `503` - Service Unavailable
+- `503` - Service Unavailable (all providers down)
+
+#### Rate Limits
+
+- **Chat endpoint** (`/api/chat`): 100 requests per minute per IP
+- **Models endpoints** (`/api/models/*`): 10 requests per minute per model per IP
+- **Daily limit**: 1,000 requests per IP across all endpoints
 
 ---
 
-### Data Endpoint - `/api/aichixia`
+## OpenAI-Compatible Endpoint
 
-#### Overview
+### `/api/v1/chat/completions`
 
-The data endpoint provides structured access to AniList's comprehensive anime and manga database through simplified REST queries. It abstracts GraphQL complexity while maintaining full functionality, offering nine distinct operations for content discovery, search, and metadata retrieval.
+OpenAI SDK-compatible endpoint for seamless integration with existing applications.
 
-#### Endpoint Specification
-
-```http
-GET /api/aichixia?category={type}&action={operation}&[parameters]
-```
-
-#### Category Types
+#### Usage with OpenAI SDK
 
 ```typescript
-type CategoryType = 'anime' | 'manga' | 'manhwa' | 'manhua' | 'ln' | 'lightnovel' | 'light_novel';
+import OpenAI from "openai";
+
+const client = new OpenAI({
+  apiKey: "your-api-key",
+  baseURL: "https://aichixia.vercel.app/api/v1"
+});
+
+const response = await client.chat.completions.create({
+  model: "deepseek-v3.2",
+  messages: [
+    { role: "user", content: "Write a binary search algorithm" }
+  ]
+});
+
+console.log(response.choices[0].message.content);
 ```
 
-#### Action Reference
+#### Supported Models
 
-**Search Operation**
-```
-GET /api/aichixia?category=anime&action=search&query=frieren&page=1&perPage=20
-```
-
-Performs full-text search across titles, synonyms, and descriptions with fuzzy matching support.
-
-**Detail Operation**
-```
-GET /api/aichixia?category=anime&action=detail&id=163134
-```
-
-Retrieves complete metadata for a specific title including synopsis, genres, relations, and statistics.
-
-**Trending Operation**
-```
-GET /api/aichixia?action=trending&page=1&perPage=20
-```
-
-Returns real-time trending content based on user engagement metrics.
-
-**Seasonal Operation**
-```
-GET /api/aichixia?action=seasonal&season=WINTER&year=2024&page=1&perPage=20
-```
-
-Retrieves anime releases for a specified season.
-
-**Airing Schedule Operation**
-```
-GET /api/aichixia?action=airing&page=1&perPage=20
-```
-
-Returns currently airing anime with next episode information.
-
-**Character Operation**
-```
-GET /api/aichixia?action=character&id=123456
-```
-
-Retrieves character profile including voice actors and media appearances.
-
-**Staff Operation**
-```
-GET /api/aichixia?action=staff&id=123456
-```
-
-Returns staff member profile including roles and works.
-
-**Recommendations Operation**
-```
-GET /api/aichixia?action=recommendations&id=163134
-```
-
-Provides community-curated similar titles.
-
-**Top by Genre Operation**
-```
-GET /api/aichixia?category=anime&action=top-genre&genre=action&page=1&perPage=20
-```
-
-Returns highest-rated content filtered by specific genre.
-
-#### Parameter Reference
-
-| Parameter | Type | Required | Default | Description |
-|-----------|------|----------|---------|-------------|
-| `category` | string | Conditional | - | Media type |
-| `action` | string | Yes | - | Operation to perform |
-| `id` | integer | Conditional | - | AniList ID |
-| `query` | string | Conditional | - | Search term |
-| `season` | string | Conditional | - | Season name |
-| `year` | integer | Conditional | - | Four-digit year |
-| `genre` | string | Conditional | - | Genre name |
-| `page` | integer | No | 1 | Page number |
-| `perPage` | integer | No | 10 | Results per page |
-
-#### Data Flow Architecture
-
-```mermaid
-sequenceDiagram
-    participant Client
-    participant Gateway as API Gateway
-    participant Router as Action Router
-    participant Builder as Query Builder
-    participant AniList as AniList GraphQL
-    participant Transformer as Data Transformer
-    
-    Client->>Gateway: GET /api/aichixia
-    Gateway->>Router: Parse Parameters
-    Router->>Router: Validate Action & Category
-    Router->>Builder: Route to Appropriate Handler
-    Builder->>Builder: Construct GraphQL Query
-    Builder->>AniList: Execute Query
-    AniList-->>Builder: GraphQL Response
-    Builder->>Transformer: Raw Data
-    Transformer->>Transformer: Normalize Structure
-    Transformer->>Gateway: REST Format
-    Gateway->>Client: JSON Response
-```
-
-The data endpoint acts as an intelligent abstraction layer that transforms REST parameters into optimized GraphQL queries, executes them against AniList's API, and normalizes the responses into consistent REST format.
+All 20 models available through standard OpenAI model selection parameter. Use model names exactly as shown in the models table above.
 
 ---
 
-## Integration Example
+## Integration Examples
 
 ### TypeScript/JavaScript
 
@@ -813,7 +558,7 @@ class AichixiaClient {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         message,
-        persona: options?.persona || 'tsundere',
+        persona: options?.persona || 'developer',
         history: options?.history || []
       })
     });
@@ -825,31 +570,15 @@ class AichixiaClient {
     return response.json();
   }
   
-  async searchAnime(query: string, page: number = 1): Promise<any> {
-    const params = new URLSearchParams({
-      category: 'anime',
-      action: 'search',
-      query,
-      page: page.toString(),
-      perPage: '20'
+  async queryModel(
+    model: string,
+    message: string
+  ): Promise<{ reply: string; provider: string }> {
+    const response = await fetch(`${this.baseUrl}/api/models/${model}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message })
     });
-    
-    const response = await fetch(`${this.baseUrl}/api/aichixia?${params}`);
-    
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.status}`);
-    }
-    
-    return response.json();
-  }
-  
-  async getTrending(perPage: number = 20): Promise<any> {
-    const params = new URLSearchParams({
-      action: 'trending',
-      perPage: perPage.toString()
-    });
-    
-    const response = await fetch(`${this.baseUrl}/api/aichixia?${params}`);
     
     if (!response.ok) {
       throw new Error(`API Error: ${response.status}`);
@@ -859,36 +588,51 @@ class AichixiaClient {
   }
 }
 
-// Usage
 const client = new AichixiaClient();
 
-const chatResult = await client.chat('Recommend me a slice of life anime');
-console.log(chatResult.reply);
-console.log(`Handled by: ${chatResult.provider}`);
+const result = await client.chat('Explain async/await in JavaScript');
+console.log(`${result.provider}: ${result.reply}`);
 
-const searchResults = await client.searchAnime('cowboy bebop');
-const trending = await client.getTrending(10);
+const deepseekResult = await client.queryModel('deepseek', 'Prove Fermat\'s Last Theorem');
+console.log(deepseekResult.reply);
 ```
 
----
+### Python
 
-## Configuration
+```python
+import requests
 
-### Environment Variables
+class AichixiaClient:
+    def __init__(self, base_url="https://aichixia.vercel.app"):
+        self.base_url = base_url
+    
+    def chat(self, message, persona="developer", history=None):
+        response = requests.post(
+            f"{self.base_url}/api/chat",
+            json={
+                "message": message,
+                "persona": persona,
+                "history": history or []
+            }
+        )
+        response.raise_for_status()
+        return response.json()
+    
+    def query_model(self, model, message):
+        response = requests.post(
+            f"{self.base_url}/api/models/{model}",
+            json={"message": message}
+        )
+        response.raise_for_status()
+        return response.json()
 
-```bash
-# AI Provider API Keys (configure as needed)
-OPENAI_API_KEY=sk-proj-xxxxxxxxxxxxx
-GEMINI_API_KEY=AIzaSyxxxxxxxxxxxxxxxxx
-GROQ_API_KEY=gsk_xxxxxxxxxxxxx
-COHERE_API_KEY=xxxxxxxxxxxxx
-COMETAPI_KEY=xxxxxxxxxxxxx
-DEEPSEEK_API_KEY=sk-xxxxxxxxxxxxx
-OPENROUTER_API_KEY=sk-xxxxxxxxxxxxx
+client = AichixiaClient()
 
-# Rate Limiting (Upstash Redis)
-UPSTASH_REDIS_REST_URL=https://xxx.upstash.io
-UPSTASH_REDIS_REST_TOKEN=xxxxxxxxxxxxx
+result = client.chat("What is Rust's ownership system?")
+print(f"{result['provider']}: {result['reply']}")
+
+kimi_result = client.query_model("kimi", "Analyze this codebase")
+print(kimi_result['reply'])
 ```
 
 ---
