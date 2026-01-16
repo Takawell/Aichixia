@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { FaPaperPlane, FaTrash, FaUser, FaHome, FaCircle, FaChevronDown, FaAngry, FaSmile, FaBriefcase, FaHeart, FaFire, FaBook, FaQuestion, FaSearch, FaCode } from "react-icons/fa";
-import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiFlux, SiXiaomi, SiMaze, SiMatternet, SiImagedotsc } from "react-icons/si";
+import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiFlux, SiXiaomi, SiMaze, SiMatternet, SiImagedotsc, SiAirbrake } from "react-icons/si";
 import { GiSpermWhale, GiPowerLightning, GiBlackHoleBolas, GiClover, GiFire } from "react-icons/gi";
 import { TbSquareLetterZ, TbLetterM, } from "react-icons/tb";
 import { FaXTwitter } from "react-icons/fa6";
@@ -60,11 +60,19 @@ const personaConfig: Record<
 
 const models: Model[] = [
   {
-    id: "aichixia",
-    name: "Aichixia | Auto",
+    id: "chat",
+    name: "Recommended",
     endpoint: "/api/chat",
     icon: GiBlackHoleBolas,
     color: "from-sky-500 to-blue-500",
+    type: "text",
+  },
+  {
+    id: "aichixia",
+    name: "Aichixia 411B",
+    endpoint: "/api/models/aichixia",
+    icon: SiAirbrake,
+    color: "from-blue-600 via-blue-800 to-slate-900",
     type: "text",
   },
   {
@@ -388,7 +396,8 @@ export default function Chat() {
       flux: "bg-purple-500",
       lucid: "bg-teal-500",
       phoenix: "bg-orange-500",
-      minimax: "bg-red-500"
+      minimax: "bg-red-500",
+      aichixia: "bg-[#0a1628] border border-cyan-500/50"
     };
 
     return (
