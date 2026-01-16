@@ -486,7 +486,26 @@ const FeatureCard = ({ icon: Icon, title, description }: any) => {
   );
 };
 
-return (
+const ModelCard = ({
+  icon: Icon,
+  name,
+  endpoint,
+  color,
+  description,
+  speed,
+  quality,
+}: {
+  icon: any;
+  name: string;
+  endpoint: string;
+  color: string;
+  description: string;
+  speed: number;
+  quality: number;
+}) => {
+  const [showModal, setShowModal] = useState(false);
+
+  return (
     <>
       <button
         onClick={() => setShowModal(true)}
@@ -530,6 +549,7 @@ return (
       />
     </>
   );
+};
 
 export default function Docs() {
   const [scrolled, setScrolled] = useState(false);
@@ -581,7 +601,7 @@ export default function Docs() {
               <span className="bg-gradient-to-r from-sky-500 to-blue-500 dark:from-sky-400 dark:to-blue-400 bg-clip-text text-transparent">
                 Aichixia API
               </span>
-              <br />
+            <br/>
               <span className="text-zinc-900 dark:text-white">Powered by AI</span>
             </h2>
             
@@ -1092,8 +1112,7 @@ const response = await client.chat.completions.create({
             <div className="flex items-center gap-2 text-zinc-500 dark:text-zinc-500">
               <FaTerminal size={12} />
               <span className="text-sm">© {new Date().getFullYear()} Aichixia - AI Assistant</span>
-            </div>
-            
+            </div>            
             <p className="text-xs font-black text-transparent bg-gradient-to-r from-sky-500 to-blue-500 dark:from-sky-400 dark:to-blue-400 bg-clip-text tracking-widest">BY TAKAWELL</p>
           </div>
         </div>
