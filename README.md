@@ -345,7 +345,7 @@ Content-Type: application/json
 - **Use Case:** Low-latency applications, European languages
 - **Response Time:** 1.5 seconds average
 
-**Tier 5 - GPT-5 Mini (Dense)**
+**Tier 5 - GPT-5 Mini (MoE)**
 - **Parameters:** 87 billion
 - **Architecture:** Mixture of Experts
 - **Strengths:** Balanced quality-speed ratio, consistent performance
@@ -366,7 +366,7 @@ Content-Type: application/json
 - **Use Case:** General fallback, web-augmented queries
 - **Response Time:** 1.3 seconds average
 
-**Tier 8 - Gemini 3 Flash (Dense)**
+**Tier 8 - Gemini 3 Flash (MoE)**
 - **Parameters:** 1,2 trillion (estimated)
 - **Architecture:** Mixture of Experts
 - **Strengths:** Exceptional speed, multimodal understanding
