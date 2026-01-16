@@ -530,7 +530,6 @@ return (
       />
     </>
   );
-};
 
 export default function Docs() {
   const [scrolled, setScrolled] = useState(false);
