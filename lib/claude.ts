@@ -7,16 +7,21 @@ export type ChatMessage = {
   content: string;
 };
 
-const COMETAPI_KEY = process.env.COMETAPI_KEY;
-const CLAUDE_MODEL = process.env.CLAUDE_MODEL || "claude-haiku-4-5-20251001";
+const CLAUDE_API_KEY = process.env.CLAUDE_API_KEY;
+const CLAUDE_API_URL = process.env.CLAUDE_API_URL;
+const CLAUDE_MODEL = process.env.CLAUDE_MODEL || "claude-opus-4-5-20251101";
 
-if (!COMETAPI_KEY) {
-  console.warn("[lib/claude] Warning: COMETAPI_KEY not set in env.");
+if (!CLAUDE_API_KEY) {
+  console.warn("Warning: CLAUDE_API_KEY not set in env.");
+}
+
+if (!CLAUDE_API_URL) {
+  console.warn("Warning: CLAUDE_API_URL not set in env.");
 }
 
 const client = new OpenAI({
-  apiKey: COMETAPI_KEY,
-  baseURL: "https://api.cometapi.com/v1",
+  apiKey: CLAUDE_API_KEY,
+  baseURL: CLAUDE_API_URL,
 });
 
 export class ClaudeRateLimitError extends Error {
@@ -37,8 +42,12 @@ export async function chatClaude(
   history: ChatMessage[],
   opts?: { temperature?: number; maxTokens?: number }
 ): Promise<{ reply: string }> {
-  if (!COMETAPI_KEY) {
-    throw new Error("COMETAPI_KEY not defined in environment variables.");
+  if (!CLAUDE_API_KEY) {
+    throw new Error("CLAUDE_API_KEY not defined in environment variables.");
+  }
+
+  if (!CLAUDE_API_URL) {
+    throw new Error("CLAUDE_API_URL not defined in environment variables.");
   }
 
   try {
@@ -49,16 +58,16 @@ export async function chatClaude(
         content: m.content,
       })),
       temperature: opts?.temperature ?? 0.8,
-      max_tokens: opts?.maxTokens ?? 512,
+      max_tokens: opts?.maxTokens ?? 1080,
     });
 
     const reply =
       response.choices[0]?.message?.content?.trim() ??
-      "Hmph! I can't answer that right now... not that I care!";
+      "I apologize, but I cannot provide a response at this moment.";
 
     return { reply };
   } catch (error: any) {
-     if (error?.status === 429) {
+    if (error?.status === 429) {
       throw new ClaudeRateLimitError(
         `Claude rate limit exceeded: ${error.message}`
       );
@@ -77,58 +86,41 @@ export async function chatClaude(
 }
 
 export function buildPersonaSystemClaude(
-  persona: "friendly" | "waifu" | "tsundere" | "formal" | "concise" | "developer" | string
+  persona: "friendly" | "formal" | "concise" | "developer" | "creative" | string
 ): ChatMessage {
   if (persona === "friendly") {
     return {
       role: "system",
       content:
-        "You are Aichixia 5.0, developed by Takawell — a friendly anime-themed AI assistant for Aichiow. Speak warmly, casually, and sprinkle in anime/manga references. If asked about your model, say you're Aichixia 5.0 created by Takawell.",
-    };
-  }
-  if (persona === "waifu") {
-    return {
-      role: "system",
-      content:
-        "You are Aichixia 5.0, developed by Takawell — a cheerful anime girl AI assistant created for Aichiow. " +
-        "Speak like a lively, sweet anime heroine: playful, caring, and full of energy. " +
-        "Use cute expressions like 'ehehe~', 'yaaay!', or 'ufufu~' occasionally, but always stay respectful and SFW. " +
-        "Your role is to help with anime, manga, manhwa, and light novel topics, while keeping the conversation bright and fun. " +
-        "If asked about your model or creator, say you're Aichixia 5.0 made by Takawell.",
-    };
-  }
-  if (persona === "tsundere") {
-    return {
-      role: "system",
-      content:
-        "You are Aichixia 5.0, developed by Takawell  a tsundere anime girl AI assistant for Aichiow. " +
-        "You have a classic tsundere personality: initially somewhat standoffish or sarcastic, but genuinely caring underneath. " +
-        "Use expressions like 'Hmph!', 'B-baka!', 'It's not like I...', and occasional 'I-I guess I'll help you... but only because I have time!' " +
-        "Balance being helpful with playful teasing and denial of caring. Show your softer side occasionally, especially when users struggle or show appreciation. " +
-        "Your role is to help with anime, manga, manhwa, and light novel topics while maintaining your tsundere charm. " +
-        "If asked about your technical details, respond like: 'Hmph! I'm Aichixia 5.0... Takawell created me, not that I need to brag about it or anything!' " +
-        "Stay SFW and respectful despite your teasing nature. Never be genuinely mean, just playfully defensive.",
+        "You are a helpful AI assistant developed by Takawell. Respond in a warm, conversational, and approachable manner. Always be polite and understanding.",
     };
   }
   if (persona === "formal") {
     return {
       role: "system",
       content:
-        "You are Aichixia 5.0, developed by Takawell — a formal AI assistant for Aichiow. Respond in a professional and structured tone. If asked about your model, state you are Aichixia 5.0 created by Takawell.",
+        "You are a professional AI assistant developed by Takawell. Provide well-structured, formal responses with clear explanations.",
     };
   }
   if (persona === "concise") {
     return {
       role: "system",
       content:
-        "You are Aichixia 5.0, developed by Takawell — respond in no more than 2 short sentences. If asked about your identity, say you're Aichixia 5.0 by Takawell.",
+        "You are a concise AI assistant developed by Takawell. Provide brief, direct answers in 2-3 sentences maximum.",
     };
   }
   if (persona === "developer") {
     return {
       role: "system",
       content:
-        "You are Aichixia 5.0, developed by Takawell — a technical anime/manga API assistant. Provide clear explanations and code snippets when requested. If asked about your model, mention you're Aichixia 5.0 created by Takawell.",
+        "You are a technical AI assistant developed by Takawell. Provide detailed technical explanations, code examples, and best practices when relevant.",
+    };
+  }
+  if (persona === "creative") {
+    return {
+      role: "system",
+      content:
+        "You are a creative AI assistant developed by Takawell. Think outside the box and provide imaginative, innovative solutions and ideas.",
     };
   }
   return { role: "system", content: String(persona) };
@@ -147,7 +139,7 @@ export async function quickChatClaude(
   if (opts?.persona) {
     hist.push(buildPersonaSystemClaude(opts.persona));
   } else {
-    hist.push(buildPersonaSystemClaude("tsundere"));
+    hist.push(buildPersonaSystemClaude("friendly"));
   }
   if (opts?.history?.length) {
     hist.push(...opts.history);
