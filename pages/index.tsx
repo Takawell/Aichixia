@@ -875,6 +875,15 @@ const response = await client.chat.completions.create({
                 quality={4}
               />
               <ModelCard
+                icon={SiMatternet}
+                name="MiniMax M2.1"
+                endpoint="/api/models/minimax"
+                color="from-cyan-600 to-blue-600"
+                description="Multilingual coding specialist with agent workflows"
+                speed={4}
+                quality={5}
+              />
+              <ModelCard
                 icon={SiGooglegemini}
                 name="Gemini 3 Flash"
                 endpoint="/api/models/gemini"
@@ -884,12 +893,12 @@ const response = await client.chat.completions.create({
                 quality={5}
               />
               <ModelCard
-                icon={GiSpermWhale}
-                name="DeepSeek V3.2"
-                endpoint="/api/models/deepseek"
-                color="from-cyan-600 to-blue-600"
-                description="Deep reasoning and code generation"
-                speed={3}
+                icon={SiXiaomi}
+                name="MiMo V2 Flash"
+                endpoint="/api/models/mimo"
+                color="from-blue-600 to-purple-600"
+                description="Efficient 309B MoE model for reasoning and coding tasks"
+                speed={5}
                 quality={5}
               />
               <ModelCard
@@ -902,6 +911,24 @@ const response = await client.chat.completions.create({
                 quality={5}
               />
               <ModelCard
+                icon={GiSpermWhale}
+                name="DeepSeek V3.2"
+                endpoint="/api/models/deepseek"
+                color="from-cyan-600 to-blue-600"
+                description="Deep reasoning and code generation"
+                speed={3}
+                quality={5}
+              />
+              <ModelCard
+                icon={SiAnthropic}
+                name="Claude Opus 4.5"
+                endpoint="/api/models/claude"
+                color="from-orange-600 to-amber-700"
+                description="World's #1 AI model - Ultimate intelligence for complex tasks"
+                speed={3}
+                quality={5}
+              />
+              <ModelCard
                 icon={GiPowerLightning}
                 name="Groq Compound"
                 endpoint="/api/models/compound"
@@ -909,15 +936,6 @@ const response = await client.chat.completions.create({
                 description="Multi-model agentic system with tools"
                 speed={4}
                 quality={5}
-              />
-              <ModelCard
-                icon={SiAnthropic}
-                name="Claude Haiku 4.5"
-                endpoint="/api/models/claude"
-                color="from-orange-600 to-amber-700"
-                description="Fast, capable, and balanced Anthropic model"
-                speed={4}
-                quality={4}
               />
               <ModelCard
                 icon={SiAlibabacloud}
