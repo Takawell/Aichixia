@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { FaBookOpen, FaComments, FaTerminal, FaCheckCircle, FaTimesCircle, FaCopy, FaRocket, FaChevronRight, FaBrain, FaCode, FaServer, FaLightbulb, FaTimes, FaInfoCircle, FaStar, FaGlobe, FaLayerGroup, FaRobot, FaBolt, FaGithub, FaTiktok, FaImage, FaKey, FaShieldAlt, FaExternalLinkAlt } from "react-icons/fa";
-import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiAirbrake, SiMatternet, SiXiaomi } from "react-icons/si";
+import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiAirbrake, SiMaze, SiXiaomi } from "react-icons/si";
 import { GiSpermWhale, GiPowerLightning, GiClover } from "react-icons/gi";
 import { TbSquareLetterZ, TbLetterM } from "react-icons/tb";
 import { FaXTwitter } from "react-icons/fa6";
@@ -875,7 +875,7 @@ const response = await client.chat.completions.create({
                 quality={4}
               />
               <ModelCard
-                icon={SiMatternet}
+                icon={SiMaze}
                 name="MiniMax M2.1"
                 endpoint="/api/models/minimax"
                 color="from-cyan-600 to-blue-600"
