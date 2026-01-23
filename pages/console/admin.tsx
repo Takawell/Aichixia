@@ -666,8 +666,8 @@ export default function AdminDashboard() {
                   onChange={(e) => setNewPromo({ ...newPromo, plan_type: e.target.value })}
                   className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm sm:text-base text-slate-800 dark:text-white outline-none focus:border-sky-500"
                 >
-                  <option value="pro">Pro (4,000 req/day)</option>
-                  <option value="enterprise">Enterprise (10,000 req/day)</option>
+                  <option value="pro">Pro (600 req/day)</option>
+                  <option value="enterprise">Enterprise (1,000 req/day)</option>
                 </select>
               </div>
 
@@ -749,9 +749,9 @@ export default function AdminDashboard() {
                   onChange={(e) => setEditUser({ ...editUser, plan: e.target.value })}
                   className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm sm:text-base text-slate-800 dark:text-white outline-none focus:border-sky-500"
                 >
-                  <option value="free">Free (1,000 req/day)</option>
-                  <option value="pro">Pro (4,000 req/day)</option>
-                  <option value="enterprise">Enterprise (10,000 req/day)</option>
+                  <option value="free">Free (200 req/day)</option>
+                  <option value="pro">Pro (600 req/day)</option>
+                  <option value="enterprise">Enterprise (1,000 req/day)</option>
                 </select>
               </div>
 
