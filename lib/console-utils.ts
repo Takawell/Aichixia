@@ -141,7 +141,7 @@ export async function createApiKey(userId: string, name: string) {
     .single();
 
   const userPlan = settings?.plan || 'free';
-  const rateLimit = userPlan === 'enterprise' ? 10000 : userPlan === 'pro' ? 4000 : 1000;
+  const rateLimit = userPlan === 'enterprise' ? 1000 : userPlan === 'pro' ? 600 : 200;
 
   const { key, prefix } = generateApiKey();
 
