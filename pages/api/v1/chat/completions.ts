@@ -141,20 +141,18 @@ function isQuotaError(error: any): boolean {
 }
 
 function applyPersona(messages: any[], persona?: string): any[] {
-  const hasSystemMessage = messages.some(m => m.role === 'system');
-  
-  if (!persona || hasSystemMessage) {
+  if (!persona || !PERSONA_PROMPTS[persona]) {
     return messages;
   }
   
-  const personaPrompt = PERSONA_PROMPTS[persona.toLowerCase()];
+  const hasSystemMessage = messages.some(m => m.role === 'system');
   
-  if (!personaPrompt) {
+  if (hasSystemMessage) {
     return messages;
   }
   
   return [
-    { role: "system", content: personaPrompt },
+    { role: "system", content: PERSONA_PROMPTS[persona] },
     ...messages
   ];
 }
@@ -348,7 +346,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
     }
 
-  const modelConfig = MODEL_MAPPING[model.toLowerCase()];
+    const modelConfig = MODEL_MAPPING[model.toLowerCase()];
 
     if (!modelConfig) {
       await logRequest({
