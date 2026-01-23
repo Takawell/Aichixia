@@ -140,7 +140,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         if (updateSettingsError) throw updateSettingsError;
 
-        const newRateLimit = promo.plan_type === 'enterprise' ? 10000 : promo.plan_type === 'pro' ? 4000 : 1000;
+        const newRateLimit = promo.plan_type === 'enterprise' ? 1000 : promo.plan_type === 'pro' ? 600 : 200;
 
         const { error: updateKeysError } = await supabaseAdmin
           .from('api_keys')
