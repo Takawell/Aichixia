@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { supabase } from '@/lib/supabase';
 import { FiKey, FiActivity, FiSettings, FiLogOut, FiMenu, FiRefreshCw, FiTrendingUp, FiZap, FiLayers, FiAlertCircle } from 'react-icons/fi';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -61,7 +62,10 @@ type UserSettings = {
   is_admin: boolean;
 };
 
+type TabType = 'overview' | 'keys' | 'activity' | 'settings' | 'models';
+
 export default function Console() {
+  const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [settings, setSettings] = useState<UserSettings | null>(null);
@@ -79,9 +83,16 @@ export default function Console() {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'keys' | 'activity' | 'settings' | 'models'>('overview');
+  const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [actionLoading, setActionLoading] = useState(false);
   const [lastFetch, setLastFetch] = useState<number>(0);
+
+  useEffect(() => {
+    const tab = router.query.tab as TabType;
+    if (tab && ['overview', 'keys', 'activity', 'settings', 'models'].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [router.query.tab]);
 
   useEffect(() => {
     checkUser();
@@ -160,6 +171,12 @@ export default function Console() {
     fetchProfile();
   };
 
+  const handleTabChange = (tab: TabType) => {
+    setActiveTab(tab);
+    router.push({ pathname: '/console', query: { tab } }, undefined, { shallow: true });
+    setSidebarOpen(false);
+  };
+
   const handleUpdateProfile = async (data: { display_name: string; avatar_url: string }) => {
     setActionLoading(true);
     const { data: { session } } = await supabase.auth.getSession();
@@ -205,6 +222,7 @@ export default function Console() {
 
     const data = await res.json();
     setActionLoading(false);
+
     if (res.ok) {
       fetchProfile();
       fetchAllData(true);
@@ -350,7 +368,7 @@ export default function Console() {
 
             <nav className="flex-1 p-3 sm:p-4 space-y-1">
               <button
-                onClick={() => { setActiveTab('overview'); setSidebarOpen(false); }}
+                onClick={() => handleTabChange('overview')}
                 className={`w-full flex items-center gap-2 sm:gap-2.5 px-3 py-2 sm:py-2.5 rounded-lg transition-all text-xs sm:text-sm ${activeTab === 'overview' ? 'bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
               >
                 <FiTrendingUp className="text-sm sm:text-base" />
@@ -358,7 +376,7 @@ export default function Console() {
               </button>
 
               <button
-                onClick={() => { setActiveTab('keys'); setSidebarOpen(false); }}
+                onClick={() => handleTabChange('keys')}
                 className={`w-full flex items-center gap-2 sm:gap-2.5 px-3 py-2 sm:py-2.5 rounded-lg transition-all text-xs sm:text-sm ${activeTab === 'keys' ? 'bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
               >
                 <FiKey className="text-sm sm:text-base" />
@@ -366,7 +384,7 @@ export default function Console() {
               </button>
 
               <button
-                onClick={() => { setActiveTab('activity'); setSidebarOpen(false); }}
+                onClick={() => handleTabChange('activity')}
                 className={`w-full flex items-center gap-2 sm:gap-2.5 px-3 py-2 sm:py-2.5 rounded-lg transition-all text-xs sm:text-sm ${activeTab === 'activity' ? 'bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
               >
                 <FiActivity className="text-sm sm:text-base" />
@@ -374,7 +392,7 @@ export default function Console() {
               </button>
 
               <button
-                onClick={() => { setActiveTab('models'); setSidebarOpen(false); }}
+                onClick={() => handleTabChange('models')}
                 className={`w-full flex items-center gap-2 sm:gap-2.5 px-3 py-2 sm:py-2.5 rounded-lg transition-all text-xs sm:text-sm ${activeTab === 'models' ? 'bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
               >
                 <FiLayers className="text-sm sm:text-base" />
@@ -382,7 +400,7 @@ export default function Console() {
               </button>
 
               <button
-                onClick={() => { setActiveTab('settings'); setSidebarOpen(false); }}
+                onClick={() => handleTabChange('settings')}
                 className={`w-full flex items-center gap-2 sm:gap-2.5 px-3 py-2 sm:py-2.5 rounded-lg transition-all text-xs sm:text-sm ${activeTab === 'settings' ? 'bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
               >
                 <FiSettings className="text-sm sm:text-base" />
@@ -467,7 +485,7 @@ export default function Console() {
               <Overview 
                 stats={stats} 
                 usageData={usageData} 
-                onNavigate={(tab) => setActiveTab(tab)} 
+                onNavigate={handleTabChange} 
               />
             )}
 
