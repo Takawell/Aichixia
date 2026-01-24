@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { FiKey, FiActivity, FiSettings, FiLogOut, FiMenu, FiRefreshCw, FiTrendingUp, FiZap, FiLayers } from 'react-icons/fi';
+import { FiKey, FiActivity, FiSettings, FiLogOut, FiMenu, FiRefreshCw, FiTrendingUp, FiZap, FiLayers, FiAlertCircle } from 'react-icons/fi';
 import ThemeToggle from '@/components/ThemeToggle';
 import Overview from '@/components/console/overview';
 import ApiKeys from '@/components/console/apikeys';
