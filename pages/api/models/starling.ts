@@ -82,6 +82,7 @@ export async function POST(req: NextRequest) {
 export async function GET(req: NextRequest) {
   try {
     const config = getConfig();
+
     return NextResponse.json({
       status: isConfigured() ? "configured" : "not_configured",
       config: {
