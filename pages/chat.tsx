@@ -407,7 +407,7 @@ export default function Chat() {
         timestamp: new Date(),
         provider: selectedModel.type === "tts" ? "starling" : data.provider,
         isImage: selectedModel.type === "image",
-        audioUrl: selectedModel.type === "tts" ? data.audio : undefined,
+        ...(selectedModel.type === "tts" && data.audio && { audioUrl: data.audio }),
       };
 
       setMessages((prev) => [...prev, aiMessage]);
