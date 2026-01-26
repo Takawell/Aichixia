@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
-import { FaPaperPlane, FaTrash, FaUser, FaHome, FaCircle, FaChevronDown, FaAngry, FaSmile, FaBriefcase, FaHeart, FaFire, FaBook, FaQuestion, FaSearch, FaCode, FaVolumeUp, FaVolumeMute, FaPlay, FaPause } from "react-icons/fa";
-import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiFlux, SiXiaomi, SiMaze, SiMatternet, SiImagedotsc, SiAirbrake, SiSecurityscorecard } from "react-icons/si";
+import { FaPaperPlane, FaTrash, FaUser, FaHome, FaCircle, FaChevronDown, FaAngry, FaSmile, FaBriefcase, FaHeart, FaFire, FaBook, FaQuestion, FaSearch, FaCode, FaVolumeUp, FaVolumeMute, FaPlay, FaPause, FaDownload } from "react-icons/fa";
+import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiFlux, SiXiaomi, SiMaze, SiMatternet, SiImagedotsc, SiAirbrake, SiSecurityscorecard, SiLapce } from "react-icons/si";
 import { GiSpermWhale, GiPowerLightning, GiBlackHoleBolas, GiClover, GiFire } from "react-icons/gi";
 import { TbSquareLetterZ, TbLetterM, } from "react-icons/tb";
 import { FaXTwitter } from "react-icons/fa6";
@@ -77,11 +77,11 @@ const models: Model[] = [
     type: "text",
   },
   {
-    id: "starling",
-    name: "Starling TTS",
-    endpoint: "/api/models/starling",
-    icon: SiSecurityscorecard,
-    color: "from-violet-500 to-purple-500",
+    id: "lindsay",
+    name: "SiLapce",
+    endpoint: "/api/models/lindsay",
+    icon: BiSolidMicrophone,
+    color: "from-rose-500 to-pink-500",
     type: "tts",
   },
   {
@@ -155,6 +155,14 @@ const models: Model[] = [
     icon: SiMatternet,
     color: "from-purple-500 to-pink-500",
     type: "text",
+  },
+  {
+    id: "starling",
+    name: "Starling TTS",
+    endpoint: "/api/models/starling",
+    icon: SiSecurityscorecard,
+    color: "from-violet-500 to-purple-500",
+    type: "tts",
   },
   {
     id: "minimax",
@@ -345,6 +353,24 @@ export default function Chat() {
     setPlayingMessageId(messageIndex);
   };
 
+  const handleDownloadAudio = (audioUrl: string, filename: string) => {
+    const link = document.createElement("a");
+    link.href = audioUrl;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleDownloadImage = (imageBase64: string, filename: string) => {
+    const link = document.createElement("a");
+    link.href = `data:image/jpeg;base64,${imageBase64}`;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const handleSend = async () => {
     if (!input.trim() || loading) return;
 
@@ -394,7 +420,6 @@ export default function Chat() {
       if (!response.ok) {
         throw new Error(data.error || "Failed to get response");
       }
-
       await new Promise((resolve) => setTimeout(resolve, 500));
 
       const aiMessage: Message = {
@@ -405,7 +430,7 @@ export default function Chat() {
           ? userMessage.content
           : data.reply,
         timestamp: new Date(),
-        provider: selectedModel.type === "tts" ? "starling" : data.provider,
+        provider: selectedModel.type === "tts" ? selectedModel.id : data.provider,
         isImage: selectedModel.type === "image",
         ...(selectedModel.type === "tts" && data.audio && { audioUrl: data.audio }),
       };
@@ -480,7 +505,8 @@ export default function Chat() {
       phoenix: "bg-orange-500",
       minimax: "bg-red-500",
       aichixia: "bg-[#0a1628] border border-cyan-500/50",
-      starling: "bg-gradient-to-r from-violet-500 to-purple-500"
+      starling: "bg-gradient-to-r from-violet-500 to-purple-500",
+      lindsay: "bg-gradient-to-r from-rose-500 to-pink-500"
     };
 
     return (
@@ -673,17 +699,26 @@ export default function Chat() {
                 >
                   {msg.role === "assistant" ? (
                     msg.isImage ? (
-                      <img 
-                        src={`data:image/jpeg;base64,${msg.content}`}
-                        alt="Generated Image"
-                        className="rounded-lg shadow-lg max-w-full h-auto"
-                      />
+                      <div className="relative group">
+                        <img 
+                          src={`data:image/jpeg;base64,${msg.content}`}
+                          alt="Generated Image"
+                          className="rounded-lg shadow-lg max-w-full h-auto"
+                        />
+                        <button
+                          onClick={() => handleDownloadImage(msg.content, `image-${Date.now()}.jpg`)}
+                          className="absolute top-2 right-2 p-2 bg-black/50 hover:bg-black/70 text-white rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                          title="Download image"
+                        >
+                          <FaDownload size={14} />
+                        </button>
+                      </div>
                     ) : msg.audioUrl ? (
                       <div className="flex flex-col gap-2">
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => handlePlayAudio(msg.audioUrl!, idx)}
-                            className="p-2 bg-violet-500 hover:bg-violet-600 text-white rounded-full transition-colors"
+                            className="p-2 bg-violet-500 hover:bg-violet-600 text-white rounded-full transition-colors flex-shrink-0"
                           >
                             {playingMessageId === idx ? (
                               <FaPause size={14} />
@@ -694,6 +729,13 @@ export default function Chat() {
                           <div className="flex-1 h-1 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                             <div className={`h-full bg-violet-500 transition-all ${playingMessageId === idx ? 'w-full animate-pulse' : 'w-0'}`} />
                           </div>
+                          <button
+                            onClick={() => handleDownloadAudio(msg.audioUrl!, `audio-${Date.now()}.mp3`)}
+                            className="p-2 bg-slate-500 hover:bg-slate-600 text-white rounded-full transition-colors flex-shrink-0"
+                            title="Download audio"
+                          >
+                            <FaDownload size={14} />
+                          </button>
                         </div>
                         <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
                           "{msg.content}"
