@@ -77,14 +77,6 @@ const models: Model[] = [
     type: "text",
   },
   {
-    id: "lindsay",
-    name: "SiLapce",
-    endpoint: "/api/models/lindsay",
-    icon: BiSolidMicrophone,
-    color: "from-rose-500 to-pink-500",
-    type: "tts",
-  },
-  {
     id: "flux",
     name: "Flux 2",
     endpoint: "/api/models/flux",
@@ -139,6 +131,14 @@ const models: Model[] = [
     icon: SiImagedotsc,
     color: "from-red-500 to-orange-500",
     type: "image",
+  },
+  {
+    id: "lindsay",
+    name: "Lindsay TTS",
+    endpoint: "/api/models/lindsay",
+    icon: SiLapce,
+    color: "from-rose-500 to-pink-500",
+    type: "tts",
   },
   {
     id: "phoenix",
