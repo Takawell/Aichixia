@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
-import { FaPaperPlane, FaTrash, FaUser, FaHome, FaCircle, FaChevronDown, FaAngry, FaSmile, FaBriefcase, FaHeart, FaFire, FaBook, FaQuestion, FaSearch, FaCode } from "react-icons/fa";
-import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiFlux, SiXiaomi, SiMaze, SiMatternet, SiImagedotsc, SiAirbrake } from "react-icons/si";
+import { FaPaperPlane, FaTrash, FaUser, FaHome, FaCircle, FaChevronDown, FaAngry, FaSmile, FaBriefcase, FaHeart, FaFire, FaBook, FaQuestion, FaSearch, FaCode, FaVolumeUp, FaVolumeMute, FaPlay, FaPause } from "react-icons/fa";
+import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiFlux, SiXiaomi, SiMaze, SiMatternet, SiImagedotsc, SiAirbrake, SiSecurityscorecard } from "react-icons/si";
 import { GiSpermWhale, GiPowerLightning, GiBlackHoleBolas, GiClover, GiFire } from "react-icons/gi";
 import { TbSquareLetterZ, TbLetterM, } from "react-icons/tb";
 import { FaXTwitter } from "react-icons/fa6";
@@ -15,6 +15,7 @@ type Message = {
   timestamp: Date;
   provider?: string;
   isImage?: boolean;
+  audioUrl?: string;
 };
 
 type Persona = "tsundere" | "friendly" | "professional" | "kawaii";
@@ -25,7 +26,7 @@ type Model = {
   endpoint: string;
   icon: any;
   color: string;
-  type?: "text" | "image";
+  type?: "text" | "image" | "tts";
 };
 
 const personaConfig: Record<
@@ -74,6 +75,14 @@ const models: Model[] = [
     icon: SiAirbrake,
     color: "from-blue-600 via-blue-800 to-slate-900",
     type: "text",
+  },
+  {
+    id: "starling",
+    name: "Starling TTS",
+    endpoint: "/api/models/starling",
+    icon: SiSecurityscorecard,
+    color: "from-violet-500 to-purple-500",
+    type: "tts",
   },
   {
     id: "flux",
@@ -254,9 +263,11 @@ export default function Chat() {
   const [selectedModel, setSelectedModel] = useState<Model>(models[0]);
   const [showPersonaMenu, setShowPersonaMenu] = useState(false);
   const [showModelMenu, setShowModelMenu] = useState(false);
-  const [modelSearch, setModelSearch] = useState("");  
+  const [modelSearch, setModelSearch] = useState("");
+  const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
+  const [playingMessageId, setPlayingMessageId] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLTextAreaElement>(null);  
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -289,9 +300,50 @@ export default function Chat() {
     }
   }, [messages]);
 
+  useEffect(() => {
+    return () => {
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.src = "";
+      }
+    };
+  }, [currentAudio]);
+
   const filteredModels = models.filter(model => 
     model.name.toLowerCase().includes(modelSearch.toLowerCase())
   );
+
+  const handlePlayAudio = (audioUrl: string, messageIndex: number) => {
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.src = "";
+    }
+
+    if (playingMessageId === messageIndex) {
+      setCurrentAudio(null);
+      setPlayingMessageId(null);
+      return;
+    }
+
+    const audio = new Audio(audioUrl);
+    audio.onended = () => {
+      setPlayingMessageId(null);
+      setCurrentAudio(null);
+    };
+    audio.onerror = () => {
+      console.error("Audio playback failed");
+      setPlayingMessageId(null);
+      setCurrentAudio(null);
+    };
+    
+    audio.play().catch(err => {
+      console.error("Audio play error:", err);
+      setPlayingMessageId(null);
+    });
+    
+    setCurrentAudio(audio);
+    setPlayingMessageId(messageIndex);
+  };
 
   const handleSend = async () => {
     if (!input.trim() || loading) return;
@@ -318,6 +370,14 @@ export default function Chat() {
         body: JSON.stringify(
           selectedModel.type === "image"
             ? { prompt: userMessage.content, steps: 4 }
+            : selectedModel.type === "tts"
+            ? { 
+                text: userMessage.content,
+                emotion: persona === "tsundere" ? "angry" : persona === "friendly" ? "happy" : "normal",
+                volume: 100,
+                pitch: persona === "kawaii" ? 2 : 0,
+                tempo: 1
+              }
             : {
                 message: userMessage.content,
                 history: messages.slice(-10).map((m) => ({
@@ -339,17 +399,33 @@ export default function Chat() {
 
       const aiMessage: Message = {
         role: "assistant",
-        content: selectedModel.type === "image" ? data.imageBase64 : data.reply,
+        content: selectedModel.type === "image" 
+          ? data.imageBase64 
+          : selectedModel.type === "tts"
+          ? userMessage.content
+          : data.reply,
         timestamp: new Date(),
-        provider: data.provider,
+        provider: selectedModel.type === "tts" ? "starling" : data.provider,
         isImage: selectedModel.type === "image",
+        audioUrl: selectedModel.type === "tts" ? data.audio : undefined,
       };
 
       setMessages((prev) => [...prev, aiMessage]);
+
+      if (selectedModel.type === "tts" && data.audio) {
+        const audio = new Audio(data.audio);
+        audio.onended = () => {
+          setCurrentAudio(null);
+        };
+        audio.play().catch(err => console.error("Auto-play failed:", err));
+        setCurrentAudio(audio);
+      }
     } catch (error: any) {
       const errorMessage: Message = {
         role: "assistant",
-        content: "Gomen! Something went wrong... Please try again!",
+        content: selectedModel.type === "tts" 
+          ? "Gomen! TTS generation failed... Please check your API key!"
+          : "Gomen! Something went wrong... Please try again!",
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMessage]);
@@ -371,6 +447,12 @@ export default function Chat() {
     if (confirm("Clear all chat history?")) {
       setMessages([]);
       localStorage.removeItem("aichixia-chat-history");
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.src = "";
+        setCurrentAudio(null);
+        setPlayingMessageId(null);
+      }
     }
   };
 
@@ -397,7 +479,8 @@ export default function Chat() {
       lucid: "bg-teal-500",
       phoenix: "bg-orange-500",
       minimax: "bg-red-500",
-      aichixia: "bg-[#0a1628] border border-cyan-500/50"
+      aichixia: "bg-[#0a1628] border border-cyan-500/50",
+      starling: "bg-gradient-to-r from-violet-500 to-purple-500"
     };
 
     return (
@@ -595,6 +678,27 @@ export default function Chat() {
                         alt="Generated Image"
                         className="rounded-lg shadow-lg max-w-full h-auto"
                       />
+                    ) : msg.audioUrl ? (
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handlePlayAudio(msg.audioUrl!, idx)}
+                            className="p-2 bg-violet-500 hover:bg-violet-600 text-white rounded-full transition-colors"
+                          >
+                            {playingMessageId === idx ? (
+                              <FaPause size={14} />
+                            ) : (
+                              <FaPlay size={14} />
+                            )}
+                          </button>
+                          <div className="flex-1 h-1 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                            <div className={`h-full bg-violet-500 transition-all ${playingMessageId === idx ? 'w-full animate-pulse' : 'w-0'}`} />
+                          </div>
+                        </div>
+                        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+                          "{msg.content}"
+                        </p>
+                      </div>
                     ) : (
                       <div className="prose prose-sm sm:prose-base dark:prose-invert max-w-none prose-p:my-2 prose-headings:my-3 prose-ul:my-2 prose-ol:my-2 prose-li:my-1">
                         <ReactMarkdown remarkPlugins={[remarkGfm]}>
@@ -648,7 +752,7 @@ export default function Chat() {
                         {selectedModel.name}
                       </div>
                       <div className="text-[10px] text-slate-500 dark:text-slate-400">
-                        {selectedModel.type === "image" ? "Generating..." : "Thinking..."}
+                        {selectedModel.type === "image" ? "Generating..." : selectedModel.type === "tts" ? "Vocalizing..." : "Thinking..."}
                       </div>
                     </div>
                   </div>
@@ -734,7 +838,7 @@ export default function Chat() {
                                           {model.name}
                                         </div>
                                         <div className="text-[10px] text-slate-500 dark:text-slate-400">
-                                          {model.type === "image" ? "Image Generation" : "Text Generation"}
+                                          {model.type === "image" ? "Image Generation" : model.type === "tts" ? "Text-to-Speech" : "Text Generation"}
                                         </div>
                                       </div>
                                       {selectedModel.id === model.id && (
@@ -761,7 +865,13 @@ export default function Chat() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder={selectedModel.type === "image" ? "Describe the image you want to generate..." : "Ask anything or @mention"}
+                  placeholder={
+                    selectedModel.type === "image" 
+                      ? "Describe the image you want to generate..." 
+                      : selectedModel.type === "tts"
+                      ? "Enter text to convert to speech..."
+                      : "Ask anything or @mention"
+                  }
                   disabled={loading}
                   rows={1}
                   className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 focus:border-sky-400 dark:focus:border-sky-500 rounded-xl resize-none outline-none text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm sm:text-base max-h-32 shadow-sm"
