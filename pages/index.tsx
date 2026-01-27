@@ -12,7 +12,6 @@ import { oneDark, oneLight } from 'react-syntax-highlighter/dist/cjs/styles/pris
 const base = "https://aichixia.vercel.app";
 
 type CodeLanguage = 'javascript' | 'python' | 'bash' | 'php';
-
 const SpeedIndicator = ({ level }: { level: number }) => {
   return (
     <div className="flex items-center gap-0.5">
@@ -1124,7 +1123,7 @@ const response = await client.chat.completions.create({
                 <Row 
                   method="POST" 
                   path={`${base}/api/models/starling`} 
-                  desc="Starling TTS (ssfm-v21) - Natural voice synthesis" 
+                  desc="Starling TTS - Natural voice synthesis" 
                   note="Send POST with JSON: { text: 'your text', emotion: 'normal', volume: 100, pitch: 0, tempo: 1 }. Returns base64 encoded audio (data URI)."
                   modelInfo={{
                     speed: 4,
