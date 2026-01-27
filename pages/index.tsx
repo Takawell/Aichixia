@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { FaBookOpen, FaComments, FaTerminal, FaCheckCircle, FaTimesCircle, FaCopy, FaRocket, FaChevronRight, FaBrain, FaCode, FaServer, FaLightbulb, FaTimes, FaInfoCircle, FaStar, FaGlobe, FaLayerGroup, FaRobot, FaBolt, FaGithub, FaTiktok, FaImage, FaKey, FaShieldAlt, FaExternalLinkAlt } from "react-icons/fa";
-import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiAirbrake, SiMaze, SiXiaomi, SiLapce } from "react-icons/si";
+import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiAirbrake, SiMaze, SiXiaomi, SiSecurityscorecard, SiLapce } from "react-icons/si";
 import { GiSpermWhale, GiPowerLightning, GiClover } from "react-icons/gi";
 import { TbSquareLetterZ, TbLetterM } from "react-icons/tb";
 import { FaXTwitter } from "react-icons/fa6";
@@ -97,10 +97,46 @@ const Modal = ({
 
   const generateCodeExample = (lang: CodeLanguage) => {
     const isPost = method === 'POST';
+    const isTTS = path.includes('/starling') || path.includes('/lindsay');
+    const isImage = path.includes('/flux') || path.includes('/lucid') || path.includes('/phoenix') || path.includes('/nano');
     
     if (lang === 'javascript') {
       if (isPost) {
-        return `const response = await fetch('${path}', {
+        if (isTTS) {
+          return `const response = await fetch('${path}', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    text: 'Hello world!',
+    emotion: 'normal',
+    volume: 100,
+    pitch: 0,
+    tempo: 1
+  })
+});
+
+const data = await response.json();
+const audio = new Audio(data.audio);
+audio.play();`;
+        } else if (isImage) {
+          return `const response = await fetch('${path}', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    prompt: 'A beautiful landscape',
+    steps: 4
+  })
+});
+
+const data = await response.json();
+const img = document.createElement('img');
+img.src = \`data:image/jpeg;base64,\${data.imageBase64}\`;`;
+        } else {
+          return `const response = await fetch('${path}', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
@@ -112,6 +148,7 @@ const Modal = ({
 
 const data = await response.json();
 console.log(data.reply);`;
+        }
       } else {
         return `const response = await fetch('${path}');
 const data = await response.json();
@@ -119,7 +156,37 @@ console.log(data);`;
       }
     } else if (lang === 'python') {
       if (isPost) {
-        return `import requests
+        if (isTTS) {
+          return `import requests
+
+response = requests.post('${path}', 
+  json={
+    'text': 'Hello world!',
+    'emotion': 'normal',
+    'volume': 100,
+    'pitch': 0,
+    'tempo': 1
+  }
+)
+
+data = response.json()
+audio_url = data['audio']
+print(audio_url)`;
+        } else if (isImage) {
+          return `import requests
+
+response = requests.post('${path}', 
+  json={
+    'prompt': 'A beautiful landscape',
+    'steps': 4
+  }
+)
+
+data = response.json()
+image_base64 = data['imageBase64']
+print(image_base64)`;
+        } else {
+          return `import requests
 
 response = requests.post('${path}', 
   json={
@@ -129,6 +196,7 @@ response = requests.post('${path}',
 
 data = response.json()
 print(data['reply'])`;
+        }
       } else {
         return `import requests
 
@@ -138,17 +206,72 @@ print(data)`;
       }
     } else if (lang === 'bash') {
       if (isPost) {
-        return `curl -X POST '${path}' \\
+        if (isTTS) {
+          return `curl -X POST '${path}' \\
+  -H 'Content-Type: application/json' \\
+  -d '{
+    "text": "Hello world!",
+    "emotion": "normal",
+    "volume": 100,
+    "pitch": 0,
+    "tempo": 1
+  }'`;
+        } else if (isImage) {
+          return `curl -X POST '${path}' \\
+  -H 'Content-Type: application/json' \\
+  -d '{
+    "prompt": "A beautiful landscape",
+    "steps": 4
+  }'`;
+        } else {
+          return `curl -X POST '${path}' \\
   -H 'Content-Type: application/json' \\
   -d '{
     "message": "Your message here"
   }'`;
+        }
       } else {
         return `curl '${path}'`;
       }
     } else if (lang === 'php') {
       if (isPost) {
-        return `<?php
+        if (isTTS) {
+          return `<?php
+$ch = curl_init('${path}');
+curl_setopt($ch, CURLOPT_POST, 1);
+curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+  'text' => 'Hello world!',
+  'emotion' => 'normal',
+  'volume' => 100,
+  'pitch' => 0,
+  'tempo' => 1
+]));
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+  'Content-Type: application/json'
+]);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+$response = curl_exec($ch);
+$data = json_decode($response);
+echo $data->audio;`;
+        } else if (isImage) {
+          return `<?php
+$ch = curl_init('${path}');
+curl_setopt($ch, CURLOPT_POST, 1);
+curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+  'prompt' => 'A beautiful landscape',
+  'steps' => 4
+]));
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+  'Content-Type: application/json'
+]);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+$response = curl_exec($ch);
+$data = json_decode($response);
+echo $data->imageBase64;`;
+        } else {
+          return `<?php
 $ch = curl_init('${path}');
 curl_setopt($ch, CURLOPT_POST, 1);
 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
@@ -162,6 +285,7 @@ curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 $response = curl_exec($ch);
 $data = json_decode($response);
 echo $data->reply;`;
+        }
       } else {
         return `<?php
 $response = file_get_contents('${path}');
@@ -378,7 +502,20 @@ print_r($data);`;
                     margin: 0,
                   }}
                 >
-                  {method === 'POST' 
+                  {path.includes('/starling') || path.includes('/lindsay')
+                    ? `{
+  "success": true,
+  "audio": "data:audio/mp3;base64,...",
+  "format": "mp3",
+  "textLength": 12,
+  "creditsUsed": 12
+}`
+                    : path.includes('/flux') || path.includes('/lucid') || path.includes('/phoenix') || path.includes('/nano')
+                    ? `{
+  "imageBase64": "base64_encoded_image_data",
+  "provider": "model-name"
+}`
+                    : method === 'POST' 
                     ? `{
   "reply": "Response text here",
   "provider": "model-name"
@@ -977,7 +1114,7 @@ const response = await client.chat.completions.create({
 
             <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg p-4 shadow-lg mb-5">
               <div className="flex items-start gap-2 mb-3">
-                <SiLapce className="text-sky-500 dark:text-sky-400 mt-0.5" size={16} />
+                <SiSecurityscorecard className="text-sky-500 dark:text-sky-400 mt-0.5" size={16} />
                 <div>
                   <h3 className="text-base font-bold text-zinc-900 dark:text-white mb-0.5">Text-to-Speech</h3>
                   <p className="text-zinc-600 dark:text-zinc-400 text-xs">Convert text to natural-sounding speech</p>
@@ -987,7 +1124,7 @@ const response = await client.chat.completions.create({
                 <Row 
                   method="POST" 
                   path={`${base}/api/models/starling`} 
-                  desc="Starling TTS - Natural voice synthesis" 
+                  desc="Starling TTS (ssfm-v21) - Natural voice synthesis" 
                   note="Send POST with JSON: { text: 'your text', emotion: 'normal', volume: 100, pitch: 0, tempo: 1 }. Returns base64 encoded audio (data URI)."
                   modelInfo={{
                     speed: 4,
@@ -1001,8 +1138,8 @@ const response = await client.chat.completions.create({
                   desc="Lindsay TTS - Enhanced voice quality" 
                   note="Send POST with JSON: { text: 'your text', emotion: 'happy', volume: 100, pitch: 0, tempo: 1 }. Returns base64 encoded audio with improved prosody."
                   modelInfo={{
-                    speed: 4,
-                    quality: 5,
+                    speed: 5,
+                    quality: 4,
                     useCase: "Premium text-to-speech with advanced emotional range",
                   }}
                 />
