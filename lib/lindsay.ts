@@ -1,6 +1,6 @@
 const TTS_API_KEY = process.env.TTS_API_KEY;
 const TTS_VOICE_ID = process.env.TTS_VOICE_ID_LINDSAY || "tc_632a759503f3cb7b9c8a717b";
-const TTS_MODEL = process.env.TTS_MODEL_LINDSAY || "ssfm-v30";
+const TTS_MODEL = process.env.TTS_MODEL_LINDSAY || "ssfm-v21";
 const TTS_API_URL = "https://api.typecast.ai/v1/text-to-speech";
 
 if (!TTS_API_KEY) {
