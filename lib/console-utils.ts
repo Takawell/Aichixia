@@ -59,7 +59,11 @@ export async function logRequest(data: {
   if (error) console.error('Failed to log request:', error);
 }
 
-export async function updateDailyUsage(apiKeyId: string, userId: string) {
+export async function updateDailyUsage(
+  apiKeyId: string, 
+  userId: string, 
+  tokensUsed: number = 0
+) {
   const today = new Date().toISOString().split('T')[0];
   
   const { data: existing } = await supabase
@@ -74,6 +78,7 @@ export async function updateDailyUsage(apiKeyId: string, userId: string) {
       .from('daily_usage')
       .update({
         requests_count: existing.requests_count + 1,
+        tokens_used: existing.tokens_used + tokensUsed,
       })
       .eq('id', existing.id);
   } else {
@@ -84,7 +89,7 @@ export async function updateDailyUsage(apiKeyId: string, userId: string) {
         user_id: userId,
         date: today,
         requests_count: 1,
-        tokens_used: 0,
+        tokens_used: tokensUsed,
         success_count: 0,
         error_count: 0,
       });
