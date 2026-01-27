@@ -4,6 +4,8 @@ import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigike
 import { GiSpermWhale, GiPowerLightning, GiClover } from "react-icons/gi";
 import { TbSquareLetterZ, TbLetterM } from "react-icons/tb";
 import { FaXTwitter } from "react-icons/fa6";
+import { HiSpeakerWave } from "react-icons/hi2";
+import { BiSolidMicrophone } from "react-icons/bi";
 import ThemeToggle from "@/components/ThemeToggle";
 import Link from "next/link";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -973,6 +975,40 @@ const response = await client.chat.completions.create({
                 speed={4}
                 quality={5}
               />
+            </div>
+
+            <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg p-4 shadow-lg mb-5">
+              <div className="flex items-start gap-2 mb-3">
+                <SiLapce className="text-sky-500 dark:text-sky-400 mt-0.5" size={16} />
+                <div>
+                  <h3 className="text-base font-bold text-zinc-900 dark:text-white mb-0.5">Text-to-Speech</h3>
+                  <p className="text-zinc-600 dark:text-zinc-400 text-xs">Convert text to natural-sounding speech</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <Row 
+                  method="POST" 
+                  path={`${base}/api/models/starling`} 
+                  desc="Starling TTS - Natural voice synthesis" 
+                  note="Send POST with JSON: { text: 'your text', emotion: 'normal', volume: 100, pitch: 0, tempo: 1 }. Returns base64 encoded audio (data URI)."
+                  modelInfo={{
+                    speed: 4,
+                    quality: 5,
+                    useCase: "Standard text-to-speech with emotional control",
+                  }}
+                />
+                <Row 
+                  method="POST" 
+                  path={`${base}/api/models/lindsay`} 
+                  desc="Lindsay TTS - Enhanced voice quality" 
+                  note="Send POST with JSON: { text: 'your text', emotion: 'happy', volume: 100, pitch: 0, tempo: 1 }. Returns base64 encoded audio with improved prosody."
+                  modelInfo={{
+                    speed: 4,
+                    quality: 5,
+                    useCase: "Premium text-to-speech with advanced emotional range",
+                  }}
+                />
+              </div>
             </div>
 
             <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg p-4 shadow-lg">
