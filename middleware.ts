@@ -15,14 +15,14 @@ const BLOCKED_IPS = process.env.BLOCKED_IPS
 
 const globalDayLimit = new Ratelimit({
   redis: redis,
-  limiter: Ratelimit.slidingWindow(50, "1 d"),
+  limiter: Ratelimit.slidingWindow(60, "1 d"),
   analytics: true,
   prefix: "ratelimit:global:day",
 });
 
 const globalDayLimitExternal = new Ratelimit({
   redis: redis,
-  limiter: Ratelimit.slidingWindow(80, "1 d"),
+  limiter: Ratelimit.slidingWindow(50, "1 d"),
   analytics: true,
   prefix: "ratelimit:global:day:external",
 });
