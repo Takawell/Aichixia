@@ -1,11 +1,9 @@
 import { useState, useEffect } from "react";
 import { FaBookOpen, FaComments, FaTerminal, FaCheckCircle, FaTimesCircle, FaCopy, FaRocket, FaChevronRight, FaBrain, FaCode, FaServer, FaLightbulb, FaTimes, FaInfoCircle, FaStar, FaGlobe, FaLayerGroup, FaRobot, FaBolt, FaGithub, FaTiktok, FaImage, FaKey, FaShieldAlt, FaExternalLinkAlt } from "react-icons/fa";
-import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiAirbrake, SiMaze, SiXiaomi } from "react-icons/si";
+import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiAirbrake, SiMaze, SiXiaomi, SiLapce } from "react-icons/si";
 import { GiSpermWhale, GiPowerLightning, GiClover } from "react-icons/gi";
 import { TbSquareLetterZ, TbLetterM } from "react-icons/tb";
 import { FaXTwitter } from "react-icons/fa6";
-import { HiSpeakerWave } from "react-icons/hi2";
-import { BiSolidMicrophone } from "react-icons/bi";
 import ThemeToggle from "@/components/ThemeToggle";
 import Link from "next/link";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
