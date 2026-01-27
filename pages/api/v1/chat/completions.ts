@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import { encode } from 'gpt-tokenizer';
 import { chatGemini } from "@/lib/gemini";
 import { chatAichixia, AichixiaRateLimitError, AichixiaQuotaError } from "@/lib/aichixia";
 import { chatOpenAI, OpenAIRateLimitError, OpenAIQuotaError } from "@/lib/openai";
@@ -92,6 +93,14 @@ function isQuotaError(error: any): boolean {
   return QUOTA_ERRORS.some((ErrorClass) => error instanceof ErrorClass);
 }
 
+function calculateTokens(text: string): number {
+  try {
+    return encode(text).length;
+  } catch (error) {
+    return Math.ceil(text.length / 4);
+  }
+}
+
 async function checkModelAccess(userId: string, model: string): Promise<{ allowed: boolean; error?: string }> {
   const supabaseAdmin = getServiceSupabase();
   
@@ -164,6 +173,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       model: req.body.model || 'unknown',
       endpoint: '/api/v1/chat/completions',
       status: 429,
+      tokens_used: 0,
       error_message: verifyResult.error,
       ip_address: (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress || null,
       user_agent: req.headers['user-agent'] || null,
@@ -197,6 +207,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         model: 'unknown',
         endpoint: '/api/v1/chat/completions',
         status: 400,
+        tokens_used: 0,
         error_message: 'model is required',
         ip_address: (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress || null,
         user_agent: req.headers['user-agent'] || null,
@@ -221,6 +232,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         model: model,
         endpoint: '/api/v1/chat/completions',
         status: 403,
+        tokens_used: 0,
         error_message: modelAccess.error || 'Model access denied',
         ip_address: (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress || null,
         user_agent: req.headers['user-agent'] || null,
@@ -243,6 +255,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         model: model,
         endpoint: '/api/v1/chat/completions',
         status: 400,
+        tokens_used: 0,
         error_message: 'messages is required',
         ip_address: (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress || null,
         user_agent: req.headers['user-agent'] || null,
@@ -265,6 +278,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         model: model,
         endpoint: '/api/v1/chat/completions',
         status: 400,
+        tokens_used: 0,
         error_message: 'streaming not supported',
         ip_address: (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress || null,
         user_agent: req.headers['user-agent'] || null,
@@ -289,6 +303,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         model: model,
         endpoint: '/api/v1/chat/completions',
         status: 400,
+        tokens_used: 0,
         error_message: 'model not found',
         ip_address: (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress || null,
         user_agent: req.headers['user-agent'] || null,
@@ -315,9 +330,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     const latency = Date.now() - startTime;
+    const promptText = messages.map((m: any) => m.content).join(' ');
+    const promptTokens = calculateTokens(promptText);
+    const completionTokens = calculateTokens(result.reply);
+    const totalTokens = promptTokens + completionTokens;
 
     await incrementUsage(apiKeyData.key);
-    await updateDailyUsage(apiKeyData.id, apiKeyData.user_id);
+    await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, totalTokens);
     await logRequest({
       api_key_id: apiKeyData.id,
       user_id: apiKeyData.user_id,
@@ -325,7 +344,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       endpoint: '/api/v1/chat/completions',
       status: 200,
       latency_ms: latency,
-      tokens_used: 0,
+      tokens_used: totalTokens,
       ip_address: (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress || null,
       user_agent: req.headers['user-agent'] || null,
     });
@@ -346,9 +365,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         },
       ],
       usage: {
-        prompt_tokens: 0,
-        completion_tokens: 0,
-        total_tokens: 0,
+        prompt_tokens: promptTokens,
+        completion_tokens: completionTokens,
+        total_tokens: totalTokens,
       },
     };
 
@@ -365,6 +384,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       endpoint: '/api/v1/chat/completions',
       status: isRateLimitError(err) ? 429 : 500,
       latency_ms: latency,
+      tokens_used: 0,
       error_message: err.message,
       ip_address: (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress || null,
       user_agent: req.headers['user-agent'] || null,
