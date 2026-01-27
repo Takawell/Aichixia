@@ -1,9 +1,15 @@
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { supabase } from '@/lib/supabase';
-import { FaServer } from "react-icons/fa";
-import { FiUsers, FiGift, FiActivity, FiPlus, FiX, FiCheck, FiAlertCircle, FiCalendar, FiEdit2, FiCopy, FiRefreshCw, FiSearch, FiFilter, FiCheckCircle, FiLock } from 'react-icons/fi';
-import { RiVipDiamondLine, RiVipCrownLine } from "react-icons/ri";
+import { FaServer } from 'react-icons/fa';
+import { FiActivity, FiGift, FiCalendar, FiUsers, FiRefreshCw, FiX, FiCheckCircle, FiAlertCircle, FiLock, FiBarChart2, FiEye } from 'react-icons/fi';
 import ThemeToggle from '@/components/ThemeToggle';
+import Overview from '@/components/admin/overview';
+import Monitoring from '@/components/admin/monitoring';
+import Analytics from '@/components/admin/analytics';
+import Promos from '@/components/admin/promos';
+import Redemptions from '@/components/admin/redemptions';
+import Users from '@/components/admin/users';
 
 type PromoCode = {
   id: string;
@@ -35,21 +41,51 @@ type User = {
   created_at: string;
 };
 
+type DailyUsage = {
+  id: string;
+  api_key_id: string;
+  user_id: string;
+  date: string;
+  requests_count: number;
+  tokens_used: number;
+  success_count: number;
+  error_count: number;
+  created_at: string;
+};
+
+type RequestLog = {
+  id: string;
+  api_key_id: string;
+  user_id: string;
+  model: string;
+  endpoint: string;
+  status: number;
+  latency_ms: number | null;
+  tokens_used: number;
+  error_message: string | null;
+  ip_address: string | null;
+  user_agent: string | null;
+  created_at: string;
+};
+
+type TabType = 'overview' | 'monitoring' | 'analytics' | 'promos' | 'redemptions' | 'users';
+
 export default function AdminDashboard() {
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [accessDenied, setAccessDenied] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'promos' | 'redemptions' | 'users'>('overview');
+  const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [promoCodes, setPromoCodes] = useState<PromoCode[]>([]);
   const [redemptions, setRedemptions] = useState<Redemption[]>([]);
   const [users, setUsers] = useState<User[]>([]);
+  const [dailyUsage, setDailyUsage] = useState<DailyUsage[]>([]);
+  const [requestLogs, setRequestLogs] = useState<RequestLog[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditUserModal, setShowEditUserModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterPlan, setFilterPlan] = useState<'all' | 'free' | 'pro' | 'enterprise'>('all');
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
   const [newPromo, setNewPromo] = useState({
@@ -63,6 +99,13 @@ export default function AdminDashboard() {
     plan: 'free',
     plan_expires_at: '',
   });
+
+  useEffect(() => {
+    const tab = router.query.tab as TabType;
+    if (tab && ['overview', 'monitoring', 'analytics', 'promos', 'redemptions', 'users'].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [router.query.tab]);
 
   useEffect(() => {
     checkAdmin();
@@ -100,25 +143,36 @@ export default function AdminDashboard() {
     const token = session.access_token;
 
     try {
-      const [promosRes, redemptionsRes, usersRes] = await Promise.all([
+      const [promosRes, redemptionsRes, usersRes, usageRes, logsRes] = await Promise.all([
         fetch('/api/console/admin?type=promo-codes', { headers: { Authorization: `Bearer ${token}` } }),
         fetch('/api/console/admin?type=redemptions', { headers: { Authorization: `Bearer ${token}` } }),
         fetch('/api/console/admin?type=users', { headers: { Authorization: `Bearer ${token}` } }),
+        fetch('/api/console/stats?type=usage&days=30', { headers: { Authorization: `Bearer ${token}` } }),
+        fetch('/api/console/stats?type=logs&limit=100', { headers: { Authorization: `Bearer ${token}` } }),
       ]);
 
       const promosData = await promosRes.json();
       const redemptionsData = await redemptionsRes.json();
       const usersData = await usersRes.json();
+      const usageData = await usageRes.json();
+      const logsData = await logsRes.json();
 
       setPromoCodes(promosData.promoCodes || []);
       setRedemptions(redemptionsData.redemptions || []);
       setUsers(usersData.users || []);
+      setDailyUsage(usageData.usage || []);
+      setRequestLogs(logsData.logs || []);
     } catch (error) {
       showToast('Failed to fetch data', 'error');
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
+  };
+
+  const handleTabChange = (tab: TabType) => {
+    setActiveTab(tab);
+    router.push({ pathname: '/console/admin', query: { tab } }, undefined, { shallow: true });
   };
 
   const handleCreatePromo = async () => {
@@ -219,21 +273,6 @@ export default function AdminDashboard() {
     setTimeout(() => setToast(null), 3000);
   };
 
-  const stats = {
-    totalUsers: users.length,
-    activePromos: promoCodes.filter(p => p.is_active).length,
-    totalRedemptions: redemptions.length,
-    proUsers: users.filter(u => u.plan === 'pro').length,
-    enterpriseUsers: users.filter(u => u.plan === 'enterprise').length,
-  };
-
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.display_name?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesPlan = filterPlan === 'all' || user.plan === filterPlan;
-    return matchesSearch && matchesPlan;
-  });
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-sky-50/20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900 flex items-center justify-center">
@@ -266,7 +305,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-sky-50/20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
-      <header className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg border-b border-slate-200 dark:border-slate-700 px-3 sm:px-4 lg:px-8 py-3 sm:py-4">
+      <header className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg border-b border-slate-200 dark:border-slate-700 px-3 sm:px-4 lg:px-8 py-3 sm:py-4 sticky top-0 z-40">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3 sm:gap-4">
             <div className="w-10 h-10 bg-gradient-to-br from-sky-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
@@ -274,7 +313,7 @@ export default function AdminDashboard() {
             </div>
             <div>
               <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-slate-800 dark:text-white">Admin Dashboard</h1>
-              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">Manage users, promos & settings</p>
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">Manage users, promos & system</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -290,353 +329,146 @@ export default function AdminDashboard() {
         </div>
       </header>
 
+      <div className="overflow-x-auto border-b border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg sticky top-[73px] sm:top-[81px] z-30">
+        <div className="flex px-3 sm:px-4 lg:px-8">
+          <button
+            onClick={() => handleTabChange('overview')}
+            className={`flex items-center gap-2 px-3 sm:px-4 py-3 sm:py-4 font-medium transition-colors whitespace-nowrap text-xs sm:text-sm border-b-2 ${
+              activeTab === 'overview'
+                ? 'text-sky-600 dark:text-sky-400 border-sky-500'
+                : 'text-slate-600 dark:text-slate-400 border-transparent hover:text-slate-800 dark:hover:text-slate-200'
+            }`}
+          >
+            <FiActivity className="text-sm sm:text-base" />
+            <span>Overview</span>
+          </button>
+          <button
+            onClick={() => handleTabChange('monitoring')}
+            className={`flex items-center gap-2 px-3 sm:px-4 py-3 sm:py-4 font-medium transition-colors whitespace-nowrap text-xs sm:text-sm border-b-2 ${
+              activeTab === 'monitoring'
+                ? 'text-sky-600 dark:text-sky-400 border-sky-500'
+                : 'text-slate-600 dark:text-slate-400 border-transparent hover:text-slate-800 dark:hover:text-slate-200'
+            }`}
+          >
+            <FiEye className="text-sm sm:text-base" />
+            <span>Monitoring</span>
+          </button>
+          <button
+            onClick={() => handleTabChange('analytics')}
+            className={`flex items-center gap-2 px-3 sm:px-4 py-3 sm:py-4 font-medium transition-colors whitespace-nowrap text-xs sm:text-sm border-b-2 ${
+              activeTab === 'analytics'
+                ? 'text-sky-600 dark:text-sky-400 border-sky-500'
+                : 'text-slate-600 dark:text-slate-400 border-transparent hover:text-slate-800 dark:hover:text-slate-200'
+            }`}
+          >
+            <FiBarChart2 className="text-sm sm:text-base" />
+            <span>Analytics</span>
+          </button>
+          <button
+            onClick={() => handleTabChange('promos')}
+            className={`flex items-center gap-2 px-3 sm:px-4 py-3 sm:py-4 font-medium transition-colors whitespace-nowrap text-xs sm:text-sm border-b-2 ${
+              activeTab === 'promos'
+                ? 'text-sky-600 dark:text-sky-400 border-sky-500'
+                : 'text-slate-600 dark:text-slate-400 border-transparent hover:text-slate-800 dark:hover:text-slate-200'
+            }`}
+          >
+            <FiGift className="text-sm sm:text-base" />
+            <span>Promos</span>
+          </button>
+          <button
+            onClick={() => handleTabChange('redemptions')}
+            className={`flex items-center gap-2 px-3 sm:px-4 py-3 sm:py-4 font-medium transition-colors whitespace-nowrap text-xs sm:text-sm border-b-2 ${
+              activeTab === 'redemptions'
+                ? 'text-sky-600 dark:text-sky-400 border-sky-500'
+                : 'text-slate-600 dark:text-slate-400 border-transparent hover:text-slate-800 dark:hover:text-slate-200'
+            }`}
+          >
+            <FiCalendar className="text-sm sm:text-base" />
+            <span>Redemptions</span>
+          </button>
+          <button
+            onClick={() => handleTabChange('users')}
+            className={`flex items-center gap-2 px-3 sm:px-4 py-3 sm:py-4 font-medium transition-colors whitespace-nowrap text-xs sm:text-sm border-b-2 ${
+              activeTab === 'users'
+                ? 'text-sky-600 dark:text-sky-400 border-sky-500'
+                : 'text-slate-600 dark:text-slate-400 border-transparent hover:text-slate-800 dark:hover:text-slate-200'
+            }`}
+          >
+            <FiUsers className="text-sm sm:text-base" />
+            <span>Users</span>
+          </button>
+        </div>
+      </div>
+
       <main className="p-3 sm:p-4 lg:p-8">
-        <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4">
-            <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl border border-slate-200 dark:border-slate-700 p-3 sm:p-4 hover:shadow-lg transition-shadow">
-              <div className="p-2 bg-sky-50 dark:bg-sky-900/20 rounded-lg w-fit mb-2">
-                <FiUsers className="text-lg sm:text-xl text-sky-600 dark:text-sky-400" />
-              </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Total Users</p>
-              <p className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white">{stats.totalUsers}</p>
-            </div>
+        <div className="max-w-7xl mx-auto">
+          {activeTab === 'overview' && (
+            <Overview
+              users={users}
+              promoCodes={promoCodes}
+              redemptions={redemptions}
+              onNavigate={handleTabChange}
+              onCreatePromo={() => setShowCreateModal(true)}
+            />
+          )}
 
-            <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl border border-slate-200 dark:border-slate-700 p-3 sm:p-4 hover:shadow-lg transition-shadow">
-              <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg w-fit mb-2">
-                <FiGift className="text-lg sm:text-xl text-blue-600 dark:text-blue-400" />
-              </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Active Promos</p>
-              <p className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white">{stats.activePromos}</p>
-            </div>
+          {activeTab === 'monitoring' && (
+            <Monitoring
+              recentLogs={requestLogs}
+              users={users}
+              onRefresh={() => fetchAllData(true)}
+              loading={false}
+              refreshing={refreshing}
+            />
+          )}
 
-            <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl border border-slate-200 dark:border-slate-700 p-3 sm:p-4 hover:shadow-lg transition-shadow">
-              <div className="p-2 bg-cyan-50 dark:bg-cyan-900/20 rounded-lg w-fit mb-2">
-                <FiActivity className="text-lg sm:text-xl text-cyan-600 dark:text-cyan-400" />
-              </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Redemptions</p>
-              <p className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white">{stats.totalRedemptions}</p>
-            </div>
+          {activeTab === 'analytics' && (
+            <Analytics
+              dailyUsage={dailyUsage}
+              requestLogs={requestLogs}
+              loading={false}
+            />
+          )}
 
-            <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl border border-slate-200 dark:border-slate-700 p-3 sm:p-4 hover:shadow-lg transition-shadow">
-              <div className="p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg w-fit mb-2">
-                <RiVipDiamondLine className="text-lg sm:text-xl text-indigo-600 dark:text-indigo-400" />
-              </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Pro Users</p>
-              <p className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white">{stats.proUsers}</p>
-            </div>
+          {activeTab === 'promos' && (
+            <Promos
+              promoCodes={promoCodes}
+              onCreatePromo={() => setShowCreateModal(true)}
+              onTogglePromo={handleTogglePromo}
+              onCopyCode={copyToClipboard}
+              copiedCode={copiedCode}
+              loading={false}
+            />
+          )}
 
-            <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl border border-slate-200 dark:border-slate-700 p-3 sm:p-4 hover:shadow-lg transition-shadow">
-              <div className="p-2 bg-violet-50 dark:bg-violet-900/20 rounded-lg w-fit mb-2">
-                <RiVipCrownLine className="text-lg sm:text-xl text-violet-600 dark:text-violet-400" />
-              </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Enterprise</p>
-              <p className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white">{stats.enterpriseUsers}</p>
-            </div>
-          </div>
+          {activeTab === 'redemptions' && (
+            <Redemptions
+              redemptions={redemptions}
+              loading={false}
+            />
+          )}
 
-          <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <div className="flex overflow-x-auto border-b border-slate-200 dark:border-slate-700">
-              <button
-                onClick={() => setActiveTab('overview')}
-                className={`flex items-center gap-2 px-4 sm:px-6 py-3 sm:py-4 font-medium transition-colors whitespace-nowrap text-sm sm:text-base ${activeTab === 'overview' ? 'bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400 border-b-2 border-sky-500' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/30'}`}
-              >
-                <FiActivity className="text-base sm:text-lg" />
-                Overview
-              </button>
-              <button
-                onClick={() => setActiveTab('promos')}
-                className={`flex items-center gap-2 px-4 sm:px-6 py-3 sm:py-4 font-medium transition-colors whitespace-nowrap text-sm sm:text-base ${activeTab === 'promos' ? 'bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400 border-b-2 border-sky-500' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/30'}`}
-              >
-                <FiGift className="text-base sm:text-lg" />
-                Promo Codes
-              </button>
-              <button
-                onClick={() => setActiveTab('redemptions')}
-                className={`flex items-center gap-2 px-4 sm:px-6 py-3 sm:py-4 font-medium transition-colors whitespace-nowrap text-sm sm:text-base ${activeTab === 'redemptions' ? 'bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400 border-b-2 border-sky-500' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/30'}`}
-              >
-                <FiCalendar className="text-base sm:text-lg" />
-                Redemptions
-              </button>
-              <button
-                onClick={() => setActiveTab('users')}
-                className={`flex items-center gap-2 px-4 sm:px-6 py-3 sm:py-4 font-medium transition-colors whitespace-nowrap text-sm sm:text-base ${activeTab === 'users' ? 'bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400 border-b-2 border-sky-500' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/30'}`}
-              >
-                <FiUsers className="text-base sm:text-lg" />
-                Users
-              </button>
-            </div>
-
-            <div className="p-4 sm:p-6">
-              {activeTab === 'overview' && (
-                <div className="space-y-4 sm:space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="p-4 bg-gradient-to-br from-sky-50 to-blue-50 dark:from-sky-900/10 dark:to-blue-900/10 rounded-lg border border-sky-200 dark:border-sky-800">
-                      <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">Plan Distribution</h3>
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between text-xs sm:text-sm">
-                          <span className="text-slate-600 dark:text-slate-400">Free</span>
-                          <span className="font-bold text-slate-800 dark:text-white">{users.filter(u => u.plan === 'free').length}</span>
-                        </div>
-                        <div className="flex items-center justify-between text-xs sm:text-sm">
-                          <span className="text-slate-600 dark:text-slate-400">Pro</span>
-                          <span className="font-bold text-slate-800 dark:text-white">{stats.proUsers}</span>
-                        </div>
-                        <div className="flex items-center justify-between text-xs sm:text-sm">
-                          <span className="text-slate-600 dark:text-slate-400">Enterprise</span>
-                          <span className="font-bold text-slate-800 dark:text-white">{stats.enterpriseUsers}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="p-4 bg-gradient-to-br from-cyan-50 to-sky-50 dark:from-cyan-900/10 dark:to-sky-900/10 rounded-lg border border-cyan-200 dark:border-cyan-800">
-                      <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">Promo Stats</h3>
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between text-xs sm:text-sm">
-                          <span className="text-slate-600 dark:text-slate-400">Total Codes</span>
-                          <span className="font-bold text-slate-800 dark:text-white">{promoCodes.length}</span>
-                        </div>
-                        <div className="flex items-center justify-between text-xs sm:text-sm">
-                          <span className="text-slate-600 dark:text-slate-400">Active</span>
-                          <span className="font-bold text-slate-800 dark:text-white">{stats.activePromos}</span>
-                        </div>
-                        <div className="flex items-center justify-between text-xs sm:text-sm">
-                          <span className="text-slate-600 dark:text-slate-400">Total Uses</span>
-                          <span className="font-bold text-slate-800 dark:text-white">{promoCodes.reduce((sum, p) => sum + p.used_count, 0)}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    <button
-                      onClick={() => { setActiveTab('promos'); setShowCreateModal(true); }}
-                      className="flex items-center gap-3 p-4 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg hover:border-sky-500 dark:hover:border-sky-500 hover:bg-sky-50 dark:hover:bg-sky-900/10 transition-all group"
-                    >
-                      <div className="p-2 sm:p-3 bg-sky-50 dark:bg-sky-900/20 rounded-lg group-hover:scale-110 transition-transform">
-                        <FiPlus className="text-lg sm:text-xl text-sky-600 dark:text-sky-400" />
-                      </div>
-                      <div className="text-left">
-                        <p className="text-sm sm:text-base font-semibold text-slate-800 dark:text-white">Create Promo Code</p>
-                        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">Generate new voucher</p>
-                      </div>
-                    </button>
-
-                    <button
-                      onClick={() => setActiveTab('users')}
-                      className="flex items-center gap-3 p-4 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg hover:border-blue-500 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-all group"
-                    >
-                      <div className="p-2 sm:p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg group-hover:scale-110 transition-transform">
-                        <FiUsers className="text-lg sm:text-xl text-blue-600 dark:text-blue-400" />
-                      </div>
-                      <div className="text-left">
-                        <p className="text-sm sm:text-base font-semibold text-slate-800 dark:text-white">Manage Users</p>
-                        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">View all users</p>
-                      </div>
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {activeTab === 'promos' && (
-                <div className="space-y-4">
-                  <div className="flex justify-end">
-                    <button
-                      onClick={() => setShowCreateModal(true)}
-                      className="flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white rounded-lg font-medium shadow-lg hover:shadow-xl transition-all text-sm sm:text-base"
-                    >
-                      <FiPlus className="text-base sm:text-lg" />
-                      Create Promo
-                    </button>
-                  </div>
-
-                  <div className="space-y-3">
-                    {promoCodes.length === 0 ? (
-                      <div className="text-center py-12">
-                        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                          <FiGift className="text-2xl sm:text-3xl text-slate-400" />
-                        </div>
-                        <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white mb-2">No Promo Codes Yet</h3>
-                        <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400">Create your first promo code</p>
-                      </div>
-                    ) : (
-                      promoCodes.map((promo) => (
-                        <div key={promo.id} className="bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600 p-4 hover:shadow-md transition-shadow">
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-2">
-                                <code className="px-3 py-1 bg-white dark:bg-slate-800 rounded font-mono text-sm font-bold text-slate-800 dark:text-white">
-                                  {promo.code}
-                                </code>
-                                <button
-                                  onClick={() => copyToClipboard(promo.code, promo.id)}
-                                  className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-600 rounded transition-colors"
-                                >
-                                  {copiedCode === promo.id ? <FiCheck className="text-green-500 text-sm" /> : <FiCopy className="text-slate-400 text-sm" />}
-                                </button>
-                                <span className={`px-2 py-1 rounded text-xs font-medium ${promo.plan_type === 'enterprise' ? 'bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400' : 'bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400'}`}>
-                                  {promo.plan_type.toUpperCase()}
-                                </span>
-                              </div>
-                              <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
-                                <span>{promo.duration_days} days</span>
-                                <span>{promo.used_count}/{promo.max_uses} uses</span>
-                                <span>{new Date(promo.created_at).toLocaleDateString()}</span>
-                              </div>
-                            </div>
-                            <button
-                              onClick={() => handleTogglePromo(promo.id, promo.is_active)}
-                              className={`px-4 py-2 rounded-lg font-medium transition-colors text-sm ${promo.is_active ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/50' : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50'}`}
-                            >
-                              {promo.is_active ? 'Active' : 'Inactive'}
-                            </button>
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {activeTab === 'redemptions' && (
-                <div className="space-y-3">
-                  {redemptions.length === 0 ? (
-                    <div className="text-center py-12">
-                      <div className="w-12 h-12 sm:w-16 sm:h-16 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <FiCalendar className="text-2xl sm:text-3xl text-slate-400" />
-                      </div>
-                      <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white mb-2">No Redemptions Yet</h3>
-                      <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400">Redemption history will appear here</p>
-                    </div>
-                  ) : (
-                    redemptions.map((redemption) => (
-                      <div key={redemption.id} className="bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600 p-4">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                          <div>
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="font-semibold text-slate-800 dark:text-white text-sm">{redemption.user_email}</span>
-                              <span className="px-2 py-0.5 bg-slate-200 dark:bg-slate-600 rounded text-xs font-mono text-slate-700 dark:text-slate-300">
-                                {redemption.promo_codes.code}
-                              </span>
-                            </div>
-                            <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
-                              <span>Plan: {redemption.promo_codes.plan_type}</span>
-                              <span>Redeemed: {new Date(redemption.redeemed_at).toLocaleDateString()}</span>
-                              <span>Expires: {new Date(redemption.expires_at).toLocaleDateString()}</span>
-                            </div>
-                          </div>
-                          <div className={`px-3 py-1 rounded-full text-xs font-medium ${new Date(redemption.expires_at) > new Date() ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'}`}>
-                            {new Date(redemption.expires_at) > new Date() ? 'Active' : 'Expired'}
-                          </div>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              )}
-
-              {activeTab === 'users' && (
-                <div className="space-y-4">
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <div className="flex-1 relative">
-                      <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                      <input
-                        type="text"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        placeholder="Search by email or name..."
-                        className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-800 dark:text-white outline-none focus:border-sky-500"
-                      />
-                    </div>
-                    <div className="relative">
-                      <FiFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                      <select
-                        value={filterPlan}
-                        onChange={(e) => setFilterPlan(e.target.value as any)}
-                        className="pl-10 pr-8 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-800 dark:text-white outline-none focus:border-sky-500 appearance-none cursor-pointer"
-                      >
-                        <option value="all">All Plans</option>
-                        <option value="free">Free</option>
-                        <option value="pro">Pro</option>
-                        <option value="enterprise">Enterprise</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    {filteredUsers.length === 0 ? (
-                      <div className="text-center py-12">
-                        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                          <FiUsers className="text-2xl sm:text-3xl text-slate-400" />
-                        </div>
-                        <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white mb-2">No Users Found</h3>
-                        <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400">Try adjusting your filters</p>
-                      </div>
-                    ) : (
-                      filteredUsers.map((user) => (
-                        <div key={user.user_id} className="bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600 p-4 hover:shadow-md transition-shadow">
-                          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-2">
-                                <div className="w-8 h-8 bg-gradient-to-br from-sky-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                                  {user.email[0].toUpperCase()}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center gap-2">
-                                    <p className="font-semibold text-slate-800 dark:text-white text-sm truncate">
-                                      {user.display_name || user.email}
-                                    </p>
-                                    {user.is_admin && (
-                                      <span className="px-2 py-0.5 bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400 rounded text-xs font-medium">
-                                        ADMIN
-                                      </span>
-                                    )}
-                                  </div>
-                                  {user.display_name && (
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{user.email}</p>
-                                  )}
-                                </div>
-                              </div>
-                              <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
-                                <span className={`px-2 py-1 rounded font-medium ${user.plan === 'enterprise' ? 'bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400' : user.plan === 'pro' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400' : 'bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-300'}`}>
-                                  {user.plan.toUpperCase()}
-                                </span>
-                                <span>{user.active_keys} keys</span>
-                                {user.plan_expires_at && (
-                                  <span>Expires: {new Date(user.plan_expires_at).toLocaleDateString()}</span>
-                                )}
-                                <span>Joined: {new Date(user.created_at).toLocaleDateString()}</span>
-                              </div>
-                            </div>
-                            <button
-                              onClick={() => {
-                                setSelectedUser(user);
-                                setEditUser({
-                                  plan: user.plan,
-                                  plan_expires_at: user.plan_expires_at ? new Date(user.plan_expires_at).toISOString().slice(0, 16) : '',
-                                });
-                                setShowEditUserModal(true);
-                              }}
-                              className="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-lg font-medium transition-colors text-sm flex items-center gap-2"
-                            >
-                              <FiEdit2 className="text-sm" />
-                              Edit Plan
-                            </button>
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
+          {activeTab === 'users' && (
+            <Users
+              users={users}
+              onEditUser={(user) => {
+                setSelectedUser(user);
+                setEditUser({
+                  plan: user.plan,
+                  plan_expires_at: user.plan_expires_at ? new Date(user.plan_expires_at).toISOString().slice(0, 16) : '',
+                });
+                setShowEditUserModal(true);
+              }}
+              loading={false}
+            />
+          )}
         </div>
       </main>
 
       {showCreateModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 max-w-md w-full p-4 sm:p-6 shadow-2xl animate-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between mb-4">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 z-50 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-800 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 max-w-md w-full p-4 sm:p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between mb-4 sm:mb-5">
               <h3 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-white">Create Promo Code</h3>
               <button
                 onClick={() => setShowCreateModal(false)}
@@ -654,7 +486,7 @@ export default function AdminDashboard() {
                   value={newPromo.code}
                   onChange={(e) => setNewPromo({ ...newPromo, code: e.target.value.toUpperCase() })}
                   placeholder="SUMMER2025"
-                  className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm sm:text-base text-slate-800 dark:text-white outline-none focus:border-sky-500 font-mono"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm sm:text-base text-slate-800 dark:text-white outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 font-mono transition-all"
                   autoFocus
                 />
               </div>
@@ -664,7 +496,7 @@ export default function AdminDashboard() {
                 <select
                   value={newPromo.plan_type}
                   onChange={(e) => setNewPromo({ ...newPromo, plan_type: e.target.value })}
-                  className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm sm:text-base text-slate-800 dark:text-white outline-none focus:border-sky-500"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm sm:text-base text-slate-800 dark:text-white outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all"
                 >
                   <option value="pro">Pro (600 req/day)</option>
                   <option value="enterprise">Enterprise (1,000 req/day)</option>
@@ -678,7 +510,7 @@ export default function AdminDashboard() {
                     type="number"
                     value={newPromo.duration_days}
                     onChange={(e) => setNewPromo({ ...newPromo, duration_days: parseInt(e.target.value) })}
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-800 dark:text-white outline-none focus:border-sky-500"
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-800 dark:text-white outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all"
                   />
                 </div>
 
@@ -688,7 +520,7 @@ export default function AdminDashboard() {
                     type="number"
                     value={newPromo.max_uses}
                     onChange={(e) => setNewPromo({ ...newPromo, max_uses: parseInt(e.target.value) })}
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-800 dark:text-white outline-none focus:border-sky-500"
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-800 dark:text-white outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all"
                   />
                 </div>
               </div>
@@ -705,7 +537,7 @@ export default function AdminDashboard() {
               <button
                 onClick={handleCreatePromo}
                 disabled={actionLoading}
-                className="flex-1 px-4 py-2 sm:py-3 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white rounded-lg font-medium transition-all text-sm disabled:opacity-50 flex items-center justify-center gap-2"
+                className="flex-1 px-4 py-2 sm:py-3 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white rounded-lg font-medium transition-all text-sm disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg"
               >
                 {actionLoading ? (
                   <>
@@ -722,9 +554,9 @@ export default function AdminDashboard() {
       )}
 
       {showEditUserModal && selectedUser && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 max-w-md w-full p-4 sm:p-6 shadow-2xl animate-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between mb-4">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 z-50 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-800 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 max-w-md w-full p-4 sm:p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between mb-4 sm:mb-5">
               <h3 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-white">Edit User Plan</h3>
               <button
                 onClick={() => setShowEditUserModal(false)}
@@ -747,7 +579,7 @@ export default function AdminDashboard() {
                 <select
                   value={editUser.plan}
                   onChange={(e) => setEditUser({ ...editUser, plan: e.target.value })}
-                  className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm sm:text-base text-slate-800 dark:text-white outline-none focus:border-sky-500"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm sm:text-base text-slate-800 dark:text-white outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all"
                 >
                   <option value="free">Free (200 req/day)</option>
                   <option value="pro">Pro (600 req/day)</option>
@@ -761,7 +593,7 @@ export default function AdminDashboard() {
                   type="datetime-local"
                   value={editUser.plan_expires_at}
                   onChange={(e) => setEditUser({ ...editUser, plan_expires_at: e.target.value })}
-                  className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm sm:text-base text-slate-800 dark:text-white outline-none focus:border-sky-500"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm sm:text-base text-slate-800 dark:text-white outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all"
                 />
               </div>
             </div>
@@ -777,7 +609,7 @@ export default function AdminDashboard() {
               <button
                 onClick={handleUpdateUserPlan}
                 disabled={actionLoading}
-                className="flex-1 px-4 py-2 sm:py-3 bg-sky-600 hover:bg-sky-700 text-white rounded-lg font-medium transition-all text-sm disabled:opacity-50 flex items-center justify-center gap-2"
+                className="flex-1 px-4 py-2 sm:py-3 bg-sky-600 hover:bg-sky-700 text-white rounded-lg font-medium transition-all text-sm disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg"
               >
                 {actionLoading ? (
                   <>
@@ -794,10 +626,10 @@ export default function AdminDashboard() {
       )}
 
       {toast && (
-        <div className="fixed bottom-4 right-4 z-50 animate-in slide-in-from-bottom-5 duration-200">
-          <div className={`flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-4 rounded-lg shadow-lg ${toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'} text-white`}>
-            {toast.type === 'success' ? <FiCheckCircle className="text-lg sm:text-xl" /> : <FiAlertCircle className="text-lg sm:text-xl" />}
-            <p className="font-medium text-sm sm:text-base">{toast.message}</p>
+        <div className="fixed bottom-3 right-3 sm:bottom-4 sm:right-4 z-50 animate-in slide-in-from-bottom-5 duration-200">
+          <div className={`flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-4 rounded-lg sm:rounded-xl shadow-lg ${toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'} text-white`}>
+            {toast.type === 'success' ? <FiCheckCircle className="text-base sm:text-lg" /> : <FiAlertCircle className="text-base sm:text-lg" />}
+            <p className="font-medium text-xs sm:text-sm">{toast.message}</p>
           </div>
         </div>
       )}
