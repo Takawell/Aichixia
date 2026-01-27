@@ -22,7 +22,7 @@ const globalDayLimit = new Ratelimit({
 
 const globalDayLimitExternal = new Ratelimit({
   redis: redis,
-  limiter: Ratelimit.slidingWindow(60, "1 d"),
+  limiter: Ratelimit.slidingWindow(80, "1 d"),
   analytics: true,
   prefix: "ratelimit:global:day:external",
 });
