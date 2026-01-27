@@ -230,7 +230,7 @@ const models: Model[] = [
   },
   {
     id: "claude",
-    name: "Claude Haiku 4.5",
+    name: "Claude Opus 4.5",
     endpoint: "/api/models/claude",
     icon: SiAnthropic,
     color: "from-orange-500 to-purple-500",
