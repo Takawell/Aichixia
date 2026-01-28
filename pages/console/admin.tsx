@@ -147,8 +147,8 @@ export default function AdminDashboard() {
         fetch('/api/console/admin?type=promo-codes', { headers: { Authorization: `Bearer ${token}` } }),
         fetch('/api/console/admin?type=redemptions', { headers: { Authorization: `Bearer ${token}` } }),
         fetch('/api/console/admin?type=users', { headers: { Authorization: `Bearer ${token}` } }),
-        fetch('/api/console/stats?type=usage&days=30', { headers: { Authorization: `Bearer ${token}` } }),
-        fetch('/api/console/stats?type=logs&limit=100', { headers: { Authorization: `Bearer ${token}` } }),
+        fetch('/api/console/stats?type=usage&days=30&admin=true', { headers: { Authorization: `Bearer ${token}` } }),
+        fetch('/api/console/stats?type=logs&limit=100&admin=true', { headers: { Authorization: `Bearer ${token}` } }),
       ]);
 
       const promosData = await promosRes.json();
@@ -156,6 +156,13 @@ export default function AdminDashboard() {
       const usersData = await usersRes.json();
       const usageData = await usageRes.json();
       const logsData = await logsRes.json();
+
+      console.log('🔍 Admin Debug:');
+      console.log('Users:', usersData.users?.length || 0);
+      console.log('Daily Usage:', usageData.usage?.length || 0);
+      console.log('Request Logs:', logsData.logs?.length || 0);
+      console.log('Usage Data Sample:', usageData.usage?.[0]);
+      console.log('Logs Data Sample:', logsData.logs?.[0]);
 
       setPromoCodes(promosData.promoCodes || []);
       setRedemptions(redemptionsData.redemptions || []);
