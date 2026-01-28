@@ -336,14 +336,14 @@ export default function Console() {
   };
 
   const getPlanInfo = () => {
-    if (!settings) return { name: 'Free', limit: '200', color: 'sky' };
+    if (!settings) return { name: 'Free', limit: '100', color: 'sky' };
     switch (settings.plan) {
       case 'enterprise':
-        return { name: 'Enterprise', limit: '1,000', color: 'rose' };
+        return { name: 'Enterprise', limit: '800', color: 'rose' };
       case 'pro':
-        return { name: 'Pro', limit: '600', color: 'purple' };
+        return { name: 'Pro', limit: '400', color: 'purple' };
       default:
-        return { name: 'Free', limit: '200', color: 'sky' };
+        return { name: 'Free', limit: '100', color: 'sky' };
     }
   };
 
