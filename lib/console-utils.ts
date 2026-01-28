@@ -96,28 +96,38 @@ export async function updateDailyUsage(
   }
 }
 
-export async function getUsageStats(userId: string, days: number = 7) {
+export async function getUsageStats(userId: string, days: number = 7, forAdmin: boolean = false) {
   const startDate = new Date();
   startDate.setDate(startDate.getDate() - days);
 
-  const { data, error } = await supabase
+  const query = supabase
     .from('daily_usage')
     .select('*')
-    .eq('user_id', userId)
     .gte('date', startDate.toISOString().split('T')[0])
     .order('date', { ascending: true });
+
+  if (!forAdmin) {
+    query.eq('user_id', userId);
+  }
+
+  const { data, error } = await query;
 
   if (error) return [];
   return data || [];
 }
 
-export async function getRecentLogs(userId: string, limit: number = 20) {
-  const { data, error } = await supabase
+export async function getRecentLogs(userId: string, limit: number = 20, forAdmin: boolean = false) {
+  const query = supabase
     .from('request_logs')
     .select('*')
-    .eq('user_id', userId)
     .order('created_at', { ascending: false })
     .limit(limit);
+
+  if (!forAdmin) {
+    query.eq('user_id', userId);
+  }
+
+  const { data, error } = await query;
 
   if (error) return [];
   return data || [];
@@ -196,6 +206,27 @@ export async function getTotalStats(userId: string) {
     .from('api_keys')
     .select('id, requests_used, rate_limit, is_active')
     .eq('user_id', userId);
+
+  if (!keys) return { totalRequests: 0, activeKeys: 0, rateLimitUsage: 0 };
+
+  const totalRequests = keys.reduce((sum, k) => sum + k.requests_used, 0);
+  const activeKeys = keys.filter(k => k.is_active).length;
+  const totalLimit = keys.reduce((sum, k) => sum + k.rate_limit, 0);
+  const rateLimitUsage = totalLimit > 0 ? (totalRequests / totalLimit) * 100 : 0;
+
+  return {
+    totalRequests,
+    activeKeys,
+    rateLimitUsage: Math.round(rateLimitUsage),
+  };
+}
+
+export async function getAllUsersStats() {
+  const supabaseAdmin = getServiceSupabase();
+  
+  const { data: keys } = await supabaseAdmin
+    .from('api_keys')
+    .select('id, requests_used, rate_limit, is_active');
 
   if (!keys) return { totalRequests: 0, activeKeys: 0, rateLimitUsage: 0 };
 
