@@ -34,6 +34,7 @@ type User = {
   user_id: string;
   email: string;
   display_name: string | null;
+  avatar_url: string | null;
   plan: string;
   plan_expires_at: string | null;
   is_admin: boolean;
@@ -129,7 +130,6 @@ export default function AdminDashboard() {
       setLoading(false);
       return;
     }
-
     fetchAllData();
   };
 
