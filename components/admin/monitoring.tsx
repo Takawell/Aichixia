@@ -20,6 +20,7 @@ type User = {
   user_id: string;
   email: string;
   display_name: string | null;
+  avatar_url: string | null;
   plan: string;
   plan_expires_at: string | null;
   is_admin: boolean;
@@ -262,8 +263,23 @@ export default function Monitoring({ recentLogs, users, onRefresh, loading, refr
                     <div className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-slate-300 to-slate-400 rounded-lg flex items-center justify-center text-slate-700 font-bold text-xs sm:text-sm">
                       {index + 1}
                     </div>
-                    <div className={`w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br ${getPlanColor(user.plan)} rounded-lg sm:rounded-xl flex items-center justify-center text-white font-bold text-xs sm:text-sm shadow-lg flex-shrink-0`}>
-                      {user.email[0].toUpperCase()}
+                    {user.avatar_url ? (
+                      <img
+                        src={user.avatar_url}
+                        alt={user.display_name || user.email}
+                        className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl object-cover border-2 border-slate-200 dark:border-slate-600 shadow-lg flex-shrink-0"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                          if (fallback) fallback.style.display = 'flex';
+                        }}
+                      />
+                    ) : null}
+                    <div 
+                      className={`w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br ${getPlanColor(user.plan)} rounded-lg sm:rounded-xl flex items-center justify-center text-white font-bold text-xs sm:text-sm shadow-lg flex-shrink-0`}
+                      style={{ display: user.avatar_url ? 'none' : 'flex' }}
+                    >
+                      {user.display_name?.[0]?.toUpperCase() || user.email[0].toUpperCase()}
                     </div>
                   </div>
 
