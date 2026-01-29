@@ -24,6 +24,7 @@ type User = {
   user_id: string;
   email: string;
   display_name: string | null;
+  avatar_url: string | null;
   plan: string;
   plan_expires_at: string | null;
   is_admin: boolean;
@@ -290,8 +291,23 @@ export default function Overview({ users, promoCodes, redemptions, onNavigate, o
                   key={user.user_id}
                   className="flex items-center gap-3 p-2 sm:p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                 >
-                  <div className={`w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br ${getPlanColor(user.plan)} rounded-lg flex items-center justify-center text-white font-bold text-xs sm:text-sm shadow-lg flex-shrink-0`}>
-                    {user.email[0].toUpperCase()}
+                  {user.avatar_url ? (
+                    <img
+                      src={user.avatar_url}
+                      alt={user.display_name || user.email}
+                      className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg object-cover border-2 border-slate-200 dark:border-slate-600 shadow-lg flex-shrink-0"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                        if (fallback) fallback.style.display = 'flex';
+                      }}
+                    />
+                  ) : null}
+                  <div 
+                    className={`w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br ${getPlanColor(user.plan)} rounded-lg flex items-center justify-center text-white font-bold text-xs sm:text-sm shadow-lg flex-shrink-0`}
+                    style={{ display: user.avatar_url ? 'none' : 'flex' }}
+                  >
+                    {user.display_name?.[0]?.toUpperCase() || user.email[0].toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-white truncate">
