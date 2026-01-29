@@ -8,6 +8,7 @@ import { chatGlm, GlmRateLimitError, GlmQuotaError } from "@/lib/glm";
 import { chatClaude, ClaudeRateLimitError, ClaudeQuotaError } from "@/lib/claude";
 import { chatCohere, CohereRateLimitError, CohereQuotaError } from "@/lib/cohere";
 import { chatDeepSeek, DeepSeekRateLimitError, DeepSeekQuotaError } from "@/lib/deepseek";
+import { chatDeepSeekV, DeepSeekVRateLimitError, DeepSeekVQuotaError } from "@/lib/deepseek-v";
 import { chatQwen, QwenRateLimitError, QwenQuotaError } from "@/lib/qwen";
 import { chatGptOss, GptOssRateLimitError, GptOssQuotaError } from "@/lib/gpt-oss";
 import { chatCompound, CompoundRateLimitError, CompoundQuotaError } from "@/lib/compound";
@@ -26,7 +27,7 @@ type ChatFunction = (
 
 const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "deepseek-v3.2": { fn: chatDeepSeek, provider: "deepseek" },
-  "deepseek-v3.1": { fn: chatDeepSeek, provider: "deepseek" },
+  "deepseek-v3.1": { fn: chatDeepSeekV, provider: "deepseek-v" },
   "gpt-5-mini": { fn: chatOpenAI, provider: "openai" },
   "claude-opus-4.5": { fn: chatClaude, provider: "claude" },
   "gemini-3-flash": { fn: chatGemini, provider: "gemini" },
@@ -56,6 +57,7 @@ const RATE_LIMIT_ERRORS = [
   ClaudeRateLimitError,
   CohereRateLimitError,
   DeepSeekRateLimitError,
+  DeepSeekVRateLimitError,
   QwenRateLimitError,
   GptOssRateLimitError,
   CompoundRateLimitError,
@@ -74,6 +76,7 @@ const QUOTA_ERRORS = [
   ClaudeQuotaError,
   CohereQuotaError,
   DeepSeekQuotaError,
+  DeepSeekVQuotaError,
   QwenQuotaError,
   GptOssQuotaError,
   CompoundQuotaError,
