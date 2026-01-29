@@ -6,6 +6,7 @@ type User = {
   user_id: string;
   email: string;
   display_name: string | null;
+  avatar_url: string | null;
   plan: string;
   plan_expires_at: string | null;
   is_admin: boolean;
@@ -187,8 +188,23 @@ export default function Users({ users, onEditUser, loading }: UsersProps) {
               >
                 <div className="flex flex-col lg:flex-row lg:items-center gap-3 sm:gap-4">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <div className={`w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br ${getPlanColor(user.plan)} rounded-xl flex items-center justify-center text-white font-bold text-sm sm:text-base shadow-lg flex-shrink-0`}>
-                      {user.email[0].toUpperCase()}
+                    {user.avatar_url ? (
+                      <img
+                        src={user.avatar_url}
+                        alt={user.display_name || user.email}
+                        className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl object-cover border-2 border-slate-200 dark:border-slate-600 shadow-lg flex-shrink-0"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                          if (fallback) fallback.style.display = 'flex';
+                        }}
+                      />
+                    ) : null}
+                    <div 
+                      className={`w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br ${getPlanColor(user.plan)} rounded-xl flex items-center justify-center text-white font-bold text-sm sm:text-base shadow-lg flex-shrink-0`}
+                      style={{ display: user.avatar_url ? 'none' : 'flex' }}
+                    >
+                      {user.display_name?.[0]?.toUpperCase() || user.email[0].toUpperCase()}
                     </div>
 
                     <div className="flex-1 min-w-0">
