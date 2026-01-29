@@ -85,6 +85,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 user_id: setting.user_id,
                 email: userData?.email || 'Unknown',
                 display_name: userData?.user_metadata?.display_name || null,
+                avatar_url: userData?.user_metadata?.avatar_url || null,
                 plan: setting.plan,
                 plan_expires_at: setting.plan_expires_at,
                 is_admin: setting.is_admin,
