@@ -10,6 +10,7 @@ import { chatCohere, CohereRateLimitError, CohereQuotaError } from "@/lib/cohere
 import { chatDeepSeek, DeepSeekRateLimitError, DeepSeekQuotaError } from "@/lib/deepseek";
 import { chatDeepSeekV, DeepSeekVRateLimitError, DeepSeekVQuotaError } from "@/lib/deepseek-v";
 import { chatQwen, QwenRateLimitError, QwenQuotaError } from "@/lib/qwen";
+import { chatQwenV2, QwenV2RateLimitError, QwenV2QuotaError } from "@/lib/qwen3";
 import { chatGptOss, GptOssRateLimitError, GptOssQuotaError } from "@/lib/gpt-oss";
 import { chatCompound, CompoundRateLimitError, CompoundQuotaError } from "@/lib/compound";
 import { chatLlama, LlamaRateLimitError, LlamaQuotaError } from "@/lib/llama";
@@ -31,11 +32,10 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "gpt-5-mini": { fn: chatOpenAI, provider: "openai" },
   "claude-opus-4.5": { fn: chatClaude, provider: "claude" },
   "gemini-3-flash": { fn: chatGemini, provider: "gemini" },
-  "gemini-pro": { fn: chatGemini, provider: "gemini" },
   "kimi-k2": { fn: chatKimi, provider: "kimi" },
   "glm-4.7": { fn: chatGlm, provider: "glm" },
   "mistral-3.1": { fn: chatMistral, provider: "mistral" },
-  "qwen3-235b": { fn: chatQwen, provider: "qwen" },
+  "qwen3-235b": { fn: chatQwenV2, provider: "qwen3" },
   "qwen3-coder-480b": { fn: chatQwen, provider: "qwen" },
   "minimax-m2.1": { fn: chatMinimax, provider: "minimax" },
   "llama-3.3-70b": { fn: chatLlama, provider: "llama" },
@@ -44,7 +44,6 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "groq-compound": { fn: chatCompound, provider: "compound" },
   "cohere-command-a": { fn: chatCohere, provider: "cohere" },
   "grok-3": { fn: chatGrok, provider: "grok" },
-  "grok-3-mini": { fn: chatGrok, provider: "grok" },
   "aichixia-thinking": { fn: chatAichixia, provider: "aichixia" },
 };
 
@@ -59,6 +58,7 @@ const RATE_LIMIT_ERRORS = [
   DeepSeekRateLimitError,
   DeepSeekVRateLimitError,
   QwenRateLimitError,
+  QwenV2RateLimitError,
   GptOssRateLimitError,
   CompoundRateLimitError,
   LlamaRateLimitError,
@@ -78,6 +78,7 @@ const QUOTA_ERRORS = [
   DeepSeekQuotaError,
   DeepSeekVQuotaError,
   QwenQuotaError,
+  QwenV2QuotaError,
   GptOssQuotaError,
   CompoundQuotaError,
   LlamaQuotaError,
