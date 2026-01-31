@@ -35,7 +35,7 @@ export async function getTopUsers(limit: number = 10): Promise<TopUser[]> {
     .from('daily_usage')
     .select('user_id, requests_count, tokens_used');
   
-  if (!aggregated) return [];
+  if (!aggregated || aggregated.length === 0) return [];
   
   const userTotals: Record<string, { total_requests: number; total_tokens: number }> = {};
   
@@ -51,21 +51,27 @@ export async function getTopUsers(limit: number = 10): Promise<TopUser[]> {
     .sort((a, b) => b[1].total_requests - a[1].total_requests)
     .slice(0, limit);
   
+  if (sortedUsers.length === 0) return [];
+  
   const topUserIds = sortedUsers.map(([user_id]) => user_id);
   
-  const { data: profiles } = await supabaseAdmin
-    .from('user_profiles')
-    .select('user_id, display_name, avatar_url')
-    .in('user_id', topUserIds);
+  const [profilesResult, settingsResult] = await Promise.all([
+    supabaseAdmin
+      .from('user_profiles')
+      .select('user_id, display_name, avatar_url')
+      .in('user_id', topUserIds),
+    supabaseAdmin
+      .from('user_settings')
+      .select('user_id, plan')
+      .in('user_id', topUserIds)
+  ]);
   
-  const { data: settings } = await supabaseAdmin
-    .from('user_settings')
-    .select('user_id, plan')
-    .in('user_id', topUserIds);
+  const profiles = profilesResult.data || [];
+  const settings = settingsResult.data || [];
   
   return sortedUsers.map(([user_id, totals], index) => {
-    const profile = profiles?.find(p => p.user_id === user_id);
-    const setting = settings?.find(s => s.user_id === user_id);
+    const profile = profiles.find(p => p.user_id === user_id);
+    const setting = settings.find(s => s.user_id === user_id);
     
     return {
       user_id,
@@ -131,33 +137,30 @@ export async function getAllModelsStats(): Promise<ModelStat[]> {
 export async function getGlobalStats(): Promise<GlobalStats> {
   const supabaseAdmin = getServiceSupabase();
   
-  const { count: totalUsers } = await supabaseAdmin
-    .from('users')
-    .select('*', { count: 'exact', head: true });
+  const [usersResult, allUsageResult] = await Promise.all([
+    supabaseAdmin.from('users').select('*', { count: 'exact', head: true }),
+    supabaseAdmin.from('daily_usage').select('requests_count, user_id, date')
+  ]);
   
-  const { data: allUsage } = await supabaseAdmin
-    .from('daily_usage')
-    .select('requests_count');
-  
-  const totalRequests = allUsage?.reduce((sum, row) => sum + (row.requests_count || 0), 0) || 0;
+  const totalUsers = usersResult.count || 0;
+  const allUsage = allUsageResult.data || [];
+  const totalRequests = allUsage.reduce((sum, row) => sum + (row.requests_count || 0), 0);
   
   const today = new Date().toISOString().split('T')[0];
-  const { data: todayUsage } = await supabaseAdmin
-    .from('daily_usage')
-    .select('requests_count, user_id')
-    .eq('date', today);
-  
-  const requestsToday = todayUsage?.reduce((sum, row) => sum + (row.requests_count || 0), 0) || 0;
-  const activeUsersToday = todayUsage ? new Set(todayUsage.map(r => r.user_id)).size : 0;
+  const todayUsage = allUsage.filter(row => row.date === today);
+  const requestsToday = todayUsage.reduce((sum, row) => sum + (row.requests_count || 0), 0);
+  const activeUsersToday = new Set(todayUsage.map(r => r.user_id)).size;
   
   const modelStats = await getAllModelsStats();
-  const topModel = modelStats.sort((a, b) => b.total_requests - a.total_requests)[0];
+  const topModel = modelStats.length > 0 
+    ? modelStats.sort((a, b) => b.total_requests - a.total_requests)[0].model_id 
+    : 'N/A';
   
   return {
-    totalUsers: totalUsers || 0,
+    totalUsers,
     totalRequests,
     requestsToday,
-    topModel: topModel?.model_id || 'N/A',
+    topModel,
     activeUsersToday,
   };
 }
