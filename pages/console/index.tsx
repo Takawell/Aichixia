@@ -8,6 +8,7 @@ import ApiKeys from '@/components/console/apikeys';
 import Activity from '@/components/console/activity';
 import Models from '@/components/console/models';
 import Settings from '@/components/console/settings';
+import Image from 'next/image';
 
 type ApiKey = {
   id: string;
@@ -70,6 +71,8 @@ export default function Console() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [settings, setSettings] = useState<UserSettings | null>(null);
   const [loading, setLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [loadingProgress, setLoadingProgress] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
   const [keys, setKeys] = useState<ApiKey[]>([]);
   const [logs, setLogs] = useState<RequestLog[]>([]);
@@ -98,6 +101,22 @@ export default function Console() {
     checkUser();
   }, []);
 
+  useEffect(() => {
+    if (initialLoading) {
+      const interval = setInterval(() => {
+        setLoadingProgress((prev) => {
+          if (prev >= 95) {
+            clearInterval(interval);
+            return prev;
+          }
+          return prev + Math.random() * 15;
+        });
+      }, 200);
+
+      return () => clearInterval(interval);
+    }
+  }, [initialLoading]);
+
   const checkUser = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
@@ -105,8 +124,10 @@ export default function Console() {
       return;
     }
     setUser(session.user);
-    fetchAllData();
-    fetchProfile();
+    await fetchAllData();
+    await fetchProfile();
+    setLoadingProgress(100);
+    setTimeout(() => setInitialLoading(false), 500);
   };
 
   const fetchProfile = async () => {
@@ -348,6 +369,77 @@ export default function Console() {
   };
 
   const planInfo = getPlanInfo();
+
+  if (initialLoading) {
+    return (
+      <div className="fixed inset-0 bg-gradient-to-br from-zinc-50 via-white to-zinc-50 dark:from-black dark:via-zinc-950 dark:to-black flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(14,165,233,0.08),transparent_50%)] dark:bg-[radial-gradient(circle_at_50%_50%,rgba(14,165,233,0.15),transparent_50%)]" />
+        
+        <div className="absolute inset-0">
+          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-sky-200/20 dark:bg-sky-500/10 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-blue-200/20 dark:bg-blue-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        </div>
+
+        <div className="relative z-10 flex flex-col items-center gap-6 sm:gap-8 px-4">
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-sky-400 to-blue-600 rounded-2xl blur-xl opacity-50 animate-pulse" />
+            <div className="relative w-16 h-16 sm:w-20 sm:h-20 bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl flex items-center justify-center ring-1 ring-zinc-200 dark:ring-zinc-800">
+              <Image src="/logo.png" alt="Logo" width={48} height={48} className="sm:w-14 sm:h-14" />
+            </div>
+          </div>
+
+          <div className="text-center space-y-2 sm:space-y-3">
+            <h1 className="text-xl sm:text-2xl font-black text-zinc-900 dark:text-white">
+              Verifying your connection
+            </h1>
+            <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 max-w-xs sm:max-w-sm">
+              Please wait while we securely authenticate your session
+            </p>
+          </div>
+
+          <div className="w-full max-w-xs sm:max-w-sm space-y-3 sm:space-y-4">
+            <div className="relative h-1.5 sm:h-2 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
+              <div 
+                className="absolute inset-y-0 left-0 bg-gradient-to-r from-sky-500 to-blue-600 rounded-full transition-all duration-300 ease-out"
+                style={{ width: `${loadingProgress}%` }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-center gap-1.5 sm:gap-2">
+              <div className="flex gap-1">
+                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-sky-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-sky-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-sky-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+              </div>
+              <span className="text-[10px] sm:text-xs text-zinc-400 dark:text-zinc-500 font-medium">
+                {loadingProgress < 30 && 'Initializing...'}
+                {loadingProgress >= 30 && loadingProgress < 60 && 'Checking credentials...'}
+                {loadingProgress >= 60 && loadingProgress < 90 && 'Loading dashboard...'}
+                {loadingProgress >= 90 && 'Almost there...'}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-zinc-400 dark:text-zinc-600">
+            <div className="w-1 h-1 bg-emerald-500 rounded-full animate-pulse" />
+            <span>Secured by Aichixia</span>
+          </div>
+        </div>
+
+        <style jsx>{`
+          @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+          }
+          .animate-shimmer {
+            animation: shimmer 2s infinite;
+          }
+        `}</style>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black text-zinc-900 dark:text-white transition-colors duration-300">
