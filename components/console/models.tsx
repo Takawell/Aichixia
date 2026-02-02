@@ -171,7 +171,6 @@ const AVAILABLE_MODELS = [
     icon: SiAlibabacloud,
     color: 'from-purple-600 to-fuchsia-600',
     category: 'Text Generation',
-    requiresPlan: 'pro',
     description: 'Specialized in coding and Asian languages',
     speed: 3,
     quality: 5,
