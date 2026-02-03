@@ -360,9 +360,15 @@ export default function AdminDashboard() {
               
               <div className="absolute inset-2 rounded-full border border-dashed border-sky-400/30 dark:border-sky-400/40 animate-spin-slow" />
               
-              <div className="relative z-10 w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-sky-500 to-blue-600 rounded-xl flex items-center justify-center shadow-2xl transform hover:scale-110 transition-transform duration-500">
-                <FaServer className="text-white text-xl sm:text-2xl" />
-              </div>
+              <div className="w-10 h-10 bg-gradient-to-br from-sky-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg p-1.5">
+                <Image 
+                  src="/logo.png" 
+                  alt="Aichixia" 
+                  width={40} 
+                  height={40}
+                  className="w-full h-full object-contain"
+                />
+             </div>
             </div>
           </div>
 
