@@ -583,24 +583,11 @@ export default function Console() {
             </div>
           </div>
 
-          <div className="flex flex-col items-center gap-3">
-            <div className="flex items-center gap-3 text-xs sm:text-sm text-zinc-500 dark:text-zinc-500">
-              <div className="flex items-center gap-1.5">
-                <FiShield className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-500" />
-                <span className="font-semibold">256-bit Encryption</span>
-              </div>
-              <div className="w-1 h-1 bg-zinc-300 dark:bg-zinc-700 rounded-full" />
-              <div className="flex items-center gap-1.5">
-                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-lg shadow-emerald-500/50" />
-                <span className="font-semibold">Secure</span>
-              </div>
-            </div>
-            
-            <div className="text-[10px] sm:text-xs text-zinc-400 dark:text-zinc-600 font-medium">
-              Aichixia Console v2.0.0
-            </div>
-          </div>
-        </div>
+          <div className="text-[10px] sm:text-xs text-zinc-400 dark:text-zinc-600 font-medium">
+             Aichixia Console
+           </div>
+         </div>
+       </div>
 
         <style jsx>{`
           @keyframes shimmer {
