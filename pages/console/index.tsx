@@ -387,7 +387,6 @@ export default function Console() {
   };
 
   const planInfo = getPlanInfo();
-
   const loadingSteps = [
     { icon: FiShield, text: 'Initializing security layer', color: 'from-sky-400 to-blue-500' },
     { icon: FiLock, text: 'Authenticating credentials', color: 'from-blue-400 to-indigo-500' },
@@ -585,9 +584,8 @@ export default function Console() {
 
           <div className="text-[10px] sm:text-xs text-zinc-400 dark:text-zinc-600 font-medium">
              Aichixia Console
-           </div>
-         </div>
-       </div>
+          </div>
+        </div>
 
         <style jsx>{`
           @keyframes shimmer {
