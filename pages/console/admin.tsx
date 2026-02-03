@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { supabase } from '@/lib/supabase';
 import { FaServer } from 'react-icons/fa';
-import { FiActivity, FiGift, FiCalendar, FiUsers, FiRefreshCw, FiX, FiCheckCircle, FiAlertCircle, FiLock, FiBarChart2, FiEye } from 'react-icons/fi';
+import { FiActivity, FiGift, FiCalendar, FiUsers, FiRefreshCw, FiX, FiCheckCircle, FiAlertCircle, FiLock, FiBarChart2, FiEye, FiShield, FiDatabase, FiKey, FiCpu, FiCheck } from 'react-icons/fi';
 import ThemeToggle from '@/components/ThemeToggle';
 import Overview from '@/components/admin/overview';
 import Monitoring from '@/components/admin/monitoring';
@@ -10,6 +10,7 @@ import Analytics from '@/components/admin/analytics';
 import Promos from '@/components/admin/promos';
 import Redemptions from '@/components/admin/redemptions';
 import Users from '@/components/admin/users';
+import Image from 'next/image';
 
 type PromoCode = {
   id: string;
@@ -74,6 +75,9 @@ type TabType = 'overview' | 'monitoring' | 'analytics' | 'promos' | 'redemptions
 export default function AdminDashboard() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [loadingProgress, setLoadingProgress] = useState(0);
+  const [loadingStep, setLoadingStep] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
   const [accessDenied, setAccessDenied] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>('overview');
@@ -112,6 +116,39 @@ export default function AdminDashboard() {
     checkAdmin();
   }, []);
 
+  useEffect(() => {
+    if (initialLoading) {
+      const interval = setInterval(() => {
+        setLoadingProgress((prev) => {
+          if (prev >= 95) {
+            clearInterval(interval);
+            return prev;
+          }
+          const increment = Math.random() * 12 + 6;
+          return Math.min(prev + increment, 95);
+        });
+      }, 250);
+
+      return () => clearInterval(interval);
+    }
+  }, [initialLoading]);
+
+  useEffect(() => {
+    if (loadingProgress < 18) {
+      setLoadingStep(0);
+    } else if (loadingProgress < 36) {
+      setLoadingStep(1);
+    } else if (loadingProgress < 54) {
+      setLoadingStep(2);
+    } else if (loadingProgress < 72) {
+      setLoadingStep(3);
+    } else if (loadingProgress < 90) {
+      setLoadingStep(4);
+    } else {
+      setLoadingStep(5);
+    }
+  }, [loadingProgress]);
+
   const checkAdmin = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
@@ -127,6 +164,7 @@ export default function AdminDashboard() {
     const data = await res.json();
     if (!data.settings?.is_admin) {
       setAccessDenied(true);
+      setInitialLoading(false);
       setLoading(false);
       return;
     }
@@ -162,6 +200,9 @@ export default function AdminDashboard() {
       setUsers(usersData.users || []);
       setDailyUsage(usageData.usage || []);
       setRequestLogs(logsData.logs || []);
+      
+      setLoadingProgress(100);
+      setTimeout(() => setInitialLoading(false), 600);
     } catch (error) {
       showToast('Failed to fetch data', 'error');
     } finally {
@@ -273,32 +314,333 @@ export default function AdminDashboard() {
     setTimeout(() => setToast(null), 3000);
   };
 
-  if (loading) {
+  const loadingSteps = [
+    { icon: FiShield, text: 'Initializing admin security', color: 'from-sky-400 to-blue-500' },
+    { icon: FiLock, text: 'Verifying admin credentials', color: 'from-blue-400 to-indigo-500' },
+    { icon: FiDatabase, text: 'Loading system data', color: 'from-indigo-400 to-purple-500' },
+    { icon: FiUsers, text: 'Fetching user database', color: 'from-purple-400 to-pink-500' },
+    { icon: FiBarChart2, text: 'Preparing analytics', color: 'from-pink-400 to-rose-500' },
+    { icon: FiCheck, text: 'Admin panel ready', color: 'from-emerald-400 to-green-500' }
+  ];
+
+  if (initialLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-sky-50/20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900 flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-sky-500/30 border-t-sky-500 rounded-full animate-spin" />
+      <div className="fixed inset-0 bg-gradient-to-br from-slate-50 via-blue-50/30 to-sky-50/20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900 flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(14,165,233,0.08),transparent_60%)] dark:bg-[radial-gradient(circle_at_50%_50%,rgba(14,165,233,0.2),transparent_60%)]" />
+        
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-0 left-1/4 w-80 h-80 bg-sky-300/15 dark:bg-sky-500/10 rounded-full blur-3xl animate-float" />
+          <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-blue-300/15 dark:bg-blue-500/10 rounded-full blur-3xl animate-float-delayed" />
+        </div>
+
+        <div className="absolute inset-0 opacity-40 dark:opacity-60">
+          <div className="absolute top-1/3 left-1/3 w-1.5 h-1.5 bg-sky-400 rounded-full animate-twinkle" />
+          <div className="absolute top-2/3 left-1/4 w-1 h-1 bg-blue-400 rounded-full animate-twinkle-delayed" />
+          <div className="absolute top-1/2 right-1/3 w-1.5 h-1.5 bg-cyan-400 rounded-full animate-twinkle" style={{ animationDelay: '1s' }} />
+          <div className="absolute bottom-1/3 right-1/4 w-1 h-1 bg-indigo-400 rounded-full animate-twinkle-delayed" style={{ animationDelay: '1.5s' }} />
+        </div>
+
+        <div className="relative z-10 flex flex-col items-center gap-6 sm:gap-8 px-4 w-full max-w-md">
+          <div className="relative group">
+            <div className="absolute -inset-6 bg-gradient-to-r from-sky-400/20 via-blue-500/20 to-cyan-400/20 dark:from-sky-400/30 dark:via-blue-500/30 dark:to-cyan-400/30 rounded-full blur-2xl animate-pulse-slow" />
+            
+            <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center">
+              <div className="absolute inset-0">
+                {[...Array(3)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="absolute inset-0 rounded-full border border-sky-400/20 dark:border-sky-400/30"
+                    style={{
+                      animation: `ping ${2 + i * 0.5}s cubic-bezier(0, 0, 0.2, 1) infinite`,
+                      animationDelay: `${i * 0.3}s`
+                    }}
+                  />
+                ))}
+              </div>
+              
+              <div className="absolute inset-2 rounded-full border border-dashed border-sky-400/30 dark:border-sky-400/40 animate-spin-slow" />
+              
+              <div className="relative z-10 w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-sky-500 to-blue-600 rounded-xl flex items-center justify-center shadow-2xl transform hover:scale-110 transition-transform duration-500">
+                <FaServer className="text-white text-xl sm:text-2xl" />
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center space-y-2 sm:space-y-3">
+            <div className="space-y-1.5">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-black bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 dark:from-white dark:via-slate-200 dark:to-white bg-clip-text text-transparent animate-gradient">
+                {loadingStep === 5 ? 'Admin Ready' : 'Admin Dashboard'}
+              </h1>
+              <div className="flex items-center justify-center gap-2">
+                <div className="h-px w-6 sm:w-10 bg-gradient-to-r from-transparent via-sky-500 to-transparent" />
+                <div className="w-1 h-1 rounded-full bg-sky-500 animate-pulse" />
+                <div className="h-px w-6 sm:w-10 bg-gradient-to-r from-transparent via-sky-500 to-transparent" />
+              </div>
+            </div>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium max-w-xs">
+              {loadingStep === 5 ? 'System initialized successfully' : 'Establishing secure admin connection'}
+            </p>
+          </div>
+
+          <div className="w-full space-y-5 sm:space-y-6">
+            <div className="relative">
+              <div className="h-2 sm:h-2.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden shadow-inner">
+                <div 
+                  className={`h-full bg-gradient-to-r ${loadingSteps[loadingStep].color} rounded-full transition-all duration-500 ease-out relative overflow-hidden`}
+                  style={{ width: `${loadingProgress}%` }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
+                </div>
+              </div>
+              
+              <div className="absolute -top-7 sm:-top-8 left-0 right-0 flex items-center justify-between px-1">
+                <div className="text-xs sm:text-sm font-bold text-transparent bg-gradient-to-r from-sky-600 to-blue-600 dark:from-sky-400 dark:to-blue-400 bg-clip-text">
+                  {Math.round(loadingProgress)}%
+                </div>
+                <div className="flex gap-1">
+                  {[...Array(3)].map((_, i) => (
+                    <div
+                      key={i}
+                      className={`w-1 h-1 rounded-full bg-gradient-to-r ${loadingSteps[loadingStep].color}`}
+                      style={{
+                        animation: `bounce 1s ease-in-out infinite`,
+                        animationDelay: `${i * 0.15}s`
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+              {loadingSteps.map((step, idx) => {
+                const StepIcon = step.icon;
+                const isActive = idx === loadingStep;
+                const isComplete = idx < loadingStep;
+                
+                return (
+                  <div key={idx} className="relative flex flex-col items-center gap-1.5">
+                    <div className={`relative transition-all duration-500 ${isActive ? 'scale-110' : 'scale-100'}`}>
+                      <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center transition-all duration-500 ${
+                        isActive 
+                          ? `bg-gradient-to-br ${step.color} shadow-lg shadow-sky-500/30` 
+                          : isComplete
+                          ? 'bg-emerald-500/10 dark:bg-emerald-500/20 border border-emerald-500/20'
+                          : 'bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800'
+                      }`}>
+                        <StepIcon className={`w-4 h-4 transition-colors duration-500 ${
+                          isActive 
+                            ? 'text-white' 
+                            : isComplete 
+                            ? 'text-emerald-600 dark:text-emerald-400'
+                            : 'text-slate-400 dark:text-slate-600'
+                        }`} />
+                      </div>
+                      {isActive && (
+                        <>
+                          <div className="absolute -inset-1 bg-sky-500/20 rounded-lg animate-ping" />
+                          <div className={`absolute -inset-1.5 bg-gradient-to-br ${step.color} opacity-20 rounded-lg blur animate-pulse`} />
+                        </>
+                      )}
+                      {isComplete && (
+                        <div className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 rounded-full flex items-center justify-center shadow-lg">
+                          <FiCheck className="w-2 h-2 text-white" />
+                        </div>
+                      )}
+                    </div>
+                    <div className={`w-full h-0.5 rounded-full transition-all duration-500 ${
+                      isComplete 
+                        ? 'bg-emerald-500/30' 
+                        : isActive
+                        ? `bg-gradient-to-r ${step.color} opacity-50`
+                        : 'bg-slate-200 dark:bg-slate-800'
+                    }`} />
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="flex items-start gap-2.5 p-3 sm:p-4 rounded-xl bg-gradient-to-br from-slate-100/50 to-slate-50/50 dark:from-slate-900/50 dark:to-slate-950/50 border border-slate-200/50 dark:border-slate-800/50 backdrop-blur-sm">
+              <div className={`flex-shrink-0 w-6 h-6 rounded-lg flex items-center justify-center bg-gradient-to-br ${loadingSteps[loadingStep].color} shadow-lg`}>
+                {loadingStep === 5 ? (
+                  <FiCheck className="w-3.5 h-3.5 text-white" />
+                ) : (
+                  <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className={`text-sm font-bold mb-0.5 ${
+                  loadingStep === 5 
+                    ? 'text-emerald-600 dark:text-emerald-400' 
+                    : 'text-slate-800 dark:text-slate-200'
+                }`}>
+                  {loadingSteps[loadingStep].text}
+                </p>
+                <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-500">
+                  {loadingStep !== 5 && (
+                    <div className="flex gap-0.5">
+                      {[...Array(3)].map((_, i) => (
+                        <div
+                          key={i}
+                          className="w-0.5 h-0.5 bg-slate-400 dark:bg-slate-600 rounded-full animate-bounce"
+                          style={{ animationDelay: `${i * 0.2}s` }}
+                        />
+                      ))}
+                    </div>
+                  )}
+                  <span className="font-medium">
+                    {loadingStep === 5 ? 'Ready to use' : 'Processing...'}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-[10px] sm:text-xs text-slate-400 dark:text-slate-600 font-medium">
+            Aichixia Admin Portal
+          </div>
+        </div>
+
+        <style jsx>{`
+          @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+          }
+          @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-15px) scale(1.05); }
+          }
+          @keyframes float-delayed {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-20px) scale(1.08); }
+          }
+          @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.5); }
+          }
+          @keyframes twinkle-delayed {
+            0%, 100% { opacity: 0.2; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.3); }
+          }
+          @keyframes gradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+          }
+          @keyframes pulse-slow {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+          }
+          @keyframes spin-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+          .animate-shimmer {
+            animation: shimmer 2s ease-in-out infinite;
+          }
+          .animate-float {
+            animation: float 8s ease-in-out infinite;
+          }
+          .animate-float-delayed {
+            animation: float-delayed 10s ease-in-out infinite;
+          }
+          .animate-twinkle {
+            animation: twinkle 3s ease-in-out infinite;
+          }
+          .animate-twinkle-delayed {
+            animation: twinkle-delayed 3s ease-in-out infinite;
+          }
+          .animate-gradient {
+            background-size: 200% 200%;
+            animation: gradient 3s ease infinite;
+          }
+          .animate-pulse-slow {
+            animation: pulse-slow 3s ease-in-out infinite;
+          }
+          .animate-spin-slow {
+            animation: spin-slow 8s linear infinite;
+          }
+        `}</style>
       </div>
     );
   }
 
   if (accessDenied) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-sky-50/20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900 flex items-center justify-center p-4">
-        <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 max-w-md w-full p-8 shadow-2xl">
-          <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-            <FiLock className="text-3xl text-red-600 dark:text-red-400" />
+      <div className="fixed inset-0 bg-gradient-to-br from-slate-50 via-blue-50/30 to-sky-50/20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900 flex items-center justify-center p-4 overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(239,68,68,0.05),transparent_70%)] dark:bg-[radial-gradient(circle_at_50%_50%,rgba(239,68,68,0.15),transparent_70%)]" />
+        
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-red-200/10 dark:bg-red-500/5 rounded-full blur-3xl animate-float" />
+          <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-orange-200/10 dark:bg-orange-500/5 rounded-full blur-3xl animate-float-delayed" />
+        </div>
+
+        <div className="relative z-10 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl border border-slate-200 dark:border-slate-700 max-w-md w-full p-6 sm:p-8 shadow-2xl">
+          <div className="relative mb-5">
+            <div className="absolute -inset-4 bg-gradient-to-r from-red-400/20 via-orange-400/20 to-red-400/20 rounded-full blur-xl animate-pulse-slow" />
+            <div className="relative w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-red-100 to-orange-100 dark:from-red-900/30 dark:to-orange-900/30 rounded-2xl flex items-center justify-center mx-auto shadow-lg">
+              <FiLock className="text-3xl sm:text-4xl text-red-600 dark:text-red-400" />
+            </div>
           </div>
-          <h2 className="text-2xl font-bold text-slate-800 dark:text-white text-center mb-2">Access Denied</h2>
-          <p className="text-slate-600 dark:text-slate-400 text-center mb-6">
-            You don't have permission to access the admin dashboard. This area is restricted to administrators only.
-          </p>
+
+          <div className="text-center space-y-3 mb-6">
+            <h2 className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 dark:from-white dark:via-slate-200 dark:to-white bg-clip-text text-transparent">
+              Access Denied
+            </h2>
+            <div className="flex items-center justify-center gap-2">
+              <div className="h-px w-8 bg-gradient-to-r from-transparent via-red-500 to-transparent" />
+              <div className="w-1 h-1 rounded-full bg-red-500 animate-pulse" />
+              <div className="h-px w-8 bg-gradient-to-r from-transparent via-red-500 to-transparent" />
+            </div>
+          </div>
+
+          <div className="space-y-4 mb-6">
+            <div className="p-4 bg-red-50/50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/30 rounded-xl">
+              <p className="text-sm text-slate-600 dark:text-slate-400 text-center leading-relaxed">
+                You don't have permission to access the admin dashboard. This area is restricted to administrators only.
+              </p>
+            </div>
+
+            <div className="flex items-start gap-3 p-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700/50">
+              <FiAlertCircle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                  If you believe this is an error, please contact your system administrator.
+                </p>
+              </div>
+            </div>
+          </div>
+
           <button
             onClick={() => window.location.href = '/console'}
-            className="w-full px-6 py-3 bg-sky-600 hover:bg-sky-700 text-white rounded-lg font-medium transition-colors"
+            className="w-full px-6 py-3 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]"
           >
             Back to Console
           </button>
         </div>
+
+        <style jsx>{`
+          @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-15px) scale(1.05); }
+          }
+          @keyframes float-delayed {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-20px) scale(1.08); }
+          }
+          @keyframes pulse-slow {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+          }
+          .animate-float {
+            animation: float 8s ease-in-out infinite;
+          }
+          .animate-float-delayed {
+            animation: float-delayed 10s ease-in-out infinite;
+          }
+          .animate-pulse-slow {
+            animation: pulse-slow 3s ease-in-out infinite;
+          }
+        `}</style>
       </div>
     );
   }
