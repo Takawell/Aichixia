@@ -177,7 +177,6 @@ export default function AdminDashboard() {
 
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
-
     const token = session.access_token;
 
     try {
@@ -360,15 +359,16 @@ export default function AdminDashboard() {
               
               <div className="absolute inset-2 rounded-full border border-dashed border-sky-400/30 dark:border-sky-400/40 animate-spin-slow" />
               
-              <div className="w-10 h-10 bg-gradient-to-br from-sky-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg p-1.5">
+              <div className="relative z-10 transform hover:scale-110 transition-transform duration-500">
                 <Image 
                   src="/logo.png" 
                   alt="Aichixia" 
                   width={40} 
                   height={40}
-                  className="w-full h-full object-contain"
+                  className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 drop-shadow-2xl"
+                  priority
                 />
-             </div>
+              </div>
             </div>
           </div>
 
