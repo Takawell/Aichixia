@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, AreaChart } from 'recharts';
-import { FiTrendingUp, FiActivity, FiZap, FiAlertCircle, FiLayers, FiCpu, FiUsers, FiBarChart2, FiClock, FiCheckCircle, FiXCircle, FiFilter, FiDownload, FiMaximize2 } from 'react-icons/fi';
-import { motion, AnimatePresence } from 'framer-motion';
+import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { FiTrendingUp, FiActivity, FiZap, FiAlertCircle, FiLayers, FiCpu, FiUsers, FiBarChart2 } from 'react-icons/fi';
 
 type DailyUsage = {
   id: string;
@@ -39,7 +38,6 @@ type AnalyticsProps = {
 export default function Analytics({ dailyUsage, requestLogs, loading }: AnalyticsProps) {
   const [timeRange, setTimeRange] = useState<'7d' | '30d'>('7d');
   const [chartType, setChartType] = useState<'requests' | 'tokens'>('requests');
-  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
 
   const chartData = dailyUsage
     .slice(-parseInt(timeRange))
@@ -98,427 +96,253 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
 
   const COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#06b6d4', '#6366f1', '#a855f7'];
 
-  const statCards = [
-    {
-      id: 'requests',
-      icon: FiActivity,
-      label: 'Total Requests',
-      value: stats.totalRequests.toLocaleString(),
-      gradient: 'from-blue-500 via-sky-500 to-cyan-500',
-      bgGradient: 'from-blue-50 to-sky-50 dark:from-blue-900/20 dark:to-sky-900/20',
-      borderColor: 'border-blue-200 dark:border-blue-800',
-      iconColor: 'text-blue-600 dark:text-blue-400',
-      textColor: 'text-blue-800 dark:text-blue-300',
-      trend: '+12%',
-      trendUp: true
-    },
-    {
-      id: 'tokens',
-      icon: FiLayers,
-      label: 'Total Tokens',
-      value: `${(stats.totalTokens / 1000).toFixed(1)}K`,
-      gradient: 'from-purple-500 via-violet-500 to-indigo-500',
-      bgGradient: 'from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20',
-      borderColor: 'border-purple-200 dark:border-purple-800',
-      iconColor: 'text-purple-600 dark:text-purple-400',
-      textColor: 'text-purple-800 dark:text-purple-300',
-      trend: '+8%',
-      trendUp: true
-    },
-    {
-      id: 'latency',
-      icon: FiZap,
-      label: 'Avg Latency',
-      value: `${stats.avgLatency}ms`,
-      gradient: 'from-emerald-500 via-green-500 to-teal-500',
-      bgGradient: 'from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20',
-      borderColor: 'border-emerald-200 dark:border-emerald-800',
-      iconColor: 'text-emerald-600 dark:text-emerald-400',
-      textColor: 'text-emerald-800 dark:text-emerald-300',
-      trend: '-3%',
-      trendUp: false
-    },
-    {
-      id: 'success',
-      icon: FiCheckCircle,
-      label: 'Success Rate',
-      value: `${stats.successRate}%`,
-      gradient: 'from-cyan-500 via-sky-500 to-blue-500',
-      bgGradient: 'from-cyan-50 to-sky-50 dark:from-cyan-900/20 dark:to-sky-900/20',
-      borderColor: 'border-cyan-200 dark:border-cyan-800',
-      iconColor: 'text-cyan-600 dark:text-cyan-400',
-      textColor: 'text-cyan-800 dark:text-cyan-300',
-      trend: '+2%',
-      trendUp: true
-    }
-  ];
-
   if (loading) {
     return (
-      <div className="space-y-4 sm:space-y-5 lg:space-y-6">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div className="space-y-3 sm:space-y-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
           {[1, 2, 3, 4].map((i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 }}
-              className="relative bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl rounded-xl sm:rounded-2xl border border-zinc-200 dark:border-zinc-800 p-4 sm:p-5 overflow-hidden"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-zinc-100/50 to-transparent dark:from-zinc-800/50 animate-pulse" />
-              <div className="relative space-y-3">
-                <div className="h-8 sm:h-10 bg-zinc-200 dark:bg-zinc-700 rounded-lg animate-pulse" />
-                <div className="h-6 sm:h-8 bg-zinc-200 dark:bg-zinc-700 rounded-lg w-2/3 animate-pulse" />
-              </div>
-            </motion.div>
+            <div key={i} className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl border border-slate-200 dark:border-slate-700 p-3 sm:p-4 animate-pulse">
+              <div className="h-6 sm:h-8 bg-slate-200 dark:bg-slate-700 rounded w-1/2 mb-2" />
+              <div className="h-5 sm:h-6 bg-slate-200 dark:bg-slate-700 rounded w-2/3" />
+            </div>
           ))}
         </div>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6 sm:p-8"
-        >
-          <div className="h-80 bg-zinc-200 dark:bg-zinc-700 rounded-xl animate-pulse" />
-        </motion.div>
+        <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6 animate-pulse">
+          <div className="h-48 sm:h-64 bg-slate-200 dark:bg-slate-700 rounded" />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4 sm:space-y-5 lg:space-y-6">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        {statCards.map((card, index) => {
-          const Icon = card.icon;
-          const isHovered = hoveredCard === card.id;
-          
-          return (
-            <motion.div
-              key={card.id}
-              initial={{ opacity: 0, y: 20, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ delay: index * 0.1, type: 'spring', stiffness: 200 }}
-              onHoverStart={() => setHoveredCard(card.id)}
-              onHoverEnd={() => setHoveredCard(null)}
-              className="relative group"
-            >
-              <div className={`absolute -inset-0.5 bg-gradient-to-r ${card.gradient} rounded-xl sm:rounded-2xl opacity-0 group-hover:opacity-100 blur transition-all duration-500`} />
-              
-              <div className={`relative bg-gradient-to-br ${card.bgGradient} backdrop-blur-xl rounded-xl sm:rounded-2xl border ${card.borderColor} p-4 sm:p-5 transition-all duration-300 ${isHovered ? 'scale-105 shadow-2xl' : 'shadow-lg'}`}>
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/20 to-transparent dark:from-white/5 rounded-full blur-2xl -z-10" />
-                
-                <div className="flex items-start justify-between mb-3 sm:mb-4">
-                  <div className={`flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br ${card.gradient} shadow-lg transition-all duration-300 ${isHovered ? 'scale-110 rotate-6' : ''}`}>
-                    <Icon className="text-white text-base sm:text-lg" />
-                  </div>
-                  
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] sm:text-xs font-bold ${
-                      card.trendUp 
-                        ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' 
-                        : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
-                    }`}
-                  >
-                    <FiTrendingUp className={`w-3 h-3 ${!card.trendUp && 'rotate-180'}`} />
-                    {card.trend}
-                  </motion.div>
-                </div>
-
-                <div className="space-y-1">
-                  <p className={`text-[10px] sm:text-xs font-semibold ${card.iconColor} uppercase tracking-wide`}>
-                    {card.label}
-                  </p>
-                  <motion.p
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1 + 0.2 }}
-                    className={`text-2xl sm:text-3xl lg:text-4xl font-black ${card.textColor}`}
-                  >
-                    {card.value}
-                  </motion.p>
-                </div>
-
-                <div className="absolute bottom-0 right-0 w-20 h-20 opacity-10">
-                  <Icon className="w-full h-full" />
-                </div>
+    <div className="space-y-3 sm:space-y-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+        <div className="group relative overflow-hidden bg-gradient-to-br from-blue-50 via-blue-50/80 to-indigo-50/60 dark:from-blue-950/40 dark:via-blue-900/30 dark:to-indigo-950/20 rounded-xl border border-blue-200/50 dark:border-blue-800/30 p-3 sm:p-4 hover:shadow-lg hover:shadow-blue-500/10 dark:hover:shadow-blue-500/20 transition-all duration-300">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-400/10 to-transparent rounded-full blur-2xl" />
+          <div className="relative">
+            <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
+                <FiActivity className="text-white text-xs sm:text-sm" />
               </div>
-            </motion.div>
-          );
-        })}
+              <p className="text-[10px] sm:text-xs font-semibold text-blue-700 dark:text-blue-400">Total Requests</p>
+            </div>
+            <p className="text-xl sm:text-2xl lg:text-3xl font-black text-blue-900 dark:text-blue-300">{stats.totalRequests.toLocaleString()}</p>
+          </div>
+        </div>
+
+        <div className="group relative overflow-hidden bg-gradient-to-br from-purple-50 via-purple-50/80 to-violet-50/60 dark:from-purple-950/40 dark:via-purple-900/30 dark:to-violet-950/20 rounded-xl border border-purple-200/50 dark:border-purple-800/30 p-3 sm:p-4 hover:shadow-lg hover:shadow-purple-500/10 dark:hover:shadow-purple-500/20 transition-all duration-300">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-purple-400/10 to-transparent rounded-full blur-2xl" />
+          <div className="relative">
+            <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
+                <FiLayers className="text-white text-xs sm:text-sm" />
+              </div>
+              <p className="text-[10px] sm:text-xs font-semibold text-purple-700 dark:text-purple-400">Total Tokens</p>
+            </div>
+            <p className="text-xl sm:text-2xl lg:text-3xl font-black text-purple-900 dark:text-purple-300">{(stats.totalTokens / 1000).toFixed(1)}K</p>
+          </div>
+        </div>
+
+        <div className="group relative overflow-hidden bg-gradient-to-br from-green-50 via-green-50/80 to-emerald-50/60 dark:from-green-950/40 dark:via-green-900/30 dark:to-emerald-950/20 rounded-xl border border-green-200/50 dark:border-green-800/30 p-3 sm:p-4 hover:shadow-lg hover:shadow-green-500/10 dark:hover:shadow-green-500/20 transition-all duration-300">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-green-400/10 to-transparent rounded-full blur-2xl" />
+          <div className="relative">
+            <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
+                <FiZap className="text-white text-xs sm:text-sm" />
+              </div>
+              <p className="text-[10px] sm:text-xs font-semibold text-green-700 dark:text-green-400">Avg Latency</p>
+            </div>
+            <p className="text-xl sm:text-2xl lg:text-3xl font-black text-green-900 dark:text-green-300">{stats.avgLatency}ms</p>
+          </div>
+        </div>
+
+        <div className="group relative overflow-hidden bg-gradient-to-br from-cyan-50 via-cyan-50/80 to-sky-50/60 dark:from-cyan-950/40 dark:via-cyan-900/30 dark:to-sky-950/20 rounded-xl border border-cyan-200/50 dark:border-cyan-800/30 p-3 sm:p-4 hover:shadow-lg hover:shadow-cyan-500/10 dark:hover:shadow-cyan-500/20 transition-all duration-300">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-cyan-400/10 to-transparent rounded-full blur-2xl" />
+          <div className="relative">
+            <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-lg flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
+                <FiTrendingUp className="text-white text-xs sm:text-sm" />
+              </div>
+              <p className="text-[10px] sm:text-xs font-semibold text-cyan-700 dark:text-cyan-400">Success Rate</p>
+            </div>
+            <p className="text-xl sm:text-2xl lg:text-3xl font-black text-cyan-900 dark:text-cyan-300">{stats.successRate}%</p>
+          </div>
+        </div>
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-        className="flex flex-wrap items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl rounded-xl sm:rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-lg"
-      >
-        <div className="flex items-center gap-1.5 sm:gap-2">
-          <FiFilter className="text-zinc-500 dark:text-zinc-400 w-4 h-4" />
-          <span className="text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300">Time Range:</span>
-        </div>
-        
+      <div className="flex flex-wrap gap-2">
         <div className="flex gap-2">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+          <button
             onClick={() => setTimeRange('7d')}
-            className={`relative px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold transition-all ${
+            className={`group relative px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-semibold text-xs sm:text-sm transition-all duration-300 ${
               timeRange === '7d'
-                ? 'text-white shadow-lg'
-                : 'bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700 hover:border-sky-500 dark:hover:border-sky-500'
+                ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-lg shadow-sky-500/30 scale-105'
+                : 'bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:border-sky-500 dark:hover:border-sky-500 hover:text-sky-600 dark:hover:text-sky-400'
             }`}
           >
             {timeRange === '7d' && (
-              <motion.div
-                layoutId="timeRangeBg"
-                className="absolute inset-0 bg-gradient-to-r from-sky-500 to-blue-600 rounded-lg sm:rounded-xl"
-                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-              />
+              <div className="absolute inset-0 bg-gradient-to-r from-sky-400 to-blue-500 rounded-lg blur opacity-50 group-hover:opacity-75 transition-opacity" />
             )}
-            <span className="relative z-10">Last 7 Days</span>
-          </motion.button>
-          
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            <span className="relative">Last 7 Days</span>
+          </button>
+          <button
             onClick={() => setTimeRange('30d')}
-            className={`relative px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold transition-all ${
+            className={`group relative px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-semibold text-xs sm:text-sm transition-all duration-300 ${
               timeRange === '30d'
-                ? 'text-white shadow-lg'
-                : 'bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700 hover:border-sky-500 dark:hover:border-sky-500'
+                ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-lg shadow-sky-500/30 scale-105'
+                : 'bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:border-sky-500 dark:hover:border-sky-500 hover:text-sky-600 dark:hover:text-sky-400'
             }`}
           >
             {timeRange === '30d' && (
-              <motion.div
-                layoutId="timeRangeBg"
-                className="absolute inset-0 bg-gradient-to-r from-sky-500 to-blue-600 rounded-lg sm:rounded-xl"
-                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-              />
+              <div className="absolute inset-0 bg-gradient-to-r from-sky-400 to-blue-500 rounded-lg blur opacity-50 group-hover:opacity-75 transition-opacity" />
             )}
-            <span className="relative z-10">Last 30 Days</span>
-          </motion.button>
+            <span className="relative">Last 30 Days</span>
+          </button>
         </div>
 
-        <div className="w-px h-6 bg-zinc-300 dark:bg-zinc-700 mx-1 hidden sm:block" />
-
-        <div className="flex items-center gap-1.5 sm:gap-2">
-          <FiBarChart2 className="text-zinc-500 dark:text-zinc-400 w-4 h-4" />
-          <span className="text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300">Chart Type:</span>
-        </div>
+        <div className="w-px bg-slate-200 dark:bg-slate-700 my-1" />
 
         <div className="flex gap-2">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+          <button
             onClick={() => setChartType('requests')}
-            className={`relative px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold transition-all ${
+            className={`group relative px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-semibold text-xs sm:text-sm transition-all duration-300 ${
               chartType === 'requests'
-                ? 'text-white shadow-lg'
-                : 'bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700 hover:border-purple-500 dark:hover:border-purple-500'
+                ? 'bg-gradient-to-r from-purple-500 to-violet-600 text-white shadow-lg shadow-purple-500/30 scale-105'
+                : 'bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:border-purple-500 dark:hover:border-purple-500 hover:text-purple-600 dark:hover:text-purple-400'
             }`}
           >
             {chartType === 'requests' && (
-              <motion.div
-                layoutId="chartTypeBg"
-                className="absolute inset-0 bg-gradient-to-r from-purple-500 to-violet-600 rounded-lg sm:rounded-xl"
-                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-              />
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-violet-500 rounded-lg blur opacity-50 group-hover:opacity-75 transition-opacity" />
             )}
-            <span className="relative z-10 flex items-center gap-1.5">
-              <FiActivity className="w-3 h-3" />
-              Requests
-            </span>
-          </motion.button>
-          
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            <span className="relative">Requests</span>
+          </button>
+          <button
             onClick={() => setChartType('tokens')}
-            className={`relative px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold transition-all ${
+            className={`group relative px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-semibold text-xs sm:text-sm transition-all duration-300 ${
               chartType === 'tokens'
-                ? 'text-white shadow-lg'
-                : 'bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700 hover:border-purple-500 dark:hover:border-purple-500'
+                ? 'bg-gradient-to-r from-purple-500 to-violet-600 text-white shadow-lg shadow-purple-500/30 scale-105'
+                : 'bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:border-purple-500 dark:hover:border-purple-500 hover:text-purple-600 dark:hover:text-purple-400'
             }`}
           >
             {chartType === 'tokens' && (
-              <motion.div
-                layoutId="chartTypeBg"
-                className="absolute inset-0 bg-gradient-to-r from-purple-500 to-violet-600 rounded-lg sm:rounded-xl"
-                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-              />
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-violet-500 rounded-lg blur opacity-50 group-hover:opacity-75 transition-opacity" />
             )}
-            <span className="relative z-10 flex items-center gap-1.5">
-              <FiLayers className="w-3 h-3" />
-              Tokens (K)
-            </span>
-          </motion.button>
+            <span className="relative">Tokens (K)</span>
+          </button>
         </div>
-      </motion.div>
+      </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
-        className="relative group"
-      >
-        <div className="absolute -inset-0.5 bg-gradient-to-r from-sky-500 via-purple-500 to-pink-500 rounded-2xl opacity-0 group-hover:opacity-100 blur-xl transition-all duration-500" />
-        
-        <div className="relative bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl rounded-xl sm:rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 sm:p-6 lg:p-8 shadow-xl">
-          <div className="flex items-center justify-between mb-5 sm:mb-6 lg:mb-8">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-sky-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-                <FiBarChart2 className="text-white text-lg sm:text-xl" />
-              </div>
-              <div>
-                <h3 className="text-base sm:text-lg lg:text-xl font-black text-zinc-900 dark:text-white">
-                  Usage Trends
-                </h3>
-                <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 font-medium">
-                  {chartType === 'requests' ? 'API Requests' : 'Token Consumption'} Over Time
-                </p>
-              </div>
+      <div className="group relative overflow-hidden bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6 hover:shadow-xl transition-all duration-300">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-sky-400/5 to-transparent rounded-full blur-3xl" />
+        <div className="relative">
+          <div className="flex items-center gap-2 mb-4 sm:mb-6">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-sky-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+              <FiBarChart2 className="text-white text-sm sm:text-base" />
             </div>
-
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              className="hidden sm:flex items-center gap-2 px-3 py-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-lg transition-all text-xs font-semibold text-zinc-700 dark:text-zinc-300"
-            >
-              <FiDownload className="w-4 h-4" />
-              Export
-            </motion.button>
+            <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">
+              Usage Trends ({chartType === 'requests' ? 'Requests' : 'Tokens'})
+            </h3>
           </div>
           
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={chartData}>
+              <defs>
+                <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" className="dark:stroke-slate-700" opacity={0.5} />
+              <XAxis 
+                dataKey="date" 
+                stroke="#64748b"
+                tick={{ fontSize: 11 }}
+                tickLine={false}
+              />
+              <YAxis 
+                stroke="#64748b"
+                tick={{ fontSize: 11 }}
+                tickLine={false}
+              />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.98)',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '12px',
+                  padding: '12px',
+                  boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
+                }}
+                cursor={{ stroke: '#3b82f6', strokeWidth: 1, strokeDasharray: '5 5' }}
+              />
+              <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '16px' }} />
+              <Line 
+                type="monotone" 
+                dataKey={chartType} 
+                stroke="#3b82f6" 
+                strokeWidth={3}
+                dot={{ fill: '#3b82f6', r: 5, strokeWidth: 2, stroke: '#fff' }}
+                activeDot={{ r: 7, strokeWidth: 2, stroke: '#fff' }}
+                fill="url(#colorGradient)"
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
+        <div className="group relative overflow-hidden bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6 hover:shadow-xl transition-all duration-300">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-violet-400/5 to-transparent rounded-full blur-3xl" />
           <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-t from-white/50 to-transparent dark:from-zinc-900/50 pointer-events-none rounded-lg" />
-            <ResponsiveContainer width="100%" height={320}>
-              <AreaChart data={chartData}>
-                <defs>
-                  <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e4e4e7" className="dark:stroke-zinc-800" opacity={0.5} />
-                <XAxis 
-                  dataKey="date" 
-                  stroke="#71717a"
-                  tick={{ fontSize: 11, fill: '#71717a' }}
-                  tickLine={{ stroke: '#e4e4e7' }}
-                />
-                <YAxis 
-                  stroke="#71717a"
-                  tick={{ fontSize: 11, fill: '#71717a' }}
-                  tickLine={{ stroke: '#e4e4e7' }}
-                />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.98)',
-                    border: '1px solid #e4e4e7',
-                    borderRadius: '12px',
-                    padding: '12px 16px',
-                    boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
-                  }}
-                  labelStyle={{ fontWeight: 700, color: '#18181b', marginBottom: '8px' }}
-                  itemStyle={{ fontSize: '13px', fontWeight: 600 }}
-                />
-                <Legend 
-                  wrapperStyle={{ fontSize: '13px', fontWeight: 600, paddingTop: '20px' }}
-                  iconType="circle"
-                />
-                <Area
-                  type="monotone"
-                  dataKey={chartType}
-                  stroke="#3b82f6"
-                  strokeWidth={3}
-                  fill="url(#colorGradient)"
-                  dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
-                  activeDot={{ r: 6, strokeWidth: 2, stroke: '#fff', fill: '#3b82f6' }}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </motion.div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5 lg:gap-6">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.6 }}
-          className="relative group"
-        >
-          <div className="absolute -inset-0.5 bg-gradient-to-r from-violet-500 to-purple-500 rounded-2xl opacity-0 group-hover:opacity-100 blur-xl transition-all duration-500" />
-          
-          <div className="relative bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl rounded-xl sm:rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 sm:p-6 shadow-xl">
-            <div className="flex items-center gap-3 mb-5 sm:mb-6">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                <FiCpu className="text-white text-lg sm:text-xl" />
+            <div className="flex items-center gap-2 mb-4 sm:mb-6">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                <FiCpu className="text-white text-sm sm:text-base" />
               </div>
-              <div>
-                <h3 className="text-base sm:text-lg font-black text-zinc-900 dark:text-white">Popular Models</h3>
-                <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 font-medium">Most used AI models</p>
-              </div>
+              <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">Popular Models</h3>
             </div>
 
-            <ResponsiveContainer width="100%" height={320}>
+            <ResponsiveContainer width="100%" height={300}>
               <BarChart data={modelData} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke="#e4e4e7" className="dark:stroke-zinc-800" opacity={0.5} />
-                <XAxis type="number" stroke="#71717a" tick={{ fontSize: 11, fill: '#71717a' }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" className="dark:stroke-slate-700" opacity={0.5} />
+                <XAxis type="number" stroke="#64748b" tick={{ fontSize: 11 }} tickLine={false} />
                 <YAxis 
                   dataKey="model" 
                   type="category" 
-                  stroke="#71717a"
-                  tick={{ fontSize: 10, fill: '#71717a' }}
+                  stroke="#64748b"
+                  tick={{ fontSize: 10 }}
                   width={100}
+                  tickLine={false}
                 />
                 <Tooltip
                   contentStyle={{
                     backgroundColor: 'rgba(255, 255, 255, 0.98)',
-                    border: '1px solid #e4e4e7',
+                    border: '1px solid #e2e8f0',
                     borderRadius: '12px',
-                    padding: '12px 16px',
+                    padding: '12px',
                     boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
                   }}
-                  labelStyle={{ fontWeight: 700, color: '#18181b', marginBottom: '8px' }}
-                  itemStyle={{ fontSize: '13px', fontWeight: 600 }}
+                  cursor={{ fill: 'rgba(59, 130, 246, 0.05)' }}
                 />
                 <Bar dataKey="count" radius={[0, 8, 8, 0]}>
                   {modelData.map((entry, index) => (
-                    <Cell 
-                      key={`cell-${index}`} 
-                      fill={COLORS[index % COLORS.length]}
-                    />
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </motion.div>
+        </div>
 
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.7 }}
-          className="relative group"
-        >
-          <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500 to-green-500 rounded-2xl opacity-0 group-hover:opacity-100 blur-xl transition-all duration-500" />
-          
-          <div className="relative bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl rounded-xl sm:rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 sm:p-6 shadow-xl">
-            <div className="flex items-center gap-3 mb-5 sm:mb-6">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
-                <FiUsers className="text-white text-lg sm:text-xl" />
+        <div className="group relative overflow-hidden bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6 hover:shadow-xl transition-all duration-300">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-400/5 to-transparent rounded-full blur-3xl" />
+          <div className="relative">
+            <div className="flex items-center gap-2 mb-4 sm:mb-6">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+                <FiUsers className="text-white text-sm sm:text-base" />
               </div>
-              <div>
-                <h3 className="text-base sm:text-lg font-black text-zinc-900 dark:text-white">Status Distribution</h3>
-                <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 font-medium">Response status breakdown</p>
-              </div>
+              <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">Status Distribution</h3>
             </div>
 
-            <ResponsiveContainer width="100%" height={320}>
+            <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
                   data={statusDistribution}
@@ -526,9 +350,12 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
                   cy="50%"
                   labelLine={false}
                   label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={100}
+                  outerRadius={90}
+                  innerRadius={50}
                   fill="#8884d8"
                   dataKey="value"
+                  stroke="#fff"
+                  strokeWidth={3}
                 >
                   {statusDistribution.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
@@ -537,84 +364,55 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
                 <Tooltip
                   contentStyle={{
                     backgroundColor: 'rgba(255, 255, 255, 0.98)',
-                    border: '1px solid #e4e4e7',
+                    border: '1px solid #e2e8f0',
                     borderRadius: '12px',
-                    padding: '12px 16px',
+                    padding: '12px',
                     boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
                   }}
-                  labelStyle={{ fontWeight: 700, color: '#18181b', marginBottom: '8px' }}
-                  itemStyle={{ fontSize: '13px', fontWeight: 600 }}
                 />
               </PieChart>
             </ResponsiveContainer>
           </div>
-        </motion.div>
+        </div>
       </div>
 
-      <AnimatePresence>
-        {errorData.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ delay: 0.8 }}
-            className="relative group"
-          >
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-rose-500 rounded-2xl opacity-0 group-hover:opacity-100 blur-xl transition-all duration-500" />
-            
-            <div className="relative bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl rounded-xl sm:rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 sm:p-6 shadow-xl">
-              <div className="flex items-center gap-3 mb-5 sm:mb-6">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-red-500 to-rose-600 rounded-xl flex items-center justify-center shadow-lg">
-                  <FiAlertCircle className="text-white text-lg sm:text-xl" />
-                </div>
-                <div>
-                  <h3 className="text-base sm:text-lg font-black text-zinc-900 dark:text-white">Top Errors</h3>
-                  <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 font-medium">Most common error messages</p>
-                </div>
+      {errorData.length > 0 && (
+        <div className="group relative overflow-hidden bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6 hover:shadow-xl transition-all duration-300">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-red-400/5 to-transparent rounded-full blur-3xl" />
+          <div className="relative">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-red-500 to-rose-600 rounded-xl flex items-center justify-center shadow-lg">
+                <FiAlertCircle className="text-white text-sm sm:text-base" />
               </div>
-
-              <div className="space-y-2.5 sm:space-y-3">
-                {errorData.map((error, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.8 + index * 0.1 }}
-                    whileHover={{ scale: 1.02, x: 4 }}
-                    className="group/item relative"
-                  >
-                    <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-rose-500 rounded-xl opacity-0 group-hover/item:opacity-100 blur transition-all duration-300" />
-                    
-                    <div className="relative flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-gradient-to-br from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20 rounded-lg sm:rounded-xl border border-red-200 dark:border-red-800 transition-all duration-300">
-                      <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-red-500 to-rose-600 rounded-lg sm:rounded-xl flex items-center justify-center text-white font-black text-sm sm:text-base shadow-lg">
-                        {index + 1}
-                      </div>
-                      
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-white truncate mb-0.5">
-                          {error.error}
-                        </p>
-                        <p className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 font-medium">
-                          Error occurrence
-                        </p>
-                      </div>
-                      
-                      <div className="flex-shrink-0 flex items-center gap-2">
-                        <div className="px-3 py-1.5 sm:px-4 sm:py-2 bg-red-100 dark:bg-red-900/30 rounded-lg sm:rounded-xl border border-red-200 dark:border-red-800">
-                          <p className="text-sm sm:text-base font-black text-red-700 dark:text-red-400">
-                            {error.count}
-                          </p>
-                        </div>
-                        <FiXCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-500 dark:text-red-400" />
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
+              <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">Top Errors</h3>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+
+            <div className="space-y-2">
+              {errorData.map((error, index) => (
+                <div
+                  key={index}
+                  className="group/item relative overflow-hidden flex items-center gap-3 p-3 bg-gradient-to-br from-red-50 via-red-50/80 to-rose-50/60 dark:from-red-950/30 dark:via-red-900/20 dark:to-rose-950/10 rounded-xl border border-red-200/50 dark:border-red-800/30 hover:shadow-md hover:shadow-red-500/10 transition-all duration-300"
+                >
+                  <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-red-400/10 to-transparent rounded-full blur-xl" />
+                  <div className="relative flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-red-500 to-rose-600 rounded-lg flex items-center justify-center text-white font-bold text-xs sm:text-sm shadow-md group-hover/item:scale-110 transition-transform duration-300">
+                    {index + 1}
+                  </div>
+                  <div className="relative flex-1 min-w-0">
+                    <p className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-white truncate">
+                      {error.error}
+                    </p>
+                  </div>
+                  <div className="relative flex-shrink-0 px-2.5 py-1 bg-red-100 dark:bg-red-900/30 rounded-lg border border-red-200 dark:border-red-800/50">
+                    <p className="text-xs sm:text-sm font-bold text-red-700 dark:text-red-400">
+                      {error.count}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
