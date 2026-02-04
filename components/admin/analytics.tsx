@@ -436,7 +436,7 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
                   strokeWidth={3}
                   fill="url(#colorGradient)"
                   dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
-                  activeDot={{ r: 6, strokeWidth: 0, fill: '#3b82f6', shadow: '0 0 0 4px rgba(59,130,246,0.2)' }}
+                  activeDot={{ r: 6, strokeWidth: 2, stroke: '#fff', fill: '#3b82f6' }}
                 />
               </AreaChart>
             </ResponsiveContainer>
