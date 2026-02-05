@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/router';
 import { FiMail, FiLock, FiEye, FiEyeOff, FiAlertCircle, FiCheckCircle, FiZap } from 'react-icons/fi';
-import { FaGithub } from 'react-icons/fa';
+import { FaGithub, FaGoogle } from 'react-icons/fa';
 import Link from 'next/link';
 import ThemeToggle from '@/components/ThemeToggle';
 
@@ -12,6 +12,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [githubLoading, setGithubLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -53,6 +54,23 @@ export default function Login() {
     if (authError) {
       setError(authError.message);
       setGithubLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setGoogleLoading(true);
+    setError('');
+
+    const { error: authError } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/console`,
+      },
+    });
+
+    if (authError) {
+      setError(authError.message);
+      setGoogleLoading(false);
     }
   };
 
@@ -144,14 +162,25 @@ export default function Login() {
             </div>
           </div>
 
-          <button
-            onClick={handleGithubLogin}
-            disabled={githubLoading}
-            className="w-full py-2.5 sm:py-3 bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 dark:hover:bg-slate-600 text-white rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:gap-3 text-sm sm:text-base"
-          >
-            <FaGithub className="text-lg sm:text-xl" />
-            {githubLoading ? 'Connecting...' : 'Sign in with GitHub'}
-          </button>
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            <button
+              onClick={handleGoogleLogin}
+              disabled={googleLoading}
+              className="py-2.5 sm:py-3 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 border-2 border-slate-200 dark:border-slate-600 text-slate-700 dark:text-white rounded-lg font-semibold shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm sm:text-base"
+            >
+              <FaGoogle className="text-lg sm:text-xl" />
+              {googleLoading ? 'Wait...' : 'Google'}
+            </button>
+
+            <button
+              onClick={handleGithubLogin}
+              disabled={githubLoading}
+              className="py-2.5 sm:py-3 bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 dark:hover:bg-slate-600 text-white rounded-lg font-semibold shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm sm:text-base"
+            >
+              <FaGithub className="text-lg sm:text-xl" />
+              {githubLoading ? 'Wait...' : 'GitHub'}
+            </button>
+          </div>
 
           <div className="mt-4 sm:mt-6 text-center">
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
