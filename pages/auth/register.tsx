@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/router';
-import { FiMail, FiLock, FiEye, FiEyeOff, FiAlertCircle, FiCheckCircle, FiUser } from 'react-icons/fi';
+import { FiMail, FiLock, FiEye, FiEyeOff, FiAlertCircle, FiCheckCircle, FiUser, FiZap } from 'react-icons/fi';
+import { FaGithub, FaGoogle } from 'react-icons/fa';
 import Link from 'next/link';
 import ThemeToggle from '@/components/ThemeToggle';
 
@@ -11,6 +12,8 @@ export default function Register() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [githubLoading, setGithubLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
@@ -50,9 +53,42 @@ export default function Register() {
       setLoading(false);
       return;
     }
-
     setSuccess('Account created! Please check your email to confirm your account.');
     setLoading(false);
+  };
+
+  const handleGithubSignup = async () => {
+    setGithubLoading(true);
+    setError('');
+
+    const { error: authError } = await supabase.auth.signInWithOAuth({
+      provider: 'github',
+      options: {
+        redirectTo: `${window.location.origin}/console`,
+      },
+    });
+
+    if (authError) {
+      setError(authError.message);
+      setGithubLoading(false);
+    }
+  };
+
+  const handleGoogleSignup = async () => {
+    setGoogleLoading(true);
+    setError('');
+
+    const { error: authError } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/console`,
+      },
+    });
+
+    if (authError) {
+      setError(authError.message);
+      setGoogleLoading(false);
+    }
   };
 
   return (
@@ -73,6 +109,16 @@ export default function Register() {
             <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400">Get started with Aichixia API</p>
           </div>
 
+          <div className="mb-6 sm:mb-8 p-3 sm:p-4 bg-gradient-to-r from-sky-50 to-blue-50 dark:from-sky-900/20 dark:to-blue-900/20 border border-sky-200 dark:border-sky-800 rounded-xl">
+            <div className="flex items-start gap-2 sm:gap-3">
+              <FiZap className="text-sky-600 dark:text-sky-400 text-base sm:text-lg flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs sm:text-sm font-semibold text-sky-900 dark:text-sky-100 mb-1">Recommended</p>
+                <p className="text-xs sm:text-sm text-sky-700 dark:text-sky-300">Sign up faster with GitHub or Google for instant access</p>
+              </div>
+            </div>
+          </div>
+
           {error && (
             <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-center gap-2 sm:gap-3">
               <FiAlertCircle className="text-red-600 dark:text-red-400 text-lg sm:text-xl flex-shrink-0" />
@@ -87,7 +133,36 @@ export default function Register() {
             </div>
           )}
 
-          <form onSubmit={handleRegister} className="space-y-4 sm:space-y-6">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6">
+            <button
+              onClick={handleGoogleSignup}
+              disabled={googleLoading}
+              className="py-2.5 sm:py-3 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 border-2 border-slate-200 dark:border-slate-600 text-slate-700 dark:text-white rounded-xl font-semibold shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm sm:text-base group"
+            >
+              <FaGoogle className="text-lg sm:text-xl group-hover:scale-110 transition-transform" />
+              {googleLoading ? 'Wait...' : 'Google'}
+            </button>
+
+            <button
+              onClick={handleGithubSignup}
+              disabled={githubLoading}
+              className="py-2.5 sm:py-3 bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 dark:hover:bg-slate-600 text-white rounded-xl font-semibold shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm sm:text-base group"
+            >
+              <FaGithub className="text-lg sm:text-xl group-hover:scale-110 transition-transform" />
+              {githubLoading ? 'Wait...' : 'GitHub'}
+            </button>
+          </div>
+
+          <div className="relative my-4 sm:my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-slate-200 dark:border-slate-700"></div>
+            </div>
+            <div className="relative flex justify-center text-xs sm:text-sm">
+              <span className="px-2 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400">Or sign up with email</span>
+            </div>
+          </div>
+
+          <form onSubmit={handleRegister} className="space-y-4 sm:space-y-5">
             <div>
               <label className="block text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Email Address</label>
               <div className="relative">
