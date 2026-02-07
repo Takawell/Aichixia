@@ -1,9 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { encode } from 'gpt-tokenizer';
-import { chatGemini } from "@/lib/gemini";
+import { chatGemini, chatGeminiStream } from "@/lib/gemini";
 import { chatAichixia, AichixiaRateLimitError, AichixiaQuotaError } from "@/lib/aichixia";
 import { chatOpenAI, OpenAIRateLimitError, OpenAIQuotaError } from "@/lib/openai";
-import { chatKimi, KimiRateLimitError, KimiQuotaError } from "@/lib/kimi";
+import { chatKimi, chatKimiStream, KimiRateLimitError, KimiQuotaError } from "@/lib/kimi";
 import { chatGlm, GlmRateLimitError, GlmQuotaError } from "@/lib/glm";
 import { chatClaude, ClaudeRateLimitError, ClaudeQuotaError } from "@/lib/claude";
 import { chatCohere, CohereRateLimitError, CohereQuotaError } from "@/lib/cohere";
@@ -26,13 +26,18 @@ type ChatFunction = (
   opts?: { temperature?: number; maxTokens?: number }
 ) => Promise<{ reply: string }>;
 
-const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
+type StreamFunction = (
+  history: { role: "user" | "assistant" | "system"; content: string }[],
+  opts?: { temperature?: number; maxTokens?: number }
+) => AsyncGenerator<string, void, unknown>;
+
+const MODEL_MAPPING: Record<string, { fn: ChatFunction; streamFn?: StreamFunction; provider: string }> = {
   "deepseek-v3.2": { fn: chatDeepSeek, provider: "deepseek" },
   "deepseek-v3.1": { fn: chatDeepSeekV, provider: "deepseek-v" },
   "gpt-5-mini": { fn: chatOpenAI, provider: "openai" },
   "claude-opus-4.5": { fn: chatClaude, provider: "claude" },
-  "gemini-3-flash": { fn: chatGemini, provider: "gemini" },
-  "kimi-k2": { fn: chatKimi, provider: "kimi" },
+  "gemini-3-flash": { fn: chatGemini, streamFn: chatGeminiStream, provider: "gemini" },
+  "kimi-k2": { fn: chatKimi, streamFn: chatKimiStream, provider: "kimi" },
   "glm-4.7": { fn: chatGlm, provider: "glm" },
   "mistral-3.1": { fn: chatMistral, provider: "mistral" },
   "qwen3-235b": { fn: chatQwenV2, provider: "qwen3" },
@@ -275,29 +280,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
     }
 
-    if (stream) {
-      await logRequest({
-        api_key_id: apiKeyData.id,
-        user_id: apiKeyData.user_id,
-        model: model,
-        endpoint: '/api/v1/chat/completions',
-        status: 400,
-        tokens_used: 0,
-        error_message: 'streaming not supported',
-        ip_address: (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress || null,
-        user_agent: req.headers['user-agent'] || null,
-      });
-
-      return res.status(400).json({
-        error: {
-          message: "Streaming is not supported in this endpoint",
-          type: "invalid_request_error",
-          param: "stream",
-          code: null,
-        },
-      });
-    }
-
     const modelConfig = MODEL_MAPPING[model.toLowerCase()];
 
     if (!modelConfig) {
@@ -328,54 +310,179 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       content: msg.content,
     }));
 
-    const result = await modelConfig.fn(history, {
-      temperature,
-      maxTokens: max_tokens,
-    });
+    if (stream) {
+      if (!modelConfig.streamFn) {
+        await logRequest({
+          api_key_id: apiKeyData.id,
+          user_id: apiKeyData.user_id,
+          model: model,
+          endpoint: '/api/v1/chat/completions',
+          status: 400,
+          tokens_used: 0,
+          error_message: 'streaming not supported for this model',
+          ip_address: (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress || null,
+          user_agent: req.headers['user-agent'] || null,
+        });
 
-    const latency = Date.now() - startTime;
-    const promptText = messages.map((m: any) => m.content).join(' ');
-    const promptTokens = calculateTokens(promptText);
-    const completionTokens = calculateTokens(result.reply);
-    const totalTokens = promptTokens + completionTokens;
-
-    await incrementUsage(apiKeyData.key);
-    await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, totalTokens);
-    await logRequest({
-      api_key_id: apiKeyData.id,
-      user_id: apiKeyData.user_id,
-      model: model,
-      endpoint: '/api/v1/chat/completions',
-      status: 200,
-      latency_ms: latency,
-      tokens_used: totalTokens,
-      ip_address: (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress || null,
-      user_agent: req.headers['user-agent'] || null,
-    });
-
-    const response = {
-      id: `chatcmpl-${Date.now()}`,
-      object: "chat.completion",
-      created: Math.floor(Date.now() / 1000),
-      model: model,
-      choices: [
-        {
-          index: 0,
-          message: {
-            role: "assistant",
-            content: result.reply,
+        return res.status(400).json({
+          error: {
+            message: `Streaming is not supported for model '${model}'`,
+            type: "invalid_request_error",
+            param: "stream",
+            code: null,
           },
-          finish_reason: "stop",
-        },
-      ],
-      usage: {
-        prompt_tokens: promptTokens,
-        completion_tokens: completionTokens,
-        total_tokens: totalTokens,
-      },
-    };
+        });
+      }
 
-    return res.status(200).json(response);
+      res.setHeader('Content-Type', 'text/event-stream');
+      res.setHeader('Cache-Control', 'no-cache');
+      res.setHeader('Connection', 'keep-alive');
+
+      try {
+        let fullContent = '';
+        const promptText = messages.map((m: any) => m.content).join(' ');
+
+        for await (const chunk of modelConfig.streamFn(history, { temperature, maxTokens: max_tokens })) {
+          fullContent += chunk;
+
+          const streamData = {
+            id: `chatcmpl-${Date.now()}`,
+            object: "chat.completion.chunk",
+            created: Math.floor(Date.now() / 1000),
+            model: model,
+            choices: [
+              {
+                index: 0,
+                delta: { content: chunk },
+                finish_reason: null,
+              },
+            ],
+          };
+
+          res.write(`data: ${JSON.stringify(streamData)}\n\n`);
+        }
+
+        const latency = Date.now() - startTime;
+        const promptTokens = calculateTokens(promptText);
+        const completionTokens = calculateTokens(fullContent);
+        const totalTokens = promptTokens + completionTokens;
+
+        const finalChunk = {
+          id: `chatcmpl-${Date.now()}`,
+          object: "chat.completion.chunk",
+          created: Math.floor(Date.now() / 1000),
+          model: model,
+          choices: [
+            {
+              index: 0,
+              delta: {},
+              finish_reason: "stop",
+            },
+          ],
+          usage: {
+            prompt_tokens: promptTokens,
+            completion_tokens: completionTokens,
+            total_tokens: totalTokens,
+          },
+        };
+
+        res.write(`data: ${JSON.stringify(finalChunk)}\n\n`);
+        res.write('data: [DONE]\n\n');
+
+        incrementUsage(apiKeyData.key);
+        updateDailyUsage(apiKeyData.id, apiKeyData.user_id, totalTokens);
+        logRequest({
+          api_key_id: apiKeyData.id,
+          user_id: apiKeyData.user_id,
+          model: model,
+          endpoint: '/api/v1/chat/completions',
+          status: 200,
+          latency_ms: latency,
+          tokens_used: totalTokens,
+          ip_address: (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress || null,
+          user_agent: req.headers['user-agent'] || null,
+        });
+
+        res.end();
+      } catch (err: any) {
+        console.error("Streaming error:", err);
+        
+        const latency = Date.now() - startTime;
+        await logRequest({
+          api_key_id: apiKeyData.id,
+          user_id: apiKeyData.user_id,
+          model: model,
+          endpoint: '/api/v1/chat/completions',
+          status: isRateLimitError(err) ? 429 : 500,
+          latency_ms: latency,
+          tokens_used: 0,
+          error_message: err.message,
+          ip_address: (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress || null,
+          user_agent: req.headers['user-agent'] || null,
+        });
+
+        const errorData = {
+          error: {
+            message: err.message || "Internal server error",
+            type: isRateLimitError(err) ? "rate_limit_error" : isQuotaError(err) ? "insufficient_quota" : "server_error",
+            param: null,
+            code: null,
+          },
+        };
+
+        res.write(`data: ${JSON.stringify(errorData)}\n\n`);
+        res.end();
+      }
+    } else {
+      const result = await modelConfig.fn(history, {
+        temperature,
+        maxTokens: max_tokens,
+      });
+
+      const latency = Date.now() - startTime;
+      const promptText = messages.map((m: any) => m.content).join(' ');
+      const promptTokens = calculateTokens(promptText);
+      const completionTokens = calculateTokens(result.reply);
+      const totalTokens = promptTokens + completionTokens;
+
+      await incrementUsage(apiKeyData.key);
+      await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, totalTokens);
+      await logRequest({
+        api_key_id: apiKeyData.id,
+        user_id: apiKeyData.user_id,
+        model: model,
+        endpoint: '/api/v1/chat/completions',
+        status: 200,
+        latency_ms: latency,
+        tokens_used: totalTokens,
+        ip_address: (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress || null,
+        user_agent: req.headers['user-agent'] || null,
+      });
+
+      const response = {
+        id: `chatcmpl-${Date.now()}`,
+        object: "chat.completion",
+        created: Math.floor(Date.now() / 1000),
+        model: model,
+        choices: [
+          {
+            index: 0,
+            message: {
+              role: "assistant",
+              content: result.reply,
+            },
+            finish_reason: "stop",
+          },
+        ],
+        usage: {
+          prompt_tokens: promptTokens,
+          completion_tokens: completionTokens,
+          total_tokens: totalTokens,
+        },
+      };
+
+      return res.status(200).json(response);
+    }
   } catch (err: any) {
     console.error("OpenAI-compatible API error:", err);
 
