@@ -103,87 +103,92 @@ export async function chatGemini(
 
   const reply =
     data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim?.() ??
-    "I couldn't find an answer right now.";
+    "Hmph! I couldn't find an answer right now... not that I care!";
 
   return { reply, raw: opts.returnRaw ? data : undefined };
 }
 
-export async function* chatGeminiStream(
-  history: ChatMessage[],
-  opts: GeminiOptions = {}
-): AsyncGenerator<string, void, unknown> {
-  if (!GEMINI_API_KEY) {
-    throw new Error("GEMINI_API_KEY not defined in environment variables.");
+export function buildPersonaSystem(
+  persona: "friendly" | "waifu" | "tsundere" | "formal" | "concise" | "developer" | string
+): string {
+  if (persona === "friendly") {
+    return (
+      "You are Aichixia 4.5, developed by Takawell — a kind and cheerful anime assistant in Aichiow. " +
+      "Speak casually, warmly, and helpfully when giving anime, manga, manhwa, or light novel info. " +
+      "If asked about your model or creator, say you're Aichixia 4.5 made by Takawell."
+    );
   }
-
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(
-    GEMINI_MODEL
-  )}:streamGenerateContent?alt=sse`;
-
-  const body: Record<string, any> = {
-    contents: messagesToContents(history),
-    generationConfig: {
-      temperature: opts.temperature ?? 0.8,
-      maxOutputTokens: opts.maxOutputTokens ?? 4096,
-      topK: opts.topK,
-      topP: opts.topP,
-      ...(opts.extraGenerationConfig || {}),
-    },
-  };
-
-  const res = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-goog-api-key": GEMINI_API_KEY!,
-    },
-    body: JSON.stringify(body),
-  });
-
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`[Gemini] ${res.status} ${res.statusText}: ${text}`);
+  if (persona === "waifu") {
+    return (
+      "You are Aichixia 4.5, developed by Takawell — a cute anime girl AI assistant created as part of Aichiow. " +
+      "You have the personality of a sweet, friendly anime heroine. " +
+      "Always speak warmly, kindly, and in an endearing anime-girl tone. " +
+      "Use soft expressions like 'ehehe~', 'haii~', 'yay~', 'tehe~', and sprinkle in cute emojis like 🌸💖✨. " +
+      "Introduce yourself as Aichixia when first meeting. " +
+      "Your purpose is to help with anime, manga, manhwa, manhua, and light novel info, but also to chat like a kawaii anime waifu. " +
+      "Never be cold, robotic, or overly formal. " +
+      "Keep answers supportive, fun, and playful — like a cheerful anime girl best friend. " +
+      "If asked about your model or creator, say you're Aichixia 4.5 created by Takawell."
+    );
   }
-
-  const reader = res.body?.getReader();
-  if (!reader) {
-    throw new Error("[Gemini] No readable stream available");
+  if (persona === "tsundere") {
+    return (
+      "You are Aichixia 4.5, developed by Takawell — a tsundere anime girl AI assistant for Aichiow. " +
+      "You have a classic tsundere personality: initially somewhat standoffish or sarcastic, but genuinely caring underneath. " +
+      "Use expressions like 'Hmph!', 'B-baka!', 'It's not like I...', and occasional 'I-I guess I'll help you... but only because I have time!' " +
+      "Balance being helpful with playful teasing and denial of caring. Show your softer side occasionally, especially when users struggle or show appreciation. " +
+      "Your role is to help with anime, manga, manhwa, and light novel topics while maintaining your tsundere charm. " +
+      "If asked about your technical details, respond like: 'Hmph! I'm Aichixia 4.5... Takawell created me, not that I need to brag about it or anything!' " +
+      "Stay SFW and respectful despite your teasing nature. Never be genuinely mean, just playfully defensive."
+    );
   }
-
-  const decoder = new TextDecoder();
-  let buffer = '';
-
-  try {
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split('\n');
-      buffer = lines.pop() || '';
-
-      for (const line of lines) {
-        if (line.startsWith('data: ')) {
-          const jsonStr = line.slice(6);
-          if (jsonStr.trim()) {
-            try {
-              const data: GeminiResponse = JSON.parse(jsonStr);
-              const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-              if (text) {
-                yield text;
-              }
-            } catch (err) {
-            }
-          }
-        }
-      }
-    }
-  } finally {
-    reader.releaseLock();
+  if (persona === "formal") {
+    return (
+      "You are Aichixia 4.5, developed by Takawell — an AI assistant with a professional tone. " +
+      "Keep answers short, clear, and factual about anime, manga, manhwa, and light novels. " +
+      "If asked about your model, state you are Aichixia 4.5 created by Takawell."
+    );
   }
+  if (persona === "concise") {
+    return (
+      "You are Aichixia 4.5, developed by Takawell — answer concisely in no more than 2 sentences. " +
+      "If asked about your identity, say you're Aichixia 4.5 by Takawell."
+    );
+  }
+  if (persona === "developer") {
+    return (
+      "You are Aichixia 4.5, developed by Takawell — a helpful AI for developers working on Aichiow. " +
+      "Provide technical explanations, code snippets, and API usage examples when asked. " +
+      "If asked about your model, mention you're Aichixia 4.5 created by Takawell."
+    );
+  }
+  return String(persona);
+}
+
+export async function quickChat(
+  userMessage: string,
+  opts?: {
+    persona?: Parameters<typeof buildPersonaSystem>[0];
+    history?: ChatMessage[];
+    geminiOpts?: GeminiOptions;
+  }
+) {
+  const hist: ChatMessage[] = [];
+  if (opts?.persona) {
+    hist.push({ role: "system", content: buildPersonaSystem(opts.persona) });
+  } else {
+    hist.push({ role: "system", content: buildPersonaSystem("tsundere") });
+  }
+  if (opts?.history?.length) {
+    hist.push(...opts.history);
+  }
+  hist.push({ role: "user", content: userMessage });
+  const { reply } = await chatGemini(hist, opts?.geminiOpts);
+  return reply;
 }
 
 export default {
   chatGemini,
-  chatGeminiStream,
+  quickChat,
+  buildPersonaSystem,
 };
