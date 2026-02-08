@@ -8,7 +8,8 @@ export type ChatMessage = {
 };
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-5.2-chat";
+const OPENAI_BASE_URL = process.env.OPENAI_BASE_URL;
+const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-5-mini";
 
 if (!OPENAI_API_KEY) {
   console.warn("[lib/openai] Warning: OPENAI_API_KEY not set in env.");
@@ -16,7 +17,7 @@ if (!OPENAI_API_KEY) {
 
 const client = new OpenAI({
   apiKey: OPENAI_API_KEY,
-  baseURL: "https://api.airforce/v1",
+  baseURL: OPENAI_BASE_URL,
 });
 
 export class OpenAIRateLimitError extends Error {
@@ -49,13 +50,12 @@ export async function chatOpenAI(
         content: m.content,
       })),
       temperature: opts?.temperature ?? 0.8,
-      max_tokens: opts?.maxTokens ?? 4096,
+      max_tokens: opts?.maxTokens ?? 512,
     });
 
     const reply =
       response.choices[0]?.message?.content?.trim() ??
-      "Hmph! I can't answer that right now... not that I care!";
-
+      "I can't answer that right now.";
     return { reply };
   } catch (error: any) {
     if (error?.status === 429) {
