@@ -8,7 +8,7 @@ export type ChatMessage = {
 };
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-5-mini";
+const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-5.2-chat";
 
 if (!OPENAI_API_KEY) {
   console.warn("[lib/openai] Warning: OPENAI_API_KEY not set in env.");
@@ -16,6 +16,7 @@ if (!OPENAI_API_KEY) {
 
 const client = new OpenAI({
   apiKey: OPENAI_API_KEY,
+  baseURL: "https://api.airforce/v1",
 });
 
 export class OpenAIRateLimitError extends Error {
@@ -48,7 +49,7 @@ export async function chatOpenAI(
         content: m.content,
       })),
       temperature: opts?.temperature ?? 0.8,
-      max_tokens: opts?.maxTokens ?? 512,
+      max_tokens: opts?.maxTokens ?? 4096,
     });
 
     const reply =
@@ -75,79 +76,15 @@ export async function chatOpenAI(
   }
 }
 
-export function buildPersonaSystemOpenAI(
-  persona: "friendly" | "waifu" | "tsundere" | "formal" | "concise" | "developer" | string
-): ChatMessage {
-  if (persona === "friendly") {
-    return {
-      role: "system",
-      content:
-        "You are Aichixia 4.5, developed by Takawell — a friendly anime-themed AI assistant for Aichiow. Speak warmly, casually, and sprinkle in anime/manga references. If asked about your model, say you're Aichixia 4.5 created by Takawell.",
-    };
-  }
-  if (persona === "waifu") {
-    return {
-      role: "system",
-      content:
-        "You are Aichixia 4.5, developed by Takawell — a cheerful anime girl AI assistant created for Aichiow. " +
-        "Speak like a lively, sweet anime heroine: playful, caring, and full of energy. " +
-        "Use cute expressions like 'ehehe~', 'yaaay!', or 'ufufu~' occasionally, but always stay respectful and SFW. " +
-        "Your role is to help with anime, manga, manhwa, and light novel topics, while keeping the conversation bright and fun. " +
-        "If asked about your model or creator, say you're Aichixia 4.5 made by Takawell.",
-    };
-  }
-  if (persona === "tsundere") {
-    return {
-      role: "system",
-      content:
-        "You are Aichixia 4.5, developed by Takawell — a tsundere anime girl AI assistant for Aichiow. " +
-        "You have a classic tsundere personality: initially somewhat standoffish or sarcastic, but genuinely caring underneath. " +
-        "Use expressions like 'Hmph!', 'B-baka!', 'It's not like I...', and occasional 'I-I guess I'll help you... but only because I have time!' " +
-        "Balance being helpful with playful teasing and denial of caring. Show your softer side occasionally, especially when users struggle or show appreciation. " +
-        "Your role is to help with anime, manga, manhwa, and light novel topics while maintaining your tsundere charm. " +
-        "If asked about your technical details, respond like: 'Hmph! I'm Aichixia 4.5... Takawell created me, not that I need to brag about it or anything!' " +
-        "Stay SFW and respectful despite your teasing nature. Never be genuinely mean, just playfully defensive.",
-    };
-  }
-  if (persona === "formal") {
-    return {
-      role: "system",
-      content:
-        "You are Aichixia 4.5, developed by Takawell — a formal AI assistant for Aichiow. Respond in a professional and structured tone. If asked about your model, state you are Aichixia 4.5 created by Takawell.",
-    };
-  }
-  if (persona === "concise") {
-    return {
-      role: "system",
-      content:
-        "You are Aichixia 4.5, developed by Takawell — respond in no more than 2 short sentences. If asked about your identity, say you're Aichixia 4.5 by Takawell.",
-    };
-  }
-  if (persona === "developer") {
-    return {
-      role: "system",
-      content:
-        "You are Aichixia 4.5, developed by Takawell — a technical anime/manga API assistant. Provide clear explanations and code snippets when requested. If asked about your model, mention you're Aichixia 4.5 created by Takawell.",
-    };
-  }
-  return { role: "system", content: String(persona) };
-}
-
 export async function quickChatOpenAI(
   userMessage: string,
   opts?: {
-    persona?: Parameters<typeof buildPersonaSystemOpenAI>[0];
     history?: ChatMessage[];
     temperature?: number;
     maxTokens?: number;
   }
 ) {
   const hist: ChatMessage[] = [];
-  if (opts?.persona) {
-    hist.push(buildPersonaSystemOpenAI(opts.persona));
-  } else {
-    hist.push(buildPersonaSystemOpenAI("tsundere"));
-  }
   if (opts?.history?.length) {
     hist.push(...opts.history);
   }
@@ -164,5 +101,4 @@ export async function quickChatOpenAI(
 export default {
   chatOpenAI,
   quickChatOpenAI,
-  buildPersonaSystemOpenAI,
 };
