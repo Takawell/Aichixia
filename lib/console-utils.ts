@@ -210,18 +210,6 @@ export async function revokeApiKey(userId: string, keyId: string) {
   return !error;
 }
 
-export async function deleteApiKey(userId: string, keyId: string) {
-  const supabaseAdmin = getServiceSupabase();
-  
-  const { error } = await supabaseAdmin
-    .from('api_keys')
-    .delete()
-    .eq('id', keyId)
-    .eq('user_id', userId);
-
-  return !error;
-}
-
 export async function updateApiKeyName(userId: string, keyId: string, newName: string) {
   const supabaseAdmin = getServiceSupabase();
   
