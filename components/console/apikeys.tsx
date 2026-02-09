@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FiKey, FiCopy, FiCheck, FiTrash2, FiEdit2, FiSave, FiX, FiPlus, FiAlertCircle, FiActivity } from 'react-icons/fi';
+import { FiKey, FiCopy, FiCheck, FiTrash2, FiEdit2, FiSave, FiX, FiPlus, FiAlertCircle, FiActivity, FiClock } from 'react-icons/fi';
 
 type ApiKey = {
   id: string;
@@ -37,6 +37,37 @@ export default function ApiKeys({
   const [editingKeyId, setEditingKeyId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
 
+  const activeKeys = keys.filter(k => k.is_active);
+  const maxKeys = 2;
+  const canCreateMoreKeys = activeKeys.length < maxKeys;
+  
+  let cooldownInfo: { hoursRemaining: number; canCreate: boolean } | null = null;
+  
+  if (activeKeys.length === 1) {
+    const sortedKeys = [...activeKeys].sort((a, b) => 
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+    const lastCreatedKey = sortedKeys[0];
+    const lastCreated = new Date(lastCreatedKey.created_at);
+    const now = new Date();
+    const hoursSinceLastCreate = (now.getTime() - lastCreated.getTime()) / (1000 * 60 * 60);
+    
+    if (hoursSinceLastCreate < 24) {
+      const hoursRemaining = Math.ceil(24 - hoursSinceLastCreate);
+      cooldownInfo = {
+        hoursRemaining,
+        canCreate: false
+      };
+    } else {
+      cooldownInfo = {
+        hoursRemaining: 0,
+        canCreate: true
+      };
+    }
+  }
+
+  const canCreateKey = canCreateMoreKeys && (!cooldownInfo || cooldownInfo.canCreate);
+
   const handleSaveEdit = (keyId: string) => {
     if (!editingName.trim()) return;
     onUpdateKeyName(keyId, editingName);
@@ -44,16 +75,58 @@ export default function ApiKeys({
     setEditingName('');
   };
 
+  const handleCreateClick = () => {
+    if (!canCreateKey) {
+      return;
+    }
+    onCreateKey();
+  };
+
   return (
     <div className="space-y-3 sm:space-y-4">
-      <div className="flex justify-end">
-        <button
-          onClick={onCreateKey}
-          className="flex items-center gap-1.5 sm:gap-2 px-3 py-2 sm:px-4 sm:py-2.5 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all text-xs sm:text-sm hover:-translate-y-0.5"
-        >
-          <FiPlus className="text-sm sm:text-base" />
-          Create New Key
-        </button>
+      <div className="flex flex-col gap-2">
+        {cooldownInfo && !cooldownInfo.canCreate && (
+          <div className="flex items-start gap-2 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+            <FiClock className="text-amber-600 dark:text-amber-400 text-sm flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-xs text-amber-700 dark:text-amber-400 font-semibold">Cooldown Active</p>
+              <p className="text-xs text-amber-600 dark:text-amber-400">
+                Wait {cooldownInfo.hoursRemaining} hour{cooldownInfo.hoursRemaining > 1 ? 's' : ''} before creating another key. You can create 1 key every 24 hours.
+              </p>
+            </div>
+          </div>
+        )}
+        
+        {activeKeys.length >= maxKeys && (
+          <div className="flex items-start gap-2 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+            <FiAlertCircle className="text-red-600 dark:text-red-400 text-sm flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-xs text-red-700 dark:text-red-400 font-semibold">Maximum Keys Reached</p>
+              <p className="text-xs text-red-600 dark:text-red-400">
+                You have {maxKeys} active keys (maximum allowed). Revoke one to create a new key.
+              </p>
+            </div>
+          </div>
+        )}
+
+        <div className="flex justify-between items-center">
+          <div className="text-xs text-zinc-500 dark:text-zinc-400">
+            <span className="font-semibold text-zinc-900 dark:text-white">{activeKeys.length}</span> / {maxKeys} active keys
+          </div>
+          <button
+            onClick={handleCreateClick}
+            disabled={!canCreateKey || actionLoading}
+            className="flex items-center gap-1.5 sm:gap-2 px-3 py-2 sm:px-4 sm:py-2.5 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all text-xs sm:text-sm hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:from-zinc-400 disabled:to-zinc-500"
+            title={!canCreateKey ? (
+              activeKeys.length >= maxKeys 
+                ? 'Maximum keys reached. Revoke a key first.' 
+                : `Wait ${cooldownInfo?.hoursRemaining || 0} hours`
+            ) : 'Create new API key'}
+          >
+            <FiPlus className="text-sm sm:text-base" />
+            Create New Key
+          </button>
+        </div>
       </div>
 
       <div className="space-y-2.5 sm:space-y-3">
