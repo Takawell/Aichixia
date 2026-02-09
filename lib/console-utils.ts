@@ -149,6 +149,25 @@ export async function getUserKeys(userId: string) {
 export async function createApiKey(userId: string, name: string) {
   const supabaseAdmin = getServiceSupabase();
 
+  const existingKeys = await getUserKeys(userId);
+  const activeKeys = existingKeys.filter(k => k.is_active);
+  
+  if (activeKeys.length >= 2) {
+    throw new Error('MAX_KEYS_REACHED');
+  }
+
+  if (activeKeys.length === 1) {
+    const lastKey = activeKeys.sort((a, b) => 
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    )[0];
+    const hoursSince = (Date.now() - new Date(lastKey.created_at).getTime()) / (1000 * 60 * 60);
+    
+    if (hoursSince < 24) {
+      const hoursRemaining = Math.ceil(24 - hoursSince);
+      throw new Error(`COOLDOWN_ACTIVE:${hoursRemaining}`);
+    }
+  }
+
   const { data: settings } = await supabaseAdmin
     .from('user_settings')
     .select('plan')
