@@ -21,7 +21,6 @@ type ApiKeysProps = {
   copiedKey: string | null;
   onCreateKey: () => void;
   onRevokeKey: (key: ApiKey) => void;
-  onDeleteKey: (key: ApiKey) => void;
   onUpdateKeyName: (keyId: string, name: string) => void;
   actionLoading: boolean;
 };
@@ -32,7 +31,6 @@ export default function ApiKeys({
   copiedKey,
   onCreateKey,
   onRevokeKey,
-  onDeleteKey,
   onUpdateKeyName,
   actionLoading,
 }: ApiKeysProps) {
@@ -64,7 +62,6 @@ export default function ApiKeys({
   }
 
   const canCreateKey = canCreateMoreKeys && (!cooldownInfo || cooldownInfo.canCreate);
-
   const handleSaveEdit = (keyId: string) => {
     if (!editingName.trim()) return;
     onUpdateKeyName(keyId, editingName);
@@ -280,18 +277,10 @@ export default function ApiKeys({
                     <button
                       onClick={() => onRevokeKey(key)}
                       disabled={!key.is_active || actionLoading}
-                      className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-900/30 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm border border-orange-200 dark:border-orange-800"
-                    >
-                      <FiX className="text-xs sm:text-sm" />
-                      <span>Revoke</span>
-                    </button>
-                    <button
-                      onClick={() => onDeleteKey(key)}
-                      disabled={actionLoading}
                       className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm border border-red-200 dark:border-red-800"
                     >
                       <FiTrash2 className="text-xs sm:text-sm" />
-                      <span>Delete</span>
+                      <span>Revoke Key</span>
                     </button>
                   </div>
                 </div>
