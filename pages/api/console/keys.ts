@@ -27,13 +27,33 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: 'Name is required' });
     }
 
-    const newKey = await createApiKey(user.id, name);
+    try {
+      const newKey = await createApiKey(user.id, name);
 
-    if (!newKey) {
+      if (!newKey) {
+        return res.status(500).json({ error: 'Failed to create API key' });
+      }
+
+      return res.status(201).json({ key: newKey });
+    } catch (error: any) {
+      if (error.message === 'MAX_KEYS_REACHED') {
+        return res.status(400).json({ 
+          error: 'Maximum 2 API keys allowed. Revoke one to create new.',
+          code: 'MAX_KEYS_REACHED'
+        });
+      }
+      
+      if (error.message.startsWith('COOLDOWN_ACTIVE:')) {
+        const hoursRemaining = parseInt(error.message.split(':')[1]);
+        return res.status(429).json({ 
+          error: `Please wait ${hoursRemaining} hour${hoursRemaining > 1 ? 's' : ''} before creating another key`,
+          code: 'COOLDOWN_ACTIVE',
+          hoursRemaining
+        });
+      }
+
       return res.status(500).json({ error: 'Failed to create API key' });
     }
-
-    return res.status(201).json({ key: newKey });
   }
 
   if (req.method === 'DELETE') {
