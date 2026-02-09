@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { supabase } from "@/lib/supabase";
-import { createApiKey, getUserKeys, revokeApiKey, updateApiKeyName } from "@/lib/console-utils";
+import { createApiKey, getUserKeys, revokeApiKey, updateApiKeyName, deleteApiKey } from "@/lib/console-utils";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const token = req.headers.authorization?.replace('Bearer ', '');
@@ -57,19 +57,29 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   if (req.method === 'DELETE') {
-    const { keyId } = req.body;
+    const { keyId, permanent } = req.body;
 
     if (!keyId) {
       return res.status(400).json({ error: 'keyId is required' });
     }
 
-    const success = await revokeApiKey(user.id, keyId);
+    if (permanent) {
+      const success = await deleteApiKey(user.id, keyId);
 
-    if (!success) {
-      return res.status(500).json({ error: 'Failed to revoke key' });
+      if (!success) {
+        return res.status(500).json({ error: 'Failed to delete key' });
+      }
+
+      return res.status(200).json({ success: true, message: 'Key permanently deleted' });
+    } else {
+      const success = await revokeApiKey(user.id, keyId);
+
+      if (!success) {
+        return res.status(500).json({ error: 'Failed to revoke key' });
+      }
+
+      return res.status(200).json({ success: true });
     }
-
-    return res.status(200).json({ success: true });
   }
 
   if (req.method === 'PATCH') {
