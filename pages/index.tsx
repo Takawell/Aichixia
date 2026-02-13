@@ -9,7 +9,7 @@ import Link from "next/link";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 
-const base = "https://aichixia.vercel.app";
+const base = "https://www.aichixia.xyz";
 
 type CodeLanguage = 'javascript' | 'python' | 'bash' | 'php';
 const SpeedIndicator = ({ level }: { level: number }) => {
