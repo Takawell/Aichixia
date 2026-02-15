@@ -73,6 +73,19 @@ function isInternalRequest(request: NextRequest): boolean {
 
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
+  const hostname = request.headers.get('host') || '';
+
+  if (hostname === 'console.aichixia.xyz') {
+    if (!pathname.startsWith('/console')) {
+      return NextResponse.rewrite(new URL('/console', request.url));
+    }
+  }
+
+  if (hostname === 'aichixia.xyz' || hostname === 'www.aichixia.xyz') {
+    if (pathname.startsWith('/console')) {
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+  }
 
   if (!pathname.startsWith("/api/chat") && !pathname.startsWith("/api/models")) {
     return NextResponse.next();
@@ -273,6 +286,7 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     "/api/chat/:path*",
-    "/api/models/:path*"
+    "/api/models/:path*",
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
