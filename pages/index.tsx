@@ -1,73 +1,94 @@
 import { useState, useEffect } from "react";
-import { FaBookOpen, FaComments, FaTerminal, FaCheckCircle, FaTimesCircle, FaCopy, FaRocket, FaChevronRight, FaBrain, FaCode, FaServer, FaLightbulb, FaTimes, FaInfoCircle, FaStar, FaGlobe, FaLayerGroup, FaRobot, FaBolt, FaGithub, FaTiktok, FaImage, FaKey, FaShieldAlt, FaExternalLinkAlt } from "react-icons/fa";
-import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiAirbrake, SiMaze, SiXiaomi, SiSecurityscorecard, SiLapce } from "react-icons/si";
-import { GiSpermWhale, GiPowerLightning, GiClover } from "react-icons/gi";
-import { TbSquareLetterZ, TbLetterM } from "react-icons/tb";
-import { FaXTwitter } from "react-icons/fa6";
-import ThemeToggle from "@/components/ThemeToggle";
+import { FaTerminal, FaPlay, FaCode, FaBook, FaRocket, FaArrowRight, FaMoon, FaSun, FaBars, FaTimes, FaCopy, FaCheck, FaKey, FaServer, FaGlobe, FaChevronDown, FaBolt, FaShieldAlt, FaClock, FaInfinity, FaCheckCircle } from "react-icons/fa";
 import Link from "next/link";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 
 const base = "https://www.aichixia.xyz";
 
-type CodeLanguage = 'javascript' | 'python' | 'bash' | 'php';
-const SpeedIndicator = ({ level }: { level: number }) => {
-  return (
-    <div className="flex items-center gap-0.5">
-      {[...Array(4)].map((_, i) => (
-        <FaBolt
-          key={i}
-          className={`${i < level ? 'text-sky-500 dark:text-sky-400' : 'text-zinc-300 dark:text-zinc-700'}`}
-          size={10}
-        />
-      ))}
-    </div>
-  );
-};
+const models = [
+  { id: "deepseek-v3.2", name: "DeepSeek V3.2", provider: "DeepSeek", description: "Deep reasoning and code generation" },
+  { id: "claude-opus-4.5", name: "Claude Opus 4.5", provider: "Anthropic", description: "World's #1 AI model for complex tasks" },
+  { id: "gemini-3-flash", name: "Gemini 3 Flash", provider: "Google", description: "Multimodal understanding and accuracy" },
+  { id: "gpt-5-mini", name: "GPT-5 Mini", provider: "OpenAI", description: "Balanced performance for general tasks" },
+  { id: "kimi-k2", name: "Kimi K2", provider: "Moonshot", description: "Superior tool calling and reasoning" },
+  { id: "qwen3-235b", name: "Qwen3 235B", provider: "Alibaba", description: "Large multilingual model" },
+  { id: "llama-3.3-70b", name: "Llama 3.3 70B", provider: "Meta", description: "Efficient open-source powerhouse" },
+  { id: "mistral-3.1", name: "Mistral 3.1", provider: "Mistral AI", description: "Fast inference with European focus" },
+];
 
-const QualityIndicator = ({ level }: { level: number }) => {
-  return (
-    <div className="flex items-center gap-0.5">
-      {[...Array(5)].map((_, i) => (
-        <FaStar
-          key={i}
-          className={`${i < level ? 'text-sky-500 dark:text-sky-400' : 'text-zinc-300 dark:text-zinc-700'}`}
-          size={10}
-        />
-      ))}
-    </div>
-  );
-};
+const features = [
+  {
+    icon: FaBolt,
+    title: "Lightning Fast",
+    description: "Sub-100ms latency with optimized routing to the fastest available model"
+  },
+  {
+    icon: FaShieldAlt,
+    title: "Enterprise Security",
+    description: "SOC 2 compliant with end-to-end encryption and zero data retention"
+  },
+  {
+    icon: FaInfinity,
+    title: "Unlimited Scale",
+    description: "Auto-scaling infrastructure handles any workload from 1 to 1M requests"
+  },
+  {
+    icon: FaGlobe,
+    title: "OpenAI Compatible",
+    description: "Drop-in replacement for OpenAI API - migrate in minutes, not months"
+  },
+  {
+    icon: FaClock,
+    title: "99.9% Uptime",
+    description: "Multi-region redundancy ensures your applications never go down"
+  },
+  {
+    icon: FaCode,
+    title: "Developer First",
+    description: "Comprehensive SDKs, detailed docs, and responsive support when you need it"
+  }
+];
 
-const Modal = ({ 
-  isOpen, 
-  onClose, 
-  path, 
-  desc, 
-  method,
-  note,
-  modelInfo
-}: { 
-  isOpen: boolean; 
-  onClose: () => void; 
-  path: string; 
-  desc: string;
-  method: string;
-  note?: string;
-  modelInfo?: {
-    speed: number;
-    quality: number;
-    useCase: string;
-    contextWindow?: string;
-  };
-}) => {
-  const [copied, setCopied] = useState(false);
-  const [mounted, setMounted] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'examples'>('overview');
-  const [activeLanguage, setActiveLanguage] = useState<CodeLanguage>('javascript');
+const quickStartSteps = [
+  {
+    step: "1",
+    title: "Get Your API Key",
+    description: "Sign up and generate your key in under 30 seconds",
+    code: "Visit console.aichixia.xyz"
+  },
+  {
+    step: "2",
+    title: "Install SDK",
+    description: "Use OpenAI's SDK or any HTTP client",
+    code: "npm install openai"
+  },
+  {
+    step: "3",
+    title: "Make Your First Call",
+    description: "Start building with 3 lines of code",
+    code: `import OpenAI from "openai";
+const client = new OpenAI({
+  apiKey: "YOUR_KEY",
+  baseURL: "${base}/api/v1"
+});`
+  }
+];
+
+export default function Home() {
   const [isDark, setIsDark] = useState(false);
-  
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showModelModal, setShowModelModal] = useState(false);
+  const [apiKey, setApiKey] = useState("");
+  const [selectedModel, setSelectedModel] = useState("deepseek-v3.2");
+  const [message, setMessage] = useState("Explain quantum computing in simple terms");
+  const [isLoading, setIsLoading] = useState(false);
+  const [response, setResponse] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [copiedRequest, setCopiedRequest] = useState(false);
+  const [copiedResponse, setCopiedResponse] = useState(false);
+  const [showApiKeyInput, setShowApiKeyInput] = useState(false);
+
   useEffect(() => {
     setIsDark(document.documentElement.classList.contains('dark'));
     const observer = new MutationObserver(() => {
@@ -77,1231 +98,510 @@ const Modal = ({
     return () => observer.disconnect();
   }, []);
 
-  useEffect(() => {
-    if (isOpen) {
-      setMounted(true);
-      document.body.style.overflow = 'hidden';
-    } else {
-      const timer = setTimeout(() => setMounted(false), 300);
-      document.body.style.overflow = 'unset';
-      return () => clearTimeout(timer);
+  const toggleTheme = () => {
+    document.documentElement.classList.toggle('dark');
+  };
+
+  const handleSendRequest = async () => {
+    if (!apiKey.trim()) {
+      setError("Please enter your API key");
+      return;
     }
-  }, [isOpen]);
-  
-  const copy = (text: string) => {
+
+    if (!message.trim()) {
+      setError("Please enter a message");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+    setResponse(null);
+
+    const startTime = Date.now();
+
+    try {
+      const res = await fetch(`${base}/api/v1/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: selectedModel,
+          messages: [{ role: "user", content: message }],
+          temperature: 0.8,
+          max_tokens: 1080,
+        }),
+      });
+
+      const data = await res.json();
+      const latency = Date.now() - startTime;
+
+      if (!res.ok) {
+        setError(data.error?.message || "Request failed");
+      } else {
+        setResponse({ ...data, latency });
+      }
+    } catch (err: any) {
+      setError(err.message || "Network error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const generateCurl = () => {
+    return `curl -X POST ${base}/api/v1/chat/completions \\
+  -H "Authorization: Bearer ${apiKey || 'YOUR_API_KEY'}" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "${selectedModel}",
+    "messages": [
+      {"role": "user", "content": "${message}"}
+    ]
+  }'`;
+  };
+
+  const copyToClipboard = (text: string, type: 'request' | 'response') => {
     navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const generateCodeExample = (lang: CodeLanguage) => {
-    const isPost = method === 'POST';
-    const isTTS = path.includes('/starling') || path.includes('/lindsay');
-    const isImage = path.includes('/flux') || path.includes('/lucid') || path.includes('/phoenix') || path.includes('/nano');
-    
-    if (lang === 'javascript') {
-      if (isPost) {
-        if (isTTS) {
-          return `const response = await fetch('${path}', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({
-    text: 'Hello world!',
-    emotion: 'normal',
-    volume: 100,
-    pitch: 0,
-    tempo: 1
-  })
-});
-
-const data = await response.json();
-const audio = new Audio(data.audio);
-audio.play();`;
-        } else if (isImage) {
-          return `const response = await fetch('${path}', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({
-    prompt: 'A beautiful landscape',
-    steps: 4
-  })
-});
-
-const data = await response.json();
-const img = document.createElement('img');
-img.src = \`data:image/jpeg;base64,\${data.imageBase64}\`;`;
-        } else {
-          return `const response = await fetch('${path}', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({
-    message: 'Your message here'
-  })
-});
-
-const data = await response.json();
-console.log(data.reply);`;
-        }
-      } else {
-        return `const response = await fetch('${path}');
-const data = await response.json();
-console.log(data);`;
-      }
-    } else if (lang === 'python') {
-      if (isPost) {
-        if (isTTS) {
-          return `import requests
-
-response = requests.post('${path}', 
-  json={
-    'text': 'Hello world!',
-    'emotion': 'normal',
-    'volume': 100,
-    'pitch': 0,
-    'tempo': 1
-  }
-)
-
-data = response.json()
-audio_url = data['audio']
-print(audio_url)`;
-        } else if (isImage) {
-          return `import requests
-
-response = requests.post('${path}', 
-  json={
-    'prompt': 'A beautiful landscape',
-    'steps': 4
-  }
-)
-
-data = response.json()
-image_base64 = data['imageBase64']
-print(image_base64)`;
-        } else {
-          return `import requests
-
-response = requests.post('${path}', 
-  json={
-    'message': 'Your message here'
-  }
-)
-
-data = response.json()
-print(data['reply'])`;
-        }
-      } else {
-        return `import requests
-
-response = requests.get('${path}')
-data = response.json()
-print(data)`;
-      }
-    } else if (lang === 'bash') {
-      if (isPost) {
-        if (isTTS) {
-          return `curl -X POST '${path}' \\
-  -H 'Content-Type: application/json' \\
-  -d '{
-    "text": "Hello world!",
-    "emotion": "normal",
-    "volume": 100,
-    "pitch": 0,
-    "tempo": 1
-  }'`;
-        } else if (isImage) {
-          return `curl -X POST '${path}' \\
-  -H 'Content-Type: application/json' \\
-  -d '{
-    "prompt": "A beautiful landscape",
-    "steps": 4
-  }'`;
-        } else {
-          return `curl -X POST '${path}' \\
-  -H 'Content-Type: application/json' \\
-  -d '{
-    "message": "Your message here"
-  }'`;
-        }
-      } else {
-        return `curl '${path}'`;
-      }
-    } else if (lang === 'php') {
-      if (isPost) {
-        if (isTTS) {
-          return `<?php
-$ch = curl_init('${path}');
-curl_setopt($ch, CURLOPT_POST, 1);
-curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-  'text' => 'Hello world!',
-  'emotion' => 'normal',
-  'volume' => 100,
-  'pitch' => 0,
-  'tempo' => 1
-]));
-curl_setopt($ch, CURLOPT_HTTPHEADER, [
-  'Content-Type: application/json'
-]);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-$response = curl_exec($ch);
-$data = json_decode($response);
-echo $data->audio;`;
-        } else if (isImage) {
-          return `<?php
-$ch = curl_init('${path}');
-curl_setopt($ch, CURLOPT_POST, 1);
-curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-  'prompt' => 'A beautiful landscape',
-  'steps' => 4
-]));
-curl_setopt($ch, CURLOPT_HTTPHEADER, [
-  'Content-Type: application/json'
-]);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-$response = curl_exec($ch);
-$data = json_decode($response);
-echo $data->imageBase64;`;
-        } else {
-          return `<?php
-$ch = curl_init('${path}');
-curl_setopt($ch, CURLOPT_POST, 1);
-curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-  'message' => 'Your message here'
-]));
-curl_setopt($ch, CURLOPT_HTTPHEADER, [
-  'Content-Type: application/json'
-]);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-$response = curl_exec($ch);
-$data = json_decode($response);
-echo $data->reply;`;
-        }
-      } else {
-        return `<?php
-$response = file_get_contents('${path}');
-$data = json_decode($response);
-print_r($data);`;
-      }
+    if (type === 'request') {
+      setCopiedRequest(true);
+      setTimeout(() => setCopiedRequest(false), 2000);
+    } else {
+      setCopiedResponse(true);
+      setTimeout(() => setCopiedResponse(false), 2000);
     }
-    return '';
   };
 
-  if (!mounted && !isOpen) return null;
+  const selectedModelData = models.find(m => m.id === selectedModel);
 
   return (
-    <div className={`fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 transition-all duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-      <div 
-        className={`absolute inset-0 bg-black/70 dark:bg-black/90 backdrop-blur-md transition-all duration-300 ${isOpen ? 'opacity-100' : 'opacity-0'}`}
-        onClick={onClose} 
-      />
-      <div className={`relative bg-white dark:bg-zinc-950 rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden transition-all duration-500 border border-zinc-200 dark:border-zinc-800 ${isOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}>
-        <div className="relative bg-gradient-to-r from-zinc-900 via-neutral-900 to-stone-900 dark:from-black dark:via-zinc-950 dark:to-neutral-950 p-4 sm:p-5 border-b border-sky-400/20">
-          <div className="flex items-center justify-between mb-3">
+    <main className="min-h-screen bg-white dark:bg-black transition-colors duration-200">
+      <header className="sticky top-0 z-50 border-b border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-black/80 backdrop-blur-xl">
+        <div className="max-w-5xl mx-auto px-3 sm:px-4">
+          <div className="flex items-center justify-between h-12">
             <div className="flex items-center gap-2">
-              <div className="p-1.5 bg-gradient-to-br from-sky-400 to-blue-500 rounded-lg shadow-lg shadow-sky-400/20">
-                <FaCode className="text-white" size={16} />
+              <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500">
+                <FaTerminal className="w-3.5 h-3.5 text-white" />
               </div>
-              <h3 className="text-lg sm:text-xl font-bold text-white">Endpoint Details</h3>
+              <h1 className="text-sm font-bold text-zinc-900 dark:text-white">Aichixia API</h1>
             </div>
-            <button
-              onClick={onClose}
-              className="p-1.5 hover:bg-white/10 rounded-lg transition-all duration-200"
-            >
-              <FaTimes className="text-white" size={16} />
-            </button>
-          </div>
 
-          <div className="flex gap-1.5">
+            <div className="hidden md:flex items-center gap-2">
+              <Link
+                href="/docs"
+                className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white transition-colors"
+              >
+                <FaBook className="w-3 h-3" />
+                Docs
+              </Link>
+              <Link
+                href="/console"
+                className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white transition-colors"
+              >
+                <FaTerminal className="w-3 h-3" />
+                Console
+              </Link>
+              <button
+                onClick={toggleTheme}
+                className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
+              >
+                {isDark ? <FaSun className="w-3.5 h-3.5 text-zinc-400" /> : <FaMoon className="w-3.5 h-3.5 text-zinc-600" />}
+              </button>
+            </div>
+
             <button
-              onClick={() => setActiveTab('overview')}
-              className={`px-3 py-1.5 rounded-lg font-semibold text-xs transition-all duration-200 ${
-                activeTab === 'overview'
-                  ? 'bg-gradient-to-r from-sky-400 to-blue-500 text-white shadow-lg shadow-sky-400/30'
-                  : 'bg-white/10 text-white/70 hover:bg-white/20'
-              }`}
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-900"
             >
-              Overview
-            </button>
-            <button
-              onClick={() => setActiveTab('examples')}
-              className={`px-3 py-1.5 rounded-lg font-semibold text-xs transition-all duration-200 ${
-                activeTab === 'examples'
-                  ? 'bg-gradient-to-r from-sky-400 to-blue-500 text-white shadow-lg shadow-sky-400/30'
-                  : 'bg-white/10 text-white/70 hover:bg-white/20'
-              }`}
-            >
-              Examples
+              {mobileMenuOpen ? <FaTimes className="w-4 h-4" /> : <FaBars className="w-4 h-4" />}
             </button>
           </div>
         </div>
 
-        <div className="p-4 sm:p-5 space-y-4 overflow-auto max-h-[calc(90vh-130px)] bg-white dark:bg-zinc-950">
-          {activeTab === 'overview' ? (
-            <>
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <FaServer className="text-sky-500 dark:text-sky-400" size={12} />
-                  <h4 className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">Method</h4>
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-black">
+            <div className="px-3 py-2 space-y-1">
+              <Link
+                href="/docs"
+                className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-colors"
+              >
+                <FaBook className="w-3 h-3" />
+                Docs
+              </Link>
+              <Link
+                href="/console"
+                className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-colors"
+              >
+                <FaTerminal className="w-3 h-3" />
+                Console
+              </Link>
+              <button
+                onClick={toggleTheme}
+                className="w-full flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-colors"
+              >
+                {isDark ? <FaSun className="w-3 h-3" /> : <FaMoon className="w-3 h-3" />}
+                {isDark ? 'Light' : 'Dark'} Mode
+              </button>
+            </div>
+          </div>
+        )}
+      </header>
+
+      <section className="relative overflow-hidden border-b border-zinc-200 dark:border-zinc-800">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-cyan-50 dark:from-blue-950/20 dark:via-black dark:to-cyan-950/20" />
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiMwMDAiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTM2IDM0djItaDJ2LTJoLTJ6bTAtNGgtMnYyaDJ2LTJ6bTAtNGgtMnYyaDJ2LTJ6bTAtNGgtMnYyaDJ2LTJ6bTAtNGgtMnYyaDJ2LTJ6bTAtNGgtMnYyaDJ2LTJ6bTAtNGgtMnYyaDJ2LTJ6bTAtNGgtMnYyaDJ2LTJ6bTAtNGgtMnYyaDJ2LTJ6bTIyIDIydi0yaDJ2MmgtMnptMC00aC0ydjJoMnYtMnptMC00aC0ydjJoMnYtMnptMC00aC0ydjJoMnYtMnptMC00aC0ydjJoMnYtMnptMC00aC0ydjJoMnYtMnptMC00aC0ydjJoMnYtMnptMC00aC0ydjJoMnYtMnptMC00aC0ydjJoMnYtMnoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-40 dark:opacity-20" />
+        
+        <div className="relative max-w-5xl mx-auto px-3 sm:px-4 py-8 sm:py-12">
+          <div className="text-center max-w-xl mx-auto">
+            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900 mb-3">
+              <FaRocket className="w-2.5 h-2.5 text-blue-600 dark:text-blue-400" />
+              <span className="text-xs font-medium text-blue-700 dark:text-blue-300">AICHIXIA</span>
+            </div>
+            
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-zinc-900 dark:text-white mb-3 tracking-tight">
+              Build with the best
+              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-600 dark:from-blue-400 dark:to-cyan-400">
+                AI models
+              </span>
+            </h1>
+            
+            <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400 mb-4 leading-relaxed">
+              Access DeepSeek, Claude, Gemini through OpenAI-compatible API
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-2">
+              <Link
+                href="/console"
+                className="group flex items-center gap-1.5 px-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-lg text-xs font-medium hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all duration-200 shadow-lg hover:shadow-xl"
+              >
+                <FaKey className="w-3 h-3" />
+                Get API Key
+                <FaArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+              </Link>
+              <Link
+                href="/docs"
+                className="flex items-center gap-1.5 px-4 py-2 border border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-lg text-xs font-medium hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors"
+              >
+                <FaBook className="w-3 h-3" />
+                View Docs
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="max-w-5xl mx-auto px-3 sm:px-4 py-8 sm:py-10">
+        <div className="text-center mb-6">
+          <h2 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white mb-2">Why Choose Aichixia</h2>
+          <p className="text-sm text-zinc-600 dark:text-zinc-400">Enterprise-grade infrastructure for modern AI applications</p>
+        </div>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {features.map((feature, index) => (
+            <div key={index} className="p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-zinc-300 dark:hover:border-zinc-700 transition-all">
+              <div className="flex items-start gap-3">
+                <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex-shrink-0">
+                  <feature.icon className="w-3.5 h-3.5 text-white" />
                 </div>
-                <span className="inline-block px-3 py-1.5 bg-gradient-to-r from-sky-400 to-blue-500 text-white rounded-lg font-bold text-xs shadow-lg shadow-sky-400/30">
-                  {method}
-                </span>
+                <div>
+                  <h3 className="text-sm font-semibold text-zinc-900 dark:text-white mb-1">{feature.title}</h3>
+                  <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">{feature.description}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="max-w-5xl mx-auto px-3 sm:px-4 py-6">
+        <div className="text-center mb-6">
+          <h2 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white mb-2">Quick Start Guide</h2>
+          <p className="text-sm text-zinc-600 dark:text-zinc-400">Get up and running in under 2 minutes</p>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-4">
+          {quickStartSteps.map((step, index) => (
+            <div key={index} className="relative">
+              <div className="p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 text-white text-xs font-bold">
+                    {step.step}
+                  </div>
+                  <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">{step.title}</h3>
+                </div>
+                <p className="text-xs text-zinc-600 dark:text-zinc-400 mb-3">{step.description}</p>
+                <div className="p-2 rounded bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
+                  <code className="text-xs text-zinc-700 dark:text-zinc-300 font-mono break-all">{step.code}</code>
+                </div>
+              </div>
+              {index < quickStartSteps.length - 1 && (
+                <div className="hidden md:block absolute top-1/2 -right-2 w-4 h-0.5 bg-zinc-200 dark:bg-zinc-800" />
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <div className="max-w-5xl mx-auto px-3 sm:px-4 py-6 sm:py-8">
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-2">
+            <FaPlay className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+            <h2 className="text-lg sm:text-xl font-bold text-zinc-900 dark:text-white">Interactive Playground</h2>
+          </div>
+          <p className="text-xs text-zinc-600 dark:text-zinc-400">Test our API with your own key</p>
+        </div>
+
+        <div className="grid lg:grid-cols-2 gap-3">
+          <div className="space-y-3 min-w-0">
+            <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg p-3 space-y-2.5">
+              <div>
+                <label className="block text-xs font-medium text-zinc-900 dark:text-white mb-1.5">API Key</label>
+                <div className="relative">
+                  <input
+                    type={showApiKeyInput ? "text" : "password"}
+                    value={apiKey}
+                    onChange={(e) => setApiKey(e.target.value)}
+                    placeholder="acv-..."
+                    className="w-full px-2.5 py-1.5 text-xs bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg text-zinc-900 dark:text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  />
+                  <button
+                    onClick={() => setShowApiKeyInput(!showApiKeyInput)}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+                  >
+                    <FaKey className="w-2.5 h-2.5" />
+                  </button>
+                </div>
               </div>
 
-              <div className="border-t border-zinc-200 dark:border-zinc-800" />
-
               <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <FaInfoCircle className="text-sky-500 dark:text-sky-400" size={12} />
-                  <h4 className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">Description</h4>
-                </div>
-                <p className="text-zinc-700 dark:text-zinc-300 text-xs leading-relaxed">{desc}</p>
+                <label className="block text-xs font-medium text-zinc-900 dark:text-white mb-1.5">Model</label>
+                <button
+                  onClick={() => setShowModelModal(true)}
+                  className="w-full px-2.5 py-1.5 text-xs bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg text-left text-zinc-900 dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all flex items-center justify-between"
+                >
+                  <span className="truncate">{selectedModelData?.name} ({selectedModelData?.provider})</span>
+                  <FaChevronDown className="w-2.5 h-2.5 text-zinc-500 flex-shrink-0 ml-2" />
+                </button>
               </div>
 
-              {modelInfo && (
-                <>
-                  <div className="border-t border-zinc-200 dark:border-zinc-800" />
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-lg p-3 border border-zinc-200 dark:border-zinc-800">
-                      <div className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1.5">Speed</div>
-                      <SpeedIndicator level={modelInfo.speed} />
+              <div>
+                <label className="block text-xs font-medium text-zinc-900 dark:text-white mb-1.5">Message</label>
+                <textarea
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  rows={3}
+                  className="w-full px-2.5 py-1.5 text-xs bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg text-zinc-900 dark:text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                  placeholder="Enter your message..."
+                />
+              </div>
+
+              <button
+                onClick={handleSendRequest}
+                disabled={isLoading}
+                className="w-full flex items-center justify-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-zinc-400 text-white rounded-lg text-xs font-medium transition-colors disabled:cursor-not-allowed"
+              >
+                {isLoading ? (
+                  <>
+                    <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <FaPlay className="w-2.5 h-2.5" />
+                    Send Request
+                  </>
+                )}
+              </button>
+
+              {error && (
+                <div className="p-2.5 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/30 rounded-lg">
+                  <p className="text-xs text-red-700 dark:text-red-400">{error}</p>
+                </div>
+              )}
+            </div>
+
+            <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden">
+              <div className="flex items-center justify-between px-3 py-2 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900">
+                <div className="flex items-center gap-1.5">
+                  <FaCode className="w-3 h-3 text-zinc-600 dark:text-zinc-400" />
+                  <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">cURL</span>
+                </div>
+                <button
+                  onClick={() => copyToClipboard(generateCurl(), 'request')}
+                  className="p-1 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded transition-colors"
+                >
+                  {copiedRequest ? (
+                    <FaCheck className="w-2.5 h-2.5 text-green-500" />
+                  ) : (
+                    <FaCopy className="w-2.5 h-2.5 text-zinc-500" />
+                  )}
+                </button>
+              </div>
+              <div className="p-2.5 overflow-x-auto">
+                <SyntaxHighlighter
+                  language="bash"
+                  style={isDark ? oneDark : oneLight}
+                  customStyle={{
+                    margin: 0,
+                    padding: 0,
+                    background: 'transparent',
+                    fontSize: '10px',
+                  }}
+                  wrapLongLines={true}
+                >
+                  {generateCurl()}
+                </SyntaxHighlighter>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-3 min-w-0">
+            <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden">
+              <div className="flex items-center justify-between px-3 py-2 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900">
+                <div className="flex items-center gap-1.5">
+                  <FaTerminal className="w-3 h-3 text-zinc-600 dark:text-zinc-400" />
+                  <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">Response</span>
+                </div>
+                {response && (
+                  <button
+                    onClick={() => copyToClipboard(JSON.stringify(response, null, 2), 'response')}
+                    className="p-1 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded transition-colors"
+                  >
+                    {copiedResponse ? (
+                      <FaCheck className="w-2.5 h-2.5 text-green-500" />
+                    ) : (
+                      <FaCopy className="w-2.5 h-2.5 text-zinc-500" />
+                    )}
+                  </button>
+                )}
+              </div>
+              <div className="p-3">
+                {!response && !error && !isLoading && (
+                  <div className="flex flex-col items-center justify-center py-8 text-center">
+                    <div className="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center mb-2">
+                      <FaTerminal className="w-4 h-4 text-zinc-400" />
                     </div>
-                    <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-lg p-3 border border-zinc-200 dark:border-zinc-800">
-                      <div className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1.5">Quality</div>
-                      <QualityIndicator level={modelInfo.quality} />
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">Response will appear here</p>
+                  </div>
+                )}
+
+                {response && (
+                  <div className="space-y-3">
+                    <div className="p-2.5 bg-zinc-50 dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800">
+                      <p className="text-xs text-zinc-900 dark:text-white leading-relaxed break-words">
+                        {response.choices?.[0]?.message?.content || "No content"}
+                      </p>
                     </div>
-                    <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-lg p-3 border border-zinc-200 dark:border-zinc-800 col-span-2">
-                      <div className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1">Use Case</div>
-                      <div className="text-xs font-medium text-zinc-900 dark:text-white">{modelInfo.useCase}</div>
-                    </div>
-                    {modelInfo.contextWindow && (
-                      <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-lg p-3 border border-zinc-200 dark:border-zinc-800 col-span-2">
-                        <div className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1">Context Window</div>
-                        <div className="text-xs font-medium text-zinc-900 dark:text-white">{modelInfo.contextWindow}</div>
+
+                    <div className="grid grid-cols-2 gap-2.5">
+                      <div className="p-2.5 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-900/30">
+                        <div className="text-xs text-blue-600 dark:text-blue-400 mb-0.5">Tokens</div>
+                        <div className="text-base font-bold text-blue-700 dark:text-blue-300">
+                          {response.usage?.total_tokens || 0}
+                        </div>
                       </div>
+                      <div className="p-2.5 bg-cyan-50 dark:bg-cyan-950/20 rounded-lg border border-cyan-200 dark:border-cyan-900/30">
+                        <div className="text-xs text-cyan-600 dark:text-cyan-400 mb-0.5">Latency</div>
+                        <div className="text-base font-bold text-cyan-700 dark:text-cyan-300">
+                          {response.latency || 0}ms
+                        </div>
+                      </div>
+                    </div>
+
+                    <details className="group">
+                      <summary className="cursor-pointer text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
+                        View full response
+                      </summary>
+                      <div className="mt-2 p-2.5 bg-zinc-50 dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800 overflow-x-auto">
+                        <pre className="text-[10px] text-zinc-700 dark:text-zinc-300">
+                          {JSON.stringify(response, null, 2)}
+                        </pre>
+                      </div>
+                    </details>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {showModelModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setShowModelModal(false)}>
+          <div className="bg-white dark:bg-zinc-950 rounded-xl shadow-2xl max-w-md w-full max-h-[80vh] overflow-hidden border border-zinc-200 dark:border-zinc-800" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-4 border-b border-zinc-200 dark:border-zinc-800">
+              <h3 className="text-sm font-bold text-zinc-900 dark:text-white">Select Model</h3>
+              <button
+                onClick={() => setShowModelModal(false)}
+                className="p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-colors"
+              >
+                <FaTimes className="w-3.5 h-3.5 text-zinc-600 dark:text-zinc-400" />
+              </button>
+            </div>
+            <div className="overflow-y-auto max-h-[calc(80vh-60px)] p-2">
+              {models.map((model) => (
+                <button
+                  key={model.id}
+                  onClick={() => {
+                    setSelectedModel(model.id);
+                    setShowModelModal(false);
+                  }}
+                  className={`w-full p-3 rounded-lg text-left transition-colors mb-2 ${
+                    selectedModel === model.id
+                      ? 'bg-blue-50 dark:bg-blue-950/20 border-2 border-blue-500 dark:border-blue-400'
+                      : 'bg-zinc-50 dark:bg-zinc-900 border-2 border-transparent hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-2 mb-1">
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-semibold text-zinc-900 dark:text-white truncate">{model.name}</div>
+                      <div className="text-xs text-zinc-500 dark:text-zinc-400">{model.provider}</div>
+                    </div>
+                    {selectedModel === model.id && (
+                      <FaCheckCircle className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
                     )}
                   </div>
-                </>
-              )}
-
-              <div className="border-t border-zinc-200 dark:border-zinc-800" />
-
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <FaCode className="text-sky-500 dark:text-sky-400" size={12} />
-                  <h4 className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">Endpoint URL</h4>
-                </div>
-                <div className="bg-zinc-100 dark:bg-black rounded-lg p-3 mb-2 border border-zinc-200 dark:border-zinc-800">
-                  <code className="text-sky-500 dark:text-sky-400 text-[10px] break-all font-mono">{path}</code>
-                </div>
-                <button
-                  onClick={() => copy(path)}
-                  className="w-full px-3 py-2 bg-gradient-to-r from-sky-400 to-blue-500 hover:from-sky-500 hover:to-blue-600 text-white rounded-lg font-semibold text-xs transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-sky-400/30"
-                >
-                  {copied ? (
-                    <>
-                      <FaCheckCircle size={12} />
-                      <span>Copied!</span>
-                    </>
-                  ) : (
-                    <>
-                      <FaCopy size={12} />
-                      <span>Copy URL</span>
-                    </>
-                  )}
+                  <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">{model.description}</p>
                 </button>
-              </div>
-
-              {note && (
-                <>
-                  <div className="border-t border-zinc-200 dark:border-zinc-800" />
-                  <div className="bg-sky-50 dark:bg-sky-950/20 border-l-4 border-sky-400 dark:border-sky-500 rounded-lg p-3">
-                    <div className="flex items-start gap-2">
-                      <FaLightbulb className="text-sky-500 dark:text-sky-400 mt-0.5 flex-shrink-0" size={14} />
-                      <div>
-                        <h4 className="text-xs font-semibold text-sky-600 dark:text-sky-400 mb-1">Note</h4>
-                        <p className="text-zinc-700 dark:text-zinc-300 text-xs leading-relaxed">{note}</p>
-                      </div>
-                    </div>
-                  </div>
-                </>
-              )}
-            </>
-          ) : (
-            <>
-              <div className="flex gap-1.5 flex-wrap">
-                {(['javascript', 'python', 'bash', 'php'] as CodeLanguage[]).map((lang) => (
-                  <button
-                    key={lang}
-                    onClick={() => setActiveLanguage(lang)}
-                    className={`px-2.5 py-1 rounded-lg font-semibold text-[10px] transition-all duration-200 ${
-                      activeLanguage === lang
-                        ? 'bg-gradient-to-r from-sky-400 to-blue-500 text-white shadow-lg shadow-sky-400/30'
-                        : 'bg-zinc-100 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800'
-                    }`}
-                  >
-                    {lang.charAt(0).toUpperCase() + lang.slice(1)}
-                  </button>
-                ))}
-              </div>
-
-              <div className="relative">
-                <button
-                  onClick={() => copy(generateCodeExample(activeLanguage))}
-                  className="absolute top-2 right-2 z-10 px-2 py-1 bg-zinc-800 hover:bg-zinc-700 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-white rounded-lg text-[10px] font-semibold transition-all duration-200 flex items-center gap-1.5"
-                >
-                  {copied ? (
-                    <>
-                      <FaCheckCircle size={10} />
-                      <span>Copied!</span>
-                    </>
-                  ) : (
-                    <>
-                      <FaCopy size={10} />
-                      <span>Copy</span>
-                    </>
-                  )}
-                </button>
-                <SyntaxHighlighter
-                  language={activeLanguage === 'bash' ? 'bash' : activeLanguage}
-                  style={isDark ? oneDark : oneLight}
-                  customStyle={{
-                    borderRadius: '0.75rem',
-                    padding: '0.75rem',
-                    fontSize: '0.7rem',
-                    border: isDark ? '1px solid #27272a' : '1px solid #e4e4e7',
-                  }}
-                  showLineNumbers
-                >
-                  {generateCodeExample(activeLanguage)}
-                </SyntaxHighlighter>
-              </div>
-
-              <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-lg p-3 border border-zinc-200 dark:border-zinc-800">
-                <div className="flex items-center gap-2 mb-2">
-                  <FaInfoCircle className="text-sky-500 dark:text-sky-400" size={10} />
-                  <h4 className="text-[10px] font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">Expected Response</h4>
-                </div>
-                <SyntaxHighlighter
-                  language="json"
-                  style={isDark ? oneDark : oneLight}
-                  customStyle={{
-                    borderRadius: '0.5rem',
-                    padding: '0.75rem',
-                    fontSize: '0.65rem',
-                    margin: 0,
-                  }}
-                >
-                  {path.includes('/starling') || path.includes('/lindsay')
-                    ? `{
-  "success": true,
-  "audio": "data:audio/mp3;base64,...",
-  "format": "mp3",
-  "textLength": 12,
-  "creditsUsed": 12
-}`
-                    : path.includes('/flux') || path.includes('/lucid') || path.includes('/phoenix') || path.includes('/nano')
-                    ? `{
-  "imageBase64": "base64_encoded_image_data",
-  "provider": "model-name"
-}`
-                    : method === 'POST' 
-                    ? `{
-  "reply": "Response text here",
-  "provider": "model-name"
-}`
-                    : `{
-  "data": [...],
-  "count": 10
-}`}
-                </SyntaxHighlighter>
-              </div>
-            </>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const StatusBadge = ({ active, label }: { active: boolean; label: string }) => {
-  return (
-    <span
-      className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-white text-[10px] font-semibold shadow-lg transition-all duration-300
-      ${active ? "bg-gradient-to-r from-emerald-500 to-green-500 shadow-emerald-400/30" : "bg-gradient-to-r from-rose-500 to-red-500 shadow-rose-400/30"}`}
-    >
-      {active ? <FaCheckCircle size={8} /> : <FaTimesCircle size={8} />} {label}
-    </span>
-  );
-};
-
-const Row = ({
-  method,
-  path,
-  desc,
-  active = true,
-  overrideLabel,
-  note,
-  modelInfo,
-}: {
-  method: string;
-  path: string;
-  desc: string;
-  active?: boolean;
-  overrideLabel?: string;
-  note?: string;
-  modelInfo?: {
-    speed: number;
-    quality: number;
-    useCase: string;
-    contextWindow?: string;
-  };
-}) => {
-  const [showModal, setShowModal] = useState(false);
-  
-  return (
-    <>
-      <div className="group bg-white dark:bg-zinc-950 hover:bg-zinc-50 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-3 sm:p-4 transition-all duration-300 cursor-pointer hover:shadow-xl hover:shadow-sky-400/10 dark:hover:shadow-sky-400/20">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3">
-          <div className="flex items-start gap-2 flex-1 min-w-0">
-            <span className="px-2 py-1 bg-gradient-to-r from-sky-400 to-blue-500 text-white rounded-lg font-bold text-[10px] whitespace-nowrap shadow-lg shadow-sky-400/30">
-              {method}
-            </span>
-            <div className="flex-1 min-w-0">
-              <p className="text-zinc-900 dark:text-white text-xs font-semibold mb-1">{desc}</p>
-              <p className="text-zinc-500 dark:text-zinc-400 text-[10px] font-mono truncate">{path.replace(base, '')}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <StatusBadge active={active} label={overrideLabel ?? (active ? "Active" : "Inactive")} />
-            <button
-              onClick={() => setShowModal(true)}
-              className="px-3 py-1.5 bg-zinc-900 dark:bg-white hover:bg-zinc-800 dark:hover:bg-zinc-100 text-white dark:text-zinc-900 rounded-lg font-semibold text-[10px] transition-all duration-200 shadow-lg"
-            >
-              Details
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <Modal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        path={path}
-        desc={desc}
-        method={method}
-        note={note}
-        modelInfo={modelInfo}
-      />
-    </>
-  );
-};
-
-const FeatureCard = ({ icon: Icon, title, description }: any) => {
-  return (
-    <div className="group bg-white dark:bg-zinc-950 hover:bg-zinc-50 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-4 transition-all duration-300 hover:shadow-xl hover:shadow-sky-400/10 dark:hover:shadow-sky-400/20 hover:-translate-y-1">
-      <div className="flex items-start gap-3">
-        <div className="p-2 bg-gradient-to-br from-sky-400 to-blue-500 rounded-lg flex-shrink-0 shadow-lg shadow-sky-400/30">
-          <Icon className="text-white" size={18} />
-        </div>
-        <div>
-          <h3 className="text-sm font-bold text-zinc-900 dark:text-white mb-1">{title}</h3>
-          <p className="text-zinc-600 dark:text-zinc-400 text-xs leading-relaxed">{description}</p>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const ModelCard = ({
-  icon: Icon,
-  name,
-  endpoint,
-  color,
-  description,
-  speed,
-  quality,
-}: {
-  icon: any;
-  name: string;
-  endpoint: string;
-  color: string;
-  description: string;
-  speed: number;
-  quality: number;
-}) => {
-  const [showModal, setShowModal] = useState(false);
-
-  return (
-    <>
-      <button
-        onClick={() => setShowModal(true)}
-        className="group bg-white dark:bg-zinc-950 hover:bg-zinc-50 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-3 sm:p-4 transition-all duration-300 hover:shadow-xl hover:shadow-sky-400/10 dark:hover:shadow-sky-400/20 hover:-translate-y-1 text-left w-full"
-      >
-        <div className="flex items-start gap-3">
-          <div className={`p-2 bg-gradient-to-br ${color} rounded-lg flex-shrink-0 shadow-lg`}>
-            <Icon className="text-white" size={18} />
-          </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-bold text-zinc-900 dark:text-white mb-1">{name}</h3>
-            <p className="text-zinc-600 dark:text-zinc-400 text-xs mb-2">{description}</p>
-            <div className="flex gap-3 text-[10px]">
-              <div className="flex items-center gap-1">
-                <FaBolt className="text-sky-500 flex-shrink-0" size={10} />
-                <span className="text-zinc-500 dark:text-zinc-500">Speed:</span>
-                <SpeedIndicator level={speed} />
-              </div>
-              <div className="flex items-center gap-1">
-                <FaStar className="text-sky-500 flex-shrink-0" size={10} />
-                <span className="text-zinc-500 dark:text-zinc-500">Quality:</span>
-                <QualityIndicator level={quality} />
-              </div>
+              ))}
             </div>
           </div>
         </div>
-      </button>
+      )}
 
-      <Modal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        path={`${base}${endpoint}`}
-        desc={description}
-        method="POST"
-        note="Send POST with JSON body containing 'message' field."
-        modelInfo={{
-          speed,
-          quality,
-          useCase: description,
-        }}
-      />
-    </>
-  );
-};
-
-export default function Docs() {
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  return (
-    <main className="min-h-screen bg-zinc-50 dark:bg-black text-zinc-900 dark:text-white transition-colors duration-300">
-      <div className={`fixed top-0 left-0 right-0 z-30 transition-all duration-300 ${scrolled ? 'bg-white/80 dark:bg-black/80 backdrop-blur-xl border-b border-zinc-200 dark:border-zinc-900 shadow-lg' : 'bg-transparent'}`}>
-        <div className="max-w-6xl mx-auto px-3 sm:px-4 lg:px-6 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className={`p-1.5 rounded-lg transition-all duration-300 ${scrolled ? 'bg-gradient-to-br from-sky-400 to-blue-500' : 'bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800'} shadow-lg`}>
-              <FaBookOpen className={`${scrolled ? 'text-white' : 'text-sky-500 dark:text-sky-400'}`} size={18} />
-            </div>
-            <h1 className="text-lg sm:text-xl font-black text-zinc-900 dark:text-white">Aichixia API</h1>
-          </div>
-          <div className="flex items-center gap-2">
-            <Link
-              href="/console"
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-zinc-950 hover:bg-zinc-100 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg font-semibold text-xs transition-all duration-200 shadow-lg"
-            >
-              <FaKey size={12} />
-              <span>Console</span>
-            </Link>
-            <ThemeToggle />
-          </div>
-        </div>
-      </div>
-
-      <div className="relative pt-20 sm:pt-24 pb-12 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-sky-50 via-zinc-50 to-zinc-50 dark:from-zinc-950/50 dark:via-black dark:to-black pointer-events-none" />
-        <div className="absolute top-0 left-1/4 w-64 sm:w-80 h-64 sm:h-80 bg-sky-400/20 dark:bg-sky-400/10 rounded-full blur-3xl" />
-        <div className="absolute top-12 right-1/4 w-64 sm:w-80 h-64 sm:h-80 bg-blue-500/20 dark:bg-blue-500/10 rounded-full blur-3xl" />
-        
-        <div className="relative max-w-6xl mx-auto px-3 sm:px-4 lg:px-6">
-          <div className="max-w-3xl mx-auto text-center mb-12">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-sky-100 dark:bg-sky-950/30 border border-sky-200 dark:border-sky-900 rounded-full text-sky-600 dark:text-sky-400 text-xs font-semibold mb-4">
-              <FaStar size={10} />
-              <span>Free & Open API</span>
-            </div>
-            
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black mb-4 leading-tight">
-              <span className="bg-gradient-to-r from-sky-500 to-blue-500 dark:from-sky-400 dark:to-blue-400 bg-clip-text text-transparent">
-                Aichixia API
-              </span>
-            <br/>
-              <span className="text-zinc-900 dark:text-white">Powered by AI</span>
-            </h2>
-            
-            <p className="text-zinc-600 dark:text-zinc-400 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto px-4 mb-6">
-              Advanced AI API with intelligent routing system. Automatically selects the best model for your task from 20+ providers.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center px-4">
-              <Link
-                href="/chat"
-                className="group inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-sky-400 to-blue-500 hover:from-sky-500 hover:to-blue-600 text-white rounded-lg font-bold transition-all duration-300 shadow-lg shadow-sky-400/30 hover:shadow-xl hover:shadow-sky-400/40 hover:-translate-y-0.5 text-sm"
-              >
-                <FaComments size={16} />
-                <span>Try AI Chat</span>
-                <FaChevronRight className="group-hover:translate-x-1 transition-transform" size={12} />
-              </Link>
-              
-              <a
-                href="#endpoints"
-                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white dark:bg-zinc-950 hover:bg-zinc-100 dark:hover:bg-zinc-900 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-800 rounded-lg font-bold transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 text-sm"
-              >
-                <FaRocket size={16} />
-                <span>Explore API</span>
-              </a>
-
-              <Link
-                href="/console"
-                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-900 dark:bg-white hover:bg-zinc-800 dark:hover:bg-zinc-100 text-white dark:text-zinc-900 rounded-lg font-bold transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 text-sm"
-              >
-                <FaKey size={16} />
-                <span>Get API Key</span>
-              </Link>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 mb-12">
-            <FeatureCard
-              icon={FaBrain}
-              title="Smart Routing"
-              description="Intelligent system automatically selects the best AI model for your specific task"
-            />
-            <FeatureCard
-              icon={FaLayerGroup}
-              title="20+ Models"
-              description="Access to GPT, Claude, Gemini, DeepSeek, Llama and more in unified API"
-            />
-            <FeatureCard
-              icon={FaShieldAlt}
-              title="Secure & Fast"
-              description="API key authentication with rate limiting and lightning-fast responses"
-            />
-          </div>
-
-          <section className="mb-12">
-            <div className="bg-gradient-to-r from-sky-50 to-blue-50 dark:from-sky-950/20 dark:to-blue-950/20 border-2 border-sky-200 dark:border-sky-900 rounded-xl p-5 sm:p-6 shadow-xl">
-              <div className="flex items-start gap-3 mb-4">
-                <div className="p-2 bg-gradient-to-br from-sky-400 to-blue-500 rounded-lg shadow-lg">
-                  <FaRobot className="text-white" size={20} />
-                </div>
-                <div>
-                  <h3 className="text-lg sm:text-xl font-black text-zinc-900 dark:text-white mb-1">OpenAI-Compatible Endpoint</h3>
-                  <p className="text-zinc-600 dark:text-zinc-400 text-xs sm:text-sm">Use our unified API with OpenAI SDK for seamless integration</p>
-                </div>
-              </div>
-
-              <div className="bg-white dark:bg-zinc-950 rounded-lg p-4 border border-zinc-200 dark:border-zinc-800 mb-3">
-                <div className="flex items-center justify-between mb-2">
-                  <code className="text-sky-500 dark:text-sky-400 text-xs font-mono">POST /api/v1/chat/completions</code>
-                  <span className="px-2 py-0.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-full text-[10px] font-bold">Recommended</span>
-                </div>
-                <p className="text-zinc-600 dark:text-zinc-400 text-xs mb-3">
-                  Compatible with OpenAI SDK - use any of our 20+ models with a single endpoint.
-                </p>
-                
-                <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-lg p-3 mb-2">
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <FaCode className="text-sky-500 dark:text-sky-400" size={10} />
-                    <span className="text-[10px] font-semibold text-zinc-600 dark:text-zinc-400">Quick Start</span>
-                  </div>
-                  <SyntaxHighlighter
-                    language="javascript"
-                    style={oneDark}
-                    customStyle={{
-                      borderRadius: '0.5rem',
-                      padding: '0.75rem',
-                      fontSize: '0.65rem',
-                      margin: 0,
-                    }}
-                  >
-{`import OpenAI from "openai";
-
-const client = new OpenAI({
-  apiKey: "your-api-key",
-  baseURL: "${base}/api/v1"
-});
-
-const response = await client.chat.completions.create({
-  model: "deepseek-v3.2",
-  messages: [
-    { role: "user", content: "Hello!" }
-  ]
-});`}
-                  </SyntaxHighlighter>
-                </div>
-
-                <div className="flex items-start gap-2 p-2.5 bg-sky-50 dark:bg-sky-950/30 rounded-lg border border-sky-200 dark:border-sky-900">
-                  <FaShieldAlt className="text-sky-500 dark:text-sky-400 mt-0.5 flex-shrink-0" size={12} />
-                  <p className="text-[10px] sm:text-xs text-sky-700 dark:text-sky-300">
-                    Get your API key from the <Link href="/console" className="font-bold underline">console</Link> to start using authenticated endpoints.
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                <div className="bg-white dark:bg-zinc-950 rounded-lg p-3 border border-zinc-200 dark:border-zinc-800">
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <FaCheckCircle className="text-emerald-500" size={14} />
-                    <h4 className="font-bold text-xs text-zinc-900 dark:text-white">Benefits</h4>
-                  </div>
-                  <ul className="space-y-1 text-[10px] text-zinc-600 dark:text-zinc-400">
-                    <li className="flex items-center gap-1.5">
-                      <div className="w-1 h-1 bg-sky-500 rounded-full" />
-                      <span>OpenAI SDK compatible</span>
-                    </li>
-                    <li className="flex items-center gap-1.5">
-                      <div className="w-1 h-1 bg-sky-500 rounded-full" />
-                      <span>20+ AI models in one API</span>
-                    </li>
-                    <li className="flex items-center gap-1.5">
-                      <div className="w-1 h-1 bg-sky-500 rounded-full" />
-                      <span>Usage analytics & tracking</span>
-                    </li>
-                    <li className="flex items-center gap-1.5">
-                      <div className="w-1 h-1 bg-sky-500 rounded-full" />
-                      <span>Secure authentication</span>
-                    </li>
-                  </ul>
-                </div>
-
-                <div className="bg-white dark:bg-zinc-950 rounded-lg p-3 border border-zinc-200 dark:border-zinc-800">
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <FaLayerGroup className="text-sky-500" size={14} />
-                    <h4 className="font-bold text-xs text-zinc-900 dark:text-white">Popular Models</h4>
-                  </div>
-                  <div className="flex flex-wrap gap-1">
-                    {['deepseek-v3.2', 'gpt-5-mini', 'claude-4.5', 'gemini-3', 'grok-3', 'llama-3.3'].map((model) => (
-                      <span key={model} className="px-1.5 py-0.5 bg-sky-100 dark:bg-sky-950/30 text-sky-700 dark:text-sky-400 rounded text-[9px] font-mono">
-                        {model}
-                      </span>
-                    ))}
-                    <span className="px-1.5 py-0.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded text-[9px] font-semibold">
-                      +14 more
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section id="endpoints" className="mb-12 scroll-mt-20">
-            <div className="flex items-center gap-2 mb-5">
-              <div className="p-2 bg-gradient-to-br from-sky-400 to-blue-500 rounded-lg shadow-lg shadow-sky-400/30">
-                <FaComments className="text-white" size={18} />
-              </div>
-              <h2 className="text-xl sm:text-2xl font-black text-zinc-900 dark:text-white">AI Chat</h2>
-            </div>
-            
-            <Row 
-              method="POST" 
-              path={`${base}/api/chat`} 
-              desc="Intelligent AI routing system - automatically selects optimal model" 
-              note="Send POST with JSON: { message: 'text' }. System analyzes your request and routes to the best model (GPT, Claude, Gemini, DeepSeek, etc.) based on task type, complexity, and model availability."
-            />
-            
-            <div className="mt-4 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg p-4 shadow-lg">
-              <h3 className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-                <FaBrain size={12} className="text-sky-500 dark:text-sky-400" />
-                Smart Routing System
-              </h3>
-              <div className="space-y-2 text-xs text-zinc-600 dark:text-zinc-400">
-                <div className="flex items-start gap-2 p-2 bg-zinc-50 dark:bg-zinc-900/50 rounded-lg">
-                  <FaCheckCircle className="text-sky-500 dark:text-sky-400 mt-0.5 flex-shrink-0" size={10} />
-                  <p><strong className="text-zinc-900 dark:text-white">Task Analysis:</strong> Automatically analyzes query type, complexity, and required capabilities</p>
-                </div>
-                <div className="flex items-start gap-2 p-2 bg-zinc-50 dark:bg-zinc-900/50 rounded-lg">
-                  <FaCheckCircle className="text-sky-500 dark:text-sky-400 mt-0.5 flex-shrink-0" size={10} />
-                  <p><strong className="text-zinc-900 dark:text-white">Model Selection:</strong> Routes to optimal model from 20+ providers (OpenAI, Anthropic, Google, Meta, etc.)</p>
-                </div>
-                <div className="flex items-start gap-2 p-2 bg-zinc-50 dark:bg-zinc-900/50 rounded-lg">
-                  <FaCheckCircle className="text-sky-500 dark:text-sky-400 mt-0.5 flex-shrink-0" size={10} />
-                  <p><strong className="text-zinc-900 dark:text-white">Intelligent Fallback:</strong> Automatic failover to alternative models ensures 99.9% uptime</p>
-                </div>
-                <div className="flex items-start gap-2 p-2 bg-zinc-50 dark:bg-zinc-900/50 rounded-lg">
-                  <FaCheckCircle className="text-sky-500 dark:text-sky-400 mt-0.5 flex-shrink-0" size={10} />
-                  <p><strong className="text-zinc-900 dark:text-white">Performance Optimization:</strong> Balances speed, quality, and cost for each request</p>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section className="mb-12">
-            <div className="flex items-center gap-2 mb-5">
-              <div className="p-2 bg-gradient-to-br from-sky-400 to-blue-500 rounded-lg shadow-lg shadow-sky-400/30">
-                <FaRobot className="text-white" size={18} />
-              </div>
-              <h2 className="text-xl sm:text-2xl font-black text-zinc-900 dark:text-white">AI Models</h2>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-5">
-              <ModelCard
-                icon={SiAirbrake}
-                name="Aichixia 411B"
-                endpoint="/api/models/aichixia"
-                color="from-blue-600 via-blue-800 to-slate-900"
-                description="Ultra-large flagship model with 411B parameters"
-                speed={5}
-                quality={5}
-              />
-              <ModelCard
-                icon={SiDigikeyelectronics}
-                name="Kimi K2"
-                endpoint="/api/models/kimi"
-                color="from-blue-600 to-cyan-600"
-                description="Superior tool calling and complex reasoning"
-                speed={4}
-                quality={5}
-              />
-              <ModelCard
-                icon={TbSquareLetterZ}
-                name="GLM 4.7"
-                endpoint="/api/models/glm"
-                color="from-blue-700 to-indigo-900"
-                description="Multilingual excellence with strong reasoning"
-                speed={3}
-                quality={4}
-              />
-              <ModelCard
-                icon={TbLetterM}
-                name="Mistral 3.1"
-                endpoint="/api/models/mistral"
-                color="from-orange-600 to-amber-600"
-                description="Fast inference with European focus"
-                speed={4}
-                quality={4}
-              />
-              <ModelCard
-                icon={SiOpenai}
-                name="GPT-5 Mini"
-                endpoint="/api/models/openai"
-                color="from-emerald-600 to-green-600"
-                description="Balanced performance for general tasks"
-                speed={3}
-                quality={4}
-              />
-              <ModelCard
-                icon={SiMeta}
-                name="Llama 3.3 70B"
-                endpoint="/api/models/llama"
-                color="from-blue-600 to-indigo-700"
-                description="Efficient open-source powerhouse"
-                speed={4}
-                quality={4}
-              />
-              <ModelCard
-                icon={SiOpenai}
-                name="GPT-OSS 120B"
-                endpoint="/api/models/gptoss"
-                color="from-pink-600 to-rose-600"
-                description="Large open-source with browser search"
-                speed={3}
-                quality={4}
-              />
-              <ModelCard
-                icon={SiMaze}
-                name="MiniMax M2.1"
-                endpoint="/api/models/minimax"
-                color="from-cyan-600 to-blue-600"
-                description="Multilingual coding specialist with agent workflows"
-                speed={4}
-                quality={5}
-              />
-              <ModelCard
-                icon={SiGooglegemini}
-                name="Gemini 3 Flash"
-                endpoint="/api/models/gemini"
-                color="from-indigo-600 to-purple-600"
-                description="Multimodal understanding and accuracy"
-                speed={4}
-                quality={5}
-              />
-              <ModelCard
-                icon={SiXiaomi}
-                name="MiMo V2 Flash"
-                endpoint="/api/models/mimo"
-                color="from-blue-600 to-purple-600"
-                description="Efficient 309B MoE model for reasoning and coding tasks"
-                speed={5}
-                quality={5}
-              />
-              <ModelCard
-                icon={GiSpermWhale}
-                name="DeepSeek V3.1"
-                endpoint="/api/models/deepseek-v"
-                color="from-cyan-600 to-teal-600"
-                description="Previous generation DeepSeek model"
-                speed={3}
-                quality={5}
-              />
-              <ModelCard
-                icon={GiSpermWhale}
-                name="DeepSeek V3.2"
-                endpoint="/api/models/deepseek"
-                color="from-cyan-600 to-blue-600"
-                description="Deep reasoning and code generation"
-                speed={3}
-                quality={5}
-              />
-              <ModelCard
-                icon={SiAnthropic}
-                name="Claude Opus 4.5"
-                endpoint="/api/models/claude"
-                color="from-orange-600 to-amber-700"
-                description="World's #1 AI model - Ultimate intelligence for complex tasks"
-                speed={3}
-                quality={5}
-              />
-              <ModelCard
-                icon={GiPowerLightning}
-                name="Groq Compound"
-                endpoint="/api/models/compound"
-                color="from-orange-600 to-red-600"
-                description="Multi-model agentic system with tools"
-                speed={4}
-                quality={5}
-              />
-              <ModelCard
-                icon={SiAlibabacloud}
-                name="Qwen3 Coder 480B"
-                endpoint="/api/models/qwen"
-                color="from-purple-600 to-fuchsia-600"
-                description="Specialized in coding and Asian languages"
-                speed={3}
-                quality={5}
-              />
-              <ModelCard
-                icon={SiAlibabacloud}
-                name="Qwen3 235B"
-                endpoint="/api/models/qwen3"
-                color="from-purple-500 to-pink-500"
-                description="Large multilingual model with strong reasoning"
-                speed={4}
-                quality={5}
-              />
-              <ModelCard
-                icon={GiClover}
-                name="Cohere Command A"
-                endpoint="/api/models/cohere"
-                color="from-emerald-600 to-teal-600"
-                description="Enterprise-grade with excellent tool use"
-                speed={3}
-                quality={5}
-              />
-              <ModelCard
-                icon={FaXTwitter}
-                name="Grok 3"
-                endpoint="/api/models/grok"
-                color="from-slate-600 to-zinc-800"
-                description="xAI's flagship model with real-time data"
-                speed={4}
-                quality={5}
-              />
-            </div>
-
-            <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg p-4 shadow-lg mb-5">
-              <div className="flex items-start gap-2 mb-3">
-                <SiSecurityscorecard className="text-sky-500 dark:text-sky-400 mt-0.5" size={16} />
-                <div>
-                  <h3 className="text-base font-bold text-zinc-900 dark:text-white mb-0.5">Text-to-Speech</h3>
-                  <p className="text-zinc-600 dark:text-zinc-400 text-xs">Convert text to natural-sounding speech</p>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <Row 
-                  method="POST" 
-                  path={`${base}/api/models/starling`} 
-                  desc="Starling TTS - Natural voice synthesis" 
-                  note="Send POST with JSON: { text: 'your text', emotion: 'normal', volume: 100, pitch: 0, tempo: 1 }. Returns base64 encoded audio (data URI)."
-                  modelInfo={{
-                    speed: 4,
-                    quality: 5,
-                    useCase: "Standard text-to-speech with emotional control",
-                  }}
-                />
-                <Row 
-                  method="POST" 
-                  path={`${base}/api/models/lindsay`} 
-                  desc="Lindsay TTS - Enhanced voice quality" 
-                  note="Send POST with JSON: { text: 'your text', emotion: 'happy', volume: 100, pitch: 0, tempo: 1 }. Returns base64 encoded audio with improved prosody."
-                  modelInfo={{
-                    speed: 5,
-                    quality: 4,
-                    useCase: "Premium text-to-speech with advanced emotional range",
-                  }}
-                />
-              </div>
-            </div>
-
-            <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg p-4 shadow-lg">
-              <div className="flex items-start gap-2 mb-3">
-                <FaImage className="text-sky-500 dark:text-sky-400 mt-0.5" size={16} />
-                <div>
-                  <h3 className="text-base font-bold text-zinc-900 dark:text-white mb-0.5">Image Generation</h3>
-                  <p className="text-zinc-600 dark:text-zinc-400 text-xs">Create stunning AI-generated images</p>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <Row 
-                  method="POST" 
-                  path={`${base}/api/models/flux`} 
-                  desc="Flux 2 - Photorealistic image generation" 
-                  note="Send POST with JSON: { prompt: 'description', steps: 4 }. Returns base64 encoded image."
-                  modelInfo={{
-                    speed: 4,
-                    quality: 5,
-                    useCase: "Text-to-image generation with photorealistic results",
-                  }}
-                />
-                <Row 
-                  method="POST" 
-                  path={`${base}/api/models/lucid`} 
-                  desc="Lucid Origin - Creative image synthesis" 
-                  note="Send POST with JSON: { prompt: 'description', steps: 4 }. Returns base64 encoded image."
-                  modelInfo={{
-                    speed: 4,
-                    quality: 5,
-                    useCase: "Artistic and creative image generation",
-                  }}
-                />
-                <Row 
-                  method="POST" 
-                  path={`${base}/api/models/phoenix`} 
-                  desc="Phoenix 1.0 - Fast image generation" 
-                  note="Send POST with JSON: { prompt: 'description', steps: 4 }. Returns base64 encoded image."
-                  modelInfo={{
-                    speed: 4,
-                    quality: 4,
-                    useCase: "Quick artistic image generation",
-                  }}
-                />
-                <Row 
-                  method="POST" 
-                  path={`${base}/api/models/nano`} 
-                  desc="Nano Banana Pro - Compact image model" 
-                  note="Send POST with JSON: { prompt: 'description', steps: 4 }. Returns base64 encoded image."
-                  modelInfo={{
-                    speed: 4,
-                    quality: 4,
-                    useCase: "Lightweight image generation",
-                  }}
-                />
-              </div>
-            </div>
-          </section>
-
-          <section className="mb-12">
-            <div className="flex items-center gap-2 mb-5">
-              <div className="p-2 bg-gradient-to-br from-sky-400 to-blue-500 rounded-lg shadow-lg shadow-sky-400/30">
-                <FaInfoCircle className="text-white" size={18} />
-              </div>
-              <h2 className="text-xl sm:text-2xl font-black text-zinc-900 dark:text-white">Important Notes</h2>
-            </div>
-            
-            <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg p-4 sm:p-5 shadow-lg">
-              <div className="space-y-3">
-                <div className="flex items-start gap-2.5 p-3 bg-zinc-50 dark:bg-zinc-900/50 rounded-lg border border-zinc-200 dark:border-zinc-800">
-                  <div className="p-1.5 bg-sky-100 dark:bg-sky-950/30 rounded-lg flex-shrink-0">
-                    <FaKey className="text-sky-500 dark:text-sky-400" size={14} />
-                  </div>
-                  <div>
-                    <strong className="text-zinc-900 dark:text-white block mb-1 text-xs font-bold">Authentication:</strong>
-                    <span className="text-zinc-600 dark:text-zinc-400 text-xs">
-                      Get your API key from the <Link href="/console" className="text-sky-600 dark:text-sky-400 font-semibold hover:underline">console</Link>. Use header: <code className="bg-sky-100 dark:bg-sky-950/30 px-1.5 py-0.5 rounded text-sky-600 dark:text-sky-400 font-mono text-[10px]">Authorization: Bearer YOUR_KEY</code>
-                    </span>
-                  </div>
-                </div>
-                
-                <div className="flex items-start gap-2.5 p-3 bg-zinc-50 dark:bg-zinc-900/50 rounded-lg border border-zinc-200 dark:border-zinc-800">
-                  <div className="p-1.5 bg-sky-100 dark:bg-sky-950/30 rounded-lg flex-shrink-0">
-                    <FaServer className="text-sky-500 dark:text-sky-400" size={14} />
-                  </div>
-                  <div>
-                    <strong className="text-zinc-900 dark:text-white block mb-1 text-xs font-bold">Rate Limit:</strong>
-                    <span className="text-zinc-600 dark:text-zinc-400 text-xs">1,000 requests per day with API key. Track usage in console dashboard.</span>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-2.5 p-3 bg-zinc-50 dark:bg-zinc-900/50 rounded-lg border border-zinc-200 dark:border-zinc-800">
-                  <div className="p-1.5 bg-sky-100 dark:bg-sky-950/30 rounded-lg flex-shrink-0">
-                    <FaBrain className="text-sky-500 dark:text-sky-400" size={14} />
-                  </div>
-                  <div>
-                    <strong className="text-zinc-900 dark:text-white block mb-1 text-xs font-bold">Smart Routing:</strong>
-                    <span className="text-zinc-600 dark:text-zinc-400 text-xs">/api/chat automatically routes to the best model. Use /api/v1/chat/completions to manually select specific models.</span>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-2.5 p-3 bg-zinc-50 dark:bg-zinc-900/50 rounded-lg border border-zinc-200 dark:border-zinc-800">
-                  <div className="p-1.5 bg-sky-100 dark:bg-sky-950/30 rounded-lg flex-shrink-0">
-                    <FaGlobe className="text-sky-500 dark:text-sky-400" size={14} />
-                  </div>
-                  <div>
-                    <strong className="text-zinc-900 dark:text-white block mb-1 text-xs font-bold">Web Search:</strong>
-                    <span className="text-zinc-600 dark:text-zinc-400 text-xs">Most models support automatic web search when needed for current information</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-        </div>
-      </div>
-
-      <footer className="border-t border-zinc-200 dark:border-zinc-900 py-8 bg-white dark:bg-black">
-        <div className="max-w-6xl mx-auto px-3 sm:px-4 lg:px-6">
-          <div className="flex flex-col items-center gap-4 text-center">
+      <footer className="border-t border-zinc-200 dark:border-zinc-800 mt-12">
+        <div className="max-w-5xl mx-auto px-3 sm:px-4 py-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <div className="p-2 bg-gradient-to-br from-sky-400 to-blue-500 rounded-lg shadow-lg shadow-sky-400/30">
-                <FaBookOpen className="text-white" size={18} />
+              <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500">
+                <FaTerminal className="w-3.5 h-3.5 text-white" />
               </div>
-              <h3 className="text-xl font-black text-zinc-900 dark:text-white">Aichixia API</h3>
-            </div>
-            
-            <div className="flex items-center gap-4">
-              <Link 
-                href="/console"
-                className="flex items-center gap-1.5 text-zinc-600 dark:text-zinc-400 hover:text-sky-500 dark:hover:text-sky-400 transition-colors duration-200 text-sm font-semibold"
-              >
-                <FaKey size={14} />
-                <span>Console</span>
-                <FaExternalLinkAlt size={10} />
-              </Link>
-              <a 
-                href="https://github.com/Takawell/Aichixia" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-zinc-600 dark:text-zinc-400 hover:text-sky-500 dark:hover:text-sky-400 transition-colors duration-200"
-              >
-                <FaGithub size={18} />
-              </a>
-              <a 
-                href="https://tiktok.com/@putrawangyyy" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-zinc-600 dark:text-zinc-400 hover:text-sky-500 dark:hover:text-sky-400 transition-colors duration-200"
-              >
-                <FaTiktok size={18} />
-              </a>
+              <div>
+                <h3 className="text-xs font-bold text-zinc-900 dark:text-white">Aichixia API</h3>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">Modern AI Infrastructure</p>
+              </div>
             </div>
 
-            <div className="w-full max-w-md h-px bg-gradient-to-r from-transparent via-zinc-300 dark:via-zinc-800 to-transparent"></div>
-            <div className="flex items-center gap-2 text-zinc-500 dark:text-zinc-500">
-              <FaTerminal size={12} />
-              <span className="text-sm">© {new Date().getFullYear()} Aichixia - AI Assistant</span>
-            </div>            
-            <p className="text-xs font-black text-transparent bg-gradient-to-r from-sky-500 to-blue-500 dark:from-sky-400 dark:to-blue-400 bg-clip-text tracking-widest">BY TAKAWELL</p>
+            <div className="flex items-center gap-3">
+              <Link
+                href="/docs"
+                className="text-xs text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
+              >
+                Docs
+              </Link>
+              <Link
+                href="/console"
+                className="text-xs text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
+              >
+                Console
+              </Link>
+            </div>
+          </div>
+
+          <div className="mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-800 text-center">
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+              © {new Date().getFullYear()} Aichixia. All Right reserved.
+            </p>
           </div>
         </div>
       </footer>
