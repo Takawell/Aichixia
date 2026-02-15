@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FaSearch, FaCopy, FaCheck, FaChevronDown, FaChevronRight, FaTerminal, FaBolt, FaStar, FaBook, FaMoon, FaSun, FaBars, FaTimes, FaKey, FaServer, FaGlobe, FaMicrophone, FaImage } from "react-icons/fa";
+import { FaSearch, FaCopy, FaCheck, FaChevronDown, FaChevronRight, FaTerminal, FaBolt, FaStar, FaBook, FaMoon, FaSun, FaBars, FaTimes, FaKey, FaServer, FaGlobe, FaMicrophone, FaImage, FaCode, FaShieldAlt, FaClock, FaCheckCircle } from "react-icons/fa";
 import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiAirbrake, SiMaze, SiXiaomi, SiDigikeyelectronics } from "react-icons/si";
 import { GiSpermWhale, GiPowerLightning, GiClover } from "react-icons/gi";
 import { TbSquareLetterZ, TbLetterM } from "react-icons/tb";
@@ -338,10 +338,34 @@ const imageModels: EndpointData[] = [
 
 const allEndpoints = [...chatModels, ...ttsModels, ...imageModels];
 
+const bestPractices = [
+  {
+    icon: FaShieldAlt,
+    title: "Secure Your Keys",
+    description: "Never expose API keys in client-side code. Use environment variables and server-side requests."
+  },
+  {
+    icon: FaClock,
+    title: "Handle Rate Limits",
+    description: "Implement exponential backoff and retry logic to gracefully handle rate limit responses."
+  },
+  {
+    icon: FaCheckCircle,
+    title: "Validate Responses",
+    description: "Always check response status and handle errors appropriately before processing data."
+  },
+  {
+    icon: FaCode,
+    title: "Optimize Token Usage",
+    description: "Monitor token consumption and use appropriate max_tokens values to control costs."
+  }
+];
+
 const EndpointCard = ({ endpoint, isDark }: { endpoint: EndpointData; isDark: boolean }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<CodeLanguage>('javascript');
+
   const copy = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
     setCopied(id);
@@ -805,21 +829,42 @@ export default function Docs() {
           <div className="text-center max-w-xl mx-auto">
             <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900 mb-3">
               <FaBook className="w-2.5 h-2.5 text-blue-600 dark:text-blue-400" />
-              <span className="text-xs font-medium text-blue-700 dark:text-blue-300">Complete Reference</span>
+              <span className="text-xs font-medium text-blue-700 dark:text-blue-300">Technical Reference</span>
             </div>
             
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-zinc-900 dark:text-white mb-3 tracking-tight">
-              API <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-600 dark:from-blue-400 dark:to-cyan-400">Documentation</span>
+              Developer <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-600 dark:from-blue-400 dark:to-cyan-400">Documentation</span>
             </h1>
             
             <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400 leading-relaxed">
-              Browse all available models with code examples and technical details
+              Comprehensive model specifications, integration guides, and API references
             </p>
           </div>
         </div>
       </section>
 
-      <div className="max-w-5xl mx-auto px-3 sm:px-4 py-6 sm:py-8">
+      <section className="max-w-5xl mx-auto px-3 sm:px-4 py-8">
+        <div className="text-center mb-6">
+          <h2 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white mb-2">Best Practices</h2>
+          <p className="text-sm text-zinc-600 dark:text-zinc-400">Follow these guidelines for optimal integration</p>
+        </div>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
+          {bestPractices.map((practice, index) => (
+            <div key={index} className="p-3 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+              <div className="flex flex-col gap-2">
+                <practice.icon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                <div>
+                  <h3 className="text-sm font-semibold text-zinc-900 dark:text-white mb-1">{practice.title}</h3>
+                  <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">{practice.description}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <div className="max-w-5xl mx-auto px-3 sm:px-4 py-6">
         <div className="mb-6 space-y-3">
           <div className="relative">
             <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-400" />
@@ -867,7 +912,7 @@ export default function Docs() {
                 <FaSearch className="w-5 h-5 text-zinc-400" />
               </div>
               <h3 className="text-base font-semibold text-zinc-900 dark:text-white mb-1">No models found</h3>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">Try adjusting your search or filter</p>
+              <p className="text-sm text-zinc-600 dark:text-zinc-400">Try different search terms or filters</p>
             </div>
           )}
         </div>
@@ -877,9 +922,9 @@ export default function Docs() {
             <div className="flex items-start gap-2.5">
               <FaKey className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
               <div>
-                <h3 className="text-xs font-semibold text-zinc-900 dark:text-white mb-0.5">Authentication</h3>
+                <h3 className="text-xs font-semibold text-zinc-900 dark:text-white mb-0.5">API Authentication</h3>
                 <p className="text-xs text-zinc-600 dark:text-zinc-400">
-                  Use Bearer token in Authorization header
+                  Include Bearer token in Authorization header for all requests
                 </p>
               </div>
             </div>
@@ -889,9 +934,9 @@ export default function Docs() {
             <div className="flex items-start gap-2.5">
               <FaServer className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400 flex-shrink-0 mt-0.5" />
               <div>
-                <h3 className="text-xs font-semibold text-zinc-900 dark:text-white mb-0.5">Rate Limits</h3>
+                <h3 className="text-xs font-semibold text-zinc-900 dark:text-white mb-0.5">Usage Limits</h3>
                 <p className="text-xs text-zinc-600 dark:text-zinc-400">
-                  1,000 requests/day with API key
+                  Monitor daily quota of 1,000 requests via console dashboard
                 </p>
               </div>
             </div>
@@ -901,9 +946,9 @@ export default function Docs() {
             <div className="flex items-start gap-2.5">
               <FaGlobe className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 flex-shrink-0 mt-0.5" />
               <div>
-                <h3 className="text-xs font-semibold text-zinc-900 dark:text-white mb-0.5">OpenAI Compatible</h3>
+                <h3 className="text-xs font-semibold text-zinc-900 dark:text-white mb-0.5">SDK Compatibility</h3>
                 <p className="text-xs text-zinc-600 dark:text-zinc-400">
-                  Drop-in replacement for OpenAI SDK
+                  Full compatibility with OpenAI libraries and tools
                 </p>
               </div>
             </div>
