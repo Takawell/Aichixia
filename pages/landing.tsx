@@ -7,19 +7,20 @@ import { oneDark, oneLight } from 'react-syntax-highlighter/dist/cjs/styles/pris
 const base = "https://www.aichixia.xyz";
 
 const models = [
-  { id: "deepseek-v3.2", name: "DeepSeek V3.2", provider: "DeepSeek" },
-  { id: "claude-opus-4.5", name: "Claude Opus 4.5", provider: "Anthropic" },
-  { id: "gemini-3-flash", name: "Gemini 3 Flash", provider: "Google" },
-  { id: "gpt-5-mini", name: "GPT-5 Mini", provider: "OpenAI" },
-  { id: "kimi-k2", name: "Kimi K2", provider: "Moonshot" },
-  { id: "qwen3-235b", name: "Qwen3 235B", provider: "Alibaba" },
-  { id: "llama-3.3-70b", name: "Llama 3.3 70B", provider: "Meta" },
-  { id: "mistral-3.1", name: "Mistral 3.1", provider: "Mistral AI" },
+  { id: "deepseek-v3.2", name: "DeepSeek V3.2", provider: "DeepSeek", description: "Deep reasoning and code generation" },
+  { id: "claude-opus-4.5", name: "Claude Opus 4.5", provider: "Anthropic", description: "World's #1 AI model for complex tasks" },
+  { id: "gemini-3-flash", name: "Gemini 3 Flash", provider: "Google", description: "Multimodal understanding and accuracy" },
+  { id: "gpt-5-mini", name: "GPT-5 Mini", provider: "OpenAI", description: "Balanced performance for general tasks" },
+  { id: "kimi-k2", name: "Kimi K2", provider: "Moonshot", description: "Superior tool calling and reasoning" },
+  { id: "qwen3-235b", name: "Qwen3 235B", provider: "Alibaba", description: "Large multilingual model" },
+  { id: "llama-3.3-70b", name: "Llama 3.3 70B", provider: "Meta", description: "Efficient open-source powerhouse" },
+  { id: "mistral-3.1", name: "Mistral 3.1", provider: "Mistral AI", description: "Fast inference with European focus" },
 ];
 
 export default function Home() {
   const [isDark, setIsDark] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showModelModal, setShowModelModal] = useState(false);
   const [apiKey, setApiKey] = useState("");
   const [selectedModel, setSelectedModel] = useState("deepseek-v3.2");
   const [message, setMessage] = useState("Explain quantum computing in simple terms");
@@ -112,6 +113,8 @@ export default function Home() {
       setTimeout(() => setCopiedResponse(false), 2000);
     }
   };
+
+  const selectedModelData = models.find(m => m.id === selectedModel);
 
   return (
     <main className="min-h-screen bg-white dark:bg-black transition-colors duration-200">
@@ -239,7 +242,7 @@ export default function Home() {
         </div>
 
         <div className="grid lg:grid-cols-2 gap-3">
-          <div className="space-y-3">
+          <div className="space-y-3 min-w-0">
             <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg p-3 space-y-2.5">
               <div>
                 <label className="block text-xs font-medium text-zinc-900 dark:text-white mb-1.5">API Key</label>
@@ -262,20 +265,13 @@ export default function Home() {
 
               <div>
                 <label className="block text-xs font-medium text-zinc-900 dark:text-white mb-1.5">Model</label>
-                <div className="relative">
-                  <select
-                    value={selectedModel}
-                    onChange={(e) => setSelectedModel(e.target.value)}
-                    className="w-full px-2.5 py-1.5 text-xs bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all appearance-none cursor-pointer"
-                  >
-                    {models.map((model) => (
-                      <option key={model.id} value={model.id}>
-                        {model.name} ({model.provider})
-                      </option>
-                    ))}
-                  </select>
-                  <FaChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-2.5 h-2.5 text-zinc-500 pointer-events-none" />
-                </div>
+                <button
+                  onClick={() => setShowModelModal(true)}
+                  className="w-full px-2.5 py-1.5 text-xs bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg text-left text-zinc-900 dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all flex items-center justify-between"
+                >
+                  <span className="truncate">{selectedModelData?.name} ({selectedModelData?.provider})</span>
+                  <FaChevronDown className="w-2.5 h-2.5 text-zinc-500 flex-shrink-0 ml-2" />
+                </button>
               </div>
 
               <div>
@@ -341,6 +337,7 @@ export default function Home() {
                     background: 'transparent',
                     fontSize: '10px',
                   }}
+                  wrapLongLines={true}
                 >
                   {generateCurl()}
                 </SyntaxHighlighter>
@@ -348,7 +345,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-3 min-w-0">
             <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden">
               <div className="flex items-center justify-between px-3 py-2 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900">
                 <div className="flex items-center gap-1.5">
@@ -381,7 +378,7 @@ export default function Home() {
                 {response && (
                   <div className="space-y-3">
                     <div className="p-2.5 bg-zinc-50 dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800">
-                      <p className="text-xs text-zinc-900 dark:text-white leading-relaxed">
+                      <p className="text-xs text-zinc-900 dark:text-white leading-relaxed break-words">
                         {response.choices?.[0]?.message?.content || "No content"}
                       </p>
                     </div>
@@ -457,6 +454,49 @@ export default function Home() {
         </section>
       </div>
 
+      {showModelModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setShowModelModal(false)}>
+          <div className="bg-white dark:bg-zinc-950 rounded-xl shadow-2xl max-w-md w-full max-h-[80vh] overflow-hidden border border-zinc-200 dark:border-zinc-800" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-4 border-b border-zinc-200 dark:border-zinc-800">
+              <h3 className="text-sm font-bold text-zinc-900 dark:text-white">Select Model</h3>
+              <button
+                onClick={() => setShowModelModal(false)}
+                className="p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-colors"
+              >
+                <FaTimes className="w-3.5 h-3.5 text-zinc-600 dark:text-zinc-400" />
+              </button>
+            </div>
+            <div className="overflow-y-auto max-h-[calc(80vh-60px)] p-2">
+              {models.map((model) => (
+                <button
+                  key={model.id}
+                  onClick={() => {
+                    setSelectedModel(model.id);
+                    setShowModelModal(false);
+                  }}
+                  className={`w-full p-3 rounded-lg text-left transition-colors mb-2 ${
+                    selectedModel === model.id
+                      ? 'bg-blue-50 dark:bg-blue-950/20 border-2 border-blue-500 dark:border-blue-400'
+                      : 'bg-zinc-50 dark:bg-zinc-900 border-2 border-transparent hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-2 mb-1">
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-semibold text-zinc-900 dark:text-white truncate">{model.name}</div>
+                      <div className="text-xs text-zinc-500 dark:text-zinc-400">{model.provider}</div>
+                    </div>
+                    {selectedModel === model.id && (
+                      <FaCheck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                    )}
+                  </div>
+                  <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">{model.description}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       <footer className="border-t border-zinc-200 dark:border-zinc-800 mt-12">
         <div className="max-w-5xl mx-auto px-3 sm:px-4 py-6">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
@@ -489,7 +529,7 @@ export default function Home() {
           <div className="mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-800 text-center">
             <p className="text-xs text-zinc-500 dark:text-zinc-400">
               © {new Date().getFullYear()} Aichixia. All Right reserved.
-           </p>
+            </p>
           </div>
         </div>
       </footer>
