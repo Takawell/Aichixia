@@ -1,0 +1,14 @@
+{
+  "rewrites": [
+    {
+      "source": "/:path*",
+      "destination": "/console/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "console.aichixia.xyz"
+        }
+      ]
+    }
+  ]
+}
