@@ -1,7 +1,19 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true
+  swcMinify: true,
+  async rewrites() {
+    return [
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'host',
+            value: 'console.aichixia.xyz',
+          },
+        ],
+        destination: '/console/:path*',
+      },
+    ]
+  },
 };
-
-module.exports = nextConfig;
