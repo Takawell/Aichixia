@@ -5,6 +5,16 @@ const nextConfig = {
   async rewrites() {
     return [
       {
+        source: '/',
+        has: [
+          {
+            type: 'host',
+            value: 'console.aichixia.xyz',
+          },
+        ],
+        destination: '/console',
+      },
+      {
         source: '/:path*',
         has: [
           {
