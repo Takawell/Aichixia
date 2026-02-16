@@ -122,7 +122,7 @@ const pricingPlans = [
     name: "Pro",
     price: "$0",
     period: "with code",
-    description: "Temukan kode redem secara rahasia",
+    description: "Find the secret redeem code in the docs",
     features: [
       "Priority model access",
       "Email support",
@@ -163,29 +163,27 @@ const stats = [
 ];
 
 const testimonials = [
+  [
   {
-    name: "Sarah Chen",
-    role: "CTO at TechStart",
-    avatar: "SC",
-    content: "Aichixia's API cut our AI infrastructure costs by 70% while improving response times. The OpenAI compatibility made migration seamless.",
-    rating: 5,
-    profileUrl: "https://linkedin.com/in/sarahchen"
+    "name": "Takawell",
+    "role": "Founder of Aichiverse",
+    "avatar": "https://avatars.githubusercontent.com/u/175643773?v=4",
+    "content": "Aichixia has been a total game-changer for our unit economics. Before switching, our AI infrastructure costs were scaling faster than our revenue, but their API helped us slash those expenses by 70% overnight. The best part? The OpenAI-compatible endpoint meant we only had to change a single line of code to migrate—zero downtime, zero headaches.",
+    "rating": 5
   },
   {
-    name: "Marcus Rodriguez",
-    role: "Lead Engineer at DataFlow",
-    avatar: "MR",
-    content: "Best AI API we've tested. Lightning fast, reliable, and the multi-model support lets us optimize for each use case.",
-    rating: 5,
-    profileUrl: "https://linkedin.com/in/marcusrodriguez"
+    "name": "Reinaa",
+    "role": "Founder of CodeAssist",
+    "avatar": "https://avatars.githubusercontent.com/u/227315981?v=4",
+    "content": "In terms of reliability and low latency, Aichixia is in a league of its own. We benchmarked several providers, and this was the only one that remained lightning-fast during peak traffic. The native multi-model support is brilliant; it allows my team to route simple tasks to faster models while reserving high-reasoning power for complex logic, all through one interface.",
+    "rating": 5
   },
   {
-    name: "Emily Watson",
-    role: "Founder of CodeAssist",
-    avatar: "EW",
-    content: "The developer experience is incredible. Great docs, responsive support, and the playground made testing so much easier.",
-    rating: 5,
-    profileUrl: "https://linkedin.com/in/emilywatson"
+    "name": "Ivy",
+    "role": "Founder of CodeAssist",
+    "avatar": "https://i.ibb.co/MxvTQVpH/7ec6e394511b100ced3e56a912acad4e.jpg",
+    "content": "The developer experience here is top-tier. Most providers give you a raw API and wish you luck, but Aichixia provides world-class documentation and a playground that makes prototyping incredibly efficient. Beyond the tech, their support team is exceptionally responsive—it truly feels like having an extension of our own engineering team.",
+    "rating": 5
   }
 ];
 
@@ -350,14 +348,8 @@ export default function Home() {
   const selectedModelData = models.find(m => m.id === selectedModel);
 
   return (
-    <main className="min-h-screen bg-white dark:bg-black transition-colors duration-300 overflow-x-hidden">
-      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 -left-4 w-72 h-72 bg-purple-300 dark:bg-purple-900 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl opacity-20 animate-blob"></div>
-        <div className="absolute top-0 -right-4 w-72 h-72 bg-blue-300 dark:bg-blue-900 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
-        <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300 dark:bg-pink-900 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
-      </div>
-
-      <style jsx>{`
+    <>
+      <style dangerouslySetInnerHTML={{__html: `
         @keyframes blob {
           0%, 100% { transform: translate(0, 0) scale(1); }
           33% { transform: translate(30px, -50px) scale(1.1); }
@@ -406,7 +398,14 @@ export default function Home() {
         .stagger-delay-4 { animation-delay: 0.4s; }
         .stagger-delay-5 { animation-delay: 0.5s; }
         .stagger-delay-6 { animation-delay: 0.6s; }
-      `}</style>
+      `}} />
+      
+      <main className="min-h-screen bg-white dark:bg-black transition-colors duration-300 overflow-x-hidden">
+      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 -left-4 w-72 h-72 bg-purple-300 dark:bg-purple-900 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl opacity-20 animate-blob"></div>
+        <div className="absolute top-0 -right-4 w-72 h-72 bg-blue-300 dark:bg-blue-900 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
+        <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300 dark:bg-pink-900 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
+      </div>
 
       <header 
         className={`sticky top-0 z-50 border-b transition-all duration-300 ${
@@ -447,67 +446,6 @@ export default function Home() {
               <Link
                 href="/docs"
                 className="px-3 py-1.5 text-xs sm:text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
-              >
-                Docs
-              </Link>
-            </nav>
-
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <button
-                onClick={toggleTheme}
-                className="p-1.5 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
-                aria-label="Toggle theme"
-              >
-                {isDark ? <FaSun className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <FaMoon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
-              </button>
-
-              <Link
-                href="/console"
-                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
-              >
-                <FaRocket className="w-3 h-3" />
-                <span>Console</span>
-              </Link>
-
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-1.5 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
-                aria-label="Toggle menu"
-              >
-                {mobileMenuOpen ? <FaTimes className="w-4 h-4" /> : <FaBars className="w-4 h-4" />}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {mobileMenuOpen && (
-          <div className="md:hidden border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-black">
-            <nav className="flex flex-col p-2 space-y-1">
-              <Link
-                href="#features"
-                className="px-3 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Features
-              </Link>
-              <Link
-                href="#playground"
-                className="px-3 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Playground
-              </Link>
-              <Link
-                href="#pricing"
-                className="px-3 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Pricing
-              </Link>
-              <Link
-                href="/docs"
-                className="px-3 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
-                onClick={() => setMobileMenuOpen(false)}
               >
                 Docs
               </Link>
@@ -680,7 +618,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-12 sm:py-16 lg:py-20 px-3 sm:px-4 lg:px-6" data-animate="quickstart">
+      <section className="py-12 sm:py-16 lg:py-20 px-3 sm:px-4 lg:px-6 overflow-hidden" data-animate="quickstart">
         <div className="max-w-7xl mx-auto">
           <div className={`text-center space-y-3 mb-10 sm:mb-12 transition-all duration-700 ${isVisible.quickstart ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-900/50">
@@ -699,13 +637,13 @@ export default function Home() {
             {quickStartSteps.map((step, idx) => (
               <div
                 key={idx}
-                className={`group relative transition-all duration-700 ${
+                className={`group relative transition-all duration-700 min-w-0 ${
                   isVisible.quickstart ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
                 }`}
                 style={{ transitionDelay: `${idx * 150}ms` }}
                 onMouseEnter={() => setActiveStep(idx)}
               >
-                <div className="relative h-full p-4 sm:p-5 lg:p-6 rounded-xl bg-white dark:bg-zinc-950 border-2 border-zinc-200 dark:border-zinc-800 hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-xl transition-all duration-300">
+                <div className="relative h-full p-4 sm:p-5 lg:p-6 rounded-xl bg-white dark:bg-zinc-950 border-2 border-zinc-200 dark:border-zinc-800 hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-xl transition-all duration-300 min-w-0">
                   <div className="absolute -top-2 -right-2 w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 shadow-lg flex items-center justify-center">
                     <span className="text-base sm:text-lg font-black text-white">{step.step}</span>
                   </div>
@@ -719,7 +657,7 @@ export default function Home() {
                   <h3 className="text-lg sm:text-xl font-bold text-zinc-900 dark:text-white mb-2">{step.title}</h3>
                   <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed mb-3 sm:mb-4">{step.description}</p>
 
-                  <div className="rounded-lg bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+                  <div className="rounded-lg bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 overflow-hidden min-w-0">
                     <div className="flex items-center justify-between px-3 py-1.5 bg-zinc-200 dark:bg-zinc-800 border-b border-zinc-300 dark:border-zinc-700">
                       <div className="flex gap-1">
                         <div className="w-2 h-2 rounded-full bg-red-500"></div>
@@ -728,20 +666,22 @@ export default function Home() {
                       </div>
                       <span className="text-[10px] text-zinc-600 dark:text-zinc-400">terminal</span>
                     </div>
-                    <div className="p-2 sm:p-3 overflow-x-auto">
-                      <SyntaxHighlighter
-                        language={idx === 0 ? "bash" : idx === 1 ? "bash" : "javascript"}
-                        style={isDark ? oneDark : oneLight}
-                        customStyle={{
-                          margin: 0,
-                          padding: 0,
-                          background: 'transparent',
-                          fontSize: '9px',
-                        }}
-                        wrapLongLines={true}
-                      >
-                        {step.code}
-                      </SyntaxHighlighter>
+                    <div className="p-2 sm:p-3 overflow-x-auto max-w-full">
+                      <div className="min-w-0">
+                        <SyntaxHighlighter
+                          language={idx === 0 ? "bash" : idx === 1 ? "bash" : "javascript"}
+                          style={isDark ? oneDark : oneLight}
+                          customStyle={{
+                            margin: 0,
+                            padding: 0,
+                            background: 'transparent',
+                            fontSize: '9px',
+                          }}
+                          wrapLongLines={true}
+                        >
+                          {step.code}
+                        </SyntaxHighlighter>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -843,7 +783,7 @@ export default function Home() {
                         type={showApiKeyInput ? "text" : "password"}
                         value={apiKey}
                         onChange={(e) => setApiKey(e.target.value)}
-                        placeholder="sk-..."
+                        placeholder="acv-..."
                         className="w-full px-3 py-2.5 pr-10 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs sm:text-sm text-zinc-900 dark:text-white placeholder-zinc-400 focus:border-blue-500 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all duration-200"
                       />
                       <button
@@ -1121,21 +1061,21 @@ export default function Home() {
                 <p className="text-xs sm:text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed mb-4">
                   "{testimonial.content}"
                 </p>
-                <a 
-                  href={testimonial.profileUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2.5 group"
-                >
-                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
-                    <span className="text-xs font-bold text-white">{testimonial.avatar}</span>
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-cyan-500 flex-shrink-0">
+                    <Image 
+                      src={testimonial.avatar} 
+                      alt={testimonial.name}
+                      width={36}
+                      height={36}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <div className="min-w-0">
-                    <div className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200">{testimonial.name}</div>
+                    <div className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-white truncate">{testimonial.name}</div>
                     <div className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 truncate">{testimonial.role}</div>
                   </div>
-                  <FaExternalLinkAlt className="w-3 h-3 text-zinc-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex-shrink-0 ml-auto" />
-                </a>
+                </div>
               </div>
             ))}
           </div>
@@ -1285,5 +1225,6 @@ export default function Home() {
         </div>
       </footer>
     </main>
+    </>
   );
 }
