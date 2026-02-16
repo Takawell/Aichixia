@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import Head from "next/head";
 import { FaTerminal, FaPlay, FaCode, FaBook, FaRocket, FaArrowRight, FaMoon, FaSun, FaBars, FaTimes, FaCopy, FaCheck, FaKey, FaServer, FaGlobe, FaChevronDown, FaBolt, FaShieldAlt, FaClock, FaInfinity, FaCheckCircle, FaStar, FaUsers, FaChartLine, FaLock, FaCog, FaCloud, FaDatabase, FaLayerGroup, FaStream, FaCircle, FaExternalLinkAlt, FaGithub, FaTwitter, FaDiscord, FaBoxOpen, FaFileCode, FaLightbulb, FaRobot, FaSpinner, FaChevronRight } from "react-icons/fa";
 import Link from "next/link";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -163,27 +164,26 @@ const stats = [
 ];
 
 const testimonials = [
-  [
   {
-    "name": "Takawell",
-    "role": "Founder of Aichiverse",
-    "avatar": "https://avatars.githubusercontent.com/u/175643773?v=4",
-    "content": "Aichixia has been a total game-changer for our unit economics. Before switching, our AI infrastructure costs were scaling faster than our revenue, but their API helped us slash those expenses by 70% overnight. The best part? The OpenAI-compatible endpoint meant we only had to change a single line of code to migrate—zero downtime, zero headaches.",
-    "rating": 5
+    name: "Takawell",
+    role: "Founder of Aichiverse",
+    avatar: "https://avatars.githubusercontent.com/u/175643773?v=4",
+    content: "Aichixia has been a total game-changer for our unit economics. Before switching, our AI infrastructure costs were scaling faster than our revenue, but their API helped us slash those expenses by 70% overnight. The best part? The OpenAI-compatible endpoint meant we only had to change a single line of code to migrate—zero downtime, zero headaches.",
+    rating: 5
   },
   {
-    "name": "Reinaa",
-    "role": "Founder of CodeAssist",
-    "avatar": "https://avatars.githubusercontent.com/u/227315981?v=4",
-    "content": "In terms of reliability and low latency, Aichixia is in a league of its own. We benchmarked several providers, and this was the only one that remained lightning-fast during peak traffic. The native multi-model support is brilliant; it allows my team to route simple tasks to faster models while reserving high-reasoning power for complex logic, all through one interface.",
-    "rating": 5
+    name: "Reinaa",
+    role: "Founder of CodeAssist",
+    avatar: "https://avatars.githubusercontent.com/u/227315981?v=4",
+    content: "In terms of reliability and low latency, Aichixia is in a league of its own. We benchmarked several providers, and this was the only one that remained lightning-fast during peak traffic. The native multi-model support is brilliant; it allows my team to route simple tasks to faster models while reserving high-reasoning power for complex logic, all through one interface.",
+    rating: 5
   },
   {
-    "name": "Ivy",
-    "role": "Founder of CodeAssist",
-    "avatar": "https://i.ibb.co/MxvTQVpH/7ec6e394511b100ced3e56a912acad4e.jpg",
-    "content": "The developer experience here is top-tier. Most providers give you a raw API and wish you luck, but Aichixia provides world-class documentation and a playground that makes prototyping incredibly efficient. Beyond the tech, their support team is exceptionally responsive—it truly feels like having an extension of our own engineering team.",
-    "rating": 5
+    name: "Ivy",
+    role: "Founder of CodeAssist",
+    avatar: "https://i.ibb.co/MxvTQVpH/7ec6e394511b100ced3e56a912acad4e.jpg",
+    content: "The developer experience here is top-tier. Most providers give you a raw API and wish you luck, but Aichixia provides world-class documentation and a playground that makes prototyping incredibly efficient. Beyond the tech, their support team is exceptionally responsive—it truly feels like having an extension of our own engineering team.",
+    rating: 5
   }
 ];
 
@@ -399,6 +399,89 @@ export default function Home() {
         .stagger-delay-5 { animation-delay: 0.5s; }
         .stagger-delay-6 { animation-delay: 0.6s; }
       `}} />
+      
+      <Head>
+        <title>Aichixia - Modern AI API Platform | 20+ Models in One Unified API</title>
+        <meta name="description" content="Build AI applications 10x faster with Aichixia's unified API. Access Claude, GPT, Gemini, DeepSeek and 20+ AI models through one OpenAI-compatible endpoint. Sub-100ms latency, 99.9% uptime, enterprise-grade security." />
+        <meta name="keywords" content="AI API, OpenAI alternative, Claude API, GPT API, Gemini API, AI infrastructure, multi-model API, DeepSeek, machine learning API, enterprise AI" />
+        <meta name="author" content="Aichixia" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+        
+        <link rel="canonical" href="https://www.aichixia.xyz" />
+        <link rel="icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://www.aichixia.xyz" />
+        <meta property="og:title" content="Aichixia - Modern AI API Platform | 20+ Models in One Unified API" />
+        <meta property="og:description" content="Build AI applications 10x faster with Aichixia's unified API. Access Claude, GPT, Gemini, DeepSeek and 20+ AI models through one OpenAI-compatible endpoint. Sub-100ms latency, 99.9% uptime." />
+        <meta property="og:image" content="https://www.aichixia.xyz/og-image.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:site_name" content="Aichixia" />
+        <meta property="og:locale" content="en_US" />
+        
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:url" content="https://www.aichixia.xyz" />
+        <meta name="twitter:title" content="Aichixia - Modern AI API Platform | 20+ Models in One Unified API" />
+        <meta name="twitter:description" content="Build AI applications 10x faster with Aichixia's unified API. Access Claude, GPT, Gemini, DeepSeek and 20+ AI models. Sub-100ms latency, 99.9% uptime." />
+        <meta name="twitter:image" content="https://www.aichixia.xyz/og-image.png" />
+        <meta name="twitter:creator" content="@aichixia" />
+        <meta name="twitter:site" content="@aichixia" />
+        
+        <meta property="discord:title" content="Aichixia - Modern AI API Platform" />
+        <meta property="discord:description" content="20+ AI models in one unified API. OpenAI-compatible. Sub-100ms latency. Enterprise-grade security." />
+        <meta property="discord:image" content="https://www.aichixia.xyz/og-image.png" />
+        
+        <meta name="robots" content="index, follow" />
+        <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+        <meta name="bingbot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+        
+        <meta name="theme-color" content="#3b82f6" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="Aichixia" />
+        
+        <meta name="application-name" content="Aichixia API Platform" />
+        <meta name="msapplication-TileColor" content="#3b82f6" />
+        <meta name="msapplication-config" content="/browserconfig.xml" />
+        
+        <link rel="manifest" href="/manifest.json" />
+        
+        <script type="application/ld+json">
+          {`
+            {
+              "@context": "https://schema.org",
+              "@type": "SoftwareApplication",
+              "name": "Aichixia API Platform",
+              "applicationCategory": "DeveloperApplication",
+              "operatingSystem": "Web",
+              "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD"
+              },
+              "aggregateRating": {
+                "@type": "AggregateRating",
+                "ratingValue": "5",
+                "ratingCount": "3"
+              },
+              "description": "Unified AI API platform providing access to 20+ AI models including Claude, GPT, Gemini, and DeepSeek through one OpenAI-compatible endpoint.",
+              "url": "https://www.aichixia.xyz",
+              "author": {
+                "@type": "Organization",
+                "name": "Aichixia"
+              },
+              "provider": {
+                "@type": "Organization",
+                "name": "Aichixia",
+                "url": "https://www.aichixia.xyz"
+              }
+            }
+          `}
+        </script>
+      </Head>
       
       <main className="min-h-screen bg-white dark:bg-black transition-colors duration-300 overflow-x-hidden">
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
