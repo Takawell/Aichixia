@@ -99,14 +99,14 @@ response = requests.get(
 models = response.json()
 print(models['data'])`,
 
-    imageGenerationJS: `const response = await fetch('${base}/api/v1/images/generations', {
+    imageGenerationJS: `const response = await fetch('${base}/api/models/{model name}', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
     'Authorization': 'Bearer YOUR_API_KEY'
   },
   body: JSON.stringify({
-    model: 'dall-e-3',
+    model: 'flux',
     prompt: 'A serene landscape with mountains',
     size: '1024x1024',
     quality: 'hd',
@@ -117,14 +117,14 @@ print(models['data'])`,
 const data = await response.json();
 console.log(data.data[0].url);`,
 
-    voiceGenerationJS: `const response = await fetch('${base}/api/v1/audio/speech', {
+    voiceGenerationJS: `const response = await fetch('${base}/api/models/{model name}', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
     'Authorization': 'Bearer YOUR_API_KEY'
   },
   body: JSON.stringify({
-    model: 'tts-1-hd',
+    model: 'starling',
     input: 'Hello, this is a text to speech demo',
     voice: 'alloy',
     speed: 1.0
@@ -629,17 +629,17 @@ while (true) {
       "capabilities": ["chat", "multimodal"]
     },
     {
-      "id": "dall-e-3",
+      "id": "flux",
       "object": "model",
       "created": 1698785189,
-      "owned_by": "openai",
+      "owned_by": "black forest",
       "capabilities": ["image-generation"]
     },
     {
-      "id": "tts-1-hd",
+      "id": "starling",
       "object": "model",
       "created": 1699053241,
-      "owned_by": "openai",
+      "owned_by": "typecast",
       "capabilities": ["text-to-speech"]
     }
   ]
