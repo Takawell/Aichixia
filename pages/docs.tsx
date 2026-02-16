@@ -653,15 +653,15 @@ while (true) {
                     <div className="p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-gradient-to-br from-pink-50 to-white dark:from-pink-950/10 dark:to-zinc-950">
                       <FaImage className="w-5 h-5 text-pink-600 dark:text-pink-400 mb-3" />
                       <h3 className="text-sm font-bold text-zinc-900 dark:text-white mb-2">Image Generation</h3>
-                      <p className="text-xs text-zinc-600 dark:text-zinc-400 mb-3">Generate images from text prompts using DALL-E 3 and other models</p>
-                      <code className="text-xs text-pink-700 dark:text-pink-300 bg-pink-100 dark:bg-pink-900/30 px-2 py-1 rounded block">POST /api/v1/images/generations</code>
+                      <p className="text-xs text-zinc-600 dark:text-zinc-400 mb-3">Generate images from text prompts using Flux 2 and other models</p>
+                      <code className="text-xs text-pink-700 dark:text-pink-300 bg-pink-100 dark:bg-pink-900/30 px-2 py-1 rounded block">POST /api/models</code>
                     </div>
 
                     <div className="p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-gradient-to-br from-green-50 to-white dark:from-green-950/10 dark:to-zinc-950">
                       <FaMicrophone className="w-5 h-5 text-green-600 dark:text-green-400 mb-3" />
                       <h3 className="text-sm font-bold text-zinc-900 dark:text-white mb-2">Voice Synthesis</h3>
                       <p className="text-xs text-zinc-600 dark:text-zinc-400 mb-3">Convert text to natural-sounding speech in multiple voices</p>
-                      <code className="text-xs text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded block">POST /api/v1/audio/speech</code>
+                      <code className="text-xs text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded block">POST /api/models/</code>
                     </div>
                   </div>
 
