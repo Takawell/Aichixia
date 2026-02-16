@@ -108,11 +108,11 @@ const pricingPlans = [
     period: "forever",
     description: "Perfect for testing and small projects",
     features: [
-      "1,000 requests/month",
       "All models included",
       "Community support",
       "Basic analytics",
-      "99% uptime SLA"
+      "99% uptime SLA",
+      "Standard rate limits"
     ],
     cta: "Start Free",
     popular: false,
@@ -120,18 +120,18 @@ const pricingPlans = [
   },
   {
     name: "Pro",
-    price: "$29",
-    period: "/month",
-    description: "For growing apps and startups",
+    price: "$0",
+    period: "with code",
+    description: "Find the secret redeem code in the docs",
     features: [
-      "100,000 requests/month",
       "Priority model access",
       "Email support",
       "Advanced analytics",
       "99.9% uptime SLA",
-      "Custom rate limits"
+      "Custom rate limits",
+      "Early feature access"
     ],
-    cta: "Start Pro",
+    cta: "Redeem Code",
     popular: true,
     gradient: "from-blue-500 to-cyan-500"
   },
@@ -141,7 +141,7 @@ const pricingPlans = [
     period: "pricing",
     description: "For large-scale production apps",
     features: [
-      "Unlimited requests",
+      "Unlimited usage",
       "Dedicated infrastructure",
       "24/7 priority support",
       "Custom model training",
@@ -171,14 +171,14 @@ const testimonials = [
     rating: 5
   },
   {
-    name: "Marcus Rodriguez",
+    name: "Takashin",
     role: "Lead Engineer at DataFlow",
-    avatar: "MR",
+    avatar: "TS",
     content: "Best AI API we've tested. Lightning fast, reliable, and the multi-model support lets us optimize for each use case.",
     rating: 5
   },
   {
-    name: "Emily Watson",
+    name: "Reinaa",
     role: "Founder of CodeAssist",
     avatar: "EW",
     content: "The developer experience is incredible. Great docs, responsive support, and the playground made testing so much easier.",
@@ -1157,55 +1157,47 @@ export default function Home() {
 
       <footer className="border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
-            <div className="col-span-2">
-              <Link href="/" className="inline-flex items-center gap-2 group mb-4">
-                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 shadow-lg">
-                  <FaTerminal className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-black text-zinc-900 dark:text-white">Aichixia</h3>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">AI API Platform</p>
-                </div>
-              </Link>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-sm">
-                Build powerful AI applications with one unified API. Access 20+ models from OpenAI, Anthropic, Google, and more.
-              </p>
-              <div className="flex items-center gap-3 mt-4">
-                <a href="https://github.com/aichiversee" className="p-2 text-zinc-600 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200">
-                  <FaGithub className="w-5 h-5" />
-                </a>
-                <a href="Aichiverse" className="p-2 text-zinc-600 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200">
-                  <FaTwitter className="w-5 h-5" />
-                </a>
-                <a href="#" className="p-2 text-zinc-600 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200">
-                  <FaDiscord className="w-5 h-5" />
-                </a>
+          <div className="flex flex-col items-center justify-center space-y-6">
+            <Link href="/" className="inline-flex items-center gap-2 group">
+              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 shadow-lg group-hover:scale-105 transition-all duration-300">
+                <FaTerminal className="w-5 h-5 text-white" />
               </div>
-            </div>
+              <div>
+                <h3 className="text-lg font-black text-zinc-900 dark:text-white">Aichixia</h3>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">AI API Platform</p>
+              </div>
+            </Link>
 
-            <div>
-              <h4 className="text-sm font-bold text-zinc-900 dark:text-white mb-4">Product</h4>
-              <ul className="space-y-2">
-                <li><Link href="#features" className="text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors duration-200">Features</Link></li>
-                <li><Link href="#playground" className="text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors duration-200">Playground</Link></li>
-                <li><Link href="#pricing" className="text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors duration-200">Pricing</Link></li>
-                <li><Link href="/console" className="text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors duration-200">Console</Link></li>
-              </ul>
-            </div>
-
-          <div className="pt-8 border-t border-zinc-200 dark:border-zinc-800 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-sm text-zinc-600 dark:text-zinc-400">
+            <p className="text-sm text-zinc-600 dark:text-zinc-400 text-center">
               © {new Date().getFullYear()} Aichixia. All rights reserved.
             </p>
-            <div className="flex items-center gap-6">
-              <Link href="/privacy" className="text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors duration-200">
+
+            <div className="flex items-center gap-4">
+              <a 
+                href="mailto:contact@aichixia.xyz"
+                className="text-xs text-zinc-500 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+              >
+                Contact
+              </a>
+              <span className="text-zinc-300 dark:text-zinc-700">•</span>
+              <Link 
+                href="/privacy" 
+                className="text-xs text-zinc-500 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+              >
                 Privacy
               </Link>
-              <Link href="/terms" className="text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors duration-200">
+              <span className="text-zinc-300 dark:text-zinc-700">•</span>
+              <Link 
+                href="/terms" 
+                className="text-xs text-zinc-500 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+              >
                 Terms
               </Link>
-              <Link href="/security" className="text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors duration-200">
+              <span className="text-zinc-300 dark:text-zinc-700">•</span>
+              <Link 
+                href="/security" 
+                className="text-xs text-zinc-500 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+              >
                 Security
               </Link>
             </div>
