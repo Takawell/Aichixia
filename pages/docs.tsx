@@ -1,997 +1,777 @@
 import { useState, useEffect } from "react";
-import { FaSearch, FaCopy, FaCheck, FaChevronDown, FaChevronRight, FaTerminal, FaBolt, FaStar, FaBook, FaMoon, FaSun, FaBars, FaTimes, FaKey, FaServer, FaGlobe, FaMicrophone, FaImage, FaCode, FaShieldAlt, FaClock, FaCheckCircle } from "react-icons/fa";
-import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiAirbrake, SiMaze, SiXiaomi, SiDigikeyelectronics } from "react-icons/si";
-import { GiSpermWhale, GiPowerLightning, GiClover } from "react-icons/gi";
-import { TbSquareLetterZ, TbLetterM } from "react-icons/tb";
-import { FaXTwitter } from "react-icons/fa6";
+import Head from "next/head";
 import Link from "next/link";
+import { FaSearch, FaCopy, FaCheck, FaChevronDown, FaChevronRight, FaTerminal, FaBolt, FaStar, FaBook, FaMoon, FaSun, FaBars, FaTimes, FaKey, FaServer, FaGlobe, FaMicrophone, FaImage, FaCode, FaShieldAlt, FaClock, FaCheckCircle, FaRocket, FaLayerGroup, FaDatabase, FaPlay } from "react-icons/fa";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 
 const base = "https://www.aichixia.xyz";
 
-type CodeLanguage = 'javascript' | 'python' | 'bash' | 'php';
-
-interface ModelInfo {
-  speed: number;
-  quality: number;
-  useCase: string;
-  contextWindow?: string;
-}
-
-interface EndpointData {
-  id: string;
-  method: string;
-  path: string;
-  title: string;
-  description: string;
-  category: string;
-  note?: string;
-  modelInfo?: ModelInfo;
-  icon: any;
-  color: string;
-  provider?: string;
-}
-
-const chatModels: EndpointData[] = [
-  {
-    id: "deepseek-v3.2",
-    method: "POST",
-    path: `${base}/api/v1/chat/completions`,
-    title: "DeepSeek V3.2",
-    description: "Deep reasoning and code generation",
-    category: "chat",
-    modelInfo: { speed: 3, quality: 5, useCase: "Complex reasoning and coding tasks", contextWindow: "128k" },
-    icon: GiSpermWhale,
-    color: "from-cyan-600 to-blue-600",
-    provider: "DeepSeek"
-  },
-  {
-    id: "deepseek-v3.1",
-    method: "POST",
-    path: `${base}/api/v1/chat/completions`,
-    title: "DeepSeek V3.1",
-    description: "Previous generation DeepSeek model",
-    category: "chat",
-    modelInfo: { speed: 3, quality: 5, useCase: "Reasoning and analysis tasks", contextWindow: "128k" },
-    icon: GiSpermWhale,
-    color: "from-cyan-600 to-teal-600",
-    provider: "DeepSeek"
-  },
-  {
-    id: "gpt-5-mini",
-    method: "POST",
-    path: `${base}/api/v1/chat/completions`,
-    title: "GPT-5 Mini",
-    description: "Balanced performance for general tasks",
-    category: "chat",
-    modelInfo: { speed: 3, quality: 4, useCase: "General purpose conversations", contextWindow: "128k" },
-    icon: SiOpenai,
-    color: "from-emerald-600 to-green-600",
-    provider: "OpenAI"
-  },
-  {
-    id: "claude-opus-4.5",
-    method: "POST",
-    path: `${base}/api/v1/chat/completions`,
-    title: "Claude Opus 4.5",
-    description: "World's #1 AI model for complex tasks",
-    category: "chat",
-    modelInfo: { speed: 3, quality: 5, useCase: "Complex reasoning and analysis", contextWindow: "200k" },
-    icon: SiAnthropic,
-    color: "from-orange-600 to-amber-700",
-    provider: "Anthropic"
-  },
-  {
-    id: "gemini-3-flash",
-    method: "POST",
-    path: `${base}/api/v1/chat/completions`,
-    title: "Gemini 3 Flash",
-    description: "Multimodal understanding and accuracy",
-    category: "chat",
-    modelInfo: { speed: 4, quality: 5, useCase: "Fast multimodal processing", contextWindow: "1M" },
-    icon: SiGooglegemini,
-    color: "from-indigo-600 to-purple-600",
-    provider: "Google"
-  },
-  {
-    id: "kimi-k2",
-    method: "POST",
-    path: `${base}/api/v1/chat/completions`,
-    title: "Kimi K2",
-    description: "Superior tool calling and complex reasoning",
-    category: "chat",
-    modelInfo: { speed: 4, quality: 5, useCase: "Tool use and agent workflows", contextWindow: "200k" },
-    icon: SiDigikeyelectronics,
-    color: "from-blue-600 to-cyan-600",
-    provider: "Moonshot"
-  },
-  {
-    id: "glm-4.7",
-    method: "POST",
-    path: `${base}/api/v1/chat/completions`,
-    title: "GLM 4.7",
-    description: "Multilingual excellence with strong reasoning",
-    category: "chat",
-    modelInfo: { speed: 3, quality: 4, useCase: "Multilingual tasks", contextWindow: "128k" },
-    icon: TbSquareLetterZ,
-    color: "from-blue-700 to-indigo-900",
-    provider: "Zhipu AI"
-  },
-  {
-    id: "mistral-3.1",
-    method: "POST",
-    path: `${base}/api/v1/chat/completions`,
-    title: "Mistral 3.1",
-    description: "Fast inference with European focus",
-    category: "chat",
-    modelInfo: { speed: 4, quality: 4, useCase: "European languages", contextWindow: "128k" },
-    icon: TbLetterM,
-    color: "from-orange-600 to-amber-600",
-    provider: "Mistral AI"
-  },
-  {
-    id: "qwen3-235b",
-    method: "POST",
-    path: `${base}/api/v1/chat/completions`,
-    title: "Qwen3 235B",
-    description: "Large multilingual model with strong reasoning",
-    category: "chat",
-    modelInfo: { speed: 4, quality: 5, useCase: "Multilingual and reasoning", contextWindow: "128k" },
-    icon: SiAlibabacloud,
-    color: "from-purple-500 to-pink-500",
-    provider: "Alibaba"
-  },
-  {
-    id: "qwen3-coder-480b",
-    method: "POST",
-    path: `${base}/api/v1/chat/completions`,
-    title: "Qwen3 Coder 480B",
-    description: "Specialized in coding and Asian languages",
-    category: "chat",
-    modelInfo: { speed: 3, quality: 5, useCase: "Code generation", contextWindow: "128k" },
-    icon: SiAlibabacloud,
-    color: "from-purple-600 to-fuchsia-600",
-    provider: "Alibaba"
-  },
-  {
-    id: "minimax-m2.1",
-    method: "POST",
-    path: `${base}/api/v1/chat/completions`,
-    title: "MiniMax M2.1",
-    description: "Multilingual coding specialist with agent workflows",
-    category: "chat",
-    modelInfo: { speed: 4, quality: 5, useCase: "Coding and agents", contextWindow: "128k" },
-    icon: SiMaze,
-    color: "from-cyan-600 to-blue-600",
-    provider: "MiniMax"
-  },
-  {
-    id: "llama-3.3-70b",
-    method: "POST",
-    path: `${base}/api/v1/chat/completions`,
-    title: "Llama 3.3 70B",
-    description: "Efficient open-source powerhouse",
-    category: "chat",
-    modelInfo: { speed: 4, quality: 4, useCase: "General purpose", contextWindow: "128k" },
-    icon: SiMeta,
-    color: "from-blue-600 to-indigo-700",
-    provider: "Meta"
-  },
-  {
-    id: "gpt-oss-120b",
-    method: "POST",
-    path: `${base}/api/v1/chat/completions`,
-    title: "GPT-OSS 120B",
-    description: "Large open-source with browser search",
-    category: "chat",
-    modelInfo: { speed: 3, quality: 4, useCase: "Open-source alternative", contextWindow: "128k" },
-    icon: SiOpenai,
-    color: "from-pink-600 to-rose-600",
-    provider: "Community"
-  },
-  {
-    id: "mimo-v2-flash",
-    method: "POST",
-    path: `${base}/api/v1/chat/completions`,
-    title: "MiMo V2 Flash",
-    description: "Efficient 309B MoE model for reasoning",
-    category: "chat",
-    modelInfo: { speed: 5, quality: 5, useCase: "Fast reasoning", contextWindow: "128k" },
-    icon: SiXiaomi,
-    color: "from-blue-600 to-purple-600",
-    provider: "MiMo"
-  },
-  {
-    id: "groq-compound",
-    method: "POST",
-    path: `${base}/api/v1/chat/completions`,
-    title: "Groq Compound",
-    description: "Multi-model agentic system with tools",
-    category: "chat",
-    modelInfo: { speed: 4, quality: 5, useCase: "Agent workflows", contextWindow: "128k" },
-    icon: GiPowerLightning,
-    color: "from-orange-600 to-red-600",
-    provider: "Groq"
-  },
-  {
-    id: "cohere-command-a",
-    method: "POST",
-    path: `${base}/api/v1/chat/completions`,
-    title: "Cohere Command A",
-    description: "Enterprise-grade with excellent tool use",
-    category: "chat",
-    modelInfo: { speed: 3, quality: 5, useCase: "Enterprise applications", contextWindow: "128k" },
-    icon: GiClover,
-    color: "from-emerald-600 to-teal-600",
-    provider: "Cohere"
-  },
-  {
-    id: "grok-3",
-    method: "POST",
-    path: `${base}/api/v1/chat/completions`,
-    title: "Grok 3",
-    description: "xAI's flagship model with real-time data",
-    category: "chat",
-    modelInfo: { speed: 4, quality: 5, useCase: "Current events", contextWindow: "128k" },
-    icon: FaXTwitter,
-    color: "from-slate-600 to-zinc-800",
-    provider: "xAI"
-  },
-  {
-    id: "aichixia-thinking",
-    method: "POST",
-    path: `${base}/api/v1/chat/completions`,
-    title: "Aichixia 411B",
-    description: "Ultra-large flagship model with 411B parameters",
-    category: "chat",
-    modelInfo: { speed: 5, quality: 5, useCase: "Ultimate performance", contextWindow: "200k" },
-    icon: SiAirbrake,
-    color: "from-blue-600 via-blue-800 to-slate-900",
-    provider: "Aichixia"
-  }
-];
-
-const ttsModels: EndpointData[] = [
-  {
-    id: "starling",
-    method: "POST",
-    path: `${base}/api/models/starling`,
-    title: "Starling TTS",
-    description: "Natural voice synthesis with emotional control",
-    category: "tts",
-    note: "JSON: { text, emotion, volume, pitch, tempo }",
-    modelInfo: { speed: 4, quality: 5, useCase: "Text-to-speech" },
-    icon: FaMicrophone,
-    color: "from-blue-500 to-cyan-500",
-    provider: "Aichixia"
-  },
-  {
-    id: "lindsay",
-    method: "POST",
-    path: `${base}/api/models/lindsay`,
-    title: "Lindsay TTS",
-    description: "Premium voice quality with advanced prosody",
-    category: "tts",
-    note: "JSON: { text, emotion, volume, pitch, tempo }",
-    modelInfo: { speed: 5, quality: 4, useCase: "Enhanced voice" },
-    icon: FaMicrophone,
-    color: "from-purple-500 to-pink-500",
-    provider: "Aichixia"
-  }
-];
-
-const imageModels: EndpointData[] = [
-  {
-    id: "flux",
-    method: "POST",
-    path: `${base}/api/models/flux`,
-    title: "Flux 2",
-    description: "Photorealistic image generation",
-    category: "image",
-    note: "JSON: { prompt, steps }",
-    modelInfo: { speed: 4, quality: 5, useCase: "Photorealistic images" },
-    icon: FaImage,
-    color: "from-violet-500 to-purple-600",
-    provider: "Black Forest"
-  },
-  {
-    id: "lucid",
-    method: "POST",
-    path: `${base}/api/models/lucid`,
-    title: "Lucid Origin",
-    description: "Creative artistic image generation",
-    category: "image",
-    note: "JSON: { prompt, steps }",
-    modelInfo: { speed: 4, quality: 5, useCase: "Artistic images" },
-    icon: FaImage,
-    color: "from-pink-500 to-rose-600",
-    provider: "Lucid"
-  },
-  {
-    id: "phoenix",
-    method: "POST",
-    path: `${base}/api/models/phoenix`,
-    title: "Phoenix 1.0",
-    description: "Fast artistic image generation",
-    category: "image",
-    note: "JSON: { prompt, steps }",
-    modelInfo: { speed: 4, quality: 4, useCase: "Quick images" },
-    icon: FaImage,
-    color: "from-orange-500 to-amber-600",
-    provider: "Phoenix"
-  },
-  {
-    id: "nano",
-    method: "POST",
-    path: `${base}/api/models/nano`,
-    title: "Nano Banana Pro",
-    description: "Lightweight image model",
-    category: "image",
-    note: "JSON: { prompt, steps }",
-    modelInfo: { speed: 4, quality: 4, useCase: "Compact generation" },
-    icon: FaImage,
-    color: "from-yellow-500 to-orange-500",
-    provider: "Nano"
-  }
-];
-
-const allEndpoints = [...chatModels, ...ttsModels, ...imageModels];
-
-const bestPractices = [
-  {
-    icon: FaShieldAlt,
-    title: "Secure Your Keys",
-    description: "Never expose API keys in client-side code. Use environment variables and server-side requests."
-  },
-  {
-    icon: FaClock,
-    title: "Handle Rate Limits",
-    description: "Implement exponential backoff and retry logic to gracefully handle rate limit responses."
-  },
-  {
-    icon: FaCheckCircle,
-    title: "Validate Responses",
-    description: "Always check response status and handle errors appropriately before processing data."
-  },
-  {
-    icon: FaCode,
-    title: "Optimize Token Usage",
-    description: "Monitor token consumption and use appropriate max_tokens values to control costs."
-  }
-];
-
-const EndpointCard = ({ endpoint, isDark }: { endpoint: EndpointData; isDark: boolean }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [copied, setCopied] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<CodeLanguage>('javascript');
-
-  const copy = (text: string, id: string) => {
-    navigator.clipboard.writeText(text);
-    setCopied(id);
-    setTimeout(() => setCopied(null), 2000);
-  };
-
-  const generateCode = (lang: CodeLanguage) => {
-    const isChat = endpoint.category === 'chat';
-    const isTTS = endpoint.category === 'tts';
-    const isImage = endpoint.category === 'image';
-
-    if (lang === 'javascript') {
-      if (isChat) {
-        return `import OpenAI from "openai";
-
-const client = new OpenAI({
-  apiKey: "YOUR_API_KEY",
-  baseURL: "${base}/api/v1"
-});
-
-const response = await client.chat.completions.create({
-  model: "${endpoint.id}",
-  messages: [
-    { role: "user", content: "Your message here" }
-  ]
-});
-
-console.log(response.choices[0].message.content);`;
-      } else if (isTTS) {
-        return `const response = await fetch('${endpoint.path}', {
-  method: 'POST',
-  headers: {
-    'Authorization': 'Bearer YOUR_API_KEY',
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
-    text: 'Hello world!',
-    emotion: 'normal',
-    volume: 100,
-    pitch: 0,
-    tempo: 1
-  })
-});
-
-const data = await response.json();
-const audio = new Audio(data.audio);
-audio.play();`;
-      } else {
-        return `const response = await fetch('${endpoint.path}', {
-  method: 'POST',
-  headers: {
-    'Authorization': 'Bearer YOUR_API_KEY',
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
-    prompt: 'A beautiful landscape',
-    steps: 4
-  })
-});
-
-const data = await response.json();
-const img = document.createElement('img');
-img.src = \`data:image/jpeg;base64,\${data.imageBase64}\`;`;
-      }
-    } else if (lang === 'python') {
-      if (isChat) {
-        return `from openai import OpenAI
-
-client = OpenAI(
-    api_key="YOUR_API_KEY",
-    base_url="${base}/api/v1"
-)
-
-response = client.chat.completions.create(
-    model="${endpoint.id}",
-    messages=[
-        {"role": "user", "content": "Your message here"}
-    ]
-)
-
-print(response.choices[0].message.content)`;
-      } else if (isTTS) {
-        return `import requests
-
-response = requests.post('${endpoint.path}',
-  headers={'Authorization': 'Bearer YOUR_API_KEY'},
-  json={
-    'text': 'Hello world!',
-    'emotion': 'normal',
-    'volume': 100,
-    'pitch': 0,
-    'tempo': 1
-  }
-)
-
-data = response.json()
-audio_url = data['audio']`;
-      } else {
-        return `import requests
-
-response = requests.post('${endpoint.path}',
-  headers={'Authorization': 'Bearer YOUR_API_KEY'},
-  json={
-    'prompt': 'A beautiful landscape',
-    'steps': 4
-  }
-)
-
-data = response.json()
-image_base64 = data['imageBase64']`;
-      }
-    } else if (lang === 'bash') {
-      if (isChat) {
-        return `curl -X POST ${base}/api/v1/chat/completions \\
-  -H "Authorization: Bearer YOUR_API_KEY" \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "model": "${endpoint.id}",
-    "messages": [
-      {"role": "user", "content": "Your message here"}
-    ]
-  }'`;
-      } else if (isTTS) {
-        return `curl -X POST ${endpoint.path} \\
-  -H "Authorization: Bearer YOUR_API_KEY" \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "text": "Hello world!",
-    "emotion": "normal",
-    "volume": 100,
-    "pitch": 0,
-    "tempo": 1
-  }'`;
-      } else {
-        return `curl -X POST ${endpoint.path} \\
-  -H "Authorization: Bearer YOUR_API_KEY" \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "prompt": "A beautiful landscape",
-    "steps": 4
-  }'`;
-      }
-    } else {
-      if (isChat) {
-        return `<?php
-require 'vendor/autoload.php';
-
-$client = OpenAI::client(
-    'YOUR_API_KEY',
-    '${base}/api/v1'
-);
-
-$response = $client->chat()->create([
-    'model' => '${endpoint.id}',
-    'messages' => [
-        ['role' => 'user', 'content' => 'Your message here']
-    ]
-]);
-
-echo $response->choices[0]->message->content;`;
-      } else if (isTTS) {
-        return `<?php
-$response = file_get_contents('${endpoint.path}', false, stream_context_create([
-  'http' => [
-    'method' => 'POST',
-    'header' => [
-      'Authorization: Bearer YOUR_API_KEY',
-      'Content-Type: application/json'
-    ],
-    'content' => json_encode([
-      'text' => 'Hello world!',
-      'emotion' => 'normal',
-      'volume' => 100,
-      'pitch' => 0,
-      'tempo' => 1
-    ])
-  ]
-]));
-
-$data = json_decode($response);`;
-      } else {
-        return `<?php
-$response = file_get_contents('${endpoint.path}', false, stream_context_create([
-  'http' => [
-    'method' => 'POST',
-    'header' => [
-      'Authorization: Bearer YOUR_API_KEY',
-      'Content-Type: application/json'
-    ],
-    'content' => json_encode([
-      'prompt' => 'A beautiful landscape',
-      'steps' => 4
-    ])
-  ]
-]));
-
-$data = json_decode($response);`;
-      }
-    }
-  };
-
-  const Icon = endpoint.icon;
-
-  return (
-    <div className="border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden hover:border-zinc-300 dark:hover:border-zinc-700 transition-all duration-200 bg-white dark:bg-zinc-950">
-      <button
-        onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full p-3 text-left flex items-start gap-3 hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition-colors"
-      >
-        <div className={`p-2 rounded-lg bg-gradient-to-br ${endpoint.color} flex-shrink-0`}>
-          <Icon className="w-4 h-4 text-white" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-2 mb-1.5">
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-                <h3 className="text-sm font-semibold text-zinc-900 dark:text-white truncate">{endpoint.title}</h3>
-                {endpoint.provider && (
-                  <span className="text-xs px-1.5 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
-                    {endpoint.provider}
-                  </span>
-                )}
-              </div>
-              <p className="text-xs text-zinc-600 dark:text-zinc-400 mb-1.5 line-clamp-1">{endpoint.description}</p>
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className={`text-xs px-1.5 py-0.5 rounded font-mono font-semibold ${
-                  endpoint.method === 'POST' 
-                    ? 'bg-emerald-100 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400' 
-                    : 'bg-blue-100 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400'
-                }`}>
-                  {endpoint.method}
-                </span>
-                {endpoint.modelInfo && (
-                  <>
-                    <div className="flex items-center gap-0.5 text-xs text-zinc-600 dark:text-zinc-400">
-                      <FaBolt className="w-2.5 h-2.5" />
-                      <span>{endpoint.modelInfo.speed}/5</span>
-                    </div>
-                    <div className="flex items-center gap-0.5 text-xs text-zinc-600 dark:text-zinc-400">
-                      <FaStar className="w-2.5 h-2.5" />
-                      <span>{endpoint.modelInfo.quality}/5</span>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-            <div className="flex-shrink-0">
-              {isExpanded ? (
-                <FaChevronDown className="w-4 h-4 text-zinc-400" />
-              ) : (
-                <FaChevronRight className="w-4 h-4 text-zinc-400" />
-              )}
-            </div>
-          </div>
-        </div>
-      </button>
-
-      {isExpanded && (
-        <div className="border-t border-zinc-200 dark:border-zinc-800 p-3 space-y-3 bg-zinc-50/50 dark:bg-zinc-900/30">
-          {endpoint.modelInfo && (
-            <div className="space-y-1.5">
-              <div className="text-xs text-zinc-600 dark:text-zinc-400">
-                <span className="font-semibold text-zinc-900 dark:text-white">Use case:</span> {endpoint.modelInfo.useCase}
-              </div>
-              {endpoint.modelInfo.contextWindow && (
-                <div className="text-xs text-zinc-600 dark:text-zinc-400">
-                  <span className="font-semibold text-zinc-900 dark:text-white">Context:</span> {endpoint.modelInfo.contextWindow}
-                </div>
-              )}
-            </div>
-          )}
-
-          {endpoint.note && (
-            <div className="p-2.5 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/30">
-              <p className="text-xs text-blue-900 dark:text-blue-300">{endpoint.note}</p>
-            </div>
-          )}
-
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <h4 className="text-xs font-semibold text-zinc-900 dark:text-white">Code Example</h4>
-              <div className="flex gap-0.5 p-0.5 bg-zinc-200 dark:bg-zinc-800 rounded-lg">
-                {(['javascript', 'python', 'bash', 'php'] as CodeLanguage[]).map((lang) => (
-                  <button
-                    key={lang}
-                    onClick={() => setActiveTab(lang)}
-                    className={`px-2 py-0.5 text-xs font-medium rounded transition-colors ${
-                      activeTab === lang
-                        ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm'
-                        : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
-                    }`}
-                  >
-                    {lang.charAt(0).toUpperCase() + lang.slice(1)}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="relative group/code">
-              <SyntaxHighlighter
-                language={activeTab}
-                style={isDark ? oneDark : oneLight}
-                customStyle={{
-                  margin: 0,
-                  borderRadius: '6px',
-                  fontSize: '11px',
-                  padding: '12px'
-                }}
-                wrapLongLines={true}
-              >
-                {generateCode(activeTab)}
-              </SyntaxHighlighter>
-              <button
-                onClick={() => copy(generateCode(activeTab), `${endpoint.id}-${activeTab}`)}
-                className="absolute top-2 right-2 p-1.5 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 dark:bg-zinc-200/10 dark:hover:bg-zinc-200/20 backdrop-blur-sm opacity-0 group-hover/code:opacity-100 transition-all duration-200"
-              >
-                {copied === `${endpoint.id}-${activeTab}` ? (
-                  <FaCheck className="w-3 h-3 text-green-400" />
-                ) : (
-                  <FaCopy className="w-3 h-3 text-zinc-300" />
-                )}
-              </button>
-            </div>
-          </div>
-
-          {endpoint.category === 'chat' && (
-            <div className="p-2.5 rounded-lg bg-zinc-100 dark:bg-zinc-800">
-              <div className="flex items-center justify-between mb-1.5">
-                <code className="text-xs text-zinc-600 dark:text-zinc-400 font-mono">model: "{endpoint.id}"</code>
-                <button
-                  onClick={() => copy(endpoint.id, `model-${endpoint.id}`)}
-                  className="p-1 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded transition-colors"
-                >
-                  {copied === `model-${endpoint.id}` ? (
-                    <FaCheck className="w-2.5 h-2.5 text-green-500" />
-                  ) : (
-                    <FaCopy className="w-2.5 h-2.5 text-zinc-500" />
-                  )}
-                </button>
-              </div>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">Use this model ID with OpenAI-compatible endpoint</p>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-};
-
 export default function Docs() {
   const [isDark, setIsDark] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<'chat' | 'models' | 'quickstart'>('quickstart');
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const [expandedSection, setExpandedSection] = useState<string | null>('chat-completions');
 
   useEffect(() => {
-    setIsDark(document.documentElement.classList.contains('dark'));
-    const observer = new MutationObserver(() => {
-      setIsDark(document.documentElement.classList.contains('dark'));
-    });
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-    return () => observer.disconnect();
+    const theme = localStorage.getItem('theme');
+    setIsDark(theme === 'dark');
   }, []);
 
   const toggleTheme = () => {
-    document.documentElement.classList.toggle('dark');
+    const newTheme = !isDark;
+    setIsDark(newTheme);
+    localStorage.setItem('theme', newTheme ? 'dark' : 'light');
   };
 
-  const categories = [
-    { id: "all", name: "All Models", count: allEndpoints.length },
-    { id: "chat", name: "Chat", count: chatModels.length },
-    { id: "tts", name: "TTS", count: ttsModels.length },
-    { id: "image", name: "Image", count: imageModels.length },
-  ];
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', isDark);
+  }, [isDark]);
 
-  const filteredEndpoints = allEndpoints.filter(endpoint => {
-    const matchesSearch = endpoint.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         endpoint.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         endpoint.id.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === "all" || endpoint.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  const copyToClipboard = (text: string, id: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedCode(id);
+    setTimeout(() => setCopiedCode(null), 2000);
+  };
+
+  const toggleSection = (section: string) => {
+    setExpandedSection(expandedSection === section ? null : section);
+  };
+
+  const codeExamples = {
+    chatCompletionsJS: `const response = await fetch('${base}/api/v1/chat/completions', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer YOUR_API_KEY'
+  },
+  body: JSON.stringify({
+    model: 'claude-opus-4.5',
+    messages: [
+      { role: 'user', content: 'Explain quantum computing' }
+    ],
+    temperature: 0.7,
+    max_tokens: 1000
+  })
+});
+
+const data = await response.json();
+console.log(data.choices[0].message.content);`,
+
+    chatCompletionsPython: `import requests
+
+response = requests.post(
+    '${base}/api/v1/chat/completions',
+    headers={
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer YOUR_API_KEY'
+    },
+    json={
+        'model': 'claude-opus-4.5',
+        'messages': [
+            {'role': 'user', 'content': 'Explain quantum computing'}
+        ],
+        'temperature': 0.7,
+        'max_tokens': 1000
+    }
+)
+
+data = response.json()
+print(data['choices'][0]['message']['content'])`,
+
+    modelsListJS: `const response = await fetch('${base}/api/models', {
+  headers: {
+    'Authorization': 'Bearer YOUR_API_KEY'
+  }
+});
+
+const models = await response.json();
+console.log(models.data);`,
+
+    modelsListPython: `import requests
+
+response = requests.get(
+    '${base}/api/models',
+    headers={'Authorization': 'Bearer YOUR_API_KEY'}
+)
+
+models = response.json()
+print(models['data'])`,
+
+    imageGenerationJS: `const response = await fetch('${base}/api/v1/images/generations', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer YOUR_API_KEY'
+  },
+  body: JSON.stringify({
+    model: 'dall-e-3',
+    prompt: 'A serene landscape with mountains',
+    size: '1024x1024',
+    quality: 'hd',
+    n: 1
+  })
+});
+
+const data = await response.json();
+console.log(data.data[0].url);`,
+
+    voiceGenerationJS: `const response = await fetch('${base}/api/v1/audio/speech', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer YOUR_API_KEY'
+  },
+  body: JSON.stringify({
+    model: 'tts-1-hd',
+    input: 'Hello, this is a text to speech demo',
+    voice: 'alloy',
+    speed: 1.0
+  })
+});
+
+const audioBlob = await response.blob();`,
+
+    streamingJS: `const response = await fetch('${base}/api/v1/chat/completions', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer YOUR_API_KEY'
+  },
+  body: JSON.stringify({
+    model: 'gpt-5-mini',
+    messages: [{ role: 'user', content: 'Tell me a story' }],
+    stream: true
+  })
+});
+
+const reader = response.body.getReader();
+const decoder = new TextDecoder();
+
+while (true) {
+  const { done, value } = await reader.read();
+  if (done) break;
+  
+  const chunk = decoder.decode(value);
+  const lines = chunk.split('\\n').filter(line => line.trim());
+  
+  for (const line of lines) {
+    if (line.startsWith('data: ')) {
+      const data = line.slice(6);
+      if (data === '[DONE]') break;
+      const parsed = JSON.parse(data);
+      const content = parsed.choices[0]?.delta?.content;
+      if (content) process.stdout.write(content);
+    }
+  }
+}`
+  };
 
   return (
-    <main className="min-h-screen bg-white dark:bg-black transition-colors duration-200">
-      <header className="sticky top-0 z-50 border-b border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-black/80 backdrop-blur-xl">
-        <div className="max-w-5xl mx-auto px-3 sm:px-4">
-          <div className="flex items-center justify-between h-12">
-            <div className="flex items-center gap-2">
-              <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500">
-                <FaBook className="w-3.5 h-3.5 text-white" />
-              </div>
-              <h1 className="text-sm font-bold text-zinc-900 dark:text-white">API Documentation</h1>
-            </div>
+    <>
+      <Head>
+        <title>API Documentation - Aichixia Developer Docs</title>
+        <meta name="description" content="Complete API reference for Aichixia. Learn how to integrate text models, image generation, voice synthesis, and more." />
+      </Head>
 
-            <div className="hidden md:flex items-center gap-2">
-              <Link
-                href="/"
-                className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white transition-colors"
-              >
-                <FaTerminal className="w-3 h-3" />
-                Home
-              </Link>
-              <Link
-                href="/console"
-                className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white transition-colors"
-              >
-                <FaKey className="w-3 h-3" />
-                Console
-              </Link>
-              <button
-                onClick={toggleTheme}
-                className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors"
-              >
-                {isDark ? <FaSun className="w-3.5 h-3.5 text-zinc-400" /> : <FaMoon className="w-3.5 h-3.5 text-zinc-600" />}
-              </button>
-            </div>
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fade-in-up {
+          animation: fadeInUp 0.6s ease-out forwards;
+        }
+      `}} />
 
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-900"
-            >
-              {mobileMenuOpen ? <FaTimes className="w-4 h-4" /> : <FaBars className="w-4 h-4" />}
-            </button>
-          </div>
-        </div>
-
-        {mobileMenuOpen && (
-          <div className="md:hidden border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-black">
-            <div className="px-3 py-2 space-y-1">
-              <Link
-                href="/"
-                className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-colors"
-              >
-                <FaTerminal className="w-3 h-3" />
-                Home
-              </Link>
-              <Link
-                href="/console"
-                className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-colors"
-              >
-                <FaKey className="w-3 h-3" />
-                Console
-              </Link>
-              <button
-                onClick={toggleTheme}
-                className="w-full flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-colors"
-              >
-                {isDark ? <FaSun className="w-3 h-3" /> : <FaMoon className="w-3 h-3" />}
-                {isDark ? 'Light' : 'Dark'} Mode
-              </button>
-            </div>
-          </div>
-        )}
-      </header>
-
-      <section className="relative overflow-hidden border-b border-zinc-200 dark:border-zinc-800">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-cyan-50 dark:from-blue-950/20 dark:via-black dark:to-cyan-950/20" />
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiMwMDAiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTM2IDM0djItaDJ2LTJoLTJ6bTAtNGgtMnYyaDJ2LTJ6bTAtNGgtMnYyaDJ2LTJ6bTAtNGgtMnYyaDJ2LTJ6bTAtNGgtMnYyaDJ2LTJ6bTAtNGgtMnYyaDJ2LTJ6bTAtNGgtMnYyaDJ2LTJ6bTAtNGgtMnYyaDJ2LTJ6bTAtNGgtMnYyaDJ2LTJ6bTIyIDIydi0yaDJ2MmgtMnptMC00aC0ydjJoMnYtMnptMC00aC0ydjJoMnYtMnptMC00aC0ydjJoMnYtMnptMC00aC0ydjJoMnYtMnptMC00aC0ydjJoMnYtMnptMC00aC0ydjJoMnYtMnptMC00aC0ydjJoMnYtMnptMC00aC0ydjJoMnYtMnoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-40 dark:opacity-20" />
-        
-        <div className="relative max-w-5xl mx-auto px-3 sm:px-4 py-8 sm:py-12">
-          <div className="text-center max-w-xl mx-auto">
-            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900 mb-3">
-              <FaBook className="w-2.5 h-2.5 text-blue-600 dark:text-blue-400" />
-              <span className="text-xs font-medium text-blue-700 dark:text-blue-300">Technical Reference</span>
-            </div>
-            
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-zinc-900 dark:text-white mb-3 tracking-tight">
-              Developer <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-600 dark:from-blue-400 dark:to-cyan-400">Documentation</span>
-            </h1>
-            
-            <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400 leading-relaxed">
-              Comprehensive model specifications, integration guides, and API references
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section className="max-w-5xl mx-auto px-3 sm:px-4 py-8">
-        <div className="text-center mb-6">
-          <h2 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white mb-2">Best Practices</h2>
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">Follow these guidelines for optimal integration</p>
-        </div>
-
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
-          {bestPractices.map((practice, index) => (
-            <div key={index} className="p-3 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
-              <div className="flex flex-col gap-2">
-                <practice.icon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+      <main className="min-h-screen bg-white dark:bg-black transition-colors duration-300">
+        <header className="sticky top-0 z-50 border-b border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-black/80 backdrop-blur-xl">
+          <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
+            <div className="flex items-center justify-between h-12 sm:h-14">
+              <Link href="/" className="flex items-center gap-1.5 group">
+                <FaTerminal className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform duration-300" />
                 <div>
-                  <h3 className="text-sm font-semibold text-zinc-900 dark:text-white mb-1">{practice.title}</h3>
-                  <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">{practice.description}</p>
+                  <h1 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white tracking-tight">Aichixia</h1>
+                  <p className="text-[9px] sm:text-[10px] text-zinc-500 dark:text-zinc-400 -mt-0.5">API Docs</p>
                 </div>
+              </Link>
+
+              <nav className="hidden md:flex items-center gap-0.5">
+                <Link href="/" className="px-3 py-1.5 text-xs sm:text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200">
+                  Home
+                </Link>
+                <Link href="/console" className="px-3 py-1.5 text-xs sm:text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200">
+                  Console
+                </Link>
+              </nav>
+
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <button
+                  onClick={toggleTheme}
+                  className="p-1.5 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
+                  aria-label="Toggle theme"
+                >
+                  {isDark ? <FaSun className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <FaMoon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
+                </button>
+
+                <button
+                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                  className="md:hidden p-1.5 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
+                  aria-label="Toggle menu"
+                >
+                  {mobileMenuOpen ? <FaTimes className="w-4 h-4" /> : <FaBars className="w-4 h-4" />}
+                </button>
               </div>
             </div>
-          ))}
-        </div>
-      </section>
-
-      <div className="max-w-5xl mx-auto px-3 sm:px-4 py-6">
-        <div className="mb-6 space-y-3">
-          <div className="relative">
-            <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-400" />
-            <input
-              type="text"
-              placeholder="Search models..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-sm bg-white dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 rounded-lg text-zinc-900 dark:text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-            />
           </div>
 
-          <div className="flex items-center gap-2 overflow-x-auto pb-1">
-            {categories.map((category) => (
-              <button
-                key={category.id}
-                onClick={() => setSelectedCategory(category.id)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
-                  selectedCategory === category.id
-                    ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900'
-                    : 'bg-zinc-100 dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-800'
-                }`}
-              >
-                {category.name}
-                <span className={`px-1.5 py-0.5 rounded-full text-xs ${
-                  selectedCategory === category.id
-                    ? 'bg-white/20 dark:bg-black/20'
-                    : 'bg-zinc-200 dark:bg-zinc-800'
-                }`}>
-                  {category.count}
-                </span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="space-y-2.5">
-          {filteredEndpoints.length > 0 ? (
-            filteredEndpoints.map((endpoint) => (
-              <EndpointCard key={endpoint.id} endpoint={endpoint} isDark={isDark} />
-            ))
-          ) : (
-            <div className="text-center py-12">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-zinc-100 dark:bg-zinc-900 mb-3">
-                <FaSearch className="w-5 h-5 text-zinc-400" />
-              </div>
-              <h3 className="text-base font-semibold text-zinc-900 dark:text-white mb-1">No models found</h3>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">Try different search terms or filters</p>
+          {mobileMenuOpen && (
+            <div className="md:hidden border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-black">
+              <nav className="flex flex-col p-2 space-y-1">
+                <Link href="/" className="px-3 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
+                  Home
+                </Link>
+                <Link href="/console" className="px-3 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200" onClick={() => setMobileMenuOpen(false)}>
+                  Console
+                </Link>
+              </nav>
             </div>
           )}
-        </div>
+        </header>
 
-        <section className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          <div className="p-3 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-gradient-to-br from-blue-50 to-white dark:from-blue-950/10 dark:to-zinc-950">
-            <div className="flex items-start gap-2.5">
-              <FaKey className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-              <div>
-                <h3 className="text-xs font-semibold text-zinc-900 dark:text-white mb-0.5">API Authentication</h3>
-                <p className="text-xs text-zinc-600 dark:text-zinc-400">
-                  Include Bearer token in Authorization header for all requests
-                </p>
+        <section className="relative overflow-hidden border-b border-zinc-200 dark:border-zinc-800 bg-gradient-to-br from-blue-50 via-white to-cyan-50 dark:from-blue-950/20 dark:via-black dark:to-cyan-950/20">
+          <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-12 sm:py-16">
+            <div className="text-center space-y-3 animate-fade-in-up">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-100 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900">
+                <FaBook className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                <span className="text-xs font-semibold text-blue-700 dark:text-blue-300">Technical Documentation</span>
               </div>
-            </div>
-          </div>
-
-          <div className="p-3 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-gradient-to-br from-cyan-50 to-white dark:from-cyan-950/10 dark:to-zinc-950">
-            <div className="flex items-start gap-2.5">
-              <FaServer className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400 flex-shrink-0 mt-0.5" />
-              <div>
-                <h3 className="text-xs font-semibold text-zinc-900 dark:text-white mb-0.5">Usage Limits</h3>
-                <p className="text-xs text-zinc-600 dark:text-zinc-400">
-                  Monitor daily quota of 1,000 requests via console dashboard
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="p-3 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-gradient-to-br from-purple-50 to-white dark:from-purple-950/10 dark:to-zinc-950">
-            <div className="flex items-start gap-2.5">
-              <FaGlobe className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 flex-shrink-0 mt-0.5" />
-              <div>
-                <h3 className="text-xs font-semibold text-zinc-900 dark:text-white mb-0.5">SDK Compatibility</h3>
-                <p className="text-xs text-zinc-600 dark:text-zinc-400">
-                  Full compatibility with OpenAI libraries and tools
-                </p>
-              </div>
+              
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-zinc-900 dark:text-white tracking-tight">
+                API <span className="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">Reference</span>
+              </h1>
+              
+              <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
+                Complete guide to integrating Aichixia's AI models. Chat, images, voice, and more—all through one unified API.
+              </p>
             </div>
           </div>
         </section>
-      </div>
 
-      <footer className="border-t border-zinc-200 dark:border-zinc-800 mt-12">
-        <div className="max-w-5xl mx-auto px-3 sm:px-4 py-6">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500">
-                <FaTerminal className="w-3.5 h-3.5 text-white" />
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-8 sm:py-12">
+          <div className="flex flex-col lg:flex-row gap-6 sm:gap-8">
+            <aside className="lg:w-64 flex-shrink-0">
+              <div className="sticky top-20 space-y-2">
+                <button
+                  onClick={() => setActiveTab('quickstart')}
+                  className={`w-full flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-all ${
+                    activeTab === 'quickstart'
+                      ? 'bg-blue-600 text-white'
+                      : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900'
+                  }`}
+                >
+                  <FaRocket className="w-3.5 h-3.5" />
+                  Quick Start
+                </button>
+                <button
+                  onClick={() => setActiveTab('chat')}
+                  className={`w-full flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-all ${
+                    activeTab === 'chat'
+                      ? 'bg-blue-600 text-white'
+                      : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900'
+                  }`}
+                >
+                  <FaTerminal className="w-3.5 h-3.5" />
+                  Chat Completions
+                </button>
+                <button
+                  onClick={() => setActiveTab('models')}
+                  className={`w-full flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-all ${
+                    activeTab === 'models'
+                      ? 'bg-blue-600 text-white'
+                      : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900'
+                  }`}
+                >
+                  <FaLayerGroup className="w-3.5 h-3.5" />
+                  Models & Media
+                </button>
               </div>
-              <div>
-                <h3 className="text-xs font-bold text-zinc-900 dark:text-white">Aichixia API</h3>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">Modern AI Infrastructure</p>
-              </div>
-            </div>
+            </aside>
 
-            <div className="flex items-center gap-3">
-              <Link
-                href="/"
-                className="text-xs text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
-              >
-                Home
-              </Link>
-              <Link
-                href="/console"
-                className="text-xs text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
-              >
-                Console
-              </Link>
-            </div>
-          </div>
+            <div className="flex-1 min-w-0 space-y-6">
+              {activeTab === 'quickstart' && (
+                <div className="space-y-6 animate-fade-in-up">
+                  <div>
+                    <h2 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white mb-3">Getting Started</h2>
+                    <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400">
+                      Get your API key and start building in under 60 seconds. All endpoints are OpenAI-compatible.
+                    </p>
+                  </div>
 
-          <div className="mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-800 text-center">
-            <p className="text-xs text-zinc-500 dark:text-zinc-400">
-              © {new Date().getFullYear()} Aichixia. All Right reserved.
-            </p>
+                  <div className="grid sm:grid-cols-3 gap-3 sm:gap-4">
+                    <div className="p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+                      <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-950/30 flex items-center justify-center mb-3">
+                        <FaKey className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                      </div>
+                      <h3 className="text-sm font-bold text-zinc-900 dark:text-white mb-1">1. Get API Key</h3>
+                      <p className="text-xs text-zinc-600 dark:text-zinc-400">Sign up and generate your free API key from the console</p>
+                    </div>
+                    <div className="p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+                      <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-950/30 flex items-center justify-center mb-3">
+                        <FaCode className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                      </div>
+                      <h3 className="text-sm font-bold text-zinc-900 dark:text-white mb-1">2. Make Request</h3>
+                      <p className="text-xs text-zinc-600 dark:text-zinc-400">Use any OpenAI SDK or HTTP client to call our API</p>
+                    </div>
+                    <div className="p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+                      <div className="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-950/30 flex items-center justify-center mb-3">
+                        <FaCheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
+                      </div>
+                      <h3 className="text-sm font-bold text-zinc-900 dark:text-white mb-1">3. Ship Fast</h3>
+                      <p className="text-xs text-zinc-600 dark:text-zinc-400">Deploy your AI features with confidence and scale</p>
+                    </div>
+                  </div>
+
+                  <div className="p-4 sm:p-5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-base font-bold text-zinc-900 dark:text-white">Installation</h3>
+                      <button
+                        onClick={() => copyToClipboard('npm install openai', 'install')}
+                        className="p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-colors"
+                      >
+                        {copiedCode === 'install' ? <FaCheck className="w-3.5 h-3.5 text-green-500" /> : <FaCopy className="w-3.5 h-3.5 text-zinc-500" />}
+                      </button>
+                    </div>
+                    <div className="rounded-lg bg-zinc-100 dark:bg-zinc-900 p-3 overflow-x-auto">
+                      <code className="text-xs text-zinc-800 dark:text-zinc-200">npm install openai</code>
+                    </div>
+                  </div>
+
+                  <div className="p-4 sm:p-5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-base font-bold text-zinc-900 dark:text-white">First Request (JavaScript)</h3>
+                      <button
+                        onClick={() => copyToClipboard(codeExamples.chatCompletionsJS, 'quickstart-js')}
+                        className="p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-colors"
+                      >
+                        {copiedCode === 'quickstart-js' ? <FaCheck className="w-3.5 h-3.5 text-green-500" /> : <FaCopy className="w-3.5 h-3.5 text-zinc-500" />}
+                      </button>
+                    </div>
+                    <div className="rounded-lg bg-zinc-100 dark:bg-zinc-900 overflow-hidden">
+                      <SyntaxHighlighter
+                        language="javascript"
+                        style={isDark ? oneDark : oneLight}
+                        customStyle={{
+                          margin: 0,
+                          padding: '12px',
+                          background: 'transparent',
+                          fontSize: '11px',
+                        }}
+                        wrapLongLines={true}
+                      >
+                        {codeExamples.chatCompletionsJS}
+                      </SyntaxHighlighter>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'chat' && (
+                <div className="space-y-6 animate-fade-in-up">
+                  <div>
+                    <h2 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white mb-3">Chat Completions API</h2>
+                    <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400">
+                      Generate text responses using state-of-the-art language models. OpenAI-compatible endpoint for seamless integration.
+                    </p>
+                  </div>
+
+                  <div className="p-4 sm:p-5 rounded-lg border-l-4 border-blue-600 bg-blue-50 dark:bg-blue-950/20">
+                    <div className="flex items-start gap-3">
+                      <FaBolt className="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <h4 className="text-sm font-bold text-blue-900 dark:text-blue-100 mb-1">Endpoint</h4>
+                        <code className="text-xs text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded">POST {base}/api/v1/chat/completions</code>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <button
+                      onClick={() => toggleSection('chat-request')}
+                      className="w-full flex items-center justify-between p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors"
+                    >
+                      <h3 className="text-base font-bold text-zinc-900 dark:text-white">Request Body</h3>
+                      <FaChevronRight className={`w-4 h-4 text-zinc-400 transition-transform ${expandedSection === 'chat-request' ? 'rotate-90' : ''}`} />
+                    </button>
+
+                    {expandedSection === 'chat-request' && (
+                      <div className="p-4 sm:p-5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 space-y-3">
+                        <div className="space-y-2">
+                          <div className="flex items-start gap-2">
+                            <code className="text-xs font-mono text-blue-600 dark:text-blue-400 mt-0.5">model</code>
+                            <span className="text-xs px-1.5 py-0.5 rounded bg-red-100 dark:bg-red-950/30 text-red-700 dark:text-red-300 font-medium">required</span>
+                          </div>
+                          <p className="text-xs text-zinc-600 dark:text-zinc-400">Model ID to use (e.g., claude-opus-4.5, gpt-5-mini, deepseek-v3.2)</p>
+                        </div>
+
+                        <div className="space-y-2">
+                          <div className="flex items-start gap-2">
+                            <code className="text-xs font-mono text-blue-600 dark:text-blue-400 mt-0.5">messages</code>
+                            <span className="text-xs px-1.5 py-0.5 rounded bg-red-100 dark:bg-red-950/30 text-red-700 dark:text-red-300 font-medium">required</span>
+                          </div>
+                          <p className="text-xs text-zinc-600 dark:text-zinc-400">Array of message objects with role (system/user/assistant) and content</p>
+                        </div>
+
+                        <div className="space-y-2">
+                          <code className="text-xs font-mono text-blue-600 dark:text-blue-400">temperature</code>
+                          <p className="text-xs text-zinc-600 dark:text-zinc-400">Sampling temperature (0-2). Higher = more creative. Default: 1</p>
+                        </div>
+
+                        <div className="space-y-2">
+                          <code className="text-xs font-mono text-blue-600 dark:text-blue-400">max_tokens</code>
+                          <p className="text-xs text-zinc-600 dark:text-zinc-400">Maximum tokens to generate. Default: model's max</p>
+                        </div>
+
+                        <div className="space-y-2">
+                          <code className="text-xs font-mono text-blue-600 dark:text-blue-400">stream</code>
+                          <p className="text-xs text-zinc-600 dark:text-zinc-400">Enable streaming responses. Default: false</p>
+                        </div>
+
+                        <div className="space-y-2">
+                          <code className="text-xs font-mono text-blue-600 dark:text-blue-400">top_p</code>
+                          <p className="text-xs text-zinc-600 dark:text-zinc-400">Nucleus sampling (0-1). Alternative to temperature</p>
+                        </div>
+                      </div>
+                    )}
+
+                    <button
+                      onClick={() => toggleSection('chat-response')}
+                      className="w-full flex items-center justify-between p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors"
+                    >
+                      <h3 className="text-base font-bold text-zinc-900 dark:text-white">Response Format</h3>
+                      <FaChevronRight className={`w-4 h-4 text-zinc-400 transition-transform ${expandedSection === 'chat-response' ? 'rotate-90' : ''}`} />
+                    </button>
+
+                    {expandedSection === 'chat-response' && (
+                      <div className="p-4 sm:p-5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+                        <div className="rounded-lg bg-zinc-100 dark:bg-zinc-900 overflow-hidden">
+                          <SyntaxHighlighter
+                            language="json"
+                            style={isDark ? oneDark : oneLight}
+                            customStyle={{
+                              margin: 0,
+                              padding: '12px',
+                              background: 'transparent',
+                              fontSize: '11px',
+                            }}
+                          >
+{`{
+  "id": "chatcmpl-abc123",
+  "object": "chat.completion",
+  "created": 1677652288,
+  "model": "claude-opus-4.5",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "Your response here..."
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 10,
+    "completion_tokens": 50,
+    "total_tokens": 60
+  }
+}`}
+                          </SyntaxHighlighter>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="p-4 sm:p-5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-base font-bold text-zinc-900 dark:text-white">Python Example</h3>
+                      <button
+                        onClick={() => copyToClipboard(codeExamples.chatCompletionsPython, 'chat-python')}
+                        className="p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-colors"
+                      >
+                        {copiedCode === 'chat-python' ? <FaCheck className="w-3.5 h-3.5 text-green-500" /> : <FaCopy className="w-3.5 h-3.5 text-zinc-500" />}
+                      </button>
+                    </div>
+                    <div className="rounded-lg bg-zinc-100 dark:bg-zinc-900 overflow-hidden">
+                      <SyntaxHighlighter
+                        language="python"
+                        style={isDark ? oneDark : oneLight}
+                        customStyle={{
+                          margin: 0,
+                          padding: '12px',
+                          background: 'transparent',
+                          fontSize: '11px',
+                        }}
+                        wrapLongLines={true}
+                      >
+                        {codeExamples.chatCompletionsPython}
+                      </SyntaxHighlighter>
+                    </div>
+                  </div>
+
+                  <div className="p-4 sm:p-5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-base font-bold text-zinc-900 dark:text-white">Streaming Example</h3>
+                      <button
+                        onClick={() => copyToClipboard(codeExamples.streamingJS, 'streaming')}
+                        className="p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-colors"
+                      >
+                        {copiedCode === 'streaming' ? <FaCheck className="w-3.5 h-3.5 text-green-500" /> : <FaCopy className="w-3.5 h-3.5 text-zinc-500" />}
+                      </button>
+                    </div>
+                    <div className="rounded-lg bg-zinc-100 dark:bg-zinc-900 overflow-hidden">
+                      <SyntaxHighlighter
+                        language="javascript"
+                        style={isDark ? oneDark : oneLight}
+                        customStyle={{
+                          margin: 0,
+                          padding: '12px',
+                          background: 'transparent',
+                          fontSize: '11px',
+                        }}
+                        wrapLongLines={true}
+                      >
+                        {codeExamples.streamingJS}
+                      </SyntaxHighlighter>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'models' && (
+                <div className="space-y-6 animate-fade-in-up">
+                  <div>
+                    <h2 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white mb-3">Models & Media API</h2>
+                    <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400">
+                      List available models and generate images, voice, and other media types.
+                    </p>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="p-4 sm:p-5 rounded-lg border-l-4 border-purple-600 bg-purple-50 dark:bg-purple-950/20">
+                      <div className="flex items-start gap-3">
+                        <FaLayerGroup className="w-4 h-4 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <h4 className="text-sm font-bold text-purple-900 dark:text-purple-100 mb-1">List Models Endpoint</h4>
+                          <code className="text-xs text-purple-700 dark:text-purple-300 bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">GET {base}/api/models</code>
+                          <p className="text-xs text-purple-700 dark:text-purple-300 mt-2">Returns all available models including text, image, voice, and multimodal models.</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-4 sm:p-5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-base font-bold text-zinc-900 dark:text-white">List Models (JavaScript)</h3>
+                        <button
+                          onClick={() => copyToClipboard(codeExamples.modelsListJS, 'models-js')}
+                          className="p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-colors"
+                        >
+                          {copiedCode === 'models-js' ? <FaCheck className="w-3.5 h-3.5 text-green-500" /> : <FaCopy className="w-3.5 h-3.5 text-zinc-500" />}
+                        </button>
+                      </div>
+                      <div className="rounded-lg bg-zinc-100 dark:bg-zinc-900 overflow-hidden">
+                        <SyntaxHighlighter
+                          language="javascript"
+                          style={isDark ? oneDark : oneLight}
+                          customStyle={{
+                            margin: 0,
+                            padding: '12px',
+                            background: 'transparent',
+                            fontSize: '11px',
+                          }}
+                          wrapLongLines={true}
+                        >
+                          {codeExamples.modelsListJS}
+                        </SyntaxHighlighter>
+                      </div>
+                    </div>
+
+                    <div className="p-4 sm:p-5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-base font-bold text-zinc-900 dark:text-white">Response Format</h3>
+                      </div>
+                      <div className="rounded-lg bg-zinc-100 dark:bg-zinc-900 overflow-hidden">
+                        <SyntaxHighlighter
+                          language="json"
+                          style={isDark ? oneDark : oneLight}
+                          customStyle={{
+                            margin: 0,
+                            padding: '12px',
+                            background: 'transparent',
+                            fontSize: '11px',
+                          }}
+                        >
+{`{
+  "object": "list",
+  "data": [
+    {
+      "id": "claude-opus-4.5",
+      "object": "model",
+      "created": 1677610602,
+      "owned_by": "anthropic",
+      "capabilities": ["chat", "multimodal"]
+    },
+    {
+      "id": "dall-e-3",
+      "object": "model",
+      "created": 1698785189,
+      "owned_by": "openai",
+      "capabilities": ["image-generation"]
+    },
+    {
+      "id": "tts-1-hd",
+      "object": "model",
+      "created": 1699053241,
+      "owned_by": "openai",
+      "capabilities": ["text-to-speech"]
+    }
+  ]
+}`}
+                        </SyntaxHighlighter>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-gradient-to-br from-pink-50 to-white dark:from-pink-950/10 dark:to-zinc-950">
+                      <FaImage className="w-5 h-5 text-pink-600 dark:text-pink-400 mb-3" />
+                      <h3 className="text-sm font-bold text-zinc-900 dark:text-white mb-2">Image Generation</h3>
+                      <p className="text-xs text-zinc-600 dark:text-zinc-400 mb-3">Generate images from text prompts using DALL-E 3 and other models</p>
+                      <code className="text-xs text-pink-700 dark:text-pink-300 bg-pink-100 dark:bg-pink-900/30 px-2 py-1 rounded block">POST /api/v1/images/generations</code>
+                    </div>
+
+                    <div className="p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-gradient-to-br from-green-50 to-white dark:from-green-950/10 dark:to-zinc-950">
+                      <FaMicrophone className="w-5 h-5 text-green-600 dark:text-green-400 mb-3" />
+                      <h3 className="text-sm font-bold text-zinc-900 dark:text-white mb-2">Voice Synthesis</h3>
+                      <p className="text-xs text-zinc-600 dark:text-zinc-400 mb-3">Convert text to natural-sounding speech in multiple voices</p>
+                      <code className="text-xs text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded block">POST /api/v1/audio/speech</code>
+                    </div>
+                  </div>
+
+                  <div className="p-4 sm:p-5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-base font-bold text-zinc-900 dark:text-white">Image Generation Example</h3>
+                      <button
+                        onClick={() => copyToClipboard(codeExamples.imageGenerationJS, 'image-gen')}
+                        className="p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-colors"
+                      >
+                        {copiedCode === 'image-gen' ? <FaCheck className="w-3.5 h-3.5 text-green-500" /> : <FaCopy className="w-3.5 h-3.5 text-zinc-500" />}
+                      </button>
+                    </div>
+                    <div className="rounded-lg bg-zinc-100 dark:bg-zinc-900 overflow-hidden">
+                      <SyntaxHighlighter
+                        language="javascript"
+                        style={isDark ? oneDark : oneLight}
+                        customStyle={{
+                          margin: 0,
+                          padding: '12px',
+                          background: 'transparent',
+                          fontSize: '11px',
+                        }}
+                        wrapLongLines={true}
+                      >
+                        {codeExamples.imageGenerationJS}
+                      </SyntaxHighlighter>
+                    </div>
+                  </div>
+
+                  <div className="p-4 sm:p-5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-base font-bold text-zinc-900 dark:text-white">Voice Synthesis Example</h3>
+                      <button
+                        onClick={() => copyToClipboard(codeExamples.voiceGenerationJS, 'voice-gen')}
+                        className="p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-colors"
+                      >
+                        {copiedCode === 'voice-gen' ? <FaCheck className="w-3.5 h-3.5 text-green-500" /> : <FaCopy className="w-3.5 h-3.5 text-zinc-500" />}
+                      </button>
+                    </div>
+                    <div className="rounded-lg bg-zinc-100 dark:bg-zinc-900 overflow-hidden">
+                      <SyntaxHighlighter
+                        language="javascript"
+                        style={isDark ? oneDark : oneLight}
+                        customStyle={{
+                          margin: 0,
+                          padding: '12px',
+                          background: 'transparent',
+                          fontSize: '11px',
+                        }}
+                        wrapLongLines={true}
+                      >
+                        {codeExamples.voiceGenerationJS}
+                      </SyntaxHighlighter>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </footer>
-    </main>
+
+        <footer className="border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-black mt-12">
+          <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-8 sm:py-10">
+            <div className="flex flex-col items-center justify-center space-y-4 sm:space-y-5">
+              <Link href="/" className="inline-flex items-center gap-1.5 group">
+                <FaTerminal className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform duration-300" />
+                <div>
+                  <h3 className="text-sm sm:text-base font-black text-zinc-900 dark:text-white">Aichixia</h3>
+                  <p className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400">AI API Platform</p>
+                </div>
+              </Link>
+
+              <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 text-center">
+                © {new Date().getFullYear()} Aichixia. All rights reserved.
+              </p>
+
+              <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-center">
+                <a 
+                  href="mailto:contact@aichixia.xyz"
+                  className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+                >
+                  Contact
+                </a>
+                <span className="text-zinc-300 dark:text-zinc-700">•</span>
+                <Link 
+                  href="/privacy" 
+                  className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+                >
+                  Privacy
+                </Link>
+                <span className="text-zinc-300 dark:text-zinc-700">•</span>
+                <Link 
+                  href="/terms" 
+                  className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+                >
+                  Terms
+                </Link>
+                <span className="text-zinc-300 dark:text-zinc-700">•</span>
+                <Link 
+                  href="/security" 
+                  className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+                >
+                  Security
+                </Link>
+              </div>
+            </div>
+          </div>
+        </footer>
+      </main>
+    </>
   );
 }
