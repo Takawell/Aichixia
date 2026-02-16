@@ -122,7 +122,7 @@ const pricingPlans = [
     name: "Pro",
     price: "$0",
     period: "with code",
-    description: "Find the secret redeem code in the docs",
+    description: "Temukan kode redem secara rahasia",
     features: [
       "Priority model access",
       "Email support",
@@ -171,14 +171,14 @@ const testimonials = [
     rating: 5
   },
   {
-    name: "Takashin",
+    name: "Marcus Rodriguez",
     role: "Lead Engineer at DataFlow",
-    avatar: "TS",
+    avatar: "MR",
     content: "Best AI API we've tested. Lightning fast, reliable, and the multi-model support lets us optimize for each use case.",
     rating: 5
   },
   {
-    name: "Reinaa",
+    name: "Emily Watson",
     role: "Founder of CodeAssist",
     avatar: "EW",
     content: "The developer experience is incredible. Great docs, responsive support, and the playground made testing so much easier.",
@@ -412,69 +412,66 @@ export default function Home() {
             : 'border-transparent bg-transparent'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <Link href="/" className="flex items-center gap-2 group">
-              <div className="relative flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 shadow-lg group-hover:shadow-xl group-hover:scale-105 transition-all duration-300">
-                <FaTerminal className="w-4 h-4 text-white" />
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 opacity-0 group-hover:opacity-50 blur-lg transition-opacity duration-300"></div>
-              </div>
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
+          <div className="flex items-center justify-between h-12 sm:h-14">
+            <Link href="/" className="flex items-center gap-1.5 group">
+              <FaTerminal className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform duration-300" />
               <div>
-                <h1 className="text-base font-bold text-zinc-900 dark:text-white tracking-tight">Aichixia</h1>
-                <p className="text-[10px] text-zinc-500 dark:text-zinc-400 -mt-0.5">API Platform</p>
+                <h1 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white tracking-tight">Aichixia</h1>
+                <p className="text-[9px] sm:text-[10px] text-zinc-500 dark:text-zinc-400 -mt-0.5">API Platform</p>
               </div>
             </Link>
 
-            <nav className="hidden md:flex items-center gap-1">
+            <nav className="hidden md:flex items-center gap-0.5">
               <Link
                 href="#features"
-                className="px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
+                className="px-3 py-1.5 text-xs sm:text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
               >
                 Features
               </Link>
               <Link
                 href="#playground"
-                className="px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
+                className="px-3 py-1.5 text-xs sm:text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
               >
                 Playground
               </Link>
               <Link
                 href="#pricing"
-                className="px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
+                className="px-3 py-1.5 text-xs sm:text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
               >
                 Pricing
               </Link>
               <Link
                 href="/docs"
-                className="px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
+                className="px-3 py-1.5 text-xs sm:text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
               >
                 Docs
               </Link>
             </nav>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               <button
                 onClick={toggleTheme}
-                className="p-2 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
+                className="p-1.5 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
                 aria-label="Toggle theme"
               >
-                {isDark ? <FaSun className="w-4 h-4" /> : <FaMoon className="w-4 h-4" />}
+                {isDark ? <FaSun className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <FaMoon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
               </button>
 
               <Link
                 href="/console"
-                className="hidden sm:flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
               >
-                <FaRocket className="w-3.5 h-3.5" />
+                <FaRocket className="w-3 h-3" />
                 <span>Console</span>
               </Link>
 
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-2 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
+                className="md:hidden p-1.5 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
                 aria-label="Toggle menu"
               >
-                {mobileMenuOpen ? <FaTimes className="w-5 h-5" /> : <FaBars className="w-5 h-5" />}
+                {mobileMenuOpen ? <FaTimes className="w-4 h-4" /> : <FaBars className="w-4 h-4" />}
               </button>
             </div>
           </div>
@@ -482,41 +479,41 @@ export default function Home() {
 
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-black">
-            <nav className="flex flex-col p-4 space-y-2">
+            <nav className="flex flex-col p-2 space-y-1">
               <Link
                 href="#features"
-                className="px-4 py-2.5 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
+                className="px-3 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Features
               </Link>
               <Link
                 href="#playground"
-                className="px-4 py-2.5 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
+                className="px-3 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Playground
               </Link>
               <Link
                 href="#pricing"
-                className="px-4 py-2.5 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
+                className="px-3 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Pricing
               </Link>
               <Link
                 href="/docs"
-                className="px-4 py-2.5 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
+                className="px-3 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Docs
               </Link>
               <Link
                 href="/console"
-                className="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 rounded-lg shadow-lg transition-all duration-200"
+                className="flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 rounded-lg shadow-lg transition-all duration-200"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                <FaRocket className="w-3.5 h-3.5" />
+                <FaRocket className="w-3 h-3" />
                 <span>Console</span>
               </Link>
             </nav>
@@ -524,16 +521,16 @@ export default function Home() {
         )}
       </header>
 
-      <section className="relative pt-20 pb-32 px-4 sm:px-6 lg:px-8 overflow-hidden">
+      <section className="relative pt-12 sm:pt-16 lg:pt-20 pb-16 sm:pb-20 lg:pb-24 px-3 sm:px-4 lg:px-6 overflow-hidden">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center space-y-8">
-            <div className="space-y-4 opacity-0 fade-in-up stagger-delay-1">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50">
-                <FaStar className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                <span className="text-xs font-semibold text-blue-700 dark:text-blue-300">20+ AI Models in One API</span>
+          <div className="text-center space-y-4 sm:space-y-6">
+            <div className="space-y-3 sm:space-y-4 opacity-0 fade-in-up stagger-delay-1">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50">
+                <FaStar className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                <span className="text-[10px] sm:text-xs font-semibold text-blue-700 dark:text-blue-300">20+ AI Models in One API</span>
               </div>
               
-              <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black text-zinc-900 dark:text-white leading-tight tracking-tight">
+              <h1 className="text-3xl sm:text-4xl lg:text-6xl font-black text-zinc-900 dark:text-white leading-tight tracking-tight px-4">
                 Build AI Apps
                 <br />
                 <span className="bg-gradient-to-r from-blue-600 via-cyan-500 to-purple-600 bg-clip-text text-transparent animate-gradient">
@@ -541,37 +538,37 @@ export default function Home() {
                 </span>
               </h1>
               
-              <p className="text-base sm:text-lg lg:text-xl text-zinc-600 dark:text-zinc-400 max-w-3xl mx-auto leading-relaxed">
+              <p className="text-sm sm:text-base lg:text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto leading-relaxed px-4">
                 One unified API for Claude, GPT, Gemini, and more. Switch models instantly, scale effortlessly, and ship AI features in minutes.
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 opacity-0 fade-in-up stagger-delay-2">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 opacity-0 fade-in-up stagger-delay-2 px-4">
               <Link
                 href="/console"
-                className="group flex items-center gap-2 px-8 py-4 text-base font-bold text-white bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 rounded-xl shadow-2xl hover:shadow-blue-500/50 transition-all duration-300 hover:scale-105"
+                className="group flex items-center gap-1.5 sm:gap-2 px-5 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base font-bold text-white bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 rounded-lg shadow-xl hover:shadow-blue-500/50 transition-all duration-300 hover:scale-105 w-full sm:w-auto justify-center"
               >
-                <FaRocket className="w-5 h-5" />
+                <FaRocket className="w-4 h-4" />
                 <span>Start Building Free</span>
-                <FaArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+                <FaArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform duration-300" />
               </Link>
               
               <Link
                 href="/docs"
-                className="group flex items-center gap-2 px-8 py-4 text-base font-bold text-zinc-900 dark:text-white bg-white dark:bg-zinc-900 border-2 border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                className="group flex items-center gap-1.5 sm:gap-2 px-5 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base font-bold text-zinc-900 dark:text-white bg-white dark:bg-zinc-900 border-2 border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 w-full sm:w-auto justify-center"
               >
-                <FaBook className="w-5 h-5" />
+                <FaBook className="w-4 h-4" />
                 <span>View Docs</span>
-                <FaChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+                <FaChevronRight className="w-3 h-3 group-hover:translate-x-1 transition-transform duration-300" />
               </Link>
             </div>
 
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 pt-12 opacity-0 fade-in-up stagger-delay-3">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 pt-8 sm:pt-10 opacity-0 fade-in-up stagger-delay-3 px-4">
               {stats.map((stat, idx) => (
-                <div key={idx} className="group p-6 rounded-2xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-xl transition-all duration-300 hover:scale-105">
-                  <stat.icon className="w-8 h-8 text-blue-600 dark:text-blue-400 mb-3 mx-auto group-hover:scale-110 transition-transform duration-300" />
-                  <div className="text-3xl lg:text-4xl font-black text-zinc-900 dark:text-white mb-1">{stat.value}</div>
-                  <div className="text-xs text-zinc-600 dark:text-zinc-400 font-semibold">{stat.label}</div>
+                <div key={idx} className="group p-3 sm:p-4 rounded-xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-lg transition-all duration-300 hover:scale-105">
+                  <stat.icon className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400 mb-2 mx-auto group-hover:scale-110 transition-transform duration-300" />
+                  <div className="text-xl sm:text-2xl lg:text-3xl font-black text-zinc-900 dark:text-white mb-0.5">{stat.value}</div>
+                  <div className="text-[10px] sm:text-xs text-zinc-600 dark:text-zinc-400 font-semibold">{stat.label}</div>
                 </div>
               ))}
             </div>
@@ -579,57 +576,55 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-zinc-50 dark:bg-zinc-950/50" id="features" data-animate="features">
+      <section className="py-12 sm:py-16 lg:py-20 px-3 sm:px-4 lg:px-6 bg-zinc-50 dark:bg-zinc-950/50" id="features" data-animate="features">
         <div className="max-w-7xl mx-auto">
-          <div className={`text-center space-y-4 mb-16 transition-all duration-700 ${isVisible.features ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-900/50">
-              <FaBolt className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
-              <span className="text-xs font-semibold text-purple-700 dark:text-purple-300">Enterprise-Grade Infrastructure</span>
+          <div className={`text-center space-y-3 mb-10 sm:mb-12 transition-all duration-700 ${isVisible.features ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-900/50">
+              <FaBolt className="w-3 h-3 text-purple-600 dark:text-purple-400" />
+              <span className="text-[10px] sm:text-xs font-semibold text-purple-700 dark:text-purple-300">Enterprise-Grade Infrastructure</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-zinc-900 dark:text-white">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-zinc-900 dark:text-white px-4">
               Everything You Need to Build
             </h2>
-            <p className="text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
+            <p className="text-sm sm:text-base lg:text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto px-4">
               Production-ready AI infrastructure with enterprise security, blazing-fast performance, and developer-first experience.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {features.map((feature, idx) => (
               <div
                 key={idx}
-                className={`group p-8 rounded-2xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-2xl transition-all duration-500 hover:scale-105 ${
+                className={`group p-4 sm:p-5 lg:p-6 rounded-xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-xl transition-all duration-500 hover:scale-105 ${
                   isVisible.features ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
                 }`}
                 style={{ transitionDelay: `${idx * 100}ms` }}
               >
-                <div className={`inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br ${feature.gradient} shadow-lg mb-6 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300`}>
-                  <feature.icon className="w-7 h-7 text-white" />
-                </div>
-                <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-3">{feature.title}</h3>
-                <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">{feature.description}</p>
+                <feature.icon className={`w-6 h-6 sm:w-7 sm:h-7 bg-gradient-to-br ${feature.gradient} bg-clip-text text-transparent mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300`} />
+                <h3 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-white mb-2">{feature.title}</h3>
+                <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">{feature.description}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="py-20 px-4 sm:px-6 lg:px-8" data-animate="quickstart">
+      <section className="py-12 sm:py-16 lg:py-20 px-3 sm:px-4 lg:px-6" data-animate="quickstart">
         <div className="max-w-7xl mx-auto">
-          <div className={`text-center space-y-4 mb-16 transition-all duration-700 ${isVisible.quickstart ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-900/50">
-              <FaRocket className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
-              <span className="text-xs font-semibold text-green-700 dark:text-green-300">Get Started in 60 Seconds</span>
+          <div className={`text-center space-y-3 mb-10 sm:mb-12 transition-all duration-700 ${isVisible.quickstart ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-900/50">
+              <FaRocket className="w-3 h-3 text-green-600 dark:text-green-400" />
+              <span className="text-[10px] sm:text-xs font-semibold text-green-700 dark:text-green-300">Get Started in 60 Seconds</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-zinc-900 dark:text-white">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-zinc-900 dark:text-white px-4">
               Quick Start Guide
             </h2>
-            <p className="text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
+            <p className="text-sm sm:text-base lg:text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto px-4">
               From zero to production in three simple steps. No credit card required for free tier.
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-8">
+          <div className="grid lg:grid-cols-3 gap-4 sm:gap-6">
             {quickStartSteps.map((step, idx) => (
               <div
                 key={idx}
@@ -639,28 +634,26 @@ export default function Home() {
                 style={{ transitionDelay: `${idx * 150}ms` }}
                 onMouseEnter={() => setActiveStep(idx)}
               >
-                <div className="relative h-full p-8 rounded-2xl bg-white dark:bg-zinc-950 border-2 border-zinc-200 dark:border-zinc-800 hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-2xl transition-all duration-300">
-                  <div className="absolute -top-4 -right-4 w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 shadow-lg flex items-center justify-center">
-                    <span className="text-xl font-black text-white">{step.step}</span>
+                <div className="relative h-full p-4 sm:p-5 lg:p-6 rounded-xl bg-white dark:bg-zinc-950 border-2 border-zinc-200 dark:border-zinc-800 hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-xl transition-all duration-300">
+                  <div className="absolute -top-2 -right-2 w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 shadow-lg flex items-center justify-center">
+                    <span className="text-base sm:text-lg font-black text-white">{step.step}</span>
                   </div>
 
-                  <div className={`inline-flex items-center justify-center w-16 h-16 rounded-xl bg-gradient-to-br ${step.gradient} shadow-lg mb-6 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300`}>
-                    <step.icon className="w-8 h-8 text-white" />
-                  </div>
+                  <step.icon className={`w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br ${step.gradient} bg-clip-text text-transparent mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300`} />
 
-                  <h3 className="text-2xl font-bold text-zinc-900 dark:text-white mb-3">{step.title}</h3>
-                  <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed mb-6">{step.description}</p>
+                  <h3 className="text-lg sm:text-xl font-bold text-zinc-900 dark:text-white mb-2">{step.title}</h3>
+                  <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed mb-3 sm:mb-4">{step.description}</p>
 
-                  <div className="rounded-xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-                    <div className="flex items-center justify-between px-4 py-2 bg-zinc-200 dark:bg-zinc-800 border-b border-zinc-300 dark:border-zinc-700">
-                      <div className="flex gap-1.5">
-                        <div className="w-2.5 h-2.5 rounded-full bg-red-500"></div>
-                        <div className="w-2.5 h-2.5 rounded-full bg-yellow-500"></div>
-                        <div className="w-2.5 h-2.5 rounded-full bg-green-500"></div>
+                  <div className="rounded-lg bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+                    <div className="flex items-center justify-between px-3 py-1.5 bg-zinc-200 dark:bg-zinc-800 border-b border-zinc-300 dark:border-zinc-700">
+                      <div className="flex gap-1">
+                        <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                        <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+                        <div className="w-2 h-2 rounded-full bg-green-500"></div>
                       </div>
-                      <span className="text-xs text-zinc-600 dark:text-zinc-400">terminal</span>
+                      <span className="text-[10px] text-zinc-600 dark:text-zinc-400">terminal</span>
                     </div>
-                    <div className="p-4 overflow-x-auto">
+                    <div className="p-2 sm:p-3 overflow-x-auto">
                       <SyntaxHighlighter
                         language={idx === 0 ? "bash" : idx === 1 ? "bash" : "javascript"}
                         style={isDark ? oneDark : oneLight}
@@ -668,7 +661,7 @@ export default function Home() {
                           margin: 0,
                           padding: 0,
                           background: 'transparent',
-                          fontSize: '11px',
+                          fontSize: '9px',
                         }}
                         wrapLongLines={true}
                       >
@@ -679,8 +672,8 @@ export default function Home() {
                 </div>
 
                 {idx < quickStartSteps.length - 1 && (
-                  <div className="hidden lg:block absolute top-1/2 -right-4 z-10">
-                    <FaChevronRight className="w-6 h-6 text-zinc-300 dark:text-zinc-700" />
+                  <div className="hidden lg:block absolute top-1/2 -right-3 z-10">
+                    <FaChevronRight className="w-5 h-5 text-zinc-300 dark:text-zinc-700" />
                   </div>
                 )}
               </div>
@@ -689,130 +682,126 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-zinc-50 dark:bg-zinc-950/50" data-animate="usecases">
+      <section className="py-12 sm:py-16 lg:py-20 px-3 sm:px-4 lg:px-6 bg-zinc-50 dark:bg-zinc-950/50" data-animate="usecases">
         <div className="max-w-7xl mx-auto">
-          <div className={`text-center space-y-4 mb-16 transition-all duration-700 ${isVisible.usecases ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-50 dark:bg-cyan-950/30 border border-cyan-200 dark:border-cyan-900/50">
-              <FaLightbulb className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
-              <span className="text-xs font-semibold text-cyan-700 dark:text-cyan-300">Endless Possibilities</span>
+          <div className={`text-center space-y-3 mb-10 sm:mb-12 transition-all duration-700 ${isVisible.usecases ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-cyan-50 dark:bg-cyan-950/30 border border-cyan-200 dark:border-cyan-900/50">
+              <FaLightbulb className="w-3 h-3 text-cyan-600 dark:text-cyan-400" />
+              <span className="text-[10px] sm:text-xs font-semibold text-cyan-700 dark:text-cyan-300">Endless Possibilities</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-zinc-900 dark:text-white">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-zinc-900 dark:text-white px-4">
               Built for Every Use Case
             </h2>
-            <p className="text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
+            <p className="text-sm sm:text-base lg:text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto px-4">
               From chatbots to code generation, power any AI application with our versatile API.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {useCases.map((useCase, idx) => (
               <div
                 key={idx}
-                className={`group p-8 rounded-2xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-2xl transition-all duration-500 hover:scale-105 ${
+                className={`group p-4 sm:p-5 lg:p-6 rounded-xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-xl transition-all duration-500 hover:scale-105 ${
                   isVisible.usecases ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
                 }`}
                 style={{ transitionDelay: `${idx * 100}ms` }}
               >
-                <div className={`inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br ${useCase.gradient} shadow-lg mb-6 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300`}>
-                  <useCase.icon className="w-7 h-7 text-white" />
-                </div>
-                <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-3">{useCase.title}</h3>
-                <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">{useCase.description}</p>
+                <useCase.icon className={`w-6 h-6 sm:w-7 sm:h-7 bg-gradient-to-br ${useCase.gradient} bg-clip-text text-transparent mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300`} />
+                <h3 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-white mb-2">{useCase.title}</h3>
+                <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">{useCase.description}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="py-20 px-4 sm:px-6 lg:px-8" id="playground" data-animate="playground">
+      <section className="py-12 sm:py-16 lg:py-20 px-3 sm:px-4 lg:px-6" id="playground" data-animate="playground">
         <div className="max-w-7xl mx-auto">
-          <div className={`text-center space-y-4 mb-16 transition-all duration-700 ${isVisible.playground ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50">
-              <FaPlay className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-              <span className="text-xs font-semibold text-blue-700 dark:text-blue-300">Try It Live</span>
+          <div className={`text-center space-y-3 mb-10 sm:mb-12 transition-all duration-700 ${isVisible.playground ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50">
+              <FaPlay className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+              <span className="text-[10px] sm:text-xs font-semibold text-blue-700 dark:text-blue-300">Try It Live</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-zinc-900 dark:text-white">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-zinc-900 dark:text-white px-4">
               Interactive API Playground
             </h2>
-            <p className="text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
+            <p className="text-sm sm:text-base lg:text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto px-4">
               Test our API right here. No signup required. Just add your key and start building.
             </p>
           </div>
 
-          <div className={`grid lg:grid-cols-2 gap-8 transition-all duration-700 ${isVisible.playground ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <div className="space-y-6">
-              <div className="p-6 rounded-2xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 shadow-xl">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-bold text-zinc-900 dark:text-white">Request Configuration</h3>
-                  <FaCog className="w-5 h-5 text-zinc-400" />
+          <div className={`grid lg:grid-cols-2 gap-4 sm:gap-6 transition-all duration-700 ${isVisible.playground ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+            <div className="space-y-3 sm:space-y-4">
+              <div className="p-4 sm:p-5 rounded-xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 shadow-lg">
+                <div className="flex items-center justify-between mb-4 sm:mb-5">
+                  <h3 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white">Request Configuration</h3>
+                  <FaCog className="w-4 h-4 text-zinc-400" />
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   <div>
-                    <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-2">Model</label>
+                    <label className="block text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Model</label>
                     <button
                       onClick={() => setShowModelModal(true)}
-                      className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-200 group"
+                      className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-200 group"
                     >
-                      <div className="flex items-center gap-3">
-                        <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${selectedModelData?.color} shadow-lg flex items-center justify-center`}>
-                          <FaRobot className="w-5 h-5 text-white" />
-                        </div>
+                      <div className="flex items-center gap-2">
+                        <FaRobot className={`w-5 h-5 bg-gradient-to-br ${selectedModelData?.color} bg-clip-text text-transparent`} />
                         <div className="text-left">
-                          <div className="text-sm font-semibold text-zinc-900 dark:text-white">{selectedModelData?.name}</div>
-                          <div className="text-xs text-zinc-500 dark:text-zinc-400">{selectedModelData?.provider}</div>
+                          <div className="text-xs sm:text-sm font-semibold text-zinc-900 dark:text-white">{selectedModelData?.name}</div>
+                          <div className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400">{selectedModelData?.provider}</div>
                         </div>
                       </div>
-                      <FaChevronDown className="w-4 h-4 text-zinc-400 group-hover:text-blue-500 transition-colors duration-200" />
+                      <FaChevronDown className="w-3 h-3 text-zinc-400 group-hover:text-blue-500 transition-colors duration-200" />
                     </button>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-2">API Key</label>
+                    <label className="block text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">API Key</label>
                     <div className="relative">
                       <input
                         type={showApiKeyInput ? "text" : "password"}
                         value={apiKey}
                         onChange={(e) => setApiKey(e.target.value)}
                         placeholder="sk-..."
-                        className="w-full px-4 py-3 pr-12 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 focus:border-blue-500 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all duration-200"
+                        className="w-full px-3 py-2.5 pr-10 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs sm:text-sm text-zinc-900 dark:text-white placeholder-zinc-400 focus:border-blue-500 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all duration-200"
                       />
                       <button
                         onClick={() => setShowApiKeyInput(!showApiKeyInput)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-lg transition-colors duration-200"
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-lg transition-colors duration-200"
                       >
-                        {showApiKeyInput ? <FaLock className="w-4 h-4 text-zinc-400" /> : <FaKey className="w-4 h-4 text-zinc-400" />}
+                        {showApiKeyInput ? <FaLock className="w-3 h-3 text-zinc-400" /> : <FaKey className="w-3 h-3 text-zinc-400" />}
                       </button>
                     </div>
-                    <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                    <p className="mt-1.5 text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400">
                       Don't have an API key? <Link href="/console" className="text-blue-600 dark:text-blue-400 hover:underline font-semibold">Get one free →</Link>
                     </p>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-2">Message</label>
+                    <label className="block text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Message</label>
                     <textarea
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
-                      rows={4}
+                      rows={3}
                       placeholder="Enter your prompt..."
-                      className="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 focus:border-blue-500 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all duration-200 resize-none"
+                      className="w-full px-3 py-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs sm:text-sm text-zinc-900 dark:text-white placeholder-zinc-400 focus:border-blue-500 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all duration-200 resize-none"
                     />
                   </div>
 
                   <button
                     onClick={handleSendRequest}
                     disabled={isLoading}
-                    className="w-full flex items-center justify-center gap-2 px-6 py-4 text-base font-bold text-white bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 rounded-xl shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 disabled:hover:scale-100"
+                    className="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-3 text-sm sm:text-base font-bold text-white bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 rounded-lg shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 disabled:hover:scale-100"
                   >
                     {isLoading ? (
                       <>
-                        <FaSpinner className="w-5 h-5 animate-spin" />
+                        <FaSpinner className="w-4 h-4 animate-spin" />
                         <span>Processing...</span>
                       </>
                     ) : (
                       <>
-                        <FaPlay className="w-4 h-4" />
+                        <FaPlay className="w-3.5 h-3.5" />
                         <span>Send Request</span>
                       </>
                     )}
@@ -820,24 +809,24 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="p-6 rounded-2xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 shadow-xl">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <FaTerminal className="w-4 h-4 text-zinc-600 dark:text-zinc-400" />
-                    <span className="text-sm font-bold text-zinc-700 dark:text-zinc-300">cURL Example</span>
+              <div className="p-4 sm:p-5 rounded-xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 shadow-lg">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-1.5">
+                    <FaTerminal className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-zinc-600 dark:text-zinc-400" />
+                    <span className="text-xs sm:text-sm font-bold text-zinc-700 dark:text-zinc-300">cURL Example</span>
                   </div>
                   <button
                     onClick={() => copyToClipboard(generateCurl(), 'request')}
-                    className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-colors duration-200"
+                    className="p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-colors duration-200"
                   >
                     {copiedRequest ? (
-                      <FaCheck className="w-4 h-4 text-green-500" />
+                      <FaCheck className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-green-500" />
                     ) : (
-                      <FaCopy className="w-4 h-4 text-zinc-500" />
+                      <FaCopy className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-zinc-500" />
                     )}
                   </button>
                 </div>
-                <div className="rounded-xl bg-zinc-100 dark:bg-zinc-900 p-4 overflow-x-auto">
+                <div className="rounded-lg bg-zinc-100 dark:bg-zinc-900 p-2.5 sm:p-3 overflow-x-auto">
                   <SyntaxHighlighter
                     language="bash"
                     style={isDark ? oneDark : oneLight}
@@ -845,7 +834,7 @@ export default function Home() {
                       margin: 0,
                       padding: 0,
                       background: 'transparent',
-                      fontSize: '12px',
+                      fontSize: '10px',
                     }}
                     wrapLongLines={true}
                   >
@@ -855,89 +844,85 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="space-y-6">
-              <div className="p-6 rounded-2xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 shadow-xl min-h-[400px]">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-2">
-                    <FaTerminal className="w-4 h-4 text-zinc-600 dark:text-zinc-400" />
-                    <span className="text-sm font-bold text-zinc-700 dark:text-zinc-300">Response</span>
+            <div className="space-y-3 sm:space-y-4">
+              <div className="p-4 sm:p-5 rounded-xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 shadow-lg min-h-[300px]">
+                <div className="flex items-center justify-between mb-4 sm:mb-5">
+                  <div className="flex items-center gap-1.5">
+                    <FaTerminal className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-zinc-600 dark:text-zinc-400" />
+                    <span className="text-xs sm:text-sm font-bold text-zinc-700 dark:text-zinc-300">Response</span>
                   </div>
                   {response && (
                     <button
                       onClick={() => copyToClipboard(JSON.stringify(response, null, 2), 'response')}
-                      className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-colors duration-200"
+                      className="p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-colors duration-200"
                     >
                       {copiedResponse ? (
-                        <FaCheck className="w-4 h-4 text-green-500" />
+                        <FaCheck className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-green-500" />
                       ) : (
-                        <FaCopy className="w-4 h-4 text-zinc-500" />
+                        <FaCopy className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-zinc-500" />
                       )}
                     </button>
                   )}
                 </div>
 
                 {!response && !error && !isLoading && (
-                  <div className="flex flex-col items-center justify-center h-[320px] text-center">
-                    <div className="w-16 h-16 rounded-2xl bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center mb-4">
-                      <FaTerminal className="w-8 h-8 text-zinc-400" />
-                    </div>
-                    <p className="text-sm text-zinc-500 dark:text-zinc-400">Send a request to see the response</p>
+                  <div className="flex flex-col items-center justify-center h-[240px] text-center">
+                    <FaTerminal className="w-10 h-10 sm:w-12 sm:h-12 text-zinc-300 dark:text-zinc-700 mb-3" />
+                    <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400">Send a request to see the response</p>
                   </div>
                 )}
 
                 {isLoading && (
-                  <div className="flex flex-col items-center justify-center h-[320px]">
-                    <FaSpinner className="w-12 h-12 text-blue-500 animate-spin mb-4" />
-                    <p className="text-sm text-zinc-600 dark:text-zinc-400">Processing your request...</p>
+                  <div className="flex flex-col items-center justify-center h-[240px]">
+                    <FaSpinner className="w-10 h-10 text-blue-500 animate-spin mb-3" />
+                    <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400">Processing your request...</p>
                   </div>
                 )}
 
                 {error && (
-                  <div className="p-4 rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/50">
-                    <div className="flex items-start gap-3">
-                      <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-                        <FaTimes className="w-4 h-4 text-red-600 dark:text-red-400" />
-                      </div>
+                  <div className="p-3 rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/50">
+                    <div className="flex items-start gap-2">
+                      <FaTimes className="w-4 h-4 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
                       <div className="flex-1">
-                        <h4 className="text-sm font-bold text-red-900 dark:text-red-200 mb-1">Error</h4>
-                        <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+                        <h4 className="text-xs sm:text-sm font-bold text-red-900 dark:text-red-200 mb-0.5">Error</h4>
+                        <p className="text-xs sm:text-sm text-red-700 dark:text-red-300">{error}</p>
                       </div>
                     </div>
                   </div>
                 )}
 
                 {response && (
-                  <div className="space-y-4">
-                    <div className="p-4 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
-                      <p className="text-sm text-zinc-900 dark:text-white leading-relaxed whitespace-pre-wrap">
+                  <div className="space-y-3">
+                    <div className="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
+                      <p className="text-xs sm:text-sm text-zinc-900 dark:text-white leading-relaxed whitespace-pre-wrap">
                         {response.choices?.[0]?.message?.content || "No content"}
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="p-4 rounded-xl bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 border border-blue-200 dark:border-blue-900/30">
-                        <div className="text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">Total Tokens</div>
-                        <div className="text-2xl font-black text-blue-700 dark:text-blue-300">
+                    <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
+                      <div className="p-3 rounded-lg bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 border border-blue-200 dark:border-blue-900/30">
+                        <div className="text-[10px] sm:text-xs font-semibold text-blue-600 dark:text-blue-400 mb-0.5">Total Tokens</div>
+                        <div className="text-lg sm:text-xl font-black text-blue-700 dark:text-blue-300">
                           {response.usage?.total_tokens || 0}
                         </div>
                       </div>
-                      <div className="p-4 rounded-xl bg-gradient-to-br from-cyan-50 to-teal-50 dark:from-cyan-950/20 dark:to-teal-950/20 border border-cyan-200 dark:border-cyan-900/30">
-                        <div className="text-xs font-semibold text-cyan-600 dark:text-cyan-400 mb-1">Latency</div>
-                        <div className="text-2xl font-black text-cyan-700 dark:text-cyan-300">
+                      <div className="p-3 rounded-lg bg-gradient-to-br from-cyan-50 to-teal-50 dark:from-cyan-950/20 dark:to-teal-950/20 border border-cyan-200 dark:border-cyan-900/30">
+                        <div className="text-[10px] sm:text-xs font-semibold text-cyan-600 dark:text-cyan-400 mb-0.5">Latency</div>
+                        <div className="text-lg sm:text-xl font-black text-cyan-700 dark:text-cyan-300">
                           {response.latency || 0}ms
                         </div>
                       </div>
                     </div>
 
                     <details className="group">
-                      <summary className="cursor-pointer text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors py-2">
-                        <span className="inline-flex items-center gap-2">
-                          <FaChevronRight className="w-3 h-3 group-open:rotate-90 transition-transform duration-200" />
+                      <summary className="cursor-pointer text-xs sm:text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors py-1.5">
+                        <span className="inline-flex items-center gap-1.5">
+                          <FaChevronRight className="w-2.5 h-2.5 group-open:rotate-90 transition-transform duration-200" />
                           View Full Response
                         </span>
                       </summary>
-                      <div className="mt-3 p-4 rounded-xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 overflow-x-auto">
-                        <pre className="text-xs text-zinc-700 dark:text-zinc-300">
+                      <div className="mt-2 p-2.5 sm:p-3 rounded-lg bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 overflow-x-auto">
+                        <pre className="text-[10px] sm:text-xs text-zinc-700 dark:text-zinc-300">
                           {JSON.stringify(response, null, 2)}
                         </pre>
                       </div>
@@ -950,61 +935,59 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-zinc-50 dark:bg-zinc-950/50" id="pricing" data-animate="pricing">
+      <section className="py-12 sm:py-16 lg:py-20 px-3 sm:px-4 lg:px-6 bg-zinc-50 dark:bg-zinc-950/50" id="pricing" data-animate="pricing">
         <div className="max-w-7xl mx-auto">
-          <div className={`text-center space-y-4 mb-16 transition-all duration-700 ${isVisible.pricing ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-900/50">
-              <FaCheckCircle className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
-              <span className="text-xs font-semibold text-green-700 dark:text-green-300">Simple, Transparent Pricing</span>
+          <div className={`text-center space-y-3 mb-10 sm:mb-12 transition-all duration-700 ${isVisible.pricing ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-900/50">
+              <FaCheckCircle className="w-3 h-3 text-green-600 dark:text-green-400" />
+              <span className="text-[10px] sm:text-xs font-semibold text-green-700 dark:text-green-300">Simple, Transparent Pricing</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-zinc-900 dark:text-white">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-zinc-900 dark:text-white px-4">
               Start Free, Scale as You Grow
             </h2>
-            <p className="text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
+            <p className="text-sm sm:text-base lg:text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto px-4">
               No hidden fees. No surprises. Pay only for what you use.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-4 sm:gap-6">
             {pricingPlans.map((plan, idx) => (
               <div
                 key={idx}
-                className={`relative p-8 rounded-2xl transition-all duration-700 hover:scale-105 ${
+                className={`relative p-5 sm:p-6 lg:p-7 rounded-xl transition-all duration-700 hover:scale-105 ${
                   plan.popular 
-                    ? 'bg-white dark:bg-zinc-950 border-2 border-blue-500 dark:border-blue-400 shadow-2xl shadow-blue-500/20' 
-                    : 'bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-xl'
+                    ? 'bg-white dark:bg-zinc-950 border-2 border-blue-500 dark:border-blue-400 shadow-xl shadow-blue-500/20' 
+                    : 'bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-lg'
                 } ${isVisible.pricing ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
                 style={{ transitionDelay: `${idx * 100}ms` }}
               >
                 {plan.popular && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 shadow-lg">
-                    <span className="text-xs font-bold text-white">Most Popular</span>
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 shadow-lg">
+                    <span className="text-[10px] sm:text-xs font-bold text-white">Most Popular</span>
                   </div>
                 )}
 
-                <div className="text-center mb-8">
-                  <h3 className="text-2xl font-black text-zinc-900 dark:text-white mb-2">{plan.name}</h3>
-                  <div className="flex items-baseline justify-center gap-1 mb-3">
-                    <span className="text-5xl font-black text-zinc-900 dark:text-white">{plan.price}</span>
-                    <span className="text-lg text-zinc-500 dark:text-zinc-400">{plan.period}</span>
+                <div className="text-center mb-5 sm:mb-6">
+                  <h3 className="text-lg sm:text-xl font-black text-zinc-900 dark:text-white mb-2">{plan.name}</h3>
+                  <div className="flex items-baseline justify-center gap-1 mb-2">
+                    <span className="text-3xl sm:text-4xl font-black text-zinc-900 dark:text-white">{plan.price}</span>
+                    <span className="text-sm sm:text-base text-zinc-500 dark:text-zinc-400">{plan.period}</span>
                   </div>
-                  <p className="text-sm text-zinc-600 dark:text-zinc-400">{plan.description}</p>
+                  <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400">{plan.description}</p>
                 </div>
 
-                <ul className="space-y-4 mb-8">
+                <ul className="space-y-2.5 sm:space-y-3 mb-5 sm:mb-6">
                   {plan.features.map((feature, fidx) => (
-                    <li key={fidx} className="flex items-start gap-3">
-                      <div className={`flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-br ${plan.gradient} flex items-center justify-center mt-0.5`}>
-                        <FaCheck className="w-3 h-3 text-white" />
-                      </div>
-                      <span className="text-sm text-zinc-700 dark:text-zinc-300">{feature}</span>
+                    <li key={fidx} className="flex items-start gap-2">
+                      <FaCheck className={`flex-shrink-0 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-gradient-to-br ${plan.gradient} bg-clip-text text-transparent mt-0.5`} />
+                      <span className="text-xs sm:text-sm text-zinc-700 dark:text-zinc-300">{feature}</span>
                     </li>
                   ))}
                 </ul>
 
                 <Link
                   href="/console"
-                  className={`block w-full text-center px-6 py-4 text-base font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 ${
+                  className={`block w-full text-center px-4 py-2.5 sm:py-3 text-sm sm:text-base font-bold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 ${
                     plan.popular
                       ? 'text-white bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600'
                       : 'text-zinc-900 dark:text-white bg-zinc-100 dark:bg-zinc-900 hover:bg-zinc-200 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800'
@@ -1018,45 +1001,45 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-20 px-4 sm:px-6 lg:px-8" data-animate="testimonials">
+      <section className="py-12 sm:py-16 lg:py-20 px-3 sm:px-4 lg:px-6" data-animate="testimonials">
         <div className="max-w-7xl mx-auto">
-          <div className={`text-center space-y-4 mb-16 transition-all duration-700 ${isVisible.testimonials ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-900/50">
-              <FaStar className="w-3.5 h-3.5 text-yellow-600 dark:text-yellow-400" />
-              <span className="text-xs font-semibold text-yellow-700 dark:text-yellow-300">Loved by Developers</span>
+          <div className={`text-center space-y-3 mb-10 sm:mb-12 transition-all duration-700 ${isVisible.testimonials ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-900/50">
+              <FaStar className="w-3 h-3 text-yellow-600 dark:text-yellow-400" />
+              <span className="text-[10px] sm:text-xs font-semibold text-yellow-700 dark:text-yellow-300">Loved by Developers</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-zinc-900 dark:text-white">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-zinc-900 dark:text-white px-4">
               What Our Users Say
             </h2>
-            <p className="text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
+            <p className="text-sm sm:text-base lg:text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto px-4">
               Join thousands of developers building the future with Aichixia.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-4 sm:gap-6">
             {testimonials.map((testimonial, idx) => (
               <div
                 key={idx}
-                className={`p-8 rounded-2xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-2xl transition-all duration-500 hover:scale-105 ${
+                className={`p-4 sm:p-5 lg:p-6 rounded-xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-xl transition-all duration-500 hover:scale-105 ${
                   isVisible.testimonials ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
                 }`}
                 style={{ transitionDelay: `${idx * 100}ms` }}
               >
-                <div className="flex items-center gap-1 mb-4">
+                <div className="flex items-center gap-0.5 mb-3">
                   {Array.from({ length: testimonial.rating }).map((_, i) => (
-                    <FaStar key={i} className="w-4 h-4 text-yellow-500" />
+                    <FaStar key={i} className="w-3 h-3 text-yellow-500" />
                   ))}
                 </div>
-                <p className="text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed mb-6">
+                <p className="text-xs sm:text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed mb-4">
                   "{testimonial.content}"
                 </p>
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
-                    <span className="text-sm font-bold text-white">{testimonial.avatar}</span>
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center flex-shrink-0">
+                    <span className="text-xs font-bold text-white">{testimonial.avatar}</span>
                   </div>
-                  <div>
-                    <div className="text-sm font-bold text-zinc-900 dark:text-white">{testimonial.name}</div>
-                    <div className="text-xs text-zinc-500 dark:text-zinc-400">{testimonial.role}</div>
+                  <div className="min-w-0">
+                    <div className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-white truncate">{testimonial.name}</div>
+                    <div className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 truncate">{testimonial.role}</div>
                   </div>
                 </div>
               </div>
@@ -1065,39 +1048,39 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-500 via-cyan-500 to-purple-600 animate-gradient" data-animate="cta">
+      <section className="py-12 sm:py-16 lg:py-20 px-3 sm:px-4 lg:px-6 bg-gradient-to-br from-blue-500 via-cyan-500 to-purple-600 animate-gradient" data-animate="cta">
         <div className="max-w-5xl mx-auto text-center">
-          <div className={`space-y-8 transition-all duration-700 ${isVisible.cta ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 backdrop-blur-sm border border-white/30">
-              <FaRocket className="w-3.5 h-3.5 text-white" />
-              <span className="text-xs font-semibold text-white">Ready to Build?</span>
+          <div className={`space-y-4 sm:space-y-6 transition-all duration-700 ${isVisible.cta ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-sm border border-white/30">
+              <FaRocket className="w-3 h-3 text-white" />
+              <span className="text-[10px] sm:text-xs font-semibold text-white">Ready to Build?</span>
             </div>
             
-            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight px-4">
               Start Building AI Apps Today
             </h2>
             
-            <p className="text-xl text-white/90 max-w-2xl mx-auto">
+            <p className="text-sm sm:text-base lg:text-lg text-white/90 max-w-2xl mx-auto px-4">
               Join 50,000+ developers using Aichixia to power their AI applications. Get started in 60 seconds.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 px-4">
               <Link
                 href="/console"
-                className="group flex items-center gap-2 px-8 py-4 text-base font-bold text-blue-600 bg-white hover:bg-zinc-50 rounded-xl shadow-2xl hover:shadow-white/30 transition-all duration-300 hover:scale-105"
+                className="group flex items-center gap-1.5 sm:gap-2 px-5 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base font-bold text-blue-600 bg-white hover:bg-zinc-50 rounded-lg shadow-xl hover:shadow-white/30 transition-all duration-300 hover:scale-105 w-full sm:w-auto justify-center"
               >
-                <FaRocket className="w-5 h-5" />
+                <FaRocket className="w-4 h-4" />
                 <span>Get Started Free</span>
-                <FaArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+                <FaArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform duration-300" />
               </Link>
               
               <Link
                 href="/docs"
-                className="group flex items-center gap-2 px-8 py-4 text-base font-bold text-white bg-white/20 backdrop-blur-sm hover:bg-white/30 border border-white/30 rounded-xl shadow-lg transition-all duration-300 hover:scale-105"
+                className="group flex items-center gap-1.5 sm:gap-2 px-5 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base font-bold text-white bg-white/20 backdrop-blur-sm hover:bg-white/30 border border-white/30 rounded-lg shadow-lg transition-all duration-300 hover:scale-105 w-full sm:w-auto justify-center"
               >
-                <FaBook className="w-5 h-5" />
+                <FaBook className="w-4 h-4" />
                 <span>Read Documentation</span>
-                <FaExternalLinkAlt className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-300" />
+                <FaExternalLinkAlt className="w-3 h-3 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-300" />
               </Link>
             </div>
           </div>
@@ -1105,22 +1088,22 @@ export default function Home() {
       </section>
 
       {showModelModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200" onClick={() => setShowModelModal(false)}>
-          <div className="bg-white dark:bg-zinc-950 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-hidden border border-zinc-200 dark:border-zinc-800" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between p-6 border-b border-zinc-200 dark:border-zinc-800">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200" onClick={() => setShowModelModal(false)}>
+          <div className="bg-white dark:bg-zinc-950 rounded-xl shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-hidden border border-zinc-200 dark:border-zinc-800" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-4 sm:p-5 border-b border-zinc-200 dark:border-zinc-800">
               <div>
-                <h3 className="text-xl font-black text-zinc-900 dark:text-white">Select AI Model</h3>
-                <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1">Choose from 20+ state-of-the-art models</p>
+                <h3 className="text-base sm:text-lg font-black text-zinc-900 dark:text-white">Select AI Model</h3>
+                <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 mt-0.5">Choose from 20+ state-of-the-art models</p>
               </div>
               <button
                 onClick={() => setShowModelModal(false)}
-                className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-xl transition-colors duration-200"
+                className="p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-colors duration-200"
               >
-                <FaTimes className="w-5 h-5 text-zinc-600 dark:text-zinc-400" />
+                <FaTimes className="w-4 h-4 text-zinc-600 dark:text-zinc-400" />
               </button>
             </div>
-            <div className="overflow-y-auto max-h-[calc(85vh-100px)] p-4">
-              <div className="grid sm:grid-cols-2 gap-4">
+            <div className="overflow-y-auto max-h-[calc(85vh-80px)] p-3 sm:p-4">
+              <div className="grid sm:grid-cols-2 gap-2.5 sm:gap-3">
                 {models.map((model) => (
                   <button
                     key={model.id}
@@ -1128,25 +1111,21 @@ export default function Home() {
                       setSelectedModel(model.id);
                       setShowModelModal(false);
                     }}
-                    className={`relative p-6 rounded-xl text-left transition-all duration-300 hover:scale-105 ${
+                    className={`relative p-4 sm:p-5 rounded-lg text-left transition-all duration-300 hover:scale-105 ${
                       selectedModel === model.id
-                        ? 'bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 border-2 border-blue-500 dark:border-blue-400 shadow-xl shadow-blue-500/20'
+                        ? 'bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 border-2 border-blue-500 dark:border-blue-400 shadow-lg shadow-blue-500/20'
                         : 'bg-zinc-50 dark:bg-zinc-900 border-2 border-transparent hover:bg-zinc-100 dark:hover:bg-zinc-800'
                     }`}
                   >
-                    <div className="flex items-start justify-between gap-3 mb-3">
-                      <div className={`flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br ${model.color} shadow-lg flex items-center justify-center`}>
-                        <FaRobot className="w-6 h-6 text-white" />
-                      </div>
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <FaRobot className={`flex-shrink-0 w-6 h-6 sm:w-7 sm:h-7 bg-gradient-to-br ${model.color} bg-clip-text text-transparent`} />
                       {selectedModel === model.id && (
-                        <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-500 dark:bg-blue-400 flex items-center justify-center">
-                          <FaCheck className="w-3 h-3 text-white" />
-                        </div>
+                        <FaCheck className="flex-shrink-0 w-4 h-4 text-blue-600 dark:text-blue-400" />
                       )}
                     </div>
-                    <div className="text-sm font-bold text-zinc-900 dark:text-white mb-1">{model.name}</div>
-                    <div className="text-xs text-zinc-500 dark:text-zinc-400 mb-2">{model.provider}</div>
-                    <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">{model.description}</p>
+                    <div className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-white mb-0.5">{model.name}</div>
+                    <div className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 mb-1.5">{model.provider}</div>
+                    <p className="text-[10px] sm:text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">{model.description}</p>
                   </button>
                 ))}
               </div>
@@ -1156,47 +1135,45 @@ export default function Home() {
       )}
 
       <footer className="border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-black">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="flex flex-col items-center justify-center space-y-6">
-            <Link href="/" className="inline-flex items-center gap-2 group">
-              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 shadow-lg group-hover:scale-105 transition-all duration-300">
-                <FaTerminal className="w-5 h-5 text-white" />
-              </div>
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-8 sm:py-10">
+          <div className="flex flex-col items-center justify-center space-y-4 sm:space-y-5">
+            <Link href="/" className="inline-flex items-center gap-1.5 group">
+              <FaTerminal className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform duration-300" />
               <div>
-                <h3 className="text-lg font-black text-zinc-900 dark:text-white">Aichixia</h3>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">AI API Platform</p>
+                <h3 className="text-sm sm:text-base font-black text-zinc-900 dark:text-white">Aichixia</h3>
+                <p className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400">AI API Platform</p>
               </div>
             </Link>
 
-            <p className="text-sm text-zinc-600 dark:text-zinc-400 text-center">
+            <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 text-center">
               © {new Date().getFullYear()} Aichixia. All rights reserved.
             </p>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-center">
               <a 
                 href="mailto:contact@aichixia.xyz"
-                className="text-xs text-zinc-500 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+                className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
               >
                 Contact
               </a>
               <span className="text-zinc-300 dark:text-zinc-700">•</span>
               <Link 
                 href="/privacy" 
-                className="text-xs text-zinc-500 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+                className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
               >
                 Privacy
               </Link>
               <span className="text-zinc-300 dark:text-zinc-700">•</span>
               <Link 
                 href="/terms" 
-                className="text-xs text-zinc-500 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+                className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
               >
                 Terms
               </Link>
               <span className="text-zinc-300 dark:text-zinc-700">•</span>
               <Link 
                 href="/security" 
-                className="text-xs text-zinc-500 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+                className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
               >
                 Security
               </Link>
