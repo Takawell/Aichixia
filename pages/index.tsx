@@ -168,21 +168,24 @@ const testimonials = [
     role: "CTO at TechStart",
     avatar: "SC",
     content: "Aichixia's API cut our AI infrastructure costs by 70% while improving response times. The OpenAI compatibility made migration seamless.",
-    rating: 5
+    rating: 5,
+    profileUrl: "https://linkedin.com/in/sarahchen"
   },
   {
     name: "Marcus Rodriguez",
     role: "Lead Engineer at DataFlow",
     avatar: "MR",
     content: "Best AI API we've tested. Lightning fast, reliable, and the multi-model support lets us optimize for each use case.",
-    rating: 5
+    rating: 5,
+    profileUrl: "https://linkedin.com/in/marcusrodriguez"
   },
   {
     name: "Emily Watson",
     role: "Founder of CodeAssist",
     avatar: "EW",
     content: "The developer experience is incredible. Great docs, responsive support, and the playground made testing so much easier.",
-    rating: 5
+    rating: 5,
+    profileUrl: "https://linkedin.com/in/emilywatson"
   }
 ];
 
@@ -508,6 +511,67 @@ export default function Home() {
               >
                 Docs
               </Link>
+            </nav>
+
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <button
+                onClick={toggleTheme}
+                className="p-1.5 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
+                aria-label="Toggle theme"
+              >
+                {isDark ? <FaSun className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <FaMoon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
+              </button>
+
+              <Link
+                href="/console"
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
+              >
+                <FaRocket className="w-3 h-3" />
+                <span>Console</span>
+              </Link>
+
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden p-1.5 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
+                aria-label="Toggle menu"
+              >
+                {mobileMenuOpen ? <FaTimes className="w-4 h-4" /> : <FaBars className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-black">
+            <nav className="flex flex-col p-2 space-y-1">
+              <Link
+                href="#features"
+                className="px-3 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Features
+              </Link>
+              <Link
+                href="#playground"
+                className="px-3 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Playground
+              </Link>
+              <Link
+                href="#pricing"
+                className="px-3 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Pricing
+              </Link>
+              <Link
+                href="/docs"
+                className="px-3 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Docs
+              </Link>
               <Link
                 href="/console"
                 className="flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 rounded-lg shadow-lg transition-all duration-200"
@@ -600,7 +664,14 @@ export default function Home() {
                 }`}
                 style={{ transitionDelay: `${idx * 100}ms` }}
               >
-                <feature.icon className={`w-6 h-6 sm:w-7 sm:h-7 bg-gradient-to-br ${feature.gradient} bg-clip-text text-transparent mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300`} />
+                <feature.icon className={`w-6 h-6 sm:w-7 sm:h-7 mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300 ${
+                  idx === 0 ? 'text-orange-600 dark:text-orange-400' :
+                  idx === 1 ? 'text-emerald-600 dark:text-emerald-400' :
+                  idx === 2 ? 'text-purple-600 dark:text-purple-400' :
+                  idx === 3 ? 'text-cyan-600 dark:text-cyan-400' :
+                  idx === 4 ? 'text-rose-600 dark:text-rose-400' :
+                  'text-indigo-600 dark:text-indigo-400'
+                }`} />
                 <h3 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-white mb-2">{feature.title}</h3>
                 <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">{feature.description}</p>
               </div>
@@ -639,7 +710,11 @@ export default function Home() {
                     <span className="text-base sm:text-lg font-black text-white">{step.step}</span>
                   </div>
 
-                  <step.icon className={`w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br ${step.gradient} bg-clip-text text-transparent mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300`} />
+                  <step.icon className={`w-8 h-8 sm:w-10 sm:h-10 mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300 ${
+                    idx === 0 ? 'text-cyan-600 dark:text-cyan-400' :
+                    idx === 1 ? 'text-purple-600 dark:text-purple-400' :
+                    'text-emerald-600 dark:text-emerald-400'
+                  }`} />
 
                   <h3 className="text-lg sm:text-xl font-bold text-zinc-900 dark:text-white mb-2">{step.title}</h3>
                   <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed mb-3 sm:mb-4">{step.description}</p>
@@ -706,7 +781,12 @@ export default function Home() {
                 }`}
                 style={{ transitionDelay: `${idx * 100}ms` }}
               >
-                <useCase.icon className={`w-6 h-6 sm:w-7 sm:h-7 bg-gradient-to-br ${useCase.gradient} bg-clip-text text-transparent mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300`} />
+                <useCase.icon className={`w-6 h-6 sm:w-7 sm:h-7 mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300 ${
+                  idx === 0 ? 'text-cyan-600 dark:text-cyan-400' :
+                  idx === 1 ? 'text-purple-600 dark:text-purple-400' :
+                  idx === 2 ? 'text-emerald-600 dark:text-emerald-400' :
+                  'text-orange-600 dark:text-orange-400'
+                }`} />
                 <h3 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-white mb-2">{useCase.title}</h3>
                 <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">{useCase.description}</p>
               </div>
@@ -715,7 +795,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-12 sm:py-16 lg:py-20 px-3 sm:px-4 lg:px-6" id="playground" data-animate="playground">
+      <section className="py-12 sm:py-16 lg:py-20 px-3 sm:px-4 lg:px-6 overflow-hidden" id="playground" data-animate="playground">
         <div className="max-w-7xl mx-auto">
           <div className={`text-center space-y-3 mb-10 sm:mb-12 transition-all duration-700 ${isVisible.playground ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50">
@@ -731,7 +811,7 @@ export default function Home() {
           </div>
 
           <div className={`grid lg:grid-cols-2 gap-4 sm:gap-6 transition-all duration-700 ${isVisible.playground ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <div className="space-y-3 sm:space-y-4">
+            <div className="space-y-3 sm:space-y-4 min-w-0">
               <div className="p-4 sm:p-5 rounded-xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 shadow-lg">
                 <div className="flex items-center justify-between mb-4 sm:mb-5">
                   <h3 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white">Request Configuration</h3>
@@ -746,7 +826,7 @@ export default function Home() {
                       className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-200 group"
                     >
                       <div className="flex items-center gap-2">
-                        <FaRobot className={`w-5 h-5 bg-gradient-to-br ${selectedModelData?.color} bg-clip-text text-transparent`} />
+                        <FaRobot className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                         <div className="text-left">
                           <div className="text-xs sm:text-sm font-semibold text-zinc-900 dark:text-white">{selectedModelData?.name}</div>
                           <div className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400">{selectedModelData?.provider}</div>
@@ -809,7 +889,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="p-4 sm:p-5 rounded-xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 shadow-lg">
+              <div className="p-4 sm:p-5 rounded-xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 shadow-lg min-w-0">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-1.5">
                     <FaTerminal className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-zinc-600 dark:text-zinc-400" />
@@ -817,7 +897,7 @@ export default function Home() {
                   </div>
                   <button
                     onClick={() => copyToClipboard(generateCurl(), 'request')}
-                    className="p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-colors duration-200"
+                    className="p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-colors duration-200 flex-shrink-0"
                   >
                     {copiedRequest ? (
                       <FaCheck className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-green-500" />
@@ -826,26 +906,28 @@ export default function Home() {
                     )}
                   </button>
                 </div>
-                <div className="rounded-lg bg-zinc-100 dark:bg-zinc-900 p-2.5 sm:p-3 overflow-x-auto">
-                  <SyntaxHighlighter
-                    language="bash"
-                    style={isDark ? oneDark : oneLight}
-                    customStyle={{
-                      margin: 0,
-                      padding: 0,
-                      background: 'transparent',
-                      fontSize: '10px',
-                    }}
-                    wrapLongLines={true}
-                  >
-                    {generateCurl()}
-                  </SyntaxHighlighter>
+                <div className="rounded-lg bg-zinc-100 dark:bg-zinc-900 p-2.5 sm:p-3 overflow-x-auto max-w-full">
+                  <div className="min-w-0">
+                    <SyntaxHighlighter
+                      language="bash"
+                      style={isDark ? oneDark : oneLight}
+                      customStyle={{
+                        margin: 0,
+                        padding: 0,
+                        background: 'transparent',
+                        fontSize: '10px',
+                      }}
+                      wrapLongLines={true}
+                    >
+                      {generateCurl()}
+                    </SyntaxHighlighter>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="space-y-3 sm:space-y-4">
-              <div className="p-4 sm:p-5 rounded-xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 shadow-lg min-h-[300px]">
+            <div className="space-y-3 sm:space-y-4 min-w-0">
+              <div className="p-4 sm:p-5 rounded-xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 shadow-lg min-h-[300px] min-w-0">
                 <div className="flex items-center justify-between mb-4 sm:mb-5">
                   <div className="flex items-center gap-1.5">
                     <FaTerminal className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-zinc-600 dark:text-zinc-400" />
@@ -854,7 +936,7 @@ export default function Home() {
                   {response && (
                     <button
                       onClick={() => copyToClipboard(JSON.stringify(response, null, 2), 'response')}
-                      className="p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-colors duration-200"
+                      className="p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-colors duration-200 flex-shrink-0"
                     >
                       {copiedResponse ? (
                         <FaCheck className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-green-500" />
@@ -892,9 +974,9 @@ export default function Home() {
                 )}
 
                 {response && (
-                  <div className="space-y-3">
-                    <div className="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
-                      <p className="text-xs sm:text-sm text-zinc-900 dark:text-white leading-relaxed whitespace-pre-wrap">
+                  <div className="space-y-3 min-w-0">
+                    <div className="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+                      <p className="text-xs sm:text-sm text-zinc-900 dark:text-white leading-relaxed whitespace-pre-wrap break-words">
                         {response.choices?.[0]?.message?.content || "No content"}
                       </p>
                     </div>
@@ -921,8 +1003,8 @@ export default function Home() {
                           View Full Response
                         </span>
                       </summary>
-                      <div className="mt-2 p-2.5 sm:p-3 rounded-lg bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 overflow-x-auto">
-                        <pre className="text-[10px] sm:text-xs text-zinc-700 dark:text-zinc-300">
+                      <div className="mt-2 p-2.5 sm:p-3 rounded-lg bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 overflow-x-auto max-w-full">
+                        <pre className="text-[10px] sm:text-xs text-zinc-700 dark:text-zinc-300 break-all">
                           {JSON.stringify(response, null, 2)}
                         </pre>
                       </div>
@@ -979,7 +1061,13 @@ export default function Home() {
                 <ul className="space-y-2.5 sm:space-y-3 mb-5 sm:mb-6">
                   {plan.features.map((feature, fidx) => (
                     <li key={fidx} className="flex items-start gap-2">
-                      <FaCheck className={`flex-shrink-0 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-gradient-to-br ${plan.gradient} bg-clip-text text-transparent mt-0.5`} />
+                      <FaCheck className={`flex-shrink-0 w-3.5 h-3.5 sm:w-4 sm:h-4 mt-0.5 ${
+                        plan.popular 
+                          ? 'text-blue-600 dark:text-blue-400' 
+                          : idx === 0 
+                            ? 'text-zinc-600 dark:text-zinc-400' 
+                            : 'text-purple-600 dark:text-purple-400'
+                      }`} />
                       <span className="text-xs sm:text-sm text-zinc-700 dark:text-zinc-300">{feature}</span>
                     </li>
                   ))}
@@ -1033,15 +1121,21 @@ export default function Home() {
                 <p className="text-xs sm:text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed mb-4">
                   "{testimonial.content}"
                 </p>
-                <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center flex-shrink-0">
+                <a 
+                  href={testimonial.profileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2.5 group"
+                >
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
                     <span className="text-xs font-bold text-white">{testimonial.avatar}</span>
                   </div>
                   <div className="min-w-0">
-                    <div className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-white truncate">{testimonial.name}</div>
+                    <div className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200">{testimonial.name}</div>
                     <div className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 truncate">{testimonial.role}</div>
                   </div>
-                </div>
+                  <FaExternalLinkAlt className="w-3 h-3 text-zinc-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex-shrink-0 ml-auto" />
+                </a>
               </div>
             ))}
           </div>
@@ -1104,7 +1198,7 @@ export default function Home() {
             </div>
             <div className="overflow-y-auto max-h-[calc(85vh-80px)] p-3 sm:p-4">
               <div className="grid sm:grid-cols-2 gap-2.5 sm:gap-3">
-                {models.map((model) => (
+                {models.map((model, idx) => (
                   <button
                     key={model.id}
                     onClick={() => {
@@ -1118,7 +1212,16 @@ export default function Home() {
                     }`}
                   >
                     <div className="flex items-start justify-between gap-2 mb-2">
-                      <FaRobot className={`flex-shrink-0 w-6 h-6 sm:w-7 sm:h-7 bg-gradient-to-br ${model.color} bg-clip-text text-transparent`} />
+                      <FaRobot className={`flex-shrink-0 w-6 h-6 sm:w-7 sm:h-7 ${
+                        idx === 0 ? 'text-purple-600 dark:text-purple-400' :
+                        idx === 1 ? 'text-orange-600 dark:text-orange-400' :
+                        idx === 2 ? 'text-cyan-600 dark:text-cyan-400' :
+                        idx === 3 ? 'text-emerald-600 dark:text-emerald-400' :
+                        idx === 4 ? 'text-indigo-600 dark:text-indigo-400' :
+                        idx === 5 ? 'text-yellow-600 dark:text-yellow-400' :
+                        idx === 6 ? 'text-teal-600 dark:text-teal-400' :
+                        'text-rose-600 dark:text-rose-400'
+                      }`} />
                       {selectedModel === model.id && (
                         <FaCheck className="flex-shrink-0 w-4 h-4 text-blue-600 dark:text-blue-400" />
                       )}
