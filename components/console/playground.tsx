@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { FiPlay, FiCopy, FiCheck, FiChevronDown, FiZap, FiCode, FiTerminal, FiSettings, FiClock, FiCpu, FiAlertCircle, FiRotateCcw, FiEye, FiEyeOff } from 'react-icons/fi';
 import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiAirbrake } from 'react-icons/si';
-
 import { GiSpermWhale, GiPowerLightning, GiClover, GiCloverSpiked } from 'react-icons/gi';
 import { TbSquareLetterZ, TbLetterM } from 'react-icons/tb';
 import { FaXTwitter } from 'react-icons/fa6';
@@ -48,7 +47,7 @@ const LANGS: { id: Lang; label: string }[] = [
 
 function generateCode(lang: Lang, model: string, message: string, apiKey: string, temperature: number, maxTokens: number): string {
   const key = apiKey || 'YOUR_API_KEY';
-  const msg = message.replace(/"/g, '\\"');
+  const msg = message.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n');
 
   if (lang === 'typescript') return `import OpenAI from "openai";
 
@@ -158,6 +157,123 @@ $response = $client->chat()->create([
 echo $response->choices[0]->message->content;`;
 
   return '';
+}
+
+type TokenType = 'keyword' | 'string' | 'number' | 'comment' | 'function' | 'operator' | 'plain';
+type Token = { type: TokenType; value: string };
+
+const KEYWORDS: Record<Lang, string[]> = {
+  typescript: ['import','from','const','let','var','async','await','new','return','function','export','default','true','false','null','undefined','typeof','instanceof'],
+  python: ['import','from','def','class','return','with','as','await','async','True','False','None','print','if','else','elif','for','while','in','not','and','or'],
+  curl: ['curl','POST','GET','PUT','DELETE','PATCH'],
+  ruby: ['require','def','end','puts','do','class','module','return','true','false','nil','if','else','unless','then'],
+  go: ['package','import','func','return','var','const','type','struct','interface','true','false','nil','if','else','for','range','map','chan','go','defer'],
+  php: ['echo','require_once','true','false','null','new','return','function','class','if','else','foreach','while'],
+};
+
+const TOKEN_COLORS: Record<TokenType, string> = {
+  keyword:  'text-purple-500 dark:text-purple-400',
+  string:   'text-emerald-600 dark:text-emerald-400',
+  number:   'text-orange-500 dark:text-orange-400',
+  comment:  'text-zinc-400 dark:text-zinc-500 italic',
+  function: 'text-sky-500 dark:text-sky-400',
+  operator: 'text-zinc-500 dark:text-zinc-400',
+  plain:    'text-zinc-700 dark:text-zinc-300',
+};
+
+function tokenizeLine(line: string, lang: Lang): Token[] {
+  const kwSet = new Set(KEYWORDS[lang]);
+  const tokens: Token[] = [];
+  let i = 0;
+
+  const isCommentStart = (s: string): boolean => {
+    if ((lang === 'typescript' || lang === 'go' || lang === 'php' || lang === 'ruby') && s.startsWith('//')) return true;
+    if ((lang === 'python' || lang === 'ruby') && s[0] === '#') return true;
+    if (lang === 'curl' && s[0] === '#') return true;
+    return false;
+  };
+
+  while (i < line.length) {
+    const rest = line.slice(i);
+
+    if (isCommentStart(rest)) {
+      tokens.push({ type: 'comment', value: rest });
+      break;
+    }
+
+    if (rest[0] === '"' || rest[0] === "'" || rest[0] === '`') {
+      const q = rest[0];
+      let j = 1;
+      while (j < rest.length) {
+        if (rest[j] === '\\') { j += 2; continue; }
+        if (rest[j] === q) { j++; break; }
+        j++;
+      }
+      tokens.push({ type: 'string', value: rest.slice(0, j) });
+      i += j;
+      continue;
+    }
+
+    const numMatch = rest.match(/^\d+\.?\d*/);
+    if (numMatch && (i === 0 || !/[a-zA-Z_$]/.test(line[i - 1]))) {
+      tokens.push({ type: 'number', value: numMatch[0] });
+      i += numMatch[0].length;
+      continue;
+    }
+
+    const wordMatch = rest.match(/^[a-zA-Z_$][a-zA-Z0-9_$]*/);
+    if (wordMatch) {
+      const word = wordMatch[0];
+      const after = line[i + word.length];
+      if (kwSet.has(word)) {
+        tokens.push({ type: 'keyword', value: word });
+      } else if (after === '(') {
+        tokens.push({ type: 'function', value: word });
+      } else {
+        tokens.push({ type: 'plain', value: word });
+      }
+      i += word.length;
+      continue;
+    }
+
+    const opMatch = rest.match(/^[{}[\]().,;:=<>!+\-*/%&|^~?\\@]+/);
+    if (opMatch) {
+      tokens.push({ type: 'operator', value: opMatch[0] });
+      i += opMatch[0].length;
+      continue;
+    }
+
+    tokens.push({ type: 'plain', value: rest[0] });
+    i++;
+  }
+
+  return tokens;
+}
+
+function CodeHighlight({ code, lang }: { code: string; lang: Lang }) {
+  const lines = code.split('\n');
+  return (
+    <code className="block w-full">
+      {lines.map((line, lineIdx) => {
+        const tokens = tokenizeLine(line, lang);
+        return (
+          <div key={lineIdx} className="flex w-full min-w-0">
+            <span className="w-7 sm:w-8 text-right text-zinc-400 dark:text-zinc-600 select-none mr-3 flex-shrink-0 tabular-nums text-[9px] sm:text-[10px] leading-5 pt-px">
+              {lineIdx + 1}
+            </span>
+            <span className="flex-1 min-w-0 break-words whitespace-pre-wrap leading-5 text-[10px] sm:text-xs">
+              {tokens.length > 0
+                ? tokens.map((tok, ti) => (
+                    <span key={ti} className={TOKEN_COLORS[tok.type]}>{tok.value}</span>
+                  ))
+                : <span>&nbsp;</span>
+              }
+            </span>
+          </div>
+        );
+      })}
+    </code>
+  );
 }
 
 type PlaygroundProps = {
@@ -594,8 +710,8 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
             )}
 
             {activeTab === 'code' && (
-              <div className="flex-1 flex flex-col min-h-0">
-                <div className="flex items-center gap-0.5 px-3 py-2 border-b border-zinc-100 dark:border-zinc-800/60 overflow-x-auto">
+              <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+                <div className="flex items-center gap-0.5 px-3 py-2 border-b border-zinc-100 dark:border-zinc-800/60 overflow-x-auto flex-shrink-0">
                   {LANGS.map(lang => (
                     <button
                       key={lang.id}
@@ -611,15 +727,18 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                   ))}
                   <button
                     onClick={() => handleCopy(generateCode(activeLang, selectedModel.id, message, apiKey, temperature, maxTokens), 'code')}
-                    className="ml-auto flex items-center gap-1 px-2 py-1 rounded-md text-[9px] sm:text-[10px] font-semibold text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors whitespace-nowrap"
+                    className="ml-auto flex items-center gap-1 px-2 py-1 rounded-md text-[9px] sm:text-[10px] font-semibold text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors whitespace-nowrap flex-shrink-0"
                   >
                     {copied === 'code' ? <FiCheck className="w-3 h-3 text-emerald-500" /> : <FiCopy className="w-3 h-3" />}
                     {copied === 'code' ? 'Copied!' : 'Copy'}
                   </button>
                 </div>
-                <div className="flex-1 overflow-auto min-h-[280px] sm:min-h-[320px]">
-                  <pre className="p-3 sm:p-4 text-[10px] sm:text-xs font-mono text-zinc-700 dark:text-zinc-300 leading-relaxed whitespace-pre overflow-x-auto">
-                    <CodeHighlight code={generateCode(activeLang, selectedModel.id, message, apiKey, temperature, maxTokens)} lang={activeLang} />
+                <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-[280px] sm:min-h-[320px]">
+                  <pre className="p-3 sm:p-4 font-mono w-full min-w-0">
+                    <CodeHighlight
+                      code={generateCode(activeLang, selectedModel.id, message, apiKey, temperature, maxTokens)}
+                      lang={activeLang}
+                    />
                   </pre>
                 </div>
               </div>
@@ -629,60 +748,4 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
       </div>
     </div>
   );
-}
-
-function CodeHighlight({ code, lang }: { code: string; lang: Lang }) {
-  const lines = code.split('\n');
-  return (
-    <>
-      {lines.map((line, i) => {
-        const colored = colorize(line, lang);
-        return (
-          <div key={i} className="flex">
-            <span className="w-6 sm:w-8 text-right text-zinc-400 dark:text-zinc-600 select-none mr-3 sm:mr-4 flex-shrink-0 tabular-nums text-[9px] sm:text-[10px]">{i + 1}</span>
-            <span dangerouslySetInnerHTML={{ __html: colored }} />
-          </div>
-        );
-      })}
-    </>
-  );
-}
-
-function colorize(line: string, lang: Lang): string {
-  const escape = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  let s = escape(line);
-
-  const kw = (w: string) => `<span class="text-purple-500 dark:text-purple-400">${w}</span>`;
-  const str = (w: string) => `<span class="text-emerald-600 dark:text-emerald-400">${w}</span>`;
-  const num = (w: string) => `<span class="text-orange-500 dark:text-orange-400">${w}</span>`;
-  const fn = (w: string) => `<span class="text-sky-500 dark:text-sky-400">${w}</span>`;
-  const comment = (w: string) => `<span class="text-zinc-400 dark:text-zinc-500 italic">${w}</span>`;
-  const prop = (w: string) => `<span class="text-cyan-600 dark:text-cyan-400">${w}</span>`;
-
-  if (lang === 'typescript' || lang === 'go' || lang === 'php') {
-    s = s.replace(/\b(import|from|const|let|var|async|await|new|return|function|export|default|package|main|func|fmt|context|require_once|echo)\b/g, kw);
-    s = s.replace(/\b(true|false|null|undefined)\b/g, num);
-    s = s.replace(/(["'`])((?:(?!\1)[^\\]|\\.)*)(\1)/g, (_, q, c, e) => str(q + c + e));
-    s = s.replace(/\b(\d+\.?\d*)\b/g, num);
-    s = s.replace(/\b([A-Za-z]+)\s*\(/g, (_, n) => fn(n) + '(');
-    s = s.replace(/(\/\/.*$)/g, comment);
-  } else if (lang === 'python') {
-    s = s.replace(/\b(import|from|def|class|return|with|as|await|async|print|True|False|None)\b/g, kw);
-    s = s.replace(/(["'])((?:(?!\1)[^\\]|\\.)*)(\1)/g, (_, q, c, e) => str(q + c + e));
-    s = s.replace(/\b(\d+\.?\d*)\b/g, num);
-    s = s.replace(/\b([a-z_]+)\s*\(/g, (_, n) => fn(n) + '(');
-    s = s.replace(/(#.*$)/g, comment);
-  } else if (lang === 'curl') {
-    s = s.replace(/\b(curl|POST|GET|PUT|DELETE)\b/g, kw);
-    s = s.replace(/(["'])((?:(?!\1)[^\\]|\\.)*)(\1)/g, (_, q, c, e) => str(q + c + e));
-    s = s.replace(/(-[XHd]\b|-H\b)/g, prop);
-    s = s.replace(/\b(\d+\.?\d*)\b/g, num);
-  } else if (lang === 'ruby') {
-    s = s.replace(/\b(require|def|end|puts|do|class|module|return|true|false|nil)\b/g, kw);
-    s = s.replace(/(["'])((?:(?!\1)[^\\]|\\.)*)(\1)/g, (_, q, c, e) => str(q + c + e));
-    s = s.replace(/\b(\d+\.?\d*)\b/g, num);
-    s = s.replace(/(#.*$)/g, comment);
-  }
-
-  return s;
 }
