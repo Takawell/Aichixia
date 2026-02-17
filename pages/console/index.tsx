@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { supabase } from '@/lib/supabase';
-import { FiKey, FiActivity, FiSettings, FiLogOut, FiMenu, FiRefreshCw, FiTrendingUp, FiZap, FiLayers, FiAlertCircle, FiShield, FiLock, FiCheck, FiCpu, FiDatabase } from 'react-icons/fi';
+import { FiKey, FiActivity, FiSettings, FiLogOut, FiMenu, FiRefreshCw, FiTrendingUp, FiZap, FiLayers, FiAlertCircle, FiShield, FiLock, FiCheck, FiCpu, FiDatabase, FiCode } from 'react-icons/fi';
 import ThemeToggle from '@/components/ThemeToggle';
 import Overview from '@/components/console/overview';
 import ApiKeys from '@/components/console/apikeys';
 import Activity from '@/components/console/activity';
 import Models from '@/components/console/models';
 import Settings from '@/components/console/settings';
+import Playground from '@/components/console/playground';
 import Image from 'next/image';
 
 type ApiKey = {
@@ -63,7 +64,7 @@ type UserSettings = {
   is_admin: boolean;
 };
 
-type TabType = 'overview' | 'keys' | 'activity' | 'settings' | 'models';
+type TabType = 'overview' | 'keys' | 'activity' | 'settings' | 'models' | 'playground';
 
 export default function Console() {
   const router = useRouter();
@@ -93,7 +94,7 @@ export default function Console() {
 
   useEffect(() => {
     const tab = router.query.tab as TabType;
-    if (tab && ['overview', 'keys', 'activity', 'settings', 'models'].includes(tab)) {
+    if (tab && ['overview', 'keys', 'activity', 'settings', 'models', 'playground'].includes(tab)) {
       setActiveTab(tab);
     }
   }, [router.query.tab]);
@@ -708,6 +709,14 @@ export default function Console() {
               </button>
 
               <button
+                onClick={() => handleTabChange('playground')}
+                className={`w-full flex items-center gap-2 sm:gap-2.5 px-3 py-2 sm:py-2.5 rounded-lg transition-all text-xs sm:text-sm ${activeTab === 'playground' ? 'bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
+              >
+                <FiCode className="text-sm sm:text-base" />
+                <span className="font-semibold">Playground</span>
+              </button>
+
+              <button
                 onClick={() => handleTabChange('settings')}
                 className={`w-full flex items-center gap-2 sm:gap-2.5 px-3 py-2 sm:py-2.5 rounded-lg transition-all text-xs sm:text-sm ${activeTab === 'settings' ? 'bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
               >
@@ -762,6 +771,7 @@ export default function Console() {
                     {activeTab === 'keys' && 'API Keys'}
                     {activeTab === 'activity' && 'Recent Activity'}
                     {activeTab === 'models' && 'Available Models'}
+                    {activeTab === 'playground' && 'API Playground'}
                     {activeTab === 'settings' && 'Settings'}
                   </h2>
                   <p className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 truncate">
@@ -769,6 +779,7 @@ export default function Console() {
                     {activeTab === 'keys' && 'Manage your API keys'}
                     {activeTab === 'activity' && 'View recent requests'}
                     {activeTab === 'models' && 'Browse AI models'}
+                    {activeTab === 'playground' && 'Test models live with your API key'}
                     {activeTab === 'settings' && 'Configure your account'}
                   </p>
                 </div>
@@ -826,6 +837,10 @@ export default function Console() {
                 onCopy={copyToClipboard}
                 copiedKey={copiedKey}
               />
+            )}
+
+            {activeTab === 'playground' && (
+              <Playground keys={keys} />
             )}
 
             {activeTab === 'settings' && (
