@@ -475,7 +475,6 @@ function tokenizeLine(line: string, lang: Lang): Token[] {
 
     const opM = rest.match(/^[{}[\]().,;:=<>!+\-*/%&|^~?\\@]+/);
     if (opM) { tokens.push({ type: 'operator', value: opM[0] }); i += opM[0].length; continue; }
-
     tokens.push({ type: 'plain', value: rest[0] }); i++;
   }
   return tokens;
@@ -712,7 +711,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                           onClick={() => setModelTab(t)}
                           className={`flex-1 py-1 rounded-md text-[9px] font-bold uppercase tracking-wide transition-all ${modelTab === t ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900' : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
                         >
-                          {t === 'tts' ? 'TTS' : t === 'image' ? '🖼 Image' : '💬 Text'}
+                          {t === 'tts' ? 'TTS' : t === 'image' ? 'Image' : 'Text'}
                         </button>
                       ))}
                     </div>
