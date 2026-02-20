@@ -5,6 +5,7 @@ import { chatAichixia, AichixiaRateLimitError, AichixiaQuotaError } from "@/lib/
 import { chatOpenAI, OpenAIRateLimitError, OpenAIQuotaError } from "@/lib/openai";
 import { chatKimi, KimiRateLimitError, KimiQuotaError } from "@/lib/kimi";
 import { chatGlm, GlmRateLimitError, GlmQuotaError } from "@/lib/glm";
+import { chatGPT, GPTRateLimitError, GPTQuotaError } from "@/lib/gpt";
 import { chatClaude, ClaudeRateLimitError, ClaudeQuotaError } from "@/lib/claude";
 import { chatCohere, CohereRateLimitError, CohereQuotaError } from "@/lib/cohere";
 import { chatDeepSeek, DeepSeekRateLimitError, DeepSeekQuotaError } from "@/lib/deepseek";
@@ -17,6 +18,7 @@ import { chatLlama, LlamaRateLimitError, LlamaQuotaError } from "@/lib/llama";
 import { chatMistral, MistralRateLimitError, MistralQuotaError } from "@/lib/mistral";
 import { chatMimo, MimoRateLimitError, MimoQuotaError } from "@/lib/mimo";
 import { chatMinimax, MinimaxRateLimitError, MinimaxQuotaError } from "@/lib/minimax";
+import { chatGrok, GrokRateLimitError, GrokQuotaError } from "@/lib/grok-fast";
 import { chatGrok, GrokRateLimitError, GrokQuotaError } from "@/lib/grok";
 import { verifyApiKey, incrementUsage, logRequest, updateDailyUsage } from "@/lib/console-utils";
 import { getServiceSupabase } from "@/lib/supabase";
@@ -34,6 +36,7 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "gemini-3-flash": { fn: chatGemini, provider: "gemini" },
   "kimi-k2": { fn: chatKimi, provider: "kimi" },
   "glm-4.7": { fn: chatGlm, provider: "glm" },
+  "gpt-5.2": { fn: chatGPT, provider: "gpt" },
   "mistral-3.1": { fn: chatMistral, provider: "mistral" },
   "qwen3-235b": { fn: chatQwenV2, provider: "qwen3" },
   "qwen3-coder-480b": { fn: chatQwen, provider: "qwen" },
@@ -44,6 +47,7 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "groq-compound": { fn: chatCompound, provider: "compound" },
   "cohere-command-a": { fn: chatCohere, provider: "cohere" },
   "grok-3": { fn: chatGrok, provider: "grok" },
+  "grok-4-fast": { fn: chatGrok, provider: "grok-fast" },
   "aichixia-thinking": { fn: chatAichixia, provider: "aichixia" },
 };
 
@@ -53,6 +57,7 @@ const RATE_LIMIT_ERRORS = [
   OpenAIRateLimitError,
   KimiRateLimitError,
   GlmRateLimitError,
+  GPTRateLimitError,
   ClaudeRateLimitError,
   CohereRateLimitError,
   DeepSeekRateLimitError,
@@ -73,6 +78,7 @@ const QUOTA_ERRORS = [
   OpenAIQuotaError,
   KimiQuotaError,
   GlmQuotaError,
+  GPTQuotaError
   ClaudeQuotaError,
   CohereQuotaError,
   DeepSeekQuotaError,
