@@ -79,7 +79,7 @@ const QUOTA_ERRORS = [
   OpenAIQuotaError,
   KimiQuotaError,
   GlmQuotaError,
-  GPTQuotaError
+  GPTQuotaError,
   ClaudeQuotaError,
   CohereQuotaError,
   DeepSeekQuotaError,
