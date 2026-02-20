@@ -18,7 +18,7 @@ import { chatLlama, LlamaRateLimitError, LlamaQuotaError } from "@/lib/llama";
 import { chatMistral, MistralRateLimitError, MistralQuotaError } from "@/lib/mistral";
 import { chatMimo, MimoRateLimitError, MimoQuotaError } from "@/lib/mimo";
 import { chatMinimax, MinimaxRateLimitError, MinimaxQuotaError } from "@/lib/minimax";
-import { chatGrok, GrokRateLimitError, GrokQuotaError } from "@/lib/grok-fast";
+import { chatGrokFast, GrokFastRateLimitError, GrokFastQuotaError } from "@/lib/grok-fast";
 import { chatGrok, GrokRateLimitError, GrokQuotaError } from "@/lib/grok";
 import { verifyApiKey, incrementUsage, logRequest, updateDailyUsage } from "@/lib/console-utils";
 import { getServiceSupabase } from "@/lib/supabase";
@@ -47,11 +47,11 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "groq-compound": { fn: chatCompound, provider: "compound" },
   "cohere-command-a": { fn: chatCohere, provider: "cohere" },
   "grok-3": { fn: chatGrok, provider: "grok" },
-  "grok-4-fast": { fn: chatGrok, provider: "grok-fast" },
+  "grok-4-fast": { fn: chatGrokFast, provider: "grok-fast" },
   "aichixia-thinking": { fn: chatAichixia, provider: "aichixia" },
 };
 
-const LOCKED_MODELS_PRO = ['deepseek-v3.2', 'qwen3-235b', 'minimax-m2.1', 'claude-opus-4.5', 'glm-4.7', 'kimi-k2', 'aichixia-thinking'];
+const LOCKED_MODELS_PRO = ['deepseek-v3.2', 'qwen3-235b', 'minimax-m2.1', 'claude-opus-4.5', 'glm-4.7', 'kimi-k2', 'aichixia-thinking', 'grok-4-fast', 'gpt-5.2'];
 
 const RATE_LIMIT_ERRORS = [
   OpenAIRateLimitError,
@@ -71,6 +71,7 @@ const RATE_LIMIT_ERRORS = [
   MimoRateLimitError,
   MinimaxRateLimitError,
   GrokRateLimitError,
+  GrokFastRateLimitError,
   AichixiaRateLimitError,
 ];
 
@@ -92,6 +93,7 @@ const QUOTA_ERRORS = [
   MimoQuotaError,
   MinimaxQuotaError,
   GrokQuotaError,
+  GrokFastQuotaError,
   AichixiaQuotaError,
 ];
 
