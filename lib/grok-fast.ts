@@ -20,21 +20,21 @@ const client = new OpenAI({
   baseURL: FAST_GROK_BASE_URL,
 });
 
-export class GrokRateLimitError extends Error {
+export class GrokFastRateLimitError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = "GrokRateLimitError";
+    this.name = "GrokFastRateLimitError";
   }
 }
 
-export class GrokQuotaError extends Error {
+export class GrokFastQuotaError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = "GrokQuotaError";
+    this.name = "GrokFastQuotaError";
   }
 }
 
-export async function chatGrok(
+export async function chatGrokFast(
   history: ChatMessage[],
   opts?: { temperature?: number; maxTokens?: number }
 ): Promise<{ reply: string }> {
@@ -60,24 +60,24 @@ export async function chatGrok(
     return { reply };
   } catch (error: any) {
     if (error?.status === 429) {
-      throw new GrokRateLimitError(
-        `Grok rate limit exceeded: ${error.message}`
+      throw new GrokFastRateLimitError(
+        `Grok Fast rate limit exceeded: ${error.message}`
       );
     }
     if (error?.status === 402 || error?.code === "insufficient_quota") {
-      throw new GrokQuotaError(
-        `Grok quota exceeded: ${error.message}`
+      throw new GrokFastQuotaError(
+        `Grok Fast quota exceeded: ${error.message}`
       );
     }
     if (error?.status === 503 || error?.status === 500) {
-      throw new Error(`Grok server error: ${error.message}`);
+      throw new Error(`Grok Fast server error: ${error.message}`);
     }
-    
+
     throw error;
   }
 }
 
-export async function quickChatGrok(
+export async function quickChatGrokFast(
   userMessage: string,
   opts?: {
     history?: ChatMessage[];
@@ -91,7 +91,7 @@ export async function quickChatGrok(
   }
   hist.push({ role: "user", content: userMessage });
 
-  const { reply } = await chatGrok(hist, {
+  const { reply } = await chatGrokFast(hist, {
     temperature: opts?.temperature,
     maxTokens: opts?.maxTokens,
   });
@@ -99,6 +99,6 @@ export async function quickChatGrok(
 }
 
 export default {
-  chatGrok,
-  quickChatGrok,
+  chatGrokFast,
+  quickChatGrokFast,
 };
