@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-
+  
   images: {
     remotePatterns: [
       {
@@ -18,19 +18,7 @@ const nextConfig = {
       },
     ],
   },
-
-  async rewrites() {
-    return {
-      beforeFiles: [
-        {
-          source: '/:path*',
-          has: [{ type: 'host', value: 'api.aichixia.xyz' }],
-          destination: '/api/:path*',
-        },
-      ],
-    };
-  },
-
+    
   async headers() {
     return [
       {
