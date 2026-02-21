@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { FiShield, FiArrowRight, FiX } from 'react-icons/fi';
 
-const NOTICE_KEY = 'aichixia_notice_dismissed';
+const NOTICE_KEY = 'aichixia_notice';
 
 export default function Notice() {
   const router = useRouter();
@@ -29,12 +29,16 @@ export default function Notice() {
   };
 
   const handleSettings = () => {
-    localStorage.setItem(NOTICE_KEY, '1');
-    router.push('/console?tab=settings');
+    setClosing(true);
+    setTimeout(() => {
+      localStorage.setItem(NOTICE_KEY, '1');
+      setVisible(false);
+      setClosing(false);
+      router.push('/console?tab=settings');
+    }, 300);
   };
 
   if (!visible) return null;
-
   return (
     <div
       className={`fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 transition-all duration-300 ${closing ? 'opacity-0' : 'opacity-100'}`}
