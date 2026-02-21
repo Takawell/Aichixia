@@ -693,14 +693,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                     <ModelIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />
                   </div>
                   <div className="min-w-0">
-                    <div className="flex items-center gap-1">
-                      <div className="text-[10px] sm:text-xs font-bold text-zinc-900 dark:text-white truncate">{selectedModel.name}</div>
-                      {selectedModel.limited && (
-                        <span className="text-[7px] font-bold px-1 py-0.5 rounded bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-700 flex-shrink-0">
-                          LIMITED
-                        </span>
-                      )}
-                    </div>
+                    <div className="text-[10px] sm:text-xs font-bold text-zinc-900 dark:text-white truncate">{selectedModel.name}</div>
                     <div className="text-[9px] sm:text-[10px] text-zinc-500 truncate">{selectedModel.provider}</div>
                   </div>
                 </div>
@@ -752,16 +745,9 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                             <div className="text-[10px] font-semibold text-zinc-900 dark:text-white truncate">{model.name}</div>
                             <div className="text-[9px] text-zinc-500 truncate">{model.provider}{model.context !== '—' ? ` · ${model.context}` : ''}</div>
                           </div>
-                          <div className="flex flex-col items-end gap-0.5 flex-shrink-0">
-                            <span className={`text-[8px] font-bold px-1 py-0.5 rounded border ${PRICING_STYLE[model.pricing]}`}>
-                              {model.pricing}
-                            </span>
-                            {model.limited && (
-                              <span className="text-[7px] font-bold px-1 py-0.5 rounded bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-700">
-                                LIMITED
-                              </span>
-                            )}
-                          </div>
+                          <span className={`text-[8px] font-bold px-1 py-0.5 rounded border flex-shrink-0 ${PRICING_STYLE[model.pricing]}`}>
+                            {model.pricing}
+                          </span>
                         </button>
                       );
                     })}
