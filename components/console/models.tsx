@@ -751,8 +751,7 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
                   <code className="flex-1 text-[10px] sm:text-xs font-mono text-zinc-700 dark:text-zinc-300 break-all leading-relaxed">
                     {activeModal.category === 'Text Generation' ? (
                       <>
-                        <span className="text-zinc-400 dark:text-zinc-500">Base URL: </span>https://api.aichixia.xyz/v1{'
-'}
+                        <span className="text-zinc-400 dark:text-zinc-500">Base URL: </span>https://api.aichixia.xyz/v1<br />
                         <span className="text-zinc-400 dark:text-zinc-500">Model ID: </span>{activeModal.id}
                       </>
                     ) : activeModal.endpoint}
