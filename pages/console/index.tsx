@@ -9,6 +9,7 @@ import Activity from '@/components/console/activity';
 import Models from '@/components/console/models';
 import Settings from '@/components/console/settings';
 import Playground from '@/components/console/playground';
+import Notice from '@/components/console/notice';
 import Image from 'next/image';
 
 type ApiKey = {
@@ -982,6 +983,8 @@ export default function Console() {
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
         />
       )}
+
+      <Notice />
     </div>
   );
 }
