@@ -279,6 +279,36 @@ const AVAILABLE_MODELS = [
     endpoint: '/api/models/grok',
   },
   {
+    id: 'grok-4-fast',
+    name: 'Grok 4 Fast',
+    icon: FaXTwitter,
+    color: 'from-zinc-700 to-slate-900',
+    category: 'Text Generation',
+    requiresPlan: 'pro',
+    description: "xAI's fastest Grok 4 model with ultra-low latency",
+    speed: 5,
+    quality: 5,
+    contextWindow: '256K tokens',
+    pricing: 'Premium',
+    features: ['Ultra-fast', 'Real-time data', 'Low latency'],
+    endpoint: '/api/models/grok-fast',
+  },
+  {
+    id: 'gpt-5.2',
+    name: 'GPT-5.2',
+    icon: SiOpenai,
+    color: 'from-green-500 to-emerald-600',
+    category: 'Text Generation',
+    limited: true,
+    description: "OpenAI's latest GPT-5.2 with enhanced reasoning",
+    speed: 4,
+    quality: 5,
+    contextWindow: '512K tokens',
+    pricing: 'Standard',
+    features: ['Enhanced reasoning', 'Multimodal', 'Latest generation'],
+    endpoint: '/api/models/gpt52',
+  },
+  {
     id: 'flux-2',
     name: 'Flux 2',
     icon: SiFlux,
@@ -538,6 +568,11 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
                                 <div className="flex items-center gap-1.5 mb-0.5 sm:mb-1">
                                   <h5 className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-white truncate">{model.name}</h5>
                                   {locked && <FiLock className="text-orange-400 text-[10px] flex-shrink-0" />}
+                                  {(model as any).limited && !locked && (
+                                    <span className="text-[8px] px-1.5 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-700 rounded-full font-bold flex-shrink-0">
+                                      LIMITED
+                                    </span>
+                                  )}
                                 </div>
                                 <code className="text-[9px] sm:text-[10px] text-zinc-500 dark:text-zinc-400 font-mono bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded block truncate">
                                   {displayValue}
