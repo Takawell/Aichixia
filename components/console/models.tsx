@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FiCopy, FiCheck, FiLock, FiZap, FiCpu, FiTrendingUp, FiDollarSign, FiSearch, FiStar, FiInfo, FiImage } from 'react-icons/fi';
+import { FiCopy, FiCheck, FiLock, FiZap, FiCpu, FiTrendingUp, FiDollarSign, FiSearch, FiStar, FiInfo, FiImage, FiX, FiExternalLink } from 'react-icons/fi';
 import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiAirbrake, SiMaze, SiXiaomi, SiFlux, SiImagedotsc, SiSecurityscorecard, SiLapce } from 'react-icons/si';
 import { GiSpermWhale, GiPowerLightning, GiClover, GiFire } from 'react-icons/gi';
 import { TbSquareLetterZ, TbLetterM } from 'react-icons/tb';
@@ -32,7 +32,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '128K tokens',
     pricing: 'Premium',
     features: ['Deep reasoning', 'Chain-of-thought', 'Problem solving', 'Ultra-large'],
-    endpoint: '/api/models/aichixia',
+    endpoint: 'https://api.aichixia.xyz/v1/chat/completions',
   },
   {
     id: 'deepseek-v3.2',
@@ -47,7 +47,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '128K tokens',
     pricing: 'Premium',
     features: ['Advanced reasoning', 'Superior coding', 'Complex tasks'],
-    endpoint: '/api/models/deepseek',
+    endpoint: 'https://api.aichixia.xyz/v1/chat/completions',
   },
   {
     id: 'deepseek-v3.1',
@@ -61,7 +61,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '128K tokens',
     pricing: 'Standard',
     features: ['Multi-purpose', 'Reliable', 'Cost-effective'],
-    endpoint: '/api/models/deepseek-v',
+    endpoint: 'https://api.aichixia.xyz/v1/chat/completions',
   },
   {
     id: 'gpt-5-mini',
@@ -75,7 +75,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '400K tokens',
     pricing: 'Budget',
     features: ['Ultra-fast', 'Low latency', 'Simple tasks'],
-    endpoint: '/api/models/openai',
+    endpoint: 'https://api.aichixia.xyz/v1/chat/completions',
   },
   {
     id: 'claude-opus-4.5',
@@ -90,7 +90,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '200K tokens',
     pricing: 'Premium',
     features: ['Long context', 'Creative writing', 'Analysis'],
-    endpoint: '/api/models/claude',
+    endpoint: 'https://api.aichixia.xyz/v1/chat/completions',
   },
   {
     id: 'gemini-3-flash',
@@ -104,7 +104,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '1M tokens',
     pricing: 'Budget',
     features: ['Real-time', 'Multimodal', 'Fast inference'],
-    endpoint: '/api/models/gemini',
+    endpoint: 'https://api.aichixia.xyz/v1/chat/completions',
   },
   {
     id: 'kimi-k2',
@@ -119,7 +119,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '256K tokens',
     pricing: 'Premium',
     features: ['Chinese expertise', 'Long context', 'Cultural nuance'],
-    endpoint: '/api/models/kimi',
+    endpoint: 'https://api.aichixia.xyz/v1/chat/completions',
   },
   {
     id: 'glm-4.7',
@@ -134,7 +134,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '200K tokens',
     pricing: 'Standard',
     features: ['Bilingual', 'Efficient', 'General purpose'],
-    endpoint: '/api/models/glm',
+    endpoint: 'https://api.aichixia.xyz/v1/chat/completions',
   },
   {
     id: 'mistral-3.1',
@@ -148,7 +148,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '128K tokens',
     pricing: 'Standard',
     features: ['Strong reasoning', 'Multilingual', 'Open weights'],
-    endpoint: '/api/models/mistral',
+    endpoint: 'https://api.aichixia.xyz/v1/chat/completions',
   },
   {
     id: 'qwen3-235b',
@@ -163,7 +163,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '256K tokens',
     pricing: 'Premium',
     features: ['Huge scale', 'Multilingual', 'Deep reasoning'],
-    endpoint: '/api/models/qwen3',
+    endpoint: 'https://api.aichixia.xyz/v1/chat/completions',
   },
   {
     id: 'qwen3-coder-480b',
@@ -177,7 +177,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '256K tokens',
     pricing: 'Premium',
     features: ['Code generation', 'Debugging', 'Architecture'],
-    endpoint: '/api/models/qwen',
+    endpoint: 'https://api.aichixia.xyz/v1/chat/completions',
   },
   {
     id: 'minimax-m2.1',
@@ -192,7 +192,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '200K tokens',
     pricing: 'Premium',
     features: ['Creative', 'Chinese focus', 'Analytical'],
-    endpoint: '/api/models/minimax',
+    endpoint: 'https://api.aichixia.xyz/v1/chat/completions',
   },
   {
     id: 'llama-3.3-70b',
@@ -206,7 +206,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '128K tokens',
     pricing: 'Standard',
     features: ['Open source', 'Versatile', 'Community-driven'],
-    endpoint: '/api/models/llama',
+    endpoint: 'https://api.aichixia.xyz/v1/chat/completions',
   },
   {
     id: 'gpt-oss-120b',
@@ -220,7 +220,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '131K tokens',
     pricing: 'Budget',
     features: ['Open source', 'Transparent', 'Community'],
-    endpoint: '/api/models/gptoss',
+    endpoint: 'https://api.aichixia.xyz/v1/chat/completions',
   },
   {
     id: 'mimo-v2-flash',
@@ -234,7 +234,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '256K tokens',
     pricing: 'Budget',
     features: ['Edge computing', 'Low resource', 'Real-time'],
-    endpoint: '/api/models/mimo',
+    endpoint: 'https://api.aichixia.xyz/v1/chat/completions',
   },
   {
     id: 'groq-compound',
@@ -248,7 +248,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '131K tokens',
     pricing: 'Standard',
     features: ['Hardware accel', 'Ultra-fast', 'Efficient'],
-    endpoint: '/api/models/compound',
+    endpoint: 'https://api.aichixia.xyz/v1/chat/completions',
   },
   {
     id: 'cohere-command-a',
@@ -262,7 +262,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '256K tokens',
     pricing: 'Standard',
     features: ['Enterprise', 'RAG optimized', 'Business focus'],
-    endpoint: '/api/models/cohere',
+    endpoint: 'https://api.aichixia.xyz/v1/chat/completions',
   },
   {
     id: 'grok-3',
@@ -276,7 +276,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '1M tokens',
     pricing: 'Premium',
     features: ['Real-time data', 'Web search', 'Current events'],
-    endpoint: '/api/models/grok',
+    endpoint: 'https://api.aichixia.xyz/v1/chat/completions',
   },
   {
     id: 'grok-4-fast',
@@ -291,7 +291,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '2M tokens',
     pricing: 'Premium',
     features: ['Ultra-fast', 'Real-time data', 'Low latency'],
-    endpoint: '/api/models/grok-fast',
+    endpoint: 'https://api.aichixia.xyz/v1/chat/completions',
   },
   {
     id: 'gpt-5.2',
@@ -306,7 +306,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '400K tokens',
     pricing: 'Standard',
     features: ['Enhanced reasoning', 'Multimodal', 'Latest generation'],
-    endpoint: '/api/models/gpt52',
+    endpoint: 'https://api.aichixia.xyz/v1/chat/completions',
   },
   {
     id: 'flux-2',
@@ -320,7 +320,7 @@ const AVAILABLE_MODELS = [
     contextWindow: 'N/A',
     pricing: 'Standard',
     features: ['Photorealistic', 'High quality', 'Fast generation'],
-    endpoint: '/api/models/flux',
+    endpoint: 'https://api.aichixia.xyz/models/flux',
   },
   {
     id: 'lucid-origin',
@@ -334,7 +334,7 @@ const AVAILABLE_MODELS = [
     contextWindow: 'N/A',
     pricing: 'Standard',
     features: ['Artistic', 'Creative', 'Unique style'],
-    endpoint: '/api/models/lucid',
+    endpoint: 'https://api.aichixia.xyz/models/lucid',
   },
   {
     id: 'phoenix-1.0',
@@ -348,7 +348,7 @@ const AVAILABLE_MODELS = [
     contextWindow: 'N/A',
     pricing: 'Budget',
     features: ['Quick', 'Artistic', 'Efficient'],
-    endpoint: '/api/models/phoenix',
+    endpoint: 'https://api.aichixia.xyz/models/phoenix',
   },
   {
     id: 'nano-banana-pro',
@@ -362,7 +362,7 @@ const AVAILABLE_MODELS = [
     contextWindow: 'N/A',
     pricing: 'Budget',
     features: ['Lightweight', 'Fast', 'Compact'],
-    endpoint: '/api/models/nano',
+    endpoint: 'https://api.aichixia.xyz/models/nano',
   },
   {
     id: 'starling-tts',
@@ -376,7 +376,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '2K chars',
     pricing: 'Standard',
     features: ['Emotional', 'Natural', 'Multi-language'],
-    endpoint: '/api/models/starling',
+    endpoint: 'https://api.aichixia.xyz/models/starling',
   },
   {
     id: 'lindsay-tts',
@@ -390,7 +390,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '2K chars',
     pricing: 'Premium',
     features: ['Premium', 'Prosody', 'Enhanced'],
-    endpoint: '/api/models/lindsay',
+    endpoint: 'https://api.aichixia.xyz/models/lindsay',
   },
 ];
 
@@ -436,6 +436,7 @@ const CATEGORY_ICONS: Record<string, any> = {
 export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
   const [modelSearch, setModelSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [activeModal, setActiveModal] = useState<any>(null);
 
   const isModelLocked = (model: any) => {
     if (!model.requiresPlan) return false;
@@ -644,13 +645,20 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
                             </div>
                           </div>
 
-                          {!locked && (
-                            <div className="absolute top-2 sm:top-3 right-2 sm:right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <div className="p-1 bg-sky-500 rounded-md shadow-lg">
-                                <FiInfo className="text-white text-[10px] sm:text-xs" />
-                              </div>
-                            </div>
-                          )}
+                          <div className="px-3 sm:px-4 pb-3 sm:pb-4 pt-0 flex items-center justify-between border-t border-zinc-100 dark:border-zinc-800/60 mt-0">
+                            <span className="text-[9px] text-zinc-400 dark:text-zinc-600 font-mono truncate mr-2">
+                              {model.category === 'Text Generation' ? 'OpenAI-compatible' : model.endpoint.replace('https://api.aichixia.xyz', '')}
+                            </span>
+                            <button
+                              onClick={() => setActiveModal(model)}
+                              className="flex items-center gap-1 px-2 py-1 rounded-lg text-[9px] sm:text-[10px] font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-transparent hover:border-zinc-200 dark:hover:border-zinc-700 transition-all duration-150 flex-shrink-0"
+                            >
+                              <FiInfo className="w-3 h-3" />
+                              Details
+                            </button>
+                          </div>
+
+
                         </div>
                       );
                     })}
@@ -661,6 +669,106 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
           )}
         </div>
       </div>
+
+      {activeModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 transition-all duration-200"
+          onClick={() => setActiveModal(null)}
+        >
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+          <div
+            className="relative w-full sm:max-w-lg bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-t-2xl sm:rounded-2xl shadow-2xl transition-all duration-300"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-5 sm:p-6">
+              <div className="flex items-start justify-between mb-5">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2.5 bg-gradient-to-br ${activeModal.color} rounded-xl shadow-lg flex-shrink-0`}>
+                    <activeModal.icon className="text-white text-base sm:text-lg" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white">{activeModal.name}</h3>
+                      {(activeModal as any).limited && (
+                        <span className="text-[8px] px-1.5 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-700 rounded-full font-bold">
+                          LIMITED
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-medium">{activeModal.category}</span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setActiveModal(null)}
+                  className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-all duration-150"
+                >
+                  <FiX className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="h-px bg-zinc-100 dark:bg-zinc-800 mb-4" />
+
+              <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed mb-5">
+                {activeModal.description}
+              </p>
+
+              <div className="grid grid-cols-2 gap-2.5 mb-5">
+                <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
+                  <p className="text-[9px] uppercase tracking-widest font-semibold text-zinc-400 dark:text-zinc-500 mb-1">Context Window</p>
+                  <p className="text-xs sm:text-sm font-bold text-zinc-800 dark:text-zinc-200">{activeModal.contextWindow}</p>
+                </div>
+                <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
+                  <p className="text-[9px] uppercase tracking-widest font-semibold text-zinc-400 dark:text-zinc-500 mb-1">Pricing Tier</p>
+                  <p className="text-xs sm:text-sm font-bold text-zinc-800 dark:text-zinc-200">{activeModal.pricing}</p>
+                </div>
+                <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
+                  <p className="text-[9px] uppercase tracking-widest font-semibold text-zinc-400 dark:text-zinc-500 mb-1.5">Speed</p>
+                  <SpeedIndicator level={activeModal.speed} />
+                </div>
+                <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
+                  <p className="text-[9px] uppercase tracking-widest font-semibold text-zinc-400 dark:text-zinc-500 mb-1.5">Quality</p>
+                  <QualityIndicator level={activeModal.quality} />
+                </div>
+              </div>
+
+              <div className="mb-5">
+                <p className="text-[9px] uppercase tracking-widest font-semibold text-zinc-400 dark:text-zinc-500 mb-2">Capabilities</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {activeModal.features.map((feature: string, idx: number) => (
+                    <span
+                      key={idx}
+                      className="text-[10px] px-2 py-1 bg-sky-50 dark:bg-sky-900/20 text-sky-700 dark:text-sky-400 rounded-lg border border-sky-200 dark:border-sky-800 font-medium"
+                    >
+                      {feature}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
+                <p className="text-[9px] uppercase tracking-widest font-semibold text-zinc-400 dark:text-zinc-500 mb-2">Endpoint</p>
+                <div className="flex items-center gap-2">
+                  <code className="flex-1 text-[10px] sm:text-xs font-mono text-zinc-700 dark:text-zinc-300 break-all leading-relaxed">
+                    {activeModal.category === 'Text Generation' ? (
+                      <>
+                        <span className="text-zinc-400 dark:text-zinc-500">Base URL: </span>https://api.aichixia.xyz/v1{'
+'}
+                        <span className="text-zinc-400 dark:text-zinc-500">Model ID: </span>{activeModal.id}
+                      </>
+                    ) : activeModal.endpoint}
+                  </code>
+                  <button
+                    onClick={() => onCopy(activeModal.category === 'Text Generation' ? activeModal.id : activeModal.endpoint, activeModal.id + '-modal')}
+                    className="p-1.5 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-all flex-shrink-0"
+                  >
+                    {copiedKey === activeModal.id + '-modal' ? <FiCheck className="w-3.5 h-3.5 text-emerald-500" /> : <FiCopy className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
