@@ -1,11 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 import { FiShield, FiArrowRight, FiX } from 'react-icons/fi';
 
-const NOTICE_KEY = 'aichixia_notice';
+const NOTICE_KEY = 'aichixia_notice_dismissed';
 
 export default function Notice() {
+  const router = useRouter();
   const [visible, setVisible] = useState(false);
   const [closing, setClosing] = useState(false);
 
@@ -28,7 +30,7 @@ export default function Notice() {
 
   const handleSettings = () => {
     localStorage.setItem(NOTICE_KEY, '1');
-    window.location.href = 'https://www.aichixia.xyz/console?tab=settings';
+    router.push('/console?tab=settings');
   };
 
   if (!visible) return null;
