@@ -5,7 +5,7 @@ import { GiSpermWhale, GiPowerLightning, GiClover, GiCloverSpiked, GiFire } from
 import { TbSquareLetterZ, TbLetterM } from 'react-icons/tb';
 import { FaXTwitter } from 'react-icons/fa6';
 
-const base = 'https://www.aichixia.xyz';
+const base = 'https://api.aichixia.xyz';
 
 type ModelType = 'text' | 'image' | 'tts';
 
