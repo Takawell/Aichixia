@@ -9,15 +9,9 @@ const redis = new Redis({
   token: process.env.UPSTASH_REDIS_REST_TOKEN!,
 });
 
-const BLOCKED_IPS = process.env.BLOCKED_IPS
+const BLOCKED_IPS = process.env.BLOCKED_IPS 
   ? process.env.BLOCKED_IPS.split(',').map(ip => ip.trim())
   : [];
-
-const ALLOWED_ORIGINS = [
-  'https://www.aichixia.xyz',
-  'https://aichixia.xyz',
-  'https://api.aichixia.xyz',
-];
 
 const globalDayLimit = new Ratelimit({
   redis: redis,
@@ -61,44 +55,27 @@ const modelsHourLimit = new Ratelimit({
   prefix: "ratelimit:models:hour",
 });
 
-function getCorsHeaders(origin: string | null): Record<string, string> {
-  const allowed = origin && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
-  return {
-    'Access-Control-Allow-Origin': allowed,
-    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-API-Key',
-    'Access-Control-Allow-Credentials': 'true',
-  };
-}
-
 function isInternalRequest(request: NextRequest): boolean {
-  const origin = request.headers.get("origin");
   const referer = request.headers.get("referer");
-
-  if (origin && ALLOWED_ORIGINS.includes(origin)) {
+  const origin = request.headers.get("origin");
+  const host = request.headers.get("host");
+  
+  if (referer && referer.includes(host || "")) {
     return true;
   }
-
-  if (referer && ALLOWED_ORIGINS.some(o => referer.startsWith(o))) {
+  
+  if (origin && origin.includes(host || "")) {
     return true;
   }
-
+  
   return false;
 }
 
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
-  const origin = request.headers.get("origin");
 
   if (!pathname.startsWith("/api/chat") && !pathname.startsWith("/api/models")) {
     return NextResponse.next();
-  }
-
-  if (request.method === 'OPTIONS') {
-    return new NextResponse(null, {
-      status: 204,
-      headers: getCorsHeaders(origin),
-    });
   }
 
   const ip = request.ip ?? request.headers.get("x-forwarded-for") ?? "anonymous";
@@ -107,18 +84,18 @@ export async function middleware(request: NextRequest) {
   if (BLOCKED_IPS.includes(ip)) {
     console.log(`[${timestamp}] PERMANENTLY BLOCKED - IP: ${ip}, Path: ${pathname}, Reason: IP Blacklisted`);
     return NextResponse.json(
-      {
+      { 
         error: "Access denied. Your IP has been blocked due to policy violation.",
-        blocked: true
+        blocked: true 
       },
-      { status: 403, headers: getCorsHeaders(origin) }
+      { status: 403 }
     );
   }
 
   const isInternal = isInternalRequest(request);
 
   if (!isInternal) {
-    const apiKey = request.headers.get("authorization")?.replace('Bearer ', '') ||
+    const apiKey = request.headers.get("authorization")?.replace('Bearer ', '') || 
                    request.headers.get("x-api-key");
 
     if (!apiKey) {
@@ -128,7 +105,7 @@ export async function middleware(request: NextRequest) {
           error: "Missing API key. Provide via Authorization header (Bearer token) or X-API-Key header",
           code: "missing_api_key"
         },
-        { status: 401, headers: getCorsHeaders(origin) }
+        { status: 401 }
       );
     }
 
@@ -141,7 +118,7 @@ export async function middleware(request: NextRequest) {
           error: "Invalid API key",
           code: "invalid_api_key"
         },
-        { status: 401, headers: getCorsHeaders(origin) }
+        { status: 401 }
       );
     }
 
@@ -152,7 +129,7 @@ export async function middleware(request: NextRequest) {
           error: verifyResult.error,
           code: "api_key_error"
         },
-        { status: 429, headers: getCorsHeaders(origin) }
+        { status: 429 }
       );
     }
 
@@ -175,7 +152,6 @@ export async function middleware(request: NextRequest) {
         {
           status: 429,
           headers: {
-            ...getCorsHeaders(origin),
             "X-RateLimit-Limit": globalCheck.limit.toString(),
             "X-RateLimit-Remaining": globalCheck.remaining.toString(),
             "X-RateLimit-Reset": globalCheck.reset.toString(),
@@ -193,7 +169,6 @@ export async function middleware(request: NextRequest) {
     response.headers.set("X-RateLimit-Limit", globalCheck.limit.toString());
     response.headers.set("X-RateLimit-Remaining", globalCheck.remaining.toString());
     response.headers.set("X-RateLimit-Reset", globalCheck.reset.toString());
-    Object.entries(getCorsHeaders(origin)).forEach(([k, v]) => response.headers.set(k, v));
 
     return response;
   }
@@ -201,6 +176,7 @@ export async function middleware(request: NextRequest) {
   console.log(`[${timestamp}] API Access (Internal) - IP: ${ip}, Path: ${pathname}`);
 
   const GLOBAL_KEY = "api-total-usage";
+
   const globalCheck = await globalDayLimit.limit(GLOBAL_KEY);
 
   if (!globalCheck.success) {
@@ -216,7 +192,6 @@ export async function middleware(request: NextRequest) {
       {
         status: 429,
         headers: {
-          ...getCorsHeaders(origin),
           "X-RateLimit-Global-Limit": globalCheck.limit.toString(),
           "X-RateLimit-Global-Remaining": globalCheck.remaining.toString(),
           "X-RateLimit-Global-Reset": globalCheck.reset.toString(),
@@ -227,6 +202,7 @@ export async function middleware(request: NextRequest) {
   }
 
   const identifier = ip;
+
   let minuteCheck, hourCheck;
 
   if (pathname.startsWith("/api/chat")) {
@@ -250,7 +226,6 @@ export async function middleware(request: NextRequest) {
       {
         status: 429,
         headers: {
-          ...getCorsHeaders(origin),
           "X-RateLimit-Limit": minuteCheck.limit.toString(),
           "X-RateLimit-Remaining": minuteCheck.remaining.toString(),
           "X-RateLimit-Reset": minuteCheck.reset.toString(),
@@ -273,7 +248,6 @@ export async function middleware(request: NextRequest) {
       {
         status: 429,
         headers: {
-          ...getCorsHeaders(origin),
           "X-RateLimit-Limit": hourCheck.limit.toString(),
           "X-RateLimit-Remaining": hourCheck.remaining.toString(),
           "X-RateLimit-Reset": hourCheck.reset.toString(),
@@ -284,6 +258,7 @@ export async function middleware(request: NextRequest) {
   }
 
   console.log(`[${timestamp}] ALLOWED - IP: ${ip}, Path: ${pathname}, Global Remaining: ${globalCheck.remaining}, Minute Remaining: ${minuteCheck.remaining}, Hour Remaining: ${hourCheck.remaining}`);
+
   const response = NextResponse.next();
   response.headers.set("X-RateLimit-Global-Limit", globalCheck.limit.toString());
   response.headers.set("X-RateLimit-Global-Remaining", globalCheck.remaining.toString());
@@ -291,7 +266,6 @@ export async function middleware(request: NextRequest) {
   response.headers.set("X-RateLimit-Remaining-Minute", minuteCheck.remaining.toString());
   response.headers.set("X-RateLimit-Limit-Hour", hourCheck.limit.toString());
   response.headers.set("X-RateLimit-Remaining-Hour", hourCheck.remaining.toString());
-  Object.entries(getCorsHeaders(origin)).forEach(([k, v]) => response.headers.set(k, v));
 
   return response;
 }
