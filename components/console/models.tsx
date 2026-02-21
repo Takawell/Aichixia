@@ -203,7 +203,7 @@ const AVAILABLE_MODELS = [
     description: 'Efficient open-source powerhouse',
     speed: 4,
     quality: 4,
-    contextWindow: '130K tokens',
+    contextWindow: '128K tokens',
     pricing: 'Standard',
     features: ['Open source', 'Versatile', 'Community-driven'],
     endpoint: '/api/models/llama',
@@ -217,7 +217,7 @@ const AVAILABLE_MODELS = [
     description: 'Large open-source with browser search',
     speed: 3,
     quality: 4,
-    contextWindow: '128K tokens',
+    contextWindow: '131K tokens',
     pricing: 'Budget',
     features: ['Open source', 'Transparent', 'Community'],
     endpoint: '/api/models/gptoss',
@@ -273,7 +273,7 @@ const AVAILABLE_MODELS = [
     description: "xAI's flagship model with real-time data",
     speed: 4,
     quality: 5,
-    contextWindow: '128K tokens',
+    contextWindow: '1M tokens',
     pricing: 'Premium',
     features: ['Real-time data', 'Web search', 'Current events'],
     endpoint: '/api/models/grok',
@@ -288,7 +288,7 @@ const AVAILABLE_MODELS = [
     description: "xAI's fastest Grok 4 model with ultra-low latency",
     speed: 5,
     quality: 5,
-    contextWindow: '256K tokens',
+    contextWindow: '2M tokens',
     pricing: 'Premium',
     features: ['Ultra-fast', 'Real-time data', 'Low latency'],
     endpoint: '/api/models/grok-fast',
@@ -303,7 +303,7 @@ const AVAILABLE_MODELS = [
     description: "OpenAI's latest GPT-5.2 with enhanced reasoning",
     speed: 4,
     quality: 5,
-    contextWindow: '512K tokens',
+    contextWindow: '400K tokens',
     pricing: 'Standard',
     features: ['Enhanced reasoning', 'Multimodal', 'Latest generation'],
     endpoint: '/api/models/gpt52',
@@ -446,7 +446,6 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
   };
 
   const categories = ['All', ...Array.from(new Set(AVAILABLE_MODELS.map(m => m.category)))];
-
   const filteredModels = AVAILABLE_MODELS.filter(model => {
     const matchesSearch = model.name.toLowerCase().includes(modelSearch.toLowerCase()) ||
       model.id.toLowerCase().includes(modelSearch.toLowerCase()) ||
