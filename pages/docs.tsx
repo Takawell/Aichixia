@@ -5,7 +5,7 @@ import { FaSearch, FaCopy, FaCheck, FaChevronDown, FaChevronRight, FaTerminal, F
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 
-const base = "https://www.aichixia.xyz";
+const base = "https://api.aichixia.xyz";
 
 export default function Docs() {
   const [isDark, setIsDark] = useState(false);
