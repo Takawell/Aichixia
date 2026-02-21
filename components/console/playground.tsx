@@ -24,38 +24,38 @@ type AnyModel = {
 };
 
 const TEXT_MODELS: AnyModel[] = [
-  { id: 'aichixia-thinking', name: 'Aichixia 411B', provider: 'Aichixia', icon: SiAirbrake, color: 'from-blue-600 via-blue-800 to-slate-900', pricing: 'Premium', context: '128K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'deepseek-v3.2', name: 'DeepSeek V3.2', provider: 'DeepSeek', icon: GiSpermWhale, color: 'from-cyan-500 to-blue-600', pricing: 'Premium', context: '128K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'deepseek-v3.1', name: 'DeepSeek V3.1', provider: 'DeepSeek', icon: GiSpermWhale, color: 'from-cyan-600 to-teal-600', pricing: 'Standard', context: '128K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'claude-opus-4.5', name: 'Claude Opus 4.5', provider: 'Anthropic', icon: SiAnthropic, color: 'from-orange-500 to-amber-600', pricing: 'Premium', context: '200K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'gemini-3-flash', name: 'Gemini 3 Flash', provider: 'Google', icon: SiGooglegemini, color: 'from-indigo-500 to-purple-600', pricing: 'Budget', context: '1M', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'gpt-5-mini', name: 'GPT-5 Mini', provider: 'OpenAI', icon: SiOpenai, color: 'from-emerald-500 to-green-600', pricing: 'Budget', context: '400K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'kimi-k2', name: 'Kimi K2', provider: 'Moonshot', icon: GiCloverSpiked, color: 'from-blue-500 to-cyan-600', pricing: 'Premium', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'glm-4.7', name: 'GLM 4.7', provider: 'Zhipu', icon: TbSquareLetterZ, color: 'from-blue-700 to-indigo-800', pricing: 'Standard', context: '200K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'mistral-3.1', name: 'Mistral 3.1', provider: 'Mistral AI', icon: TbLetterM, color: 'from-orange-500 to-amber-500', pricing: 'Standard', context: '128K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'qwen3-235b', name: 'Qwen3 235B', provider: 'Alibaba', icon: SiAlibabacloud, color: 'from-purple-500 to-pink-500', pricing: 'Premium', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'qwen3-coder-480b', name: 'Qwen3 Coder 480B', provider: 'Alibaba', icon: SiAlibabacloud, color: 'from-purple-600 to-fuchsia-600', pricing: 'Premium', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'minimax-m2.1', name: 'MiniMax M2.1', provider: 'MiniMax', icon: GiClover, color: 'from-cyan-600 to-blue-600', pricing: 'Premium', context: '200K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'llama-3.3-70b', name: 'Llama 3.3 70B', provider: 'Meta', icon: SiMeta, color: 'from-blue-600 to-indigo-700', pricing: 'Standard', context: '130K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'gpt-oss-120b', name: 'GPT-OSS 120B', provider: 'OpenAI', icon: SiOpenai, color: 'from-pink-600 to-rose-600', pricing: 'Budget', context: '128K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'mimo-v2-flash', name: 'MiMo V2 Flash', provider: 'Xiaomi', icon: FiZap, color: 'from-blue-600 to-purple-600', pricing: 'Budget', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'groq-compound', name: 'Groq Compound', provider: 'Groq', icon: GiPowerLightning, color: 'from-orange-600 to-red-600', pricing: 'Standard', context: '131K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'cohere-command-a', name: 'Cohere Command A', provider: 'Cohere', icon: GiClover, color: 'from-emerald-600 to-teal-600', pricing: 'Standard', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'grok-3', name: 'Grok 3', provider: 'xAI', icon: FaXTwitter, color: 'from-slate-600 to-zinc-700', pricing: 'Premium', context: '1M', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'grok-4-fast', name: 'Grok 4 Fast', provider: 'xAI', icon: FaXTwitter, color: 'from-zinc-700 to-slate-900', pricing: 'Premium', context: '2M', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
-  { id: 'gpt-5.2', name: 'GPT-5.2', provider: 'OpenAI', icon: SiOpenai, color: 'from-green-500 to-emerald-600', pricing: 'Standard', context: '400K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, limited: true },
+  { id: 'aichixia-thinking', name: 'Aichixia 411B', provider: 'Aichixia', icon: SiAirbrake, color: 'from-blue-600 via-blue-800 to-slate-900', pricing: 'Premium', context: '128K', type: 'text', endpoint: `${base}/v1/chat/completions` },
+  { id: 'deepseek-v3.2', name: 'DeepSeek V3.2', provider: 'DeepSeek', icon: GiSpermWhale, color: 'from-cyan-500 to-blue-600', pricing: 'Premium', context: '128K', type: 'text', endpoint: `${base}/v1/chat/completions` },
+  { id: 'deepseek-v3.1', name: 'DeepSeek V3.1', provider: 'DeepSeek', icon: GiSpermWhale, color: 'from-cyan-600 to-teal-600', pricing: 'Standard', context: '128K', type: 'text', endpoint: `${base}/v1/chat/completions` },
+  { id: 'claude-opus-4.5', name: 'Claude Opus 4.5', provider: 'Anthropic', icon: SiAnthropic, color: 'from-orange-500 to-amber-600', pricing: 'Premium', context: '200K', type: 'text', endpoint: `${base}/v1/chat/completions` },
+  { id: 'gemini-3-flash', name: 'Gemini 3 Flash', provider: 'Google', icon: SiGooglegemini, color: 'from-indigo-500 to-purple-600', pricing: 'Budget', context: '1M', type: 'text', endpoint: `${base}/v1/chat/completions` },
+  { id: 'gpt-5-mini', name: 'GPT-5 Mini', provider: 'OpenAI', icon: SiOpenai, color: 'from-emerald-500 to-green-600', pricing: 'Budget', context: '400K', type: 'text', endpoint: `${base}/v1/chat/completions` },
+  { id: 'kimi-k2', name: 'Kimi K2', provider: 'Moonshot', icon: GiCloverSpiked, color: 'from-blue-500 to-cyan-600', pricing: 'Premium', context: '256K', type: 'text', endpoint: `${base}/v1/chat/completions` },
+  { id: 'glm-4.7', name: 'GLM 4.7', provider: 'Zhipu', icon: TbSquareLetterZ, color: 'from-blue-700 to-indigo-800', pricing: 'Standard', context: '200K', type: 'text', endpoint: `${base}/v1/chat/completions` },
+  { id: 'mistral-3.1', name: 'Mistral 3.1', provider: 'Mistral AI', icon: TbLetterM, color: 'from-orange-500 to-amber-500', pricing: 'Standard', context: '128K', type: 'text', endpoint: `${base}/v1/chat/completions` },
+  { id: 'qwen3-235b', name: 'Qwen3 235B', provider: 'Alibaba', icon: SiAlibabacloud, color: 'from-purple-500 to-pink-500', pricing: 'Premium', context: '256K', type: 'text', endpoint: `${base}/v1/chat/completions` },
+  { id: 'qwen3-coder-480b', name: 'Qwen3 Coder 480B', provider: 'Alibaba', icon: SiAlibabacloud, color: 'from-purple-600 to-fuchsia-600', pricing: 'Premium', context: '256K', type: 'text', endpoint: `${base}/v1/chat/completions` },
+  { id: 'minimax-m2.1', name: 'MiniMax M2.1', provider: 'MiniMax', icon: GiClover, color: 'from-cyan-600 to-blue-600', pricing: 'Premium', context: '200K', type: 'text', endpoint: `${base}/v1/chat/completions` },
+  { id: 'llama-3.3-70b', name: 'Llama 3.3 70B', provider: 'Meta', icon: SiMeta, color: 'from-blue-600 to-indigo-700', pricing: 'Standard', context: '130K', type: 'text', endpoint: `${base}/v1/chat/completions` },
+  { id: 'gpt-oss-120b', name: 'GPT-OSS 120B', provider: 'OpenAI', icon: SiOpenai, color: 'from-pink-600 to-rose-600', pricing: 'Budget', context: '128K', type: 'text', endpoint: `${base}/v1/chat/completions` },
+  { id: 'mimo-v2-flash', name: 'MiMo V2 Flash', provider: 'Xiaomi', icon: FiZap, color: 'from-blue-600 to-purple-600', pricing: 'Budget', context: '256K', type: 'text', endpoint: `${base}/v1/chat/completions` },
+  { id: 'groq-compound', name: 'Groq Compound', provider: 'Groq', icon: GiPowerLightning, color: 'from-orange-600 to-red-600', pricing: 'Standard', context: '131K', type: 'text', endpoint: `${base}/v1/chat/completions` },
+  { id: 'cohere-command-a', name: 'Cohere Command A', provider: 'Cohere', icon: GiClover, color: 'from-emerald-600 to-teal-600', pricing: 'Standard', context: '256K', type: 'text', endpoint: `${base}/v1/chat/completions` },
+  { id: 'grok-3', name: 'Grok 3', provider: 'xAI', icon: FaXTwitter, color: 'from-slate-600 to-zinc-700', pricing: 'Premium', context: '1M', type: 'text', endpoint: `${base}/v1/chat/completions` },
+  { id: 'grok-4-fast', name: 'Grok 4 Fast', provider: 'xAI', icon: FaXTwitter, color: 'from-zinc-700 to-slate-900', pricing: 'Premium', context: '2M', type: 'text', endpoint: `${base}/v1/chat/completions`, requiresPro: true },
+  { id: 'gpt-5.2', name: 'GPT-5.2', provider: 'OpenAI', icon: SiOpenai, color: 'from-green-500 to-emerald-600', pricing: 'Standard', context: '400K', type: 'text', endpoint: `${base}/v1/chat/completions`, limited: true },
 ];
 
 const IMAGE_MODELS: AnyModel[] = [
-  { id: 'flux', name: 'Flux 2', provider: 'Black Forest', icon: SiFlux, color: 'from-purple-500 to-pink-500', pricing: 'Standard', context: '—', type: 'image', endpoint: `${base}/api/models/flux` },
-  { id: 'lucid', name: 'Lucid Origin', provider: 'Lucid', icon: FiImage, color: 'from-teal-500 to-cyan-600', pricing: 'Standard', context: '—', type: 'image', endpoint: `${base}/api/models/lucid` },
-  { id: 'phoenix', name: 'Phoenix 1.0', provider: 'Phoenix', icon: GiFire, color: 'from-red-500 to-orange-500', pricing: 'Budget', context: '—', type: 'image', endpoint: `${base}/api/models/phoenix` },
-  { id: 'nano', name: 'Nano Banana Pro', provider: 'Nano', icon: SiGooglegemini, color: 'from-yellow-400 to-orange-400', pricing: 'Budget', context: '—', type: 'image', endpoint: `${base}/api/models/nano` },
+  { id: 'flux', name: 'Flux 2', provider: 'Black Forest', icon: SiFlux, color: 'from-purple-500 to-pink-500', pricing: 'Standard', context: '—', type: 'image', endpoint: `${base}/models/flux` },
+  { id: 'lucid', name: 'Lucid Origin', provider: 'Lucid', icon: FiImage, color: 'from-teal-500 to-cyan-600', pricing: 'Standard', context: '—', type: 'image', endpoint: `${base}/models/lucid` },
+  { id: 'phoenix', name: 'Phoenix 1.0', provider: 'Phoenix', icon: GiFire, color: 'from-red-500 to-orange-500', pricing: 'Budget', context: '—', type: 'image', endpoint: `${base}/models/phoenix` },
+  { id: 'nano', name: 'Nano Banana Pro', provider: 'Nano', icon: SiGooglegemini, color: 'from-yellow-400 to-orange-400', pricing: 'Budget', context: '—', type: 'image', endpoint: `${base}/models/nano` },
 ];
 
 const TTS_MODELS: AnyModel[] = [
-  { id: 'lindsay', name: 'Lindsay TTS', provider: 'Aichixia', icon: SiLapce, color: 'from-rose-500 to-pink-500', pricing: 'Standard', context: '—', type: 'tts', endpoint: `${base}/api/models/lindsay` },
-  { id: 'starling', name: 'Starling TTS', provider: 'Aichixia', icon: SiSecurityscorecard, color: 'from-violet-500 to-purple-500', pricing: 'Standard', context: '—', type: 'tts', endpoint: `${base}/api/models/starling` },
+  { id: 'lindsay', name: 'Lindsay TTS', provider: 'Aichixia', icon: SiLapce, color: 'from-rose-500 to-pink-500', pricing: 'Standard', context: '—', type: 'tts', endpoint: `${base}/models/lindsay` },
+  { id: 'starling', name: 'Starling TTS', provider: 'Aichixia', icon: SiSecurityscorecard, color: 'from-violet-500 to-purple-500', pricing: 'Standard', context: '—', type: 'tts', endpoint: `${base}/models/starling` },
 ];
 
 const ALL_MODELS: AnyModel[] = [...TEXT_MODELS, ...IMAGE_MODELS, ...TTS_MODELS];
@@ -311,7 +311,7 @@ echo $response["audio"];`;
 
 const client = new OpenAI({
   apiKey: "${key}",
-  baseURL: "${base}/api/v1",
+  baseURL: "${base}/v1",
 });
 
 const response = await client.chat.completions.create({
@@ -327,7 +327,7 @@ console.log(response.choices[0].message.content);`;
 
 client = OpenAI(
     api_key="${key}",
-    base_url="${base}/api/v1",
+    base_url="${base}/v1",
 )
 
 response = client.chat.completions.create(
@@ -339,7 +339,7 @@ response = client.chat.completions.create(
 
 print(response.choices[0].message.content)`;
 
-  if (lang === 'curl') return `curl -X POST ${base}/api/v1/chat/completions \\
+  if (lang === 'curl') return `curl -X POST ${base}/v1/chat/completions \\
   -H "Authorization: Bearer ${key}" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -353,7 +353,7 @@ print(response.choices[0].message.content)`;
 
 client = OpenAI::Client.new(
   access_token: "${key}",
-  uri_base: "${base}/api/v1",
+  uri_base: "${base}/v1",
 )
 
 response = client.chat(
@@ -377,7 +377,7 @@ import (
 
 func main() {
   config := openai.DefaultConfig("${key}")
-  config.BaseURL = "${base}/api/v1"
+  config.BaseURL = "${base}/v1"
   client := openai.NewClientWithConfig(config)
 
   resp, _ := client.CreateChatCompletion(
@@ -400,7 +400,7 @@ require_once 'vendor/autoload.php';
 
 $client = OpenAI::factory()
     ->withApiKey('${key}')
-    ->withBaseUri('${base}/api/v1')
+    ->withBaseUri('${base}/v1')
     ->make();
 
 $response = $client->chat()->create([
