@@ -32,7 +32,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '128K tokens',
     pricing: 'Premium',
     features: ['Deep reasoning', 'Chain-of-thought', 'Problem solving', 'Ultra-large'],
-    endpoint: 'https://api.aichixia.xyz/v1/chat/completions',
+    endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
     id: 'deepseek-v3.2',
@@ -47,7 +47,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '128K tokens',
     pricing: 'Premium',
     features: ['Advanced reasoning', 'Superior coding', 'Complex tasks'],
-    endpoint: 'https://api.aichixia.xyz/v1/chat/completions',
+    endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
     id: 'deepseek-v3.1',
@@ -61,7 +61,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '128K tokens',
     pricing: 'Standard',
     features: ['Multi-purpose', 'Reliable', 'Cost-effective'],
-    endpoint: 'https://api.aichixia.xyz/v1/chat/completions',
+    endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
     id: 'gpt-5-mini',
@@ -75,7 +75,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '400K tokens',
     pricing: 'Budget',
     features: ['Ultra-fast', 'Low latency', 'Simple tasks'],
-    endpoint: 'https://api.aichixia.xyz/v1/chat/completions',
+    endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
     id: 'claude-opus-4.5',
@@ -90,7 +90,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '200K tokens',
     pricing: 'Premium',
     features: ['Long context', 'Creative writing', 'Analysis'],
-    endpoint: 'https://api.aichixia.xyz/v1/chat/completions',
+    endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
     id: 'gemini-3-flash',
@@ -104,7 +104,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '1M tokens',
     pricing: 'Budget',
     features: ['Real-time', 'Multimodal', 'Fast inference'],
-    endpoint: 'https://api.aichixia.xyz/v1/chat/completions',
+    endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
     id: 'kimi-k2',
@@ -119,7 +119,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '256K tokens',
     pricing: 'Premium',
     features: ['Chinese expertise', 'Long context', 'Cultural nuance'],
-    endpoint: 'https://api.aichixia.xyz/v1/chat/completions',
+    endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
     id: 'glm-4.7',
@@ -134,7 +134,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '200K tokens',
     pricing: 'Standard',
     features: ['Bilingual', 'Efficient', 'General purpose'],
-    endpoint: 'https://api.aichixia.xyz/v1/chat/completions',
+    endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
     id: 'mistral-3.1',
@@ -148,7 +148,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '128K tokens',
     pricing: 'Standard',
     features: ['Strong reasoning', 'Multilingual', 'Open weights'],
-    endpoint: 'https://api.aichixia.xyz/v1/chat/completions',
+    endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
     id: 'qwen3-235b',
@@ -163,7 +163,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '256K tokens',
     pricing: 'Premium',
     features: ['Huge scale', 'Multilingual', 'Deep reasoning'],
-    endpoint: 'https://api.aichixia.xyz/v1/chat/completions',
+    endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
     id: 'qwen3-coder-480b',
@@ -177,7 +177,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '256K tokens',
     pricing: 'Premium',
     features: ['Code generation', 'Debugging', 'Architecture'],
-    endpoint: 'https://api.aichixia.xyz/v1/chat/completions',
+    endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
     id: 'minimax-m2.1',
@@ -192,7 +192,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '200K tokens',
     pricing: 'Premium',
     features: ['Creative', 'Chinese focus', 'Analytical'],
-    endpoint: 'https://api.aichixia.xyz/v1/chat/completions',
+    endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
     id: 'llama-3.3-70b',
@@ -206,7 +206,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '128K tokens',
     pricing: 'Standard',
     features: ['Open source', 'Versatile', 'Community-driven'],
-    endpoint: 'https://api.aichixia.xyz/v1/chat/completions',
+    endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
     id: 'gpt-oss-120b',
@@ -220,7 +220,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '131K tokens',
     pricing: 'Budget',
     features: ['Open source', 'Transparent', 'Community'],
-    endpoint: 'https://api.aichixia.xyz/v1/chat/completions',
+    endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
     id: 'mimo-v2-flash',
@@ -234,7 +234,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '256K tokens',
     pricing: 'Budget',
     features: ['Edge computing', 'Low resource', 'Real-time'],
-    endpoint: 'https://api.aichixia.xyz/v1/chat/completions',
+    endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
     id: 'groq-compound',
@@ -248,7 +248,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '131K tokens',
     pricing: 'Standard',
     features: ['Hardware accel', 'Ultra-fast', 'Efficient'],
-    endpoint: 'https://api.aichixia.xyz/v1/chat/completions',
+    endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
     id: 'cohere-command-a',
@@ -262,7 +262,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '256K tokens',
     pricing: 'Standard',
     features: ['Enterprise', 'RAG optimized', 'Business focus'],
-    endpoint: 'https://api.aichixia.xyz/v1/chat/completions',
+    endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
     id: 'grok-3',
@@ -276,7 +276,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '1M tokens',
     pricing: 'Premium',
     features: ['Real-time data', 'Web search', 'Current events'],
-    endpoint: 'https://api.aichixia.xyz/v1/chat/completions',
+    endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
     id: 'grok-4-fast',
@@ -291,7 +291,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '2M tokens',
     pricing: 'Premium',
     features: ['Ultra-fast', 'Real-time data', 'Low latency'],
-    endpoint: 'https://api.aichixia.xyz/v1/chat/completions',
+    endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
     id: 'gpt-5.2',
@@ -306,7 +306,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '400K tokens',
     pricing: 'Standard',
     features: ['Enhanced reasoning', 'Multimodal', 'Latest generation'],
-    endpoint: 'https://api.aichixia.xyz/v1/chat/completions',
+    endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
     id: 'flux-2',
@@ -320,7 +320,7 @@ const AVAILABLE_MODELS = [
     contextWindow: 'N/A',
     pricing: 'Standard',
     features: ['Photorealistic', 'High quality', 'Fast generation'],
-    endpoint: 'https://api.aichixia.xyz/models/flux',
+    endpoint: 'https://www.aichixia.xyz/api/models/flux',
   },
   {
     id: 'lucid-origin',
@@ -334,7 +334,7 @@ const AVAILABLE_MODELS = [
     contextWindow: 'N/A',
     pricing: 'Standard',
     features: ['Artistic', 'Creative', 'Unique style'],
-    endpoint: 'https://api.aichixia.xyz/models/lucid',
+    endpoint: 'https://www.aichixia.xyz/api/models/lucid',
   },
   {
     id: 'phoenix-1.0',
@@ -348,7 +348,7 @@ const AVAILABLE_MODELS = [
     contextWindow: 'N/A',
     pricing: 'Budget',
     features: ['Quick', 'Artistic', 'Efficient'],
-    endpoint: 'https://api.aichixia.xyz/models/phoenix',
+    endpoint: 'https://www.aichixia.xyz/api/models/phoenix',
   },
   {
     id: 'nano-banana-pro',
@@ -362,7 +362,7 @@ const AVAILABLE_MODELS = [
     contextWindow: 'N/A',
     pricing: 'Budget',
     features: ['Lightweight', 'Fast', 'Compact'],
-    endpoint: 'https://api.aichixia.xyz/models/nano',
+    endpoint: 'https://www.aichixia.xyz/api/models/nano',
   },
   {
     id: 'starling-tts',
@@ -376,7 +376,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '2K chars',
     pricing: 'Standard',
     features: ['Emotional', 'Natural', 'Multi-language'],
-    endpoint: 'https://api.aichixia.xyz/models/starling',
+    endpoint: 'https://www.aichixia.xyz/api/models/starling',
   },
   {
     id: 'lindsay-tts',
@@ -390,7 +390,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '2K chars',
     pricing: 'Premium',
     features: ['Premium', 'Prosody', 'Enhanced'],
-    endpoint: 'https://api.aichixia.xyz/models/lindsay',
+    endpoint: 'https://www.aichixia.xyz/api/models/lindsay',
   },
 ];
 
@@ -647,7 +647,7 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
 
                           <div className="px-3 sm:px-4 pb-3 sm:pb-4 pt-0 flex items-center justify-between border-t border-zinc-100 dark:border-zinc-800/60 mt-0">
                             <span className="text-[9px] text-zinc-400 dark:text-zinc-600 font-mono truncate mr-2">
-                              {model.category === 'Text Generation' ? 'OpenAI-compatible' : model.endpoint.replace('https://api.aichixia.xyz', '')}
+                              {model.category === 'Text Generation' ? 'OpenAI-compatible' : model.endpoint.replace('https://www.aichixia.xyz', '')}
                             </span>
                             <button
                               onClick={() => setActiveModal(model)}
@@ -751,7 +751,7 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
                   <code className="flex-1 text-[10px] sm:text-xs font-mono text-zinc-700 dark:text-zinc-300 break-all leading-relaxed">
                     {activeModal.category === 'Text Generation' ? (
                       <>
-                        <span className="text-zinc-400 dark:text-zinc-500">Base URL: </span>https://api.aichixia.xyz/v1<br />
+                        <span className="text-zinc-400 dark:text-zinc-500">Base URL: </span>https://www.aichixia.xyz/api/v1<br />
                         <span className="text-zinc-400 dark:text-zinc-500">Model ID: </span>{activeModal.id}
                       </>
                     ) : activeModal.endpoint}
