@@ -6,7 +6,7 @@ import Image from "next/image";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 
-const base = "https://www.aichixia.xyz";
+const base = "https://api.aichixia.xyz";
 
 const models = [
   { id: "deepseek-v3.2", name: "DeepSeek V3.2", provider: "DeepSeek", description: "Deep reasoning and code generation", color: "from-purple-500 to-pink-500" },
