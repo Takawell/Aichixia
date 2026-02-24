@@ -4,12 +4,10 @@ import {
   FaAngry, FaSmile, FaBriefcase, FaHeart, FaFire, FaBook, FaQuestion, 
   FaSearch, FaCode, FaVolumeUp, FaVolumeMute, FaPlay, FaPause, FaDownload,
   FaCopy, FaCheck, FaEllipsisV, FaImage, FaMicrophone, FaStop, FaRedo,
-  FaTimes, FaSparkles, FaRobot, FaMagic, FaWandMagicSparkles, FaBolt,
+  FaTimes, FaRobot, FaMagic, FaBolt,
   FaStar, FaMoon, FaSun, FaCog, FaHistory, FaShare, FaThumbsUp, FaThumbsDown,
-  FaRegClock, FaRegEdit, FaRegTrashAlt, FaRegCopy, FaRegCheckCircle,
   FaArrowUp, FaArrowDown, FaExpand, FaCompress, FaKeyboard, FaInfoCircle,
-  FaRegLightbulb, FaRegCommentDots, FaPaperclip, FaRegImage, FaRegFile,
-  FaExternalLinkAlt, FaRegBookmark, FaBookmark, FaSync, FaRegSmile, FaHashtag
+  FaPaperclip, FaExternalLinkAlt, FaSync, FaHashtag, FaPlus
 } from "react-icons/fa";
 import { 
   SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, 
