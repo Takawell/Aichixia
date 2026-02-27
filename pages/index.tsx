@@ -63,10 +63,7 @@ const quickStartSteps = [
     step: "1",
     title: "Get Your API Key",
     description: "Sign up and generate your key in under 30 seconds. Free tier includes 1000 requests.",
-    code: `curl https://console.aichixia.xyz/api/keys \\
-  -X POST \\
-  -H "Content-Type: application/json" \\
-  -d '{"name": "my-key"}'`,
+    code: null,
     icon: FaKey,
     gradient: "from-blue-500 to-cyan-500"
   },
@@ -219,6 +216,8 @@ export default function Home() {
   const [isDark, setIsDark] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showModelModal, setShowModelModal] = useState(false);
+  const [showContactModal, setShowContactModal] = useState(false);
+  const [contactStep, setContactStep] = useState<'confirm' | 'sent'>('confirm');
   const [apiKey, setApiKey] = useState("");
   const [selectedModel, setSelectedModel] = useState("deepseek-v3.2");
   const [message, setMessage] = useState("Explain quantum computing in simple terms");
@@ -741,33 +740,44 @@ export default function Home() {
                   <h3 className="text-lg sm:text-xl font-bold text-zinc-900 dark:text-white mb-2">{step.title}</h3>
                   <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed mb-3 sm:mb-4">{step.description}</p>
 
-                  <div className="rounded-lg bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 overflow-hidden min-w-0">
-                    <div className="flex items-center justify-between px-3 py-1.5 bg-zinc-200 dark:bg-zinc-800 border-b border-zinc-300 dark:border-zinc-700">
-                      <div className="flex gap-1">
-                        <div className="w-2 h-2 rounded-full bg-red-500"></div>
-                        <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
-                        <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                  {step.code === null ? (
+                    <Link
+                      href="/console"
+                      className="flex items-center justify-center gap-2 w-full px-4 py-3 text-sm font-bold text-white bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 rounded-lg shadow-lg hover:shadow-blue-500/30 transition-all duration-300 hover:scale-105 group"
+                    >
+                      <FaKey className="w-4 h-4" />
+                      <span>Go to Console</span>
+                      <FaArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform duration-300" />
+                    </Link>
+                  ) : (
+                    <div className="rounded-lg bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 overflow-hidden min-w-0">
+                      <div className="flex items-center justify-between px-3 py-1.5 bg-zinc-200 dark:bg-zinc-800 border-b border-zinc-300 dark:border-zinc-700">
+                        <div className="flex gap-1">
+                          <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                          <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+                          <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                        </div>
+                        <span className="text-[10px] text-zinc-600 dark:text-zinc-400">terminal</span>
                       </div>
-                      <span className="text-[10px] text-zinc-600 dark:text-zinc-400">terminal</span>
-                    </div>
-                    <div className="p-2 sm:p-3 overflow-x-auto max-w-full">
-                      <div className="min-w-0">
-                        <SyntaxHighlighter
-                          language={idx === 0 ? "bash" : idx === 1 ? "bash" : "javascript"}
-                          style={isDark ? oneDark : oneLight}
-                          customStyle={{
-                            margin: 0,
-                            padding: 0,
-                            background: 'transparent',
-                            fontSize: '9px',
-                          }}
-                          wrapLongLines={true}
-                        >
-                          {step.code}
-                        </SyntaxHighlighter>
+                      <div className="p-2 sm:p-3 overflow-x-auto max-w-full">
+                        <div className="min-w-0">
+                          <SyntaxHighlighter
+                            language={idx === 1 ? "bash" : "javascript"}
+                            style={isDark ? oneDark : oneLight}
+                            customStyle={{
+                              margin: 0,
+                              padding: 0,
+                              background: 'transparent',
+                              fontSize: '9px',
+                            }}
+                            wrapLongLines={true}
+                          >
+                            {step.code}
+                          </SyntaxHighlighter>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
                 </div>
 
                 {idx < quickStartSteps.length - 1 && (
@@ -1097,16 +1107,25 @@ export default function Home() {
                   ))}
                 </ul>
 
-                <Link
-                  href="/console"
-                  className={`block w-full text-center px-4 py-2.5 sm:py-3 text-sm sm:text-base font-bold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 ${
-                    plan.popular
-                      ? 'text-white bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600'
-                      : 'text-zinc-900 dark:text-white bg-zinc-100 dark:bg-zinc-900 hover:bg-zinc-200 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800'
-                  }`}
-                >
-                  {plan.cta}
-                </Link>
+                {plan.cta === 'Contact Sales' ? (
+                  <button
+                    onClick={() => { setContactStep('confirm'); setShowContactModal(true); }}
+                    className="block w-full text-center px-4 py-2.5 sm:py-3 text-sm sm:text-base font-bold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                  >
+                    {plan.cta}
+                  </button>
+                ) : (
+                  <Link
+                    href="/console"
+                    className={`block w-full text-center px-4 py-2.5 sm:py-3 text-sm sm:text-base font-bold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 ${
+                      plan.popular
+                        ? 'text-white bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600'
+                        : 'text-zinc-900 dark:text-white bg-zinc-100 dark:bg-zinc-900 hover:bg-zinc-200 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800'
+                    }`}
+                  >
+                    {plan.cta}
+                  </Link>
+                )}
               </div>
             ))}
           </div>
@@ -1204,6 +1223,97 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {showContactModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/70 backdrop-blur-md"
+          onClick={() => { setShowContactModal(false); setContactStep('confirm'); }}
+        >
+          <div
+            className="relative bg-white dark:bg-zinc-950 rounded-2xl shadow-2xl border border-zinc-200 dark:border-zinc-800 w-full max-w-md overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-pink-500" />
+
+            <div className="p-5 sm:p-6">
+              <button
+                onClick={() => { setShowContactModal(false); setContactStep('confirm'); }}
+                className="absolute top-4 right-4 p-1.5 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
+              >
+                <FaTimes className="w-4 h-4" />
+              </button>
+
+              {contactStep === 'confirm' ? (
+                <div className="space-y-5">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-500/20 flex-shrink-0">
+                      <FaUsers className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-base sm:text-lg font-black text-zinc-900 dark:text-white">Contact Enterprise Sales</h3>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400">Aichixia Team</p>
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 space-y-2">
+                    <p className="text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300">Apakah kamu yakin ingin menghubungi tim Aichixia?</p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
+                      Kamu akan diarahkan untuk mengirim email ke tim kami. Kami akan merespons dalam waktu 1×24 jam untuk mendiskusikan kebutuhan Enterprise kamu.
+                    </p>
+                  </div>
+
+                  <div className="p-3.5 rounded-xl bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-900/50">
+                    <div className="flex items-center gap-2.5">
+                      <FaShieldAlt className="w-4 h-4 text-purple-600 dark:text-purple-400 flex-shrink-0" />
+                      <div>
+                        <p className="text-xs font-semibold text-purple-800 dark:text-purple-200">Email kami</p>
+                        <p className="text-xs text-purple-600 dark:text-purple-400 font-mono">contact@aichixia.xyz</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <button
+                      onClick={() => { setShowContactModal(false); setContactStep('confirm'); }}
+                      className="flex items-center justify-center gap-1.5 px-4 py-2.5 text-sm font-semibold text-zinc-700 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-900 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-800 transition-all duration-200"
+                    >
+                      <FaTimes className="w-3 h-3" />
+                      Batal
+                    </button>
+                    <a
+                      href="mailto:contact@aichixia.xyz?subject=Enterprise%20Plan%20Inquiry&body=Hi%20Aichixia%20Team%2C%0A%0ASaya%20tertarik%20dengan%20Enterprise%20Plan.%0A%0A"
+                      onClick={() => setContactStep('sent')}
+                      className="flex items-center justify-center gap-1.5 px-4 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 rounded-xl shadow-lg shadow-purple-500/20 hover:shadow-purple-500/30 transition-all duration-200 hover:scale-105"
+                    >
+                      <FaCheckCircle className="w-3 h-3" />
+                      Ya, Hubungi
+                    </a>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-5 text-center py-2">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-400 to-green-500 flex items-center justify-center mx-auto shadow-xl shadow-emerald-500/20">
+                    <FaCheckCircle className="w-8 h-8 text-white" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <h3 className="text-lg font-black text-zinc-900 dark:text-white">Email Client Terbuka!</h3>
+                    <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed max-w-xs mx-auto">
+                      Selesaikan pengiriman email ke <span className="font-semibold text-zinc-700 dark:text-zinc-300">contact@aichixia.xyz</span>. Tim kami akan membalas dalam 1×24 jam.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => { setShowContactModal(false); setContactStep('confirm'); }}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 rounded-xl shadow-lg shadow-emerald-500/20 transition-all duration-200 hover:scale-105"
+                  >
+                    <FaCheck className="w-3.5 h-3.5" />
+                    Tutup
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {showModelModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200" onClick={() => setShowModelModal(false)}>
