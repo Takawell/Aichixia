@@ -20,6 +20,20 @@ type ModelProps = {
 
 const AVAILABLE_MODELS = [
   {
+    id: 'gpt-5-mini',
+    name: 'GPT-5 Mini',
+    icon: SiOpenai,
+    color: 'from-emerald-600 to-green-600',
+    category: 'Text Generation',
+    description: 'Balanced performance for general tasks',
+    speed: 3,
+    quality: 4,
+    contextWindow: '400K tokens',
+    pricing: 'Budget',
+    features: ['Ultra-fast', 'Low latency', 'Simple tasks'],
+    endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
+  },
+  {
     id: 'aichixia-thinking',
     name: 'Aichixia 411B',
     icon: SiAirbrake,
@@ -32,6 +46,20 @@ const AVAILABLE_MODELS = [
     contextWindow: '128K tokens',
     pricing: 'Premium',
     features: ['Deep reasoning', 'Chain-of-thought', 'Problem solving', 'Ultra-large'],
+    endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
+  },
+  {
+    id: 'mistral-3.1',
+    name: 'Mistral 3.1',
+    icon: TbLetterM,
+    color: 'from-orange-600 to-amber-600',
+    category: 'Text Generation',
+    description: 'Fast inference with European focus',
+    speed: 4,
+    quality: 4,
+    contextWindow: '128K tokens',
+    pricing: 'Standard',
+    features: ['Strong reasoning', 'Multilingual', 'Open weights'],
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
@@ -61,20 +89,6 @@ const AVAILABLE_MODELS = [
     contextWindow: '128K tokens',
     pricing: 'Standard',
     features: ['Multi-purpose', 'Reliable', 'Cost-effective'],
-    endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
-  },
-  {
-    id: 'gpt-5-mini',
-    name: 'GPT-5 Mini',
-    icon: SiOpenai,
-    color: 'from-emerald-600 to-green-600',
-    category: 'Text Generation',
-    description: 'Balanced performance for general tasks',
-    speed: 3,
-    quality: 4,
-    contextWindow: '400K tokens',
-    pricing: 'Budget',
-    features: ['Ultra-fast', 'Low latency', 'Simple tasks'],
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
@@ -122,6 +136,20 @@ const AVAILABLE_MODELS = [
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
+    id: 'grok-3',
+    name: 'Grok 3',
+    icon: FaXTwitter,
+    color: 'from-slate-600 to-zinc-800',
+    category: 'Text Generation',
+    description: "xAI's flagship model with real-time data",
+    speed: 4,
+    quality: 5,
+    contextWindow: '1M tokens',
+    pricing: 'Premium',
+    features: ['Real-time data', 'Web search', 'Current events'],
+    endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
+  },
+  {
     id: 'glm-4.7',
     name: 'GLM 4.7',
     icon: TbSquareLetterZ,
@@ -134,20 +162,6 @@ const AVAILABLE_MODELS = [
     contextWindow: '200K tokens',
     pricing: 'Standard',
     features: ['Bilingual', 'Efficient', 'General purpose'],
-    endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
-  },
-  {
-    id: 'mistral-3.1',
-    name: 'Mistral 3.1',
-    icon: TbLetterM,
-    color: 'from-orange-600 to-amber-600',
-    category: 'Text Generation',
-    description: 'Fast inference with European focus',
-    speed: 4,
-    quality: 4,
-    contextWindow: '128K tokens',
-    pricing: 'Standard',
-    features: ['Strong reasoning', 'Multilingual', 'Open weights'],
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
@@ -262,20 +276,6 @@ const AVAILABLE_MODELS = [
     contextWindow: '256K tokens',
     pricing: 'Standard',
     features: ['Enterprise', 'RAG optimized', 'Business focus'],
-    endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
-  },
-  {
-    id: 'grok-3',
-    name: 'Grok 3',
-    icon: FaXTwitter,
-    color: 'from-slate-600 to-zinc-800',
-    category: 'Text Generation',
-    description: "xAI's flagship model with real-time data",
-    speed: 4,
-    quality: 5,
-    contextWindow: '1M tokens',
-    pricing: 'Premium',
-    features: ['Real-time data', 'Web search', 'Current events'],
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
@@ -437,7 +437,6 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
   const [modelSearch, setModelSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [activeModal, setActiveModal] = useState<any>(null);
-
   const isModelLocked = (model: any) => {
     if (!model.requiresPlan) return false;
     if (!settings) return true;
@@ -657,8 +656,6 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
                               Details
                             </button>
                           </div>
-
-
                         </div>
                       );
                     })}
