@@ -48,7 +48,7 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "cohere-command-a": { fn: chatCohere, provider: "cohere" },
   "grok-3": { fn: chatGrok, provider: "grok" },
   "grok-4-fast": { fn: chatGrokFast, provider: "grok-fast" },
-  "aichixia-thinking": { fn: chatAichixia, provider: "aichixia" },
+  "aichixia-flash": { fn: chatAichixia, provider: "aichixia" },
 };
 
 const LOCKED_MODELS_PRO = ['deepseek-v3.2', 'qwen3-235b', 'minimax-m2.1', 'claude-opus-4.5', 'glm-4.7', 'kimi-k2', 'aichixia-thinking', 'grok-4-fast'];
