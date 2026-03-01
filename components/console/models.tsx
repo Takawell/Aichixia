@@ -34,8 +34,8 @@ const AVAILABLE_MODELS = [
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
-    id: 'aichixia-thinking',
-    name: 'Aichixia 411B',
+    id: 'aichixia-flash',
+    name: 'Aichixia 114B',
     icon: SiAirbrake,
     color: 'from-blue-600 via-blue-800 to-slate-900',
     category: 'Text Generation',
