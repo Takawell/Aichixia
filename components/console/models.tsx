@@ -44,8 +44,8 @@ const AVAILABLE_MODELS = [
     speed: 5,
     quality: 5,
     contextWindow: '256K tokens',
-    pricing: 'Premium',
-    features: ['Fast inference', 'Multimodal', 'Problem solving', 'Real-time'],
+    pricing: 'Standard',
+    features: ['Real-time', 'Fast inference', 'Multimodal', 'Problem solving'],
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
