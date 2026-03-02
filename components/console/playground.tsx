@@ -916,7 +916,6 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
   const tokensUsed = response?.usage?.total_tokens ?? null;
   const ModelIcon = selectedModel.icon as any;
   const tabModels = modelsForTab();
-
   const ConfigPanel = () => (
     <div className="bg-white dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800 p-3 sm:p-4 space-y-3 w-full">
       <div className="flex items-center gap-1.5">
