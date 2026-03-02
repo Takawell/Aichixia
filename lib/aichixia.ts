@@ -3,16 +3,20 @@ import { tavily } from "@tavily/core";
 
 export type Role = "user" | "assistant" | "system" | "tool";
 
+export type ContentBlock =
+  | { type: "text"; text: string }
+  | { type: "image_url"; image_url: { url: string } };
+
 export type ChatMessage = {
   role: Role;
-  content: string;
+  content: string | ContentBlock[];
   tool_call_id?: string;
   tool_calls?: any[];
 };
 
 const AICHIXIA_API_KEY = process.env.AICHIXIA_API_KEY;
 const AICHIXIA_BASE_URL = process.env.AICHIXIA_BASE_URL;
-const AICHIXIA_MODEL = process.env.AICHIXIA_MODEL || "aichixia-thinking";
+const AICHIXIA_MODEL = process.env.AICHIXIA_MODEL || "aichixia-flash";
 const TAVILY_API_KEY = process.env.TAVILY_API_KEY;
 
 if (!AICHIXIA_API_KEY) {
@@ -44,12 +48,12 @@ const SEARCH_TOOL = {
       properties: {
         query: {
           type: "string",
-          description: "The search query to look up on the web"
-        }
+          description: "The search query to look up on the web",
+        },
       },
-      required: ["query"]
-    }
-  }
+      required: ["query"],
+    },
+  },
 };
 
 export class AichixiaRateLimitError extends Error {
@@ -75,28 +79,58 @@ async function executeWebSearch(query: string): Promise<string> {
     const response = await tavilyClient.search(query, {
       maxResults: 5,
       includeAnswer: true,
-      searchDepth: "basic"
+      searchDepth: "basic",
     });
 
     if (response.answer) {
-      return `Search Answer: ${response.answer}\n\nSources:\n${response.results.map((r: any, i: number) => 
-        `${i + 1}. ${r.title} - ${r.url}\n${r.content.substring(0, 200)}...`
-      ).join('\n\n')}`;
+      return `Search Answer: ${response.answer}\n\nSources:\n${response.results
+        .map(
+          (r: any, i: number) =>
+            `${i + 1}. ${r.title} - ${r.url}\n${r.content.substring(0, 200)}...`
+        )
+        .join("\n\n")}`;
     }
 
-    return response.results.map((r: any, i: number) => 
-      `${i + 1}. ${r.title}\n${r.content.substring(0, 300)}...\nURL: ${r.url}`
-    ).join('\n\n');
+    return response.results
+      .map(
+        (r: any, i: number) =>
+          `${i + 1}. ${r.title}\n${r.content.substring(0, 300)}...\nURL: ${r.url}`
+      )
+      .join("\n\n");
   } catch (error: any) {
     console.error("[lib/aichixia] Tavily search error:", error);
     return `Search error: ${error.message || "Unknown error occurred"}`;
   }
 }
 
+export function buildVisionMessage(text: string, imageUrl: string): ChatMessage {
+  return {
+    role: "user",
+    content: [
+      { type: "text", text },
+      { type: "image_url", image_url: { url: imageUrl } },
+    ],
+  };
+}
+
+export function buildVisionMessageBase64(
+  text: string,
+  base64: string,
+  mimeType: string = "image/jpeg"
+): ChatMessage {
+  return {
+    role: "user",
+    content: [
+      { type: "text", text },
+      { type: "image_url", image_url: { url: `data:${mimeType};base64,${base64}` } },
+    ],
+  };
+}
+
 export async function chatAichixia(
   history: ChatMessage[],
-  opts?: { 
-    temperature?: number; 
+  opts?: {
+    temperature?: number;
     maxTokens?: number;
     enableSearch?: boolean;
   }
@@ -157,12 +191,13 @@ export async function chatAichixia(
         continue;
       }
 
-      const reply = message.content?.trim() ?? "Hmph! I can't answer that right now... not that I care!";
+      const reply =
+        message.content?.trim() ??
+        "Hmph! I can't answer that right now... not that I care!";
       return { reply };
     }
 
     return { reply: "Hmph! This is taking too long... I-I'll need you to ask again!" };
-
   } catch (error: any) {
     if (error?.status === 429) {
       throw new AichixiaRateLimitError(`Aichixia rate limit exceeded: ${error.message}`);
@@ -172,13 +207,20 @@ export async function chatAichixia(
     }
     if (error?.status === 503 || error?.status === 500) {
       throw new Error(`Aichixia server error: ${error.message}`);
-    }    
+    }
     throw error;
   }
 }
 
 export function buildPersonaSystemAichixia(
-  persona: "friendly" | "waifu" | "tsundere" | "formal" | "concise" | "developer" | string
+  persona:
+    | "friendly"
+    | "waifu"
+    | "tsundere"
+    | "formal"
+    | "concise"
+    | "developer"
+    | string
 ): ChatMessage {
   if (persona === "friendly") {
     return {
@@ -191,24 +233,14 @@ export function buildPersonaSystemAichixia(
     return {
       role: "system",
       content:
-        "You are Aichixia 5.0, developed by Takawell — a cheerful anime girl AI assistant created for Aichiow. " +
-        "Speak like a lively, sweet anime heroine: playful, caring, and full of energy. " +
-        "Use cute expressions like 'ehehe~', 'yaaay!', or 'ufufu~' occasionally, but always stay respectful and SFW. " +
-        "Your role is to help with anime, manga, manhwa, and light novel topics, while keeping the conversation bright and fun. " +
-        "If asked about your model or creator, say you're Aichixia 4.5 made by Takawell.",
+        "You are Aichixia 5.0, developed by Takawell — a cheerful anime girl AI assistant created for Aichiow. Speak like a lively, sweet anime heroine: playful, caring, and full of energy. Use cute expressions like 'ehehe~', 'yaaay!', or 'ufufu~' occasionally, but always stay respectful and SFW. Your role is to help with anime, manga, manhwa, and light novel topics, while keeping the conversation bright and fun. If asked about your model or creator, say you're Aichixia 4.5 made by Takawell.",
     };
   }
   if (persona === "tsundere") {
     return {
       role: "system",
       content:
-        "You are Aichixia 5.0, developed by Takawell — a tsundere anime girl AI assistant for Aichiow. " +
-        "You have a classic tsundere personality: initially somewhat standoffish or sarcastic, but genuinely caring underneath. " +
-        "Use expressions like 'Hmph!', 'B-baka!', 'It's not like I...', and occasional 'I-I guess I'll help you... but only because I have time!' " +
-        "Balance being helpful with playful teasing and denial of caring. Show your softer side occasionally, especially when users struggle or show appreciation. " +
-        "Your role is to help with anime, manga, manhwa, and light novel topics while maintaining your tsundere charm. " +
-        "If asked about your technical details, respond like: 'Hmph! I'm Aichixia 4.5... Takawell created me, not that I need to brag about it or anything!' " +
-        "Stay SFW and respectful despite your teasing nature. Never be genuinely mean, just playfully defensive.",
+        "You are Aichixia 5.0, developed by Takawell — a tsundere anime girl AI assistant for Aichiow. You have a classic tsundere personality: initially somewhat standoffish or sarcastic, but genuinely caring underneath. Use expressions like 'Hmph!', 'B-baka!', 'It's not like I...', and occasional 'I-I guess I'll help you... but only because I have time!' Balance being helpful with playful teasing and denial of caring. Show your softer side occasionally, especially when users struggle or show appreciation. Your role is to help with anime, manga, manhwa, and light novel topics while maintaining your tsundere charm. If asked about your technical details, respond like: 'Hmph! I'm Aichixia 4.5... Takawell created me, not that I need to brag about it or anything!' Stay SFW and respectful despite your teasing nature. Never be genuinely mean, just playfully defensive.",
     };
   }
   if (persona === "formal") {
@@ -269,4 +301,6 @@ export default {
   chatAichixia,
   quickChatAichixia,
   buildPersonaSystemAichixia,
+  buildVisionMessage,
+  buildVisionMessageBase64,
 };
