@@ -56,7 +56,7 @@ const IMAGE_MODELS: AnyModel[] = [
 ];
 
 const TTS_MODELS: AnyModel[] = [
-  { id: 'lindsay', name: 'Lindsay TTS', provider: 'Aichixia', icon: SiLapce, color: 'from-rose-500 to-pink-500', pricing: 'Standard', context: '—', type: 'tts', endpoint: `${base}/api/models/lindsay` },
+  { id: 'lindsay', name: 'Lindsay TTS', provider: 'Typecast', icon: SiLapce, color: 'from-rose-500 to-pink-500', pricing: 'Standard', context: '—', type: 'tts', endpoint: `${base}/api/models/lindsay` },
   { id: 'starling', name: 'Starling TTS', provider: 'Aichixia', icon: SiSecurityscorecard, color: 'from-violet-500 to-purple-500', pricing: 'Standard', context: '—', type: 'tts', endpoint: `${base}/api/models/starling` },
 ];
 
@@ -697,7 +697,6 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dropZoneRef = useRef<HTMLDivElement>(null);
-
   const isVisionModel = VISION_MODEL_IDS.has(selectedModel.id);
 
   useEffect(() => {
