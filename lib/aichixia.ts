@@ -16,7 +16,7 @@ export type ChatMessage = {
 
 const AICHIXIA_API_KEY = process.env.AICHIXIA_API_KEY;
 const AICHIXIA_BASE_URL = process.env.AICHIXIA_BASE_URL;
-const AICHIXIA_MODEL = process.env.AICHIXIA_MODEL || "meta-llama/llama-4-scout-17b-16e-instruct";
+const AICHIXIA_MODEL = process.env.AICHIXIA_MODEL || "aichixia-flash";
 const TAVILY_API_KEY = process.env.TAVILY_API_KEY;
 
 if (!AICHIXIA_API_KEY) {
