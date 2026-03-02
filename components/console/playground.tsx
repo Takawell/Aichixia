@@ -1,11 +1,13 @@
-import { useState, useRef, useEffect } from 'react';
-import { FiPlay, FiCopy, FiCheck, FiChevronDown, FiZap, FiCode, FiTerminal, FiSettings, FiClock, FiCpu, FiAlertCircle, FiRotateCcw, FiEye, FiEyeOff, FiImage, FiVolume2, FiDownload, FiPause } from 'react-icons/fi';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { FiPlay, FiCopy, FiCheck, FiChevronDown, FiZap, FiCode, FiTerminal, FiSettings, FiClock, FiCpu, FiAlertCircle, FiRotateCcw, FiEye, FiEyeOff, FiImage, FiVolume2, FiDownload, FiPause, FiX, FiUpload } from 'react-icons/fi';
 import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiAirbrake, SiFlux, SiLapce, SiSecurityscorecard } from 'react-icons/si';
 import { GiSpermWhale, GiPowerLightning, GiClover, GiCloverSpiked, GiFire } from 'react-icons/gi';
 import { TbSquareLetterZ, TbLetterM } from 'react-icons/tb';
 import { FaXTwitter } from 'react-icons/fa6';
 
 const base = 'https://www.aichixia.xyz';
+
+const VISION_MODEL_IDS = new Set(['gpt-5.2', 'gemini-3-flash', 'aichixia-flash']);
 
 type ModelType = 'text' | 'image' | 'tts';
 
@@ -505,6 +507,13 @@ function CodeHighlight({ code, lang }: { code: string; lang: Lang }) {
   );
 }
 
+type UploadedImage = {
+  file: File;
+  base64: string;
+  preview: string;
+  mimeType: string;
+};
+
 type PlaygroundProps = {
   keys?: { key: string; name: string; is_active: boolean }[];
 };
@@ -532,8 +541,14 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
   const [activeLang, setActiveLang] = useState<Lang>('typescript');
   const [copied, setCopied] = useState<string | null>(null);
   const [modelSearch, setModelSearch] = useState('');
+  const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
   const modelDropRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const dropZoneRef = useRef<HTMLDivElement>(null);
+
+  const isVisionModel = VISION_MODEL_IDS.has(selectedModel.id);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -546,6 +561,10 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
   useEffect(() => {
     return () => { if (audioRef.current) { audioRef.current.pause(); audioRef.current.src = ''; } };
   }, []);
+
+  useEffect(() => {
+    if (!isVisionModel) setUploadedImages([]);
+  }, [selectedModel.id, isVisionModel]);
 
   const modelsForTab = () => {
     const src = modelTab === 'text' ? TEXT_MODELS : modelTab === 'image' ? IMAGE_MODELS : TTS_MODELS;
@@ -593,9 +612,60 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
     if (audioRef.current) { audioRef.current.pause(); audioRef.current.src = ''; }
   };
 
+  const processImageFile = useCallback((file: File): Promise<UploadedImage> => {
+    return new Promise((resolve, reject) => {
+      if (!file.type.startsWith('image/')) { reject(new Error('Not an image')); return; }
+      if (file.size > 10 * 1024 * 1024) { reject(new Error('Image too large (max 10MB)')); return; }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        const base64 = result.split(',')[1];
+        resolve({ file, base64, preview: result, mimeType: file.type });
+      };
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsDataURL(file);
+    });
+  }, []);
+
+  const handleImageUpload = useCallback(async (files: FileList | File[]) => {
+    const fileArr = Array.from(files);
+    const remaining = 5 - uploadedImages.length;
+    const toProcess = fileArr.slice(0, remaining);
+    try {
+      const processed = await Promise.all(toProcess.map(processImageFile));
+      setUploadedImages(prev => [...prev, ...processed]);
+    } catch (err: any) {
+      setError(err.message || 'Failed to process image');
+    }
+  }, [uploadedImages.length, processImageFile]);
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) handleImageUpload(e.target.files);
+    e.target.value = '';
+  };
+
+  const removeImage = (idx: number) => {
+    setUploadedImages(prev => prev.filter((_, i) => i !== idx));
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    if (!dropZoneRef.current?.contains(e.relatedTarget as Node)) setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files) handleImageUpload(e.dataTransfer.files);
+  };
+
   const handleRun = async () => {
     if (!apiKey.trim()) { setError('Please enter your API key'); return; }
-    if (!message.trim()) { setError('Please enter a message'); return; }
+    if (!message.trim() && uploadedImages.length === 0) { setError('Please enter a message'); return; }
     setIsLoading(true); clearResult();
     const t0 = Date.now();
 
@@ -637,7 +707,20 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
 
       const msgs: any[] = [];
       if (systemPrompt.trim()) msgs.push({ role: 'system', content: systemPrompt });
-      msgs.push({ role: 'user', content: message });
+
+      if (isVisionModel && uploadedImages.length > 0) {
+        const contentBlocks: any[] = [];
+        if (message.trim()) contentBlocks.push({ type: 'text', text: message });
+        uploadedImages.forEach(img => {
+          contentBlocks.push({
+            type: 'image_url',
+            image_url: { url: `data:${img.mimeType};base64,${img.base64}` },
+          });
+        });
+        msgs.push({ role: 'user', content: contentBlocks });
+      } else {
+        msgs.push({ role: 'user', content: message });
+      }
 
       const res = await fetch(selectedModel.endpoint, {
         method: 'POST',
@@ -693,7 +776,12 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                     <ModelIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />
                   </div>
                   <div className="min-w-0">
-                    <div className="text-[10px] sm:text-xs font-bold text-zinc-900 dark:text-white truncate">{selectedModel.name}</div>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="text-[10px] sm:text-xs font-bold text-zinc-900 dark:text-white truncate">{selectedModel.name}</span>
+                      {isVisionModel && (
+                        <span className="text-[8px] font-bold px-1 py-0.5 rounded-full bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 border border-violet-200 dark:border-violet-800 flex-shrink-0">Vision</span>
+                      )}
+                    </div>
                     <div className="text-[9px] sm:text-[10px] text-zinc-500 truncate">{selectedModel.provider}</div>
                   </div>
                 </div>
@@ -732,6 +820,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                       <p className="text-center text-[10px] text-zinc-400 py-4">No models found</p>
                     ) : tabModels.map(model => {
                       const Icon = model.icon as any;
+                      const hasVision = VISION_MODEL_IDS.has(model.id);
                       return (
                         <button
                           key={model.id}
@@ -742,7 +831,12 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                             <Icon className="w-2.5 h-2.5 text-white" />
                           </div>
                           <div className="min-w-0 flex-1">
-                            <div className="text-[10px] font-semibold text-zinc-900 dark:text-white truncate">{model.name}</div>
+                            <div className="flex items-center gap-1 flex-wrap">
+                              <span className="text-[10px] font-semibold text-zinc-900 dark:text-white truncate">{model.name}</span>
+                              {hasVision && (
+                                <span className="text-[8px] font-bold px-1 py-0.5 rounded-full bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 border border-violet-200 dark:border-violet-800 flex-shrink-0">Vision</span>
+                              )}
+                            </div>
                             <div className="text-[9px] text-zinc-500 truncate">{model.provider}{model.context !== '—' ? ` · ${model.context}` : ''}</div>
                           </div>
                           <span className={`text-[8px] font-bold px-1 py-0.5 rounded border flex-shrink-0 ${PRICING_STYLE[model.pricing]}`}>
@@ -817,10 +911,84 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                 value={message}
                 onChange={e => setMessage(e.target.value)}
                 rows={selectedModel.type === 'image' ? 3 : 4}
-                placeholder={selectedModel.type === 'image' ? 'A futuristic city at sunset, cyberpunk style...' : selectedModel.type === 'tts' ? 'Enter the text you want converted to speech...' : 'Enter your prompt...'}
+                placeholder={selectedModel.type === 'image' ? 'A futuristic city at sunset, cyberpunk style...' : selectedModel.type === 'tts' ? 'Enter the text you want converted to speech...' : isVisionModel ? 'Describe what you want to know about the image...' : 'Enter your prompt...'}
                 className="w-full px-2.5 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[10px] sm:text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:border-sky-400 dark:focus:border-sky-500 focus:ring-1 focus:ring-sky-400/20 outline-none transition-all resize-none"
               />
             </div>
+
+            {isVisionModel && selectedModel.type === 'text' && (
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 flex items-center gap-1">
+                    <FiImage className="w-3 h-3" />
+                    Attach Images
+                    <span className="text-[9px] font-normal text-zinc-400">(up to 5)</span>
+                  </label>
+                  {uploadedImages.length > 0 && (
+                    <button
+                      onClick={() => setUploadedImages([])}
+                      className="text-[9px] text-zinc-400 hover:text-red-500 transition-colors"
+                    >
+                      Clear all
+                    </button>
+                  )}
+                </div>
+
+                {uploadedImages.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mb-2">
+                    {uploadedImages.map((img, idx) => (
+                      <div key={idx} className="relative group w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden border border-zinc-200 dark:border-zinc-700 flex-shrink-0">
+                        <img src={img.preview} alt="" className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-200 flex items-center justify-center">
+                          <button
+                            onClick={() => removeImage(idx)}
+                            className="w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-red-600 shadow-lg"
+                          >
+                            <FiX className="w-3 h-3" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                    {uploadedImages.length < 5 && (
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg border-2 border-dashed border-zinc-300 dark:border-zinc-700 hover:border-violet-400 dark:hover:border-violet-500 flex items-center justify-center text-zinc-400 hover:text-violet-500 transition-all duration-200 flex-shrink-0"
+                      >
+                        <FiUpload className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                {uploadedImages.length === 0 && (
+                  <div
+                    ref={dropZoneRef}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    onClick={() => fileInputRef.current?.click()}
+                    className={`relative w-full rounded-lg border-2 border-dashed transition-all duration-200 cursor-pointer py-4 flex flex-col items-center justify-center gap-1.5 ${isDragging ? 'border-violet-400 dark:border-violet-500 bg-violet-50 dark:bg-violet-950/20' : 'border-zinc-300 dark:border-zinc-700 hover:border-violet-400 dark:hover:border-violet-500 hover:bg-violet-50/50 dark:hover:bg-violet-950/10'}`}
+                  >
+                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-200 ${isDragging ? 'bg-violet-100 dark:bg-violet-900/40' : 'bg-zinc-100 dark:bg-zinc-800'}`}>
+                      <FiUpload className={`w-3.5 h-3.5 transition-colors duration-200 ${isDragging ? 'text-violet-500' : 'text-zinc-400'}`} />
+                    </div>
+                    <p className={`text-[10px] font-semibold transition-colors duration-200 ${isDragging ? 'text-violet-600 dark:text-violet-400' : 'text-zinc-500 dark:text-zinc-400'}`}>
+                      {isDragging ? 'Drop images here' : 'Upload or drag images'}
+                    </p>
+                    <p className="text-[9px] text-zinc-400">PNG, JPG, WEBP · max 10MB each</p>
+                  </div>
+                )}
+
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  onChange={handleFileInputChange}
+                />
+              </div>
+            )}
 
             {selectedModel.type === 'text' && (
               <div className="grid grid-cols-2 gap-2.5">
@@ -935,7 +1103,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                     </div>
                     <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Configure and run your request</p>
                     <p className="text-[10px] text-zinc-400 dark:text-zinc-500 mt-1">
-                      {selectedModel.type === 'image' ? 'Generated image will appear here' : selectedModel.type === 'tts' ? 'Audio player will appear here' : 'Response will appear here'}
+                      {selectedModel.type === 'image' ? 'Generated image will appear here' : selectedModel.type === 'tts' ? 'Audio player will appear here' : isVisionModel ? 'Response will appear here · Vision enabled' : 'Response will appear here'}
                     </p>
                   </div>
                 )}
@@ -1037,6 +1205,11 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                           <ModelIcon className="w-2 h-2 text-white" />
                         </div>
                         <span className="text-[10px] font-semibold text-zinc-600 dark:text-zinc-400">{selectedModel.name}</span>
+                        {uploadedImages.length > 0 && (
+                          <span className="text-[8px] font-bold px-1 py-0.5 rounded-full bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 border border-violet-200 dark:border-violet-800">
+                            {uploadedImages.length} image{uploadedImages.length > 1 ? 's' : ''} analyzed
+                          </span>
+                        )}
                       </div>
                       <button
                         onClick={() => handleCopy(responseText, 'response')}
