@@ -1,8 +1,12 @@
 export type Role = "user" | "assistant" | "system";
 
+export type ContentBlock =
+  | { type: "text"; text: string }
+  | { type: "image_url"; image_url: { url: string } };
+
 export type ChatMessage = {
   role: Role;
-  content: string;
+  content: string | ContentBlock[];
 };
 
 export type GeminiOptions = {
@@ -26,25 +30,72 @@ function mapRoleToGemini(r: Role) {
   return "user";
 }
 
-function messagesToContents(history: ChatMessage[]) {
-  const systemMessages = history.filter(m => m.role === "system");
-  const otherMessages = history.filter(m => m.role !== "system");
-  
-  const systemPrefix = systemMessages.map(m => m.content).join("\n\n");
-  
-  if (systemPrefix && otherMessages.length > 0) {
-    const firstUserIdx = otherMessages.findIndex(m => m.role === "user");
-    if (firstUserIdx >= 0) {
-      otherMessages[firstUserIdx] = {
-        ...otherMessages[firstUserIdx],
-        content: `${systemPrefix}\n\n${otherMessages[firstUserIdx].content}`
+function parseImageUrl(url: string): { mimeType: string; data: string } | null {
+  const match = url.match(/^data:([^;]+);base64,(.+)$/);
+  if (match) {
+    return { mimeType: match[1], data: match[2] };
+  }
+  return null;
+}
+
+function contentToGeminiParts(content: string | ContentBlock[]): any[] {
+  if (typeof content === "string") {
+    return [{ text: content }];
+  }
+
+  return content.map((block) => {
+    if (block.type === "text") {
+      return { text: block.text };
+    }
+    if (block.type === "image_url") {
+      const parsed = parseImageUrl(block.image_url.url);
+      if (parsed) {
+        return {
+          inlineData: {
+            mimeType: parsed.mimeType,
+            data: parsed.data,
+          },
+        };
+      }
+      return {
+        fileData: {
+          fileUri: block.image_url.url,
+        },
       };
     }
+    return { text: "" };
+  });
+}
+
+function messagesToContents(history: ChatMessage[]) {
+  const systemMessages = history.filter((m) => m.role === "system");
+  const otherMessages = history.filter((m) => m.role !== "system");
+
+  const systemPrefix = systemMessages
+    .map((m) => (typeof m.content === "string" ? m.content : ""))
+    .join("\n\n");
+
+  if (systemPrefix && otherMessages.length > 0) {
+    const firstUserIdx = otherMessages.findIndex((m) => m.role === "user");
+    if (firstUserIdx >= 0) {
+      const firstMsg = otherMessages[firstUserIdx];
+      if (typeof firstMsg.content === "string") {
+        otherMessages[firstUserIdx] = {
+          ...firstMsg,
+          content: `${systemPrefix}\n\n${firstMsg.content}`,
+        };
+      } else {
+        otherMessages[firstUserIdx] = {
+          ...firstMsg,
+          content: [{ type: "text", text: systemPrefix }, ...firstMsg.content],
+        };
+      }
+    }
   }
-  
+
   return otherMessages.map((m) => ({
     role: mapRoleToGemini(m.role),
-    parts: [{ text: m.content }],
+    parts: contentToGeminiParts(m.content),
   }));
 }
 
@@ -98,7 +149,9 @@ export async function chatGemini(
   try {
     data = JSON.parse(text);
   } catch (err) {
-    throw new Error(`[Gemini] Failed to parse JSON: ${(err as Error).message}\nResponse: ${text}`);
+    throw new Error(
+      `[Gemini] Failed to parse JSON: ${(err as Error).message}\nResponse: ${text}`
+    );
   }
 
   const reply =
@@ -109,7 +162,14 @@ export async function chatGemini(
 }
 
 export function buildPersonaSystem(
-  persona: "friendly" | "waifu" | "tsundere" | "formal" | "concise" | "developer" | string
+  persona:
+    | "friendly"
+    | "waifu"
+    | "tsundere"
+    | "formal"
+    | "concise"
+    | "developer"
+    | string
 ): string {
   if (persona === "friendly") {
     return (
