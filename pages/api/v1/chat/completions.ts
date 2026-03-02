@@ -23,8 +23,16 @@ import { chatGrok, GrokRateLimitError, GrokQuotaError } from "@/lib/grok";
 import { verifyApiKey, incrementUsage, logRequest, updateDailyUsage } from "@/lib/console-utils";
 import { getServiceSupabase } from "@/lib/supabase";
 
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '20mb',
+    },
+  },
+};
+
 type ChatFunction = (
-  history: { role: "user" | "assistant" | "system"; content: string }[],
+  history: { role: "user" | "assistant" | "system"; content: any }[],
   opts?: { temperature?: number; maxTokens?: number }
 ) => Promise<{ reply: string }>;
 
@@ -105,6 +113,17 @@ function isQuotaError(error: any): boolean {
   return QUOTA_ERRORS.some((ErrorClass) => error instanceof ErrorClass);
 }
 
+function extractTextFromContent(content: any): string {
+  if (typeof content === 'string') return content;
+  if (Array.isArray(content)) {
+    return content
+      .filter((b: any) => b.type === 'text')
+      .map((b: any) => b.text || '')
+      .join(' ');
+  }
+  return '';
+}
+
 function calculateTokens(text: string): number {
   try {
     return encode(text).length;
@@ -115,7 +134,6 @@ function calculateTokens(text: string): number {
 
 async function checkModelAccess(userId: string, model: string): Promise<{ allowed: boolean; error?: string }> {
   const supabaseAdmin = getServiceSupabase();
-  
   const { data: settings, error } = await supabaseAdmin
     .from('user_settings')
     .select('plan')
@@ -130,9 +148,9 @@ async function checkModelAccess(userId: string, model: string): Promise<{ allowe
   const modelLower = model.toLowerCase();
 
   if (userPlan === 'free' && LOCKED_MODELS_PRO.includes(modelLower)) {
-    return { 
-      allowed: false, 
-      error: `Model '${model}' requires Pro or Enterprise plan. Upgrade your plan at https://aichixia.com/console` 
+    return {
+      allowed: false,
+      error: `Model '${model}' requires Pro or Enterprise plan. Upgrade your plan at https://aichixia.com/console`,
     };
   }
 
@@ -236,7 +254,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const modelAccess = await checkModelAccess(apiKeyData.user_id, model);
-    
+
     if (!modelAccess.allowed) {
       await logRequest({
         api_key_id: apiKeyData.id,
@@ -342,7 +360,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     const latency = Date.now() - startTime;
-    const promptText = messages.map((m: any) => m.content).join(' ');
+    const promptText = messages.map((m: any) => extractTextFromContent(m.content)).join(' ');
     const promptTokens = calculateTokens(promptText);
     const completionTokens = calculateTokens(result.reply);
     const totalTokens = promptTokens + completionTokens;
