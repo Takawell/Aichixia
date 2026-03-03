@@ -1106,8 +1106,8 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                 onClick={() => setModelOpen(!modelOpen)}
                 className="w-full flex items-center justify-between px-2.5 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-200 group"
               >
-                <div className="flex items-center gap-1.5 min-w-0 flex-1">
-                  <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-gradient-to-br ${selectedModel.color} flex items-center justify-center flex-shrink-0 shadow-sm`}>
+                <div className="flex items-start gap-1.5 min-w-0 flex-1">
+                  <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-gradient-to-br ${selectedModel.color} flex items-center justify-center flex-shrink-0 shadow-sm mt-0.5`}>
                     <ModelIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />
                   </div>
                   <div className="min-w-0 flex-1">
