@@ -1106,18 +1106,18 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                 onClick={() => setModelOpen(!modelOpen)}
                 className="w-full flex items-center justify-between px-2.5 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-200 group"
               >
-                <div className="flex items-start gap-1.5 min-w-0 flex-1">
-                  <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-gradient-to-br ${selectedModel.color} flex items-center justify-center flex-shrink-0 shadow-sm mt-0.5`}>
+                <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                  <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-gradient-to-br ${selectedModel.color} flex items-center justify-center flex-shrink-0 shadow-sm`}>
                     <ModelIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />
                   </div>
-                  <div className="min-w-0 flex-1">
+                  <div className="min-w-0 flex-1 flex flex-col items-start">
                     <div className="flex items-center gap-1 flex-wrap">
                       <span className="text-[10px] sm:text-xs font-bold text-zinc-900 dark:text-white truncate">{selectedModel.name}</span>
                       {isVisionModel && (
                         <span className="text-[8px] font-bold px-1 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800 flex-shrink-0">Vision</span>
                       )}
                     </div>
-                    <div className="text-[9px] sm:text-[10px] text-zinc-500 truncate">{selectedModel.provider}</div>
+                    <span className="text-[9px] sm:text-[10px] text-zinc-500 truncate">{selectedModel.provider}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-1 flex-shrink-0 ml-1">
