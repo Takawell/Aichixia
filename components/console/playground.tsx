@@ -62,7 +62,7 @@ const TTS_MODELS: AnyModel[] = [
 
 const PRICING_STYLE: Record<string, string> = {
   Premium: 'text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20 border-rose-200 dark:border-rose-800',
-  Standard: 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800',
+  Standard: 'text-blue-400 dark:text-blue-300 bg-blue-50 dark:bg-blue-800/20 border-blue-100 dark:border-blue-700',
   Budget: 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800',
 };
 
@@ -645,7 +645,7 @@ const KEYWORDS: Record<Lang, string[]> = {
 };
 
 const TOKEN_COLORS: Record<TokenType, string> = {
-  keyword: 'text-blue-500 dark:text-blue-400',
+  keyword: 'text-blue-400 dark:text-blue-300',
   string: 'text-emerald-600 dark:text-emerald-400',
   number: 'text-amber-500 dark:text-amber-400',
   comment: 'text-zinc-400 dark:text-zinc-500 italic',
@@ -734,21 +734,21 @@ function ArtifactViewer({ artifact, onClose }: { artifact: ArtifactData; onClose
     : artifact.content;
 
   return (
-    <div className={`${fullscreen ? 'fixed inset-0 z-[100] bg-zinc-950 flex flex-col' : ''} rounded-xl overflow-hidden border border-blue-200 dark:border-blue-900/50 shadow-xl`}>
-      <div className="flex items-center justify-between px-3 py-2 bg-gradient-to-r from-blue-50 to-blue-100/50 dark:from-blue-950/50 dark:to-blue-900/20 border-b border-blue-200 dark:border-blue-900/50 flex-shrink-0">
+    <div className={`${fullscreen ? 'fixed inset-0 z-[100] bg-zinc-950 flex flex-col' : ''} rounded-xl overflow-hidden border border-blue-200 dark:border-blue-800/50 shadow-xl`}>
+      <div className="flex items-center justify-between px-3 py-2 bg-gradient-to-r from-blue-50 to-blue-100/50 dark:from-blue-950/50 dark:to-blue-900/20 border-b border-blue-200 dark:border-blue-800/50 flex-shrink-0">
         <div className="flex items-center gap-2">
           <div className="flex gap-1">
             <div className="w-2.5 h-2.5 rounded-full bg-red-400/90" />
             <div className="w-2.5 h-2.5 rounded-full bg-yellow-400/90" />
             <div className="w-2.5 h-2.5 rounded-full bg-green-400/90" />
           </div>
-          <span className="text-[10px] font-bold text-blue-700 dark:text-blue-300">{artifact.title}</span>
-          <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800 font-bold uppercase tracking-wider">{artifact.type}</span>
+          <span className="text-[10px] font-bold text-blue-500 dark:text-blue-300">{artifact.title}</span>
+          <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-400 dark:text-blue-300 border border-blue-100 dark:border-blue-700 font-bold uppercase tracking-wider">{artifact.type}</span>
         </div>
         <div className="flex items-center gap-1">
           <button
             onClick={() => setFullscreen(!fullscreen)}
-            className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-blue-100 dark:hover:bg-blue-900/40 text-blue-500 dark:text-blue-400 transition-colors"
+            className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-blue-50 dark:hover:bg-blue-800/30 text-blue-400 dark:text-blue-300 transition-colors"
           >
             {fullscreen ? <FiMinimize2 className="w-3 h-3" /> : <FiMaximize2 className="w-3 h-3" />}
           </button>
@@ -790,7 +790,7 @@ function MarkdownRenderer({ text, onCopy, copied, onArtifact }: MDProps) {
       const raw = m[0];
       const k = `${keyPrefix}-${m.index}`;
       if (raw.startsWith('`')) {
-        parts.push(<code key={k} className="px-1 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 font-mono text-[10px] border border-blue-100 dark:border-blue-900/40">{raw.slice(1, -1)}</code>);
+        parts.push(<code key={k} className="px-1 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/20 text-blue-500 dark:text-blue-300 font-mono text-[10px] border border-blue-100 dark:border-blue-900/40">{raw.slice(1, -1)}</code>);
       } else if (raw.startsWith('**')) {
         parts.push(<strong key={k} className="font-bold text-zinc-900 dark:text-white">{raw.slice(2, -2)}</strong>);
       } else if (raw.startsWith('*')) {
@@ -798,7 +798,7 @@ function MarkdownRenderer({ text, onCopy, copied, onArtifact }: MDProps) {
       } else if (raw.startsWith('~~')) {
         parts.push(<del key={k} className="line-through opacity-60">{raw.slice(2, -2)}</del>);
       } else if (raw.startsWith('[')) {
-        parts.push(<a key={k} href={m[6]} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 underline underline-offset-2 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">{m[5]}</a>);
+        parts.push(<a key={k} href={m[6]} target="_blank" rel="noopener noreferrer" className="text-blue-400 dark:text-blue-300 underline underline-offset-2 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">{m[5]}</a>);
       }
       last = m.index + raw.length;
     }
@@ -827,7 +827,7 @@ function MarkdownRenderer({ text, onCopy, copied, onArtifact }: MDProps) {
           {artCandidate && (
             <button
               onClick={() => onArtifact(artCandidate)}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800/60 text-[10px] font-semibold hover:bg-blue-100 dark:hover:bg-blue-950/50 transition-all duration-150 hover:scale-[1.01]"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-400 dark:text-blue-300 border border-blue-100 dark:border-blue-700/60 text-[10px] font-semibold hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-all duration-150 hover:scale-[1.01]"
             >
               <FiLayout className="w-3 h-3" />
               Preview as Artifact
@@ -850,7 +850,7 @@ function MarkdownRenderer({ text, onCopy, copied, onArtifact }: MDProps) {
       elements.push(<Tag key={i} className={cls}>{renderInline(content, `h${i}`)}</Tag>);
     } else if (line.startsWith('> ')) {
       elements.push(
-        <blockquote key={i} className="pl-3 border-l-2 border-blue-400 dark:border-blue-500 my-1.5 text-zinc-600 dark:text-zinc-400 text-[11px] italic">
+        <blockquote key={i} className="pl-3 border-l-2 border-blue-300 dark:border-blue-400 my-1.5 text-zinc-600 dark:text-zinc-400 text-[11px] italic">
           {renderInline(line.slice(2), `bq${i}`)}
         </blockquote>
       );
@@ -859,7 +859,7 @@ function MarkdownRenderer({ text, onCopy, copied, onArtifact }: MDProps) {
       while (i < lines.length && /^[-*]\s/.test(lines[i])) {
         items.push(
           <li key={i} className="flex gap-2 items-start leading-relaxed">
-            <span className="mt-[7px] w-1.5 h-1.5 rounded-full bg-blue-400 dark:bg-blue-500 flex-shrink-0" />
+            <span className="mt-[7px] w-1.5 h-1.5 rounded-full bg-blue-300 dark:bg-blue-400 flex-shrink-0" />
             <span>{renderInline(lines[i].replace(/^[-*]\s/, ''), `li${i}`)}</span>
           </li>
         );
@@ -872,7 +872,7 @@ function MarkdownRenderer({ text, onCopy, copied, onArtifact }: MDProps) {
       while (i < lines.length && /^\d+\.\s/.test(lines[i])) {
         items.push(
           <li key={i} className="flex gap-2 items-start leading-relaxed">
-            <span className="flex-shrink-0 min-w-[18px] h-[18px] mt-0.5 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 text-[8px] font-bold flex items-center justify-center">{n}</span>
+            <span className="flex-shrink-0 min-w-[18px] h-[18px] mt-0.5 rounded-full bg-blue-100 dark:bg-blue-800/30 text-blue-400 dark:text-blue-300 text-[8px] font-bold flex items-center justify-center">{n}</span>
             <span>{renderInline(lines[i].replace(/^\d+\.\s/, ''), `ol${i}`)}</span>
           </li>
         );
@@ -1104,7 +1104,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
               <label className="block text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1">Model</label>
               <button
                 onClick={() => setModelOpen(!modelOpen)}
-                className="w-full flex items-center justify-between px-2.5 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-200 group"
+                className="w-full flex items-center justify-between px-2.5 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-blue-300 dark:hover:border-blue-400 transition-all duration-200 group"
               >
                 <div className="flex items-center gap-1.5 min-w-0 flex-1">
                   <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-gradient-to-br ${selectedModel.color} flex items-center justify-center flex-shrink-0 shadow-sm`}>
@@ -1114,7 +1114,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                     <div className="flex items-center gap-1 flex-wrap">
                       <span className="text-[10px] sm:text-xs font-bold text-zinc-900 dark:text-white truncate">{selectedModel.name}</span>
                       {isVisionModel && (
-                        <span className="text-[8px] font-bold px-1 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800 flex-shrink-0">Vision</span>
+                        <span className="text-[8px] font-bold px-1 py-0.5 rounded-full bg-blue-100 dark:bg-blue-800/30 text-blue-400 dark:text-blue-300 border border-blue-100 dark:border-blue-700 flex-shrink-0">Vision</span>
                       )}
                     </div>
                     <span className="text-[9px] sm:text-[10px] text-zinc-500 truncate">{selectedModel.provider}</span>
@@ -1134,7 +1134,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                         <button
                           key={t}
                           onClick={() => setModelTab(t)}
-                          className={`flex-1 py-1 rounded-md text-[9px] font-bold uppercase tracking-wide transition-all ${modelTab === t ? 'bg-blue-600 text-white' : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
+                          className={`flex-1 py-1 rounded-md text-[9px] font-bold uppercase tracking-wide transition-all ${modelTab === t ? 'bg-blue-400 text-white' : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
                         >
                           {t === 'tts' ? 'TTS' : t === 'image' ? 'Image' : 'Text'}
                         </button>
@@ -1145,7 +1145,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                       value={modelSearch}
                       onChange={e => setModelSearch(e.target.value)}
                       placeholder="Search models..."
-                      className="w-full px-2.5 py-1.5 text-[10px] sm:text-xs bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg outline-none focus:border-blue-400 dark:focus:border-blue-500 text-zinc-900 dark:text-white placeholder-zinc-400 transition-colors"
+                      className="w-full px-2.5 py-1.5 text-[10px] sm:text-xs bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg outline-none focus:border-blue-300 dark:focus:border-blue-400 text-zinc-900 dark:text-white placeholder-zinc-400 transition-colors"
                     />
                   </div>
                   <div className="max-h-52 overflow-y-auto p-1.5 space-y-0.5">
@@ -1158,13 +1158,13 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                         <button
                           key={model.id}
                           onClick={() => { setSelectedModel(model); setModelOpen(false); setModelSearch(''); clearResult(); }}
-                          className={`w-full flex items-center gap-1.5 px-2 py-1.5 rounded-lg transition-all duration-150 text-left ${selectedModel.id === model.id ? 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800' : 'hover:bg-zinc-50 dark:hover:bg-zinc-800'}`}
+                          className={`w-full flex items-center gap-1.5 px-2 py-1.5 rounded-lg transition-all duration-150 text-left ${selectedModel.id === model.id ? 'bg-blue-50 dark:bg-blue-800/20 border border-blue-100 dark:border-blue-700' : 'hover:bg-zinc-50 dark:hover:bg-zinc-800'}`}
                         >
                           <div className={`w-5 h-5 rounded-md bg-gradient-to-br ${model.color} flex items-center justify-center flex-shrink-0`}><Icon className="w-2.5 h-2.5 text-white" /></div>
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-1 flex-wrap">
                               <span className="text-[10px] font-semibold text-zinc-900 dark:text-white truncate">{model.name}</span>
-                              {hasVision && <span className="text-[8px] font-bold px-1 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800 flex-shrink-0">Vision</span>}
+                              {hasVision && <span className="text-[8px] font-bold px-1 py-0.5 rounded-full bg-blue-100 dark:bg-blue-800/30 text-blue-400 dark:text-blue-300 border border-blue-100 dark:border-blue-700 flex-shrink-0">Vision</span>}
                             </div>
                             <div className="text-[9px] text-zinc-500 truncate">{model.provider}{model.context !== '—' ? ` · ${model.context}` : ''}</div>
                           </div>
@@ -1185,7 +1185,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                   value={apiKey}
                   onChange={e => setApiKey(e.target.value)}
                   placeholder="acv-••••••••••••••••"
-                  className="w-full pr-8 px-2.5 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[10px] sm:text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:border-blue-400 dark:focus:border-blue-500 focus:ring-1 focus:ring-blue-400/20 outline-none transition-all"
+                  className="w-full pr-8 px-2.5 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[10px] sm:text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:border-blue-300 dark:focus:border-blue-400 focus:ring-1 focus:ring-blue-300/20 outline-none transition-all"
                 />
                 <button onClick={() => setShowKey(!showKey)} className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">
                   {showKey ? <FiEyeOff className="w-3 h-3" /> : <FiEye className="w-3 h-3" />}
@@ -1194,7 +1194,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
               {keys.length > 0 && (
                 <div className="mt-1 flex flex-wrap gap-1">
                   {keys.filter(k => k.is_active).slice(0, 3).map(k => (
-                    <button key={k.key} onClick={() => setApiKey(k.key)} className="text-[9px] px-1.5 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors font-medium">{k.name}</button>
+                    <button key={k.key} onClick={() => setApiKey(k.key)} className="text-[9px] px-1.5 py-0.5 rounded-md bg-blue-50 dark:bg-blue-800/20 text-blue-400 dark:text-blue-300 border border-blue-100 dark:border-blue-700 hover:bg-blue-50 dark:hover:bg-blue-800/30 transition-colors font-medium">{k.name}</button>
                   ))}
                 </div>
               )}
@@ -1215,7 +1215,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                     onChange={e => setSystemPrompt(e.target.value)}
                     rows={2}
                     placeholder="You are a helpful assistant..."
-                    className="w-full px-2.5 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[10px] sm:text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:border-blue-400 dark:focus:border-blue-500 focus:ring-1 focus:ring-blue-400/20 outline-none transition-all resize-none"
+                    className="w-full px-2.5 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[10px] sm:text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:border-blue-300 dark:focus:border-blue-400 focus:ring-1 focus:ring-blue-300/20 outline-none transition-all resize-none"
                   />
                 )}
               </div>
@@ -1235,7 +1235,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                   : isVisionModel ? 'Describe what you want to know about the image...'
                   : 'Enter your prompt...'
                 }
-                className="w-full px-2.5 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[10px] sm:text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:border-blue-400 dark:focus:border-blue-500 focus:ring-1 focus:ring-blue-400/20 outline-none transition-all resize-none"
+                className="w-full px-2.5 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[10px] sm:text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:border-blue-300 dark:focus:border-blue-400 focus:ring-1 focus:ring-blue-300/20 outline-none transition-all resize-none"
               />
             </div>
 
@@ -1264,7 +1264,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                     {uploadedImages.length < 5 && (
                       <button
                         onClick={() => fileInputRef.current?.click()}
-                        className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg border-2 border-dashed border-zinc-300 dark:border-zinc-700 hover:border-blue-400 dark:hover:border-blue-500 flex items-center justify-center text-zinc-400 hover:text-blue-500 transition-all duration-200 flex-shrink-0"
+                        className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg border-2 border-dashed border-zinc-300 dark:border-zinc-700 hover:border-blue-300 dark:hover:border-blue-400 flex items-center justify-center text-zinc-400 hover:text-blue-500 transition-all duration-200 flex-shrink-0"
                       >
                         <FiUpload className="w-4 h-4" />
                       </button>
@@ -1278,12 +1278,12 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
                     onClick={() => fileInputRef.current?.click()}
-                    className={`relative w-full rounded-lg border-2 border-dashed transition-all duration-200 cursor-pointer py-4 flex flex-col items-center justify-center gap-1.5 ${isDragging ? 'border-blue-400 dark:border-blue-500 bg-blue-50 dark:bg-blue-950/20' : 'border-zinc-300 dark:border-zinc-700 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50/50 dark:hover:bg-blue-950/10'}`}
+                    className={`relative w-full rounded-lg border-2 border-dashed transition-all duration-200 cursor-pointer py-4 flex flex-col items-center justify-center gap-1.5 ${isDragging ? 'border-blue-300 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20' : 'border-zinc-300 dark:border-zinc-700 hover:border-blue-300 dark:hover:border-blue-400 hover:bg-blue-50/50 dark:hover:bg-blue-950/10'}`}
                   >
-                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-200 ${isDragging ? 'bg-blue-100 dark:bg-blue-900/40' : 'bg-zinc-100 dark:bg-zinc-800'}`}>
+                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-200 ${isDragging ? 'bg-blue-100 dark:bg-blue-800/30' : 'bg-zinc-100 dark:bg-zinc-800'}`}>
                       <FiUpload className={`w-3.5 h-3.5 transition-colors duration-200 ${isDragging ? 'text-blue-500' : 'text-zinc-400'}`} />
                     </div>
-                    <p className={`text-[10px] font-semibold transition-colors duration-200 ${isDragging ? 'text-blue-600 dark:text-blue-400' : 'text-zinc-500 dark:text-zinc-400'}`}>
+                    <p className={`text-[10px] font-semibold transition-colors duration-200 ${isDragging ? 'text-blue-400 dark:text-blue-300' : 'text-zinc-500 dark:text-zinc-400'}`}>
                       {isDragging ? 'Drop images here' : 'Upload or drag images'}
                     </p>
                     <p className="text-[9px] text-zinc-400">PNG, JPG, WEBP · max 10MB each</p>
@@ -1298,17 +1298,17 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                 <div>
                   <div className="flex items-center justify-between mb-1">
                     <label className="text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400">Temperature</label>
-                    <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 tabular-nums">{temperature.toFixed(1)}</span>
+                    <span className="text-[10px] font-bold text-blue-400 dark:text-blue-300 tabular-nums">{temperature.toFixed(1)}</span>
                   </div>
-                  <input type="range" min="0" max="2" step="0.1" value={temperature} onChange={e => setTemperature(parseFloat(e.target.value))} className="w-full h-1 rounded-full appearance-none bg-zinc-200 dark:bg-zinc-800 accent-blue-500 cursor-pointer" />
+                  <input type="range" min="0" max="2" step="0.1" value={temperature} onChange={e => setTemperature(parseFloat(e.target.value))} className="w-full h-1 rounded-full appearance-none bg-zinc-200 dark:bg-zinc-800 accent-blue-400 cursor-pointer" />
                   <div className="flex justify-between mt-0.5"><span className="text-[8px] text-zinc-400">Precise</span><span className="text-[8px] text-zinc-400">Creative</span></div>
                 </div>
                 <div>
                   <div className="flex items-center justify-between mb-1">
                     <label className="text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400">Max Tokens</label>
-                    <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 tabular-nums">{maxTokens}</span>
+                    <span className="text-[10px] font-bold text-blue-400 dark:text-blue-300 tabular-nums">{maxTokens}</span>
                   </div>
-                  <input type="range" min="64" max="4096" step="64" value={maxTokens} onChange={e => setMaxTokens(parseInt(e.target.value))} className="w-full h-1 rounded-full appearance-none bg-zinc-200 dark:bg-zinc-800 accent-blue-500 cursor-pointer" />
+                  <input type="range" min="64" max="4096" step="64" value={maxTokens} onChange={e => setMaxTokens(parseInt(e.target.value))} className="w-full h-1 rounded-full appearance-none bg-zinc-200 dark:bg-zinc-800 accent-blue-400 cursor-pointer" />
                   <div className="flex justify-between mt-0.5"><span className="text-[8px] text-zinc-400">64</span><span className="text-[8px] text-zinc-400">4096</span></div>
                 </div>
               </div>
@@ -1322,7 +1322,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                     <button
                       key={e}
                       onClick={() => setTtsEmotion(e)}
-                      className={`flex-1 py-1.5 rounded-lg text-[9px] sm:text-[10px] font-semibold capitalize transition-all border ${ttsEmotion === e ? 'bg-blue-600 text-white border-blue-600' : 'text-zinc-500 dark:text-zinc-400 border-zinc-200 dark:border-zinc-800 hover:border-blue-400'}`}
+                      className={`flex-1 py-1.5 rounded-lg text-[9px] sm:text-[10px] font-semibold capitalize transition-all border ${ttsEmotion === e ? 'bg-blue-400 text-white border-blue-400' : 'text-zinc-500 dark:text-zinc-400 border-zinc-200 dark:border-zinc-800 hover:border-blue-300'}`}
                     >
                       {e === 'normal' ? '😐' : e === 'happy' ? '😊' : '😠'} {e}
                     </button>
@@ -1335,7 +1335,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
               <button
                 onClick={handleRun}
                 disabled={isLoading}
-                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 sm:py-2.5 rounded-lg bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-bold text-[10px] sm:text-xs shadow-lg hover:shadow-blue-500/25 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:hover:scale-100"
+                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 sm:py-2.5 rounded-lg bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white font-bold text-[10px] sm:text-xs shadow-lg hover:shadow-blue-400/25 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:hover:scale-100"
               >
                 {isLoading ? (
                   <><div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" /><span>Running...</span></>
@@ -1360,13 +1360,13 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
               <div className="flex items-center gap-0.5 flex-shrink-0">
                 <button
                   onClick={() => setActiveTab('response')}
-                  className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] sm:text-xs font-semibold transition-all duration-200 ${activeTab === 'response' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800' : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-900'}`}
+                  className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] sm:text-xs font-semibold transition-all duration-200 ${activeTab === 'response' ? 'bg-blue-50 dark:bg-blue-800/20 text-blue-400 dark:text-blue-300 border border-blue-100 dark:border-blue-700' : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-900'}`}
                 >
                   <FiTerminal className="w-3 h-3" /> Response
                 </button>
                 <button
                   onClick={() => setActiveTab('code')}
-                  className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] sm:text-xs font-semibold transition-all duration-200 ${activeTab === 'code' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800' : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-900'}`}
+                  className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] sm:text-xs font-semibold transition-all duration-200 ${activeTab === 'code' ? 'bg-blue-50 dark:bg-blue-800/20 text-blue-400 dark:text-blue-300 border border-blue-100 dark:border-blue-700' : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-900'}`}
                 >
                   <FiCode className="w-3 h-3" /> Code
                 </button>
@@ -1376,11 +1376,11 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                   <div className="flex items-center gap-0.5 p-0.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700">
                     <button
                       onClick={() => setRenderMode('markdown')}
-                      className={`px-2 py-0.5 rounded-md text-[9px] font-bold transition-all duration-150 ${renderMode === 'markdown' ? 'bg-blue-600 text-white shadow-sm' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300'}`}
+                      className={`px-2 py-0.5 rounded-md text-[9px] font-bold transition-all duration-150 ${renderMode === 'markdown' ? 'bg-blue-400 text-white shadow-sm' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300'}`}
                     >MD</button>
                     <button
                       onClick={() => setRenderMode('raw')}
-                      className={`px-2 py-0.5 rounded-md text-[9px] font-bold transition-all duration-150 ${renderMode === 'raw' ? 'bg-blue-600 text-white shadow-sm' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300'}`}
+                      className={`px-2 py-0.5 rounded-md text-[9px] font-bold transition-all duration-150 ${renderMode === 'raw' ? 'bg-blue-400 text-white shadow-sm' : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300'}`}
                     >Raw</button>
                   </div>
                 )}
@@ -1420,8 +1420,8 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                 {isLoading && (
                   <div className="flex flex-col items-center justify-center h-full py-10">
                     <div className="relative w-10 h-10 mb-3">
-                      <div className="absolute inset-0 rounded-full border-2 border-blue-200 dark:border-blue-900" />
-                      <div className="absolute inset-0 rounded-full border-2 border-t-blue-500 border-transparent animate-spin" />
+                      <div className="absolute inset-0 rounded-full border-2 border-blue-200 dark:border-blue-800" />
+                      <div className="absolute inset-0 rounded-full border-2 border-t-blue-400 border-transparent animate-spin" />
                     </div>
                     <p className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">
                       {selectedModel.type === 'image' ? 'Generating image...' : selectedModel.type === 'tts' ? 'Vocalizing...' : 'Processing request...'}
@@ -1466,13 +1466,13 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                       <div className={`w-4 h-4 rounded bg-gradient-to-br ${selectedModel.color} flex items-center justify-center`}><ModelIcon className="w-2 h-2 text-white" /></div>
                       <span className="text-[10px] font-semibold text-zinc-600 dark:text-zinc-400">{selectedModel.name}</span>
                     </div>
-                    <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/40">
+                    <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/40">
                       <div className="flex items-center gap-2.5">
-                        <button onClick={handlePlayAudio} className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-600 hover:bg-blue-700 text-white transition-colors flex-shrink-0">
+                        <button onClick={handlePlayAudio} className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-400 hover:bg-blue-400 text-white transition-colors flex-shrink-0">
                           {isPlaying ? <FiPause className="w-3.5 h-3.5" /> : <FiPlay className="w-3.5 h-3.5" />}
                         </button>
-                        <div className="flex-1 h-1.5 bg-blue-200 dark:bg-blue-900/50 rounded-full overflow-hidden">
-                          <div className={`h-full bg-blue-500 transition-all duration-300 ${isPlaying ? 'w-full animate-pulse' : 'w-0'}`} />
+                        <div className="flex-1 h-1.5 bg-blue-100 dark:bg-blue-800/40 rounded-full overflow-hidden">
+                          <div className={`h-full bg-blue-400 transition-all duration-300 ${isPlaying ? 'w-full animate-pulse' : 'w-0'}`} />
                         </div>
                         <button onClick={handleDownloadAudio} className="w-7 h-7 flex items-center justify-center rounded-full bg-zinc-200 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 text-zinc-500 dark:text-zinc-400 transition-colors flex-shrink-0" title="Download audio">
                           <FiDownload className="w-3 h-3" />
@@ -1491,7 +1491,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                         <div className={`w-4 h-4 rounded bg-gradient-to-br ${selectedModel.color} flex items-center justify-center`}><ModelIcon className="w-2 h-2 text-white" /></div>
                         <span className="text-[10px] font-semibold text-zinc-600 dark:text-zinc-400">{selectedModel.name}</span>
                         {uploadedImages.length > 0 && (
-                          <span className="text-[8px] font-bold px-1 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800">
+                          <span className="text-[8px] font-bold px-1 py-0.5 rounded-full bg-blue-100 dark:bg-blue-800/30 text-blue-400 dark:text-blue-300 border border-blue-100 dark:border-blue-700">
                             {uploadedImages.length} image{uploadedImages.length > 1 ? 's' : ''} analyzed
                           </span>
                         )}
@@ -1534,7 +1534,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                     <button
                       key={lang.id}
                       onClick={() => setActiveLang(lang.id)}
-                      className={`px-2 py-1 rounded-md text-[9px] sm:text-[10px] font-semibold whitespace-nowrap transition-all duration-150 flex-shrink-0 ${activeLang === lang.id ? 'bg-blue-600 text-white' : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
+                      className={`px-2 py-1 rounded-md text-[9px] sm:text-[10px] font-semibold whitespace-nowrap transition-all duration-150 flex-shrink-0 ${activeLang === lang.id ? 'bg-blue-400 text-white' : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
                     >
                       {lang.label}
                     </button>
