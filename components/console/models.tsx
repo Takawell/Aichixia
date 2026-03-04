@@ -121,21 +121,6 @@ const AVAILABLE_MODELS = [
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
-    id: 'kimi-k2',
-    name: 'Kimi K2',
-    icon: SiDigikeyelectronics,
-    color: 'from-blue-600 to-cyan-600',
-    category: 'Text Generation',
-    requiresPlan: 'pro',
-    description: 'Superior tool calling and complex reasoning',
-    speed: 4,
-    quality: 5,
-    contextWindow: '256K tokens',
-    pricing: 'Premium',
-    features: ['Chinese expertise', 'Long context', 'Cultural nuance'],
-    endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
-  },
-  {
     id: 'grok-3',
     name: 'Grok 3',
     icon: FaXTwitter,
@@ -162,6 +147,20 @@ const AVAILABLE_MODELS = [
     contextWindow: '200K tokens',
     pricing: 'Standard',
     features: ['Bilingual', 'Efficient', 'General purpose'],
+    endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
+  },
+  {
+    id: 'kimi-k2',
+    name: 'Kimi K2',
+    icon: SiDigikeyelectronics,
+    color: 'from-blue-600 to-cyan-600',
+    category: 'Text Generation',
+    description: 'Superior tool calling and complex reasoning',
+    speed: 4,
+    quality: 5,
+    contextWindow: '256K tokens',
+    pricing: 'Premium',
+    features: ['Chinese expertise', 'Long context', 'Cultural nuance'],
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
@@ -450,6 +449,7 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
     const matchesSearch = model.name.toLowerCase().includes(modelSearch.toLowerCase()) ||
       model.id.toLowerCase().includes(modelSearch.toLowerCase()) ||
       model.description.toLowerCase().includes(modelSearch.toLowerCase());
+    
     const matchesCategory = selectedCategory === 'All' || model.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
