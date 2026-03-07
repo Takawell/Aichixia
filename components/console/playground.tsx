@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { FiPlay, FiCopy, FiCheck, FiChevronDown, FiZap, FiCode, FiTerminal, FiSettings, FiClock, FiCpu, FiAlertCircle, FiRotateCcw, FiEye, FiEyeOff, FiImage, FiVolume2, FiDownload, FiPause, FiX, FiUpload, FiMaximize2, FiMinimize2, FiLayout, FiLock } from 'react-icons/fi';
+import { FiPlay, FiCopy, FiCheck, FiChevronDown, FiZap, FiCode, FiTerminal, FiSettings, FiClock, FiCpu, FiAlertCircle, FiRotateCcw, FiEye, FiEyeOff, FiImage, FiVolume2, FiDownload, FiPause, FiX, FiUpload, FiMaximize2, FiMinimize2, FiLayout } from 'react-icons/fi';
 import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiAirbrake, SiFlux, SiLapce, SiSecurityscorecard } from 'react-icons/si';
 import { GiSpermWhale, GiPowerLightning, GiClover, GiCloverSpiked, GiFire } from 'react-icons/gi';
 import { TbSquareLetterZ, TbLetterM } from 'react-icons/tb';
@@ -897,11 +897,10 @@ function MarkdownRenderer({ text, onCopy, copied, onArtifact }: MDProps) {
   return <div className="space-y-0.5 break-words">{elements}</div>;
 }
 
-type UserSettings = { plan: 'free' | 'pro' | 'enterprise'; plan_expires_at: string | null; is_admin: boolean };
 type UploadedImage = { file: File; base64: string; preview: string; mimeType: string };
-type PlaygroundProps = { keys?: { key: string; name: string; is_active: boolean }[]; settings?: UserSettings | null };
+type PlaygroundProps = { keys?: { key: string; name: string; is_active: boolean }[] };
 
-export default function Playground({ keys = [], settings = null }: PlaygroundProps) {
+export default function Playground({ keys = [] }: PlaygroundProps) {
   const [selectedModel, setSelectedModel] = useState<AnyModel>(TEXT_MODELS[0]);
   const [modelOpen, setModelOpen] = useState(false);
   const [modelTab, setModelTab] = useState<'text' | 'image' | 'tts'>('text');
@@ -1070,12 +1069,6 @@ export default function Playground({ keys = [], settings = null }: PlaygroundPro
   const tokensUsed = response?.usage?.total_tokens ?? null;
   const ModelIcon = selectedModel.icon as any;
   const tabModels = modelsForTab();
-  const isModelLocked = (model: AnyModel) => {
-    if (!model.requiresPro) return false;
-    if (!settings) return true;
-    if (settings.plan === 'free') return true;
-    return false;
-  };
 
   return (
     <div className="space-y-3 sm:space-y-4 min-h-0 w-full max-w-full">
@@ -1161,21 +1154,12 @@ export default function Playground({ keys = [], settings = null }: PlaygroundPro
                     ) : tabModels.map(model => {
                       const Icon = model.icon as any;
                       const hasVision = VISION_MODEL_IDS.has(model.id);
-                      const locked = isModelLocked(model);
                       return (
                         <button
                           key={model.id}
-                          onClick={() => { if (locked) return; setSelectedModel(model); setModelOpen(false); setModelSearch(''); clearResult(); }}
-                          className={`w-full relative flex items-center gap-1.5 px-2 py-1.5 rounded-lg transition-all duration-150 text-left ${locked ? 'cursor-not-allowed' : ''} ${selectedModel.id === model.id ? 'bg-blue-50 dark:bg-blue-800/20 border border-blue-100 dark:border-blue-700' : 'hover:bg-zinc-50 dark:hover:bg-zinc-800'}`}
+                          onClick={() => { setSelectedModel(model); setModelOpen(false); setModelSearch(''); clearResult(); }}
+                          className={`w-full flex items-center gap-1.5 px-2 py-1.5 rounded-lg transition-all duration-150 text-left ${selectedModel.id === model.id ? 'bg-blue-50 dark:bg-blue-800/20 border border-blue-100 dark:border-blue-700' : 'hover:bg-zinc-50 dark:hover:bg-zinc-800'}`}
                         >
-                          {locked && (
-                            <div className="absolute inset-0 rounded-lg bg-zinc-900/5 dark:bg-zinc-900/30 backdrop-blur-[2px] z-10 flex items-center justify-center">
-                              <div className="flex items-center gap-1 bg-white/95 dark:bg-zinc-800/95 px-2 py-1 rounded-md border border-orange-500 shadow-sm">
-                                <FiLock className="w-2.5 h-2.5 text-orange-500" />
-                                <span className="text-[9px] font-bold text-zinc-900 dark:text-white">Pro Required</span>
-                              </div>
-                            </div>
-                          )}
                           <div className={`w-5 h-5 rounded-md bg-gradient-to-br ${model.color} flex items-center justify-center flex-shrink-0`}><Icon className="w-2.5 h-2.5 text-white" /></div>
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-1 flex-wrap">
