@@ -92,7 +92,7 @@ export default function Notice() {
             left: 0,
             right: 0,
             height: 2,
-            background: 'linear-gradient(90deg, transparent 0%, rgba(250,204,21,0.5) 30%, rgba(234,179,8,0.9) 50%, rgba(250,204,21,0.5) 70%, transparent 100%)',
+            background: 'linear-gradient(90deg, transparent 0%, rgba(56,189,248,0.4) 30%, rgba(125,211,252,0.9) 50%, rgba(56,189,248,0.4) 70%, transparent 100%)',
           }}
         />
 
@@ -104,8 +104,8 @@ export default function Notice() {
                   width: 32,
                   height: 32,
                   borderRadius: 10,
-                  background: 'rgba(250,204,21,0.08)',
-                  border: '1px solid rgba(250,204,21,0.15)',
+                  background: 'rgba(56,189,248,0.08)',
+                  border: '1px solid rgba(56,189,248,0.18)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -113,11 +113,11 @@ export default function Notice() {
                 }}
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="rgba(250,204,21,0.9)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="rgba(125,211,252,0.9)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>
               <div>
-                <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(250,204,21,0.6)', marginBottom: 1 }}>
+                <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(56,189,248,0.6)', marginBottom: 1 }}>
                   Aichixia Platform
                 </p>
                 <h2 style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.92)', lineHeight: 1.2, letterSpacing: '-0.01em' }}>
@@ -141,8 +141,8 @@ export default function Notice() {
                 flexShrink: 0,
               }}
               onMouseEnter={e => {
-                (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.06)';
-                (e.currentTarget as HTMLButtonElement).style.color = 'rgba(255,255,255,0.7)';
+                (e.currentTarget as HTMLButtonElement).style.background = 'rgba(56,189,248,0.06)';
+                (e.currentTarget as HTMLButtonElement).style.color = 'rgba(125,211,252,0.8)';
               }}
               onMouseLeave={e => {
                 (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
@@ -162,9 +162,9 @@ export default function Notice() {
                   flex: 1,
                   padding: '7px 10px',
                   borderRadius: 9,
-                  border: activeTab === tab ? '1px solid rgba(255,255,255,0.1)' : '1px solid transparent',
-                  background: activeTab === tab ? 'rgba(255,255,255,0.06)' : 'transparent',
-                  color: activeTab === tab ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.35)',
+                  border: activeTab === tab ? '1px solid rgba(56,189,248,0.2)' : '1px solid transparent',
+                  background: activeTab === tab ? 'rgba(56,189,248,0.07)' : 'transparent',
+                  color: activeTab === tab ? 'rgba(125,211,252,0.9)' : 'rgba(255,255,255,0.3)',
                   fontSize: 11,
                   fontWeight: 600,
                   cursor: 'pointer',
@@ -178,12 +178,12 @@ export default function Notice() {
               >
                 {tab === 'maintenance' ? (
                   <>
-                    <FiAlertTriangle size={11} style={{ color: activeTab === tab ? 'rgba(250,204,21,0.8)' : 'rgba(255,255,255,0.25)' }} />
+                    <FiAlertTriangle size={11} style={{ color: activeTab === tab ? 'rgba(125,211,252,0.8)' : 'rgba(255,255,255,0.25)' }} />
                     Announcement
                   </>
                 ) : (
                   <>
-                    <FiShield size={11} style={{ color: activeTab === tab ? 'rgba(129,140,248,0.9)' : 'rgba(255,255,255,0.25)' }} />
+                    <FiShield size={11} style={{ color: activeTab === tab ? 'rgba(125,211,252,0.8)' : 'rgba(255,255,255,0.25)' }} />
                     Security
                   </>
                 )}
@@ -198,8 +198,8 @@ export default function Notice() {
               <div
                 style={{
                   borderRadius: 12,
-                  background: 'rgba(250,204,21,0.04)',
-                  border: '1px solid rgba(250,204,21,0.12)',
+                  background: 'rgba(56,189,248,0.04)',
+                  border: '1px solid rgba(56,189,248,0.12)',
                   padding: '12px 14px',
                   marginBottom: 12,
                 }}
@@ -212,11 +212,11 @@ export default function Notice() {
                       gap: 5,
                       padding: '2px 8px',
                       borderRadius: 20,
-                      background: 'rgba(250,204,21,0.1)',
-                      border: '1px solid rgba(250,204,21,0.2)',
+                      background: 'rgba(56,189,248,0.1)',
+                      border: '1px solid rgba(56,189,248,0.22)',
                       fontSize: 9,
                       fontWeight: 700,
-                      color: 'rgba(250,204,21,0.9)',
+                      color: 'rgba(125,211,252,0.9)',
                       letterSpacing: '0.08em',
                       textTransform: 'uppercase',
                     }}
@@ -226,8 +226,8 @@ export default function Notice() {
                         width: 5,
                         height: 5,
                         borderRadius: '50%',
-                        background: 'rgba(250,204,21,0.9)',
-                        animation: 'pulse 2s infinite',
+                        background: 'rgba(125,211,252,0.9)',
+                        animation: 'noticePulse 2s infinite',
                         display: 'inline-block',
                       }}
                     />
@@ -237,7 +237,7 @@ export default function Notice() {
                 <p style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.85)', marginBottom: 5, lineHeight: 1.4 }}>
                   Streaming is currently under maintenance
                 </p>
-                <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6 }}>
+                <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.42)', lineHeight: 1.65 }}>
                   We're actively working to restore the streaming feature. Responses may appear slower or non-streamed during this period. We appreciate your patience.
                 </p>
               </div>
@@ -252,8 +252,8 @@ export default function Notice() {
                   gap: 8,
                 }}
               >
-                <FiZap size={12} style={{ color: 'rgba(255,255,255,0.3)', flexShrink: 0 }} />
-                <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.5 }}>
+                <FiZap size={12} style={{ color: 'rgba(56,189,248,0.4)', flexShrink: 0 }} />
+                <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.32)', lineHeight: 1.55 }}>
                   All other features remain fully operational. Follow our updates for restoration status.
                 </p>
               </div>
@@ -265,8 +265,8 @@ export default function Notice() {
               <div
                 style={{
                   borderRadius: 12,
-                  background: 'rgba(129,140,248,0.04)',
-                  border: '1px solid rgba(129,140,248,0.1)',
+                  background: 'rgba(56,189,248,0.04)',
+                  border: '1px solid rgba(56,189,248,0.12)',
                   padding: '12px 14px',
                   marginBottom: 12,
                 }}
@@ -279,11 +279,11 @@ export default function Notice() {
                       gap: 5,
                       padding: '2px 8px',
                       borderRadius: 20,
-                      background: 'rgba(129,140,248,0.1)',
-                      border: '1px solid rgba(129,140,248,0.2)',
+                      background: 'rgba(56,189,248,0.1)',
+                      border: '1px solid rgba(56,189,248,0.22)',
                       fontSize: 9,
                       fontWeight: 700,
-                      color: 'rgba(129,140,248,0.9)',
+                      color: 'rgba(125,211,252,0.9)',
                       letterSpacing: '0.08em',
                       textTransform: 'uppercase',
                     }}
@@ -294,7 +294,7 @@ export default function Notice() {
                 <p style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.85)', marginBottom: 5, lineHeight: 1.4 }}>
                   Set a Display Name
                 </p>
-                <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6 }}>
+                <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.42)', lineHeight: 1.65 }}>
                   We recommend setting a display name to better protect your personal data. Your display name replaces your email in shared sessions and activity logs.
                 </p>
               </div>
@@ -310,9 +310,9 @@ export default function Notice() {
                     gap: 7,
                     padding: '10px 16px',
                     borderRadius: 11,
-                    border: '1px solid rgba(129,140,248,0.25)',
-                    background: 'rgba(129,140,248,0.1)',
-                    color: 'rgba(129,140,248,0.95)',
+                    border: '1px solid rgba(56,189,248,0.25)',
+                    background: 'rgba(56,189,248,0.1)',
+                    color: 'rgba(125,211,252,0.95)',
                     fontSize: 12,
                     fontWeight: 600,
                     cursor: 'pointer',
@@ -320,12 +320,12 @@ export default function Notice() {
                     letterSpacing: '-0.01em',
                   }}
                   onMouseEnter={e => {
-                    (e.currentTarget as HTMLButtonElement).style.background = 'rgba(129,140,248,0.15)';
-                    (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(129,140,248,0.35)';
+                    (e.currentTarget as HTMLButtonElement).style.background = 'rgba(56,189,248,0.16)';
+                    (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(56,189,248,0.38)';
                   }}
                   onMouseLeave={e => {
-                    (e.currentTarget as HTMLButtonElement).style.background = 'rgba(129,140,248,0.1)';
-                    (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(129,140,248,0.25)';
+                    (e.currentTarget as HTMLButtonElement).style.background = 'rgba(56,189,248,0.1)';
+                    (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(56,189,248,0.25)';
                   }}
                 >
                   Go to Settings
@@ -339,7 +339,7 @@ export default function Notice() {
                     borderRadius: 11,
                     border: '1px solid rgba(255,255,255,0.05)',
                     background: 'rgba(255,255,255,0.03)',
-                    color: 'rgba(255,255,255,0.3)',
+                    color: 'rgba(255,255,255,0.28)',
                     fontSize: 11,
                     fontWeight: 500,
                     cursor: 'pointer',
@@ -348,11 +348,11 @@ export default function Notice() {
                   }}
                   onMouseEnter={e => {
                     (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.06)';
-                    (e.currentTarget as HTMLButtonElement).style.color = 'rgba(255,255,255,0.5)';
+                    (e.currentTarget as HTMLButtonElement).style.color = 'rgba(255,255,255,0.48)';
                   }}
                   onMouseLeave={e => {
                     (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.03)';
-                    (e.currentTarget as HTMLButtonElement).style.color = 'rgba(255,255,255,0.3)';
+                    (e.currentTarget as HTMLButtonElement).style.color = 'rgba(255,255,255,0.28)';
                   }}
                 >
                   Maybe Later
@@ -372,15 +372,15 @@ export default function Notice() {
           }}
           className="sm:px-6"
         >
-          <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.02em' }}>
+          <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.18)', letterSpacing: '0.02em' }}>
             This notice will not appear again once dismissed
           </p>
         </div>
 
         <style>{`
-          @keyframes pulse {
+          @keyframes noticePulse {
             0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
+            50% { opacity: 0.35; }
           }
         `}</style>
       </div>
