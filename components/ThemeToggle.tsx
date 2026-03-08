@@ -23,20 +23,48 @@ export default function ThemeToggle() {
 
   const toggle = () => {
     const next = !isDark
-    document.documentElement.classList.toggle("dark", next)
+    const root = document.documentElement
+
+    root.style.transition = "background-color 400ms ease, color 400ms ease, border-color 400ms ease"
+
+    root.classList.toggle("dark", next)
     localStorage.setItem("theme", next ? "dark" : "light")
     setIsDark(next)
+
+    setTimeout(() => {
+      root.style.transition = ""
+    }, 420)
   }
 
   if (!mounted) return null
 
   return (
-    <button
-      onClick={toggle}
-      aria-label="Toggle theme"
-      className="p-1.5 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
-    >
-      {isDark ? <FaSun className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <FaMoon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
-    </button>
+    <>
+      <style>{`
+        @keyframes spinIn {
+          from { transform: rotate(-90deg) scale(0.5); opacity: 0; }
+          to   { transform: rotate(0deg)   scale(1);   opacity: 1; }
+        }
+        @keyframes spinOut {
+          from { transform: rotate(0deg)   scale(1);   opacity: 1; }
+          to   { transform: rotate(90deg)  scale(0.5); opacity: 0; }
+        }
+        .theme-icon-enter {
+          animation: spinIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+      `}</style>
+      <button
+        onClick={toggle}
+        aria-label="Toggle theme"
+        className="p-1.5 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
+      >
+        <span key={isDark ? "sun" : "moon"} className="theme-icon-enter block">
+          {isDark
+            ? <FaSun className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            : <FaMoon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+          }
+        </span>
+      </button>
+    </>
   )
 }
