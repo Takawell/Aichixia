@@ -1,5 +1,5 @@
-import { FiActivity, FiCheck, FiAlertCircle, FiClock, FiZap, FiTrendingUp, FiRefreshCw, FiFilter, FiX } from 'react-icons/fi';
-import { useState } from 'react';
+import { FiActivity, FiCheck, FiAlertCircle, FiClock, FiZap, FiTrendingUp, FiRefreshCw, FiChevronDown, FiGlobe, FiMonitor } from 'react-icons/fi';
+import { useState, useEffect, useRef } from 'react';
 
 type RequestLog = {
   id: string;
@@ -22,286 +22,358 @@ type ActivityProps = {
   onRefresh: () => void;
 };
 
-const STATUS_CONFIG = {
-  success: {
-    bg: 'bg-emerald-50 dark:bg-emerald-900/20',
-    border: 'border-emerald-200 dark:border-emerald-800',
-    text: 'text-emerald-700 dark:text-emerald-400',
-    dot: 'bg-emerald-500',
-    icon: FiCheck,
-  },
-  error: {
-    bg: 'bg-red-50 dark:bg-red-900/20',
-    border: 'border-red-200 dark:border-red-800',
-    text: 'text-red-700 dark:text-red-400',
-    dot: 'bg-red-500',
-    icon: FiAlertCircle,
-  },
-};
+function useCountUp(target: number, duration = 800) {
+  const [value, setValue] = useState(0);
+  const prev = useRef(0);
+  useEffect(() => {
+    const start = prev.current;
+    const diff = target - start;
+    if (diff === 0) return;
+    const startTime = performance.now();
+    const tick = (now: number) => {
+      const t = Math.min((now - startTime) / duration, 1);
+      const ease = 1 - Math.pow(1 - t, 3);
+      setValue(Math.round(start + diff * ease));
+      if (t < 1) requestAnimationFrame(tick);
+      else prev.current = target;
+    };
+    requestAnimationFrame(tick);
+  }, [target, duration]);
+  return value;
+}
+
+function StatCard({ icon: Icon, label, value, unit = '', color, bar, barValue }: {
+  icon: any; label: string; value: number; unit?: string; color: string; bar?: boolean; barValue?: number;
+}) {
+  const animated = useCountUp(value);
+  const colors: Record<string, { icon: string; glow: string; bar: string }> = {
+    emerald: { icon: '#34d399', glow: 'rgba(52,211,153,0.15)', bar: 'linear-gradient(90deg,#34d399,#10b981)' },
+    sky:     { icon: '#38bdf8', glow: 'rgba(56,189,248,0.15)', bar: 'linear-gradient(90deg,#38bdf8,#0ea5e9)' },
+    violet:  { icon: '#a78bfa', glow: 'rgba(167,139,250,0.15)', bar: 'linear-gradient(90deg,#a78bfa,#8b5cf6)' },
+  };
+  const c = colors[color];
+  return (
+    <div className="stat-card" style={{
+      background: 'var(--card-bg)', border: '1px solid var(--card-border)',
+      borderRadius: 14, padding: '16px 18px', flex: 1, minWidth: 0,
+    }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: bar ? 12 : 0 }}>
+        <div>
+          <p style={{ fontSize: 11, fontWeight: 500, color: 'var(--text-muted)', marginBottom: 6, letterSpacing: '0.03em' }}>{label}</p>
+          <p style={{ fontSize: 24, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.03em', lineHeight: 1 }}>
+            {animated.toLocaleString()}<span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-muted)', marginLeft: 2 }}>{unit}</span>
+          </p>
+        </div>
+        <div style={{ padding: 8, borderRadius: 10, background: c.glow }}>
+          <Icon style={{ fontSize: 16, color: c.icon }} />
+        </div>
+      </div>
+      {bar && (
+        <div style={{ height: 4, background: 'var(--bar-track)', borderRadius: 99, overflow: 'hidden' }}>
+          <div style={{
+            height: '100%', borderRadius: 99,
+            background: c.bar,
+            width: `${barValue ?? 0}%`,
+            transition: 'width 900ms cubic-bezier(0.22,1,0.36,1)',
+          }} />
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function Activity({ logs, loading, onRefresh }: ActivityProps) {
   const [filterStatus, setFilterStatus] = useState<'all' | 'success' | 'error'>('all');
   const [expandedLog, setExpandedLog] = useState<string | null>(null);
+  const [visible, setVisible] = useState(false);
 
-  const getStatusConfig = (status: number) => {
-    return status >= 200 && status < 300 ? STATUS_CONFIG.success : STATUS_CONFIG.error;
-  };
+  useEffect(() => { setVisible(true); }, []);
 
+  const isSuccess = (s: number) => s >= 200 && s < 300;
   const filteredLogs = logs.filter(log => {
     if (filterStatus === 'all') return true;
-    if (filterStatus === 'success') return log.status >= 200 && log.status < 300;
-    if (filterStatus === 'error') return log.status >= 400;
-    return true;
+    if (filterStatus === 'success') return isSuccess(log.status);
+    return log.status >= 400;
   });
 
-  const successCount = logs.filter(l => l.status >= 200 && l.status < 300).length;
-  const errorCount = logs.filter(l => l.status >= 400).length;
+  const successCount = logs.filter(l => isSuccess(l.status)).length;
+  const errorCount   = logs.filter(l => l.status >= 400).length;
+  const successRate  = logs.length > 0 ? Math.round((successCount / logs.length) * 100) : 0;
+  const avgLatency   = (() => {
+    const valid = logs.filter(l => l.latency_ms);
+    return valid.length > 0 ? Math.round(valid.reduce((a, l) => a + (l.latency_ms || 0), 0) / valid.length) : 0;
+  })();
+  const totalTokens  = logs.reduce((a, l) => a + l.tokens_used, 0);
 
   return (
-    <div className="space-y-3 sm:space-y-4">
-      <div className="bg-white/80 dark:bg-zinc-950 backdrop-blur-lg rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-        <div className="p-3 sm:p-4 border-b border-zinc-200 dark:border-zinc-800">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <>
+      <style>{`
+        :root {
+          --card-bg: #ffffff;
+          --card-border: rgba(0,0,0,0.07);
+          --card-hover: rgba(0,0,0,0.02);
+          --text-primary: #0f0f10;
+          --text-sub: #52525b;
+          --text-muted: #a1a1aa;
+          --divider: rgba(0,0,0,0.06);
+          --bar-track: rgba(0,0,0,0.07);
+          --tag-bg: rgba(0,0,0,0.04);
+          --expand-bg: rgba(0,0,0,0.02);
+        }
+        .dark {
+          --card-bg: #111113;
+          --card-border: rgba(255,255,255,0.07);
+          --card-hover: rgba(255,255,255,0.03);
+          --text-primary: rgba(255,255,255,0.92);
+          --text-sub: rgba(255,255,255,0.5);
+          --text-muted: rgba(255,255,255,0.28);
+          --divider: rgba(255,255,255,0.06);
+          --bar-track: rgba(255,255,255,0.07);
+          --tag-bg: rgba(255,255,255,0.06);
+          --expand-bg: rgba(255,255,255,0.02);
+        }
+        @keyframes actFadeUp {
+          from { opacity:0; transform:translateY(14px); }
+          to   { opacity:1; transform:translateY(0); }
+        }
+        @keyframes rowIn {
+          from { opacity:0; transform:translateX(-6px); }
+          to   { opacity:1; transform:translateX(0); }
+        }
+        @keyframes expandDown {
+          from { opacity:0; transform:translateY(-6px); max-height:0; }
+          to   { opacity:1; transform:translateY(0); max-height:400px; }
+        }
+        @keyframes dotPulse {
+          0%,100% { transform:scale(1); opacity:1; }
+          50% { transform:scale(1.6); opacity:0.6; }
+        }
+        .act-header { animation: actFadeUp 0.4s cubic-bezier(0.22,1,0.36,1) both 0.04s; }
+        .stat-card  { animation: actFadeUp 0.4s cubic-bezier(0.22,1,0.36,1) both; }
+        .stat-card:nth-child(1) { animation-delay:0.08s; }
+        .stat-card:nth-child(2) { animation-delay:0.13s; }
+        .stat-card:nth-child(3) { animation-delay:0.18s; }
+        .log-row { animation: rowIn 0.3s cubic-bezier(0.22,1,0.36,1) both; }
+        .expand-panel { animation: expandDown 0.28s cubic-bezier(0.22,1,0.36,1) both; overflow:hidden; }
+        .filter-btn {
+          padding: 5px 12px; border-radius: 8px; font-size: 11px; font-weight: 600;
+          border: none; cursor: pointer; transition: all 180ms cubic-bezier(0.22,1,0.36,1);
+          background: transparent; color: var(--text-muted);
+        }
+        .filter-btn:hover { color: var(--text-primary); background: var(--card-hover); }
+        .filter-btn.active-all    { background: linear-gradient(135deg,#38bdf8,#3b82f6); color:#fff; box-shadow:0 3px 10px rgba(56,189,248,0.3); }
+        .filter-btn.active-success { background: #10b981; color:#fff; box-shadow:0 3px 10px rgba(16,185,129,0.3); }
+        .filter-btn.active-error   { background: #ef4444; color:#fff; box-shadow:0 3px 10px rgba(239,68,68,0.3); }
+        .log-row-inner {
+          display: flex; align-items: flex-start; gap: 12px; padding: 14px 18px;
+          border-bottom: 1px solid var(--divider);
+          transition: background 180ms;
+          cursor: pointer;
+        }
+        .log-row-inner:hover { background: var(--card-hover); }
+        .log-row-inner:last-child { border-bottom: none; }
+        .chevron { transition: transform 250ms cubic-bezier(0.34,1.56,0.64,1); }
+        .chevron.open { transform: rotate(180deg); }
+        .refresh-btn {
+          width:32px; height:32px; display:flex; align-items:center; justify-content:center;
+          border-radius:9px; border:none; background:transparent;
+          color:var(--text-muted); cursor:pointer; transition:all 180ms;
+        }
+        .refresh-btn:hover { background:var(--tag-bg); color:var(--text-primary); }
+        .refresh-btn:disabled { opacity:0.4; cursor:not-allowed; }
+        @media (max-width:640px) {
+          .log-row-inner { padding: 12px 14px; gap:10px; }
+          .stats-row { flex-direction: column !important; }
+        }
+      `}</style>
+
+      <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+
+        <div className="act-header" style={{
+          background:'var(--card-bg)', border:'1px solid var(--card-border)',
+          borderRadius:16, overflow:'hidden',
+        }}>
+          <div style={{ padding:'16px 18px', borderBottom:'1px solid var(--divider)', display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:10 }}>
             <div>
-              <h3 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-                <FiActivity className="text-sky-500 dark:text-sky-400" />
-                Recent Requests
-              </h3>
-              <p className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                Last {logs.length} API requests • {successCount} success • {errorCount} errors
+              <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:3 }}>
+                <FiActivity style={{ fontSize:14, color:'#38bdf8' }} />
+                <h3 style={{ fontSize:14, fontWeight:700, color:'var(--text-primary)', margin:0, letterSpacing:'-0.01em' }}>Recent Requests</h3>
+              </div>
+              <p style={{ fontSize:11, color:'var(--text-muted)', margin:0 }}>
+                {logs.length} requests &nbsp;·&nbsp;
+                <span style={{ color:'#34d399' }}>{successCount} success</span>
+                &nbsp;·&nbsp;
+                <span style={{ color:'#f87171' }}>{errorCount} errors</span>
               </p>
             </div>
 
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-900 rounded-lg p-0.5">
-                <button
-                  onClick={() => setFilterStatus('all')}
-                  className={`px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-semibold transition-all ${
-                    filterStatus === 'all'
-                      ? 'bg-gradient-to-r from-sky-400 to-blue-500 text-white shadow-lg shadow-sky-400/30'
-                      : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800'
-                  }`}
-                >
-                  All
-                </button>
-                <button
-                  onClick={() => setFilterStatus('success')}
-                  className={`px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-semibold transition-all ${
-                    filterStatus === 'success'
-                      ? 'bg-emerald-500 text-white shadow-lg'
-                      : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800'
-                  }`}
-                >
-                  Success
-                </button>
-                <button
-                  onClick={() => setFilterStatus('error')}
-                  className={`px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-semibold transition-all ${
-                    filterStatus === 'error'
-                      ? 'bg-red-500 text-white shadow-lg'
-                      : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800'
-                  }`}
-                >
-                  Errors
-                </button>
+            <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+              <div style={{ display:'flex', alignItems:'center', gap:2, background:'var(--tag-bg)', borderRadius:10, padding:3 }}>
+                {(['all','success','error'] as const).map(f => (
+                  <button
+                    key={f}
+                    onClick={() => setFilterStatus(f)}
+                    className={`filter-btn ${filterStatus === f ? `active-${f}` : ''}`}
+                  >
+                    {f === 'all' ? 'All' : f === 'success' ? 'Success' : 'Errors'}
+                  </button>
+                ))}
               </div>
-
               <button
                 onClick={onRefresh}
                 disabled={loading}
-                className="p-1.5 sm:p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors disabled:opacity-50"
+                className="refresh-btn"
                 title="Refresh"
               >
-                <FiRefreshCw className={`text-sm sm:text-base text-zinc-600 dark:text-zinc-400 ${loading ? 'animate-spin' : ''}`} />
+                <FiRefreshCw style={{ fontSize:14, transition:'transform 600ms', transform: loading ? 'rotate(360deg)' : 'none', animation: loading ? 'spin 0.8s linear infinite' : 'none' }} />
               </button>
             </div>
           </div>
-        </div>
 
-        {filteredLogs.length === 0 ? (
-          <div className="p-6 sm:p-12 text-center">
-            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-              <FiActivity className="text-xl sm:text-3xl text-zinc-400" />
+          {filteredLogs.length === 0 ? (
+            <div style={{ padding:'56px 24px', textAlign:'center' }}>
+              <div style={{ width:52, height:52, borderRadius:'50%', background:'var(--tag-bg)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 14px' }}>
+                <FiActivity style={{ fontSize:22, color:'var(--text-muted)' }} />
+              </div>
+              <p style={{ fontSize:14, fontWeight:700, color:'var(--text-primary)', marginBottom:5 }}>No Activity Yet</p>
+              <p style={{ fontSize:12, color:'var(--text-muted)' }}>
+                {filterStatus === 'all' ? 'Your API requests will appear here' : `No ${filterStatus} requests found`}
+              </p>
             </div>
-            <h3 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white mb-1 sm:mb-2">No Activity Yet</h3>
-            <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400">
-              {filterStatus === 'all' 
-                ? 'Your API requests will appear here'
-                : `No ${filterStatus} requests found`
-              }
-            </p>
-          </div>
-        ) : (
-          <div className="divide-y divide-zinc-200 dark:divide-zinc-800">
-            {filteredLogs.map((log) => {
-              const config = getStatusConfig(log.status);
-              const Icon = config.icon;
-              const isExpanded = expandedLog === log.id;
+          ) : (
+            <div>
+              {filteredLogs.map((log, idx) => {
+                const ok = isSuccess(log.status);
+                const isExpanded = expandedLog === log.id;
+                const hasDetails = !!(log.error_message || log.ip_address || log.user_agent);
+                return (
+                  <div key={log.id} className="log-row" style={{ animationDelay:`${idx * 0.04}s` }}>
+                    <div
+                      className="log-row-inner"
+                      onClick={() => hasDetails && setExpandedLog(isExpanded ? null : log.id)}
+                      style={{ cursor: hasDetails ? 'pointer' : 'default' }}
+                    >
+                      <div style={{ marginTop:3, flexShrink:0 }}>
+                        <div style={{
+                          width:8, height:8, borderRadius:'50%',
+                          background: ok ? '#34d399' : '#f87171',
+                          boxShadow: ok ? '0 0 0 3px rgba(52,211,153,0.2)' : '0 0 0 3px rgba(248,113,113,0.2)',
+                          animation:'dotPulse 2.5s ease-in-out infinite',
+                          animationDelay:`${idx * 0.15}s`,
+                        }} />
+                      </div>
 
-              return (
-                <div
-                  key={log.id}
-                  className="p-3 sm:p-4 hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition-colors"
-                >
-                  <div className="flex flex-col gap-2 sm:gap-3">
-                    <div className="flex items-start sm:items-center justify-between gap-2">
-                      <div className="flex items-start sm:items-center gap-2 sm:gap-3 flex-1 min-w-0">
-                        <div className={`w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full ${config.dot} flex-shrink-0 mt-1 sm:mt-0 animate-pulse`} />
-                        
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1.5 sm:gap-2 mb-1 flex-wrap">
-                            <span className="font-mono text-xs sm:text-sm font-semibold text-zinc-900 dark:text-white truncate">
-                              {log.model}
-                            </span>
-                            <span className={`px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] font-bold ${config.bg} ${config.border} ${config.text} border`}>
-                              {log.status}
-                            </span>
+                      <div style={{ flex:1, minWidth:0 }}>
+                        <div style={{ display:'flex', alignItems:'center', flexWrap:'wrap', gap:6, marginBottom:5 }}>
+                          <span style={{ fontFamily:'monospace', fontSize:13, fontWeight:700, color:'var(--text-primary)' }}>
+                            {log.model}
+                          </span>
+                          <span style={{
+                            fontSize:10, fontWeight:700, padding:'2px 7px', borderRadius:6,
+                            background: ok ? 'rgba(52,211,153,0.12)' : 'rgba(248,113,113,0.12)',
+                            color: ok ? '#34d399' : '#f87171',
+                            border: `1px solid ${ok ? 'rgba(52,211,153,0.25)' : 'rgba(248,113,113,0.25)'}`,
+                          }}>
+                            {log.status}
+                          </span>
+                        </div>
+
+                        <p style={{ fontSize:11, color:'var(--text-muted)', marginBottom:7, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', maxWidth:'100%' }}>
+                          {log.endpoint}
+                        </p>
+
+                        <div style={{ display:'flex', flexWrap:'wrap', gap:'4px 14px' }}>
+                          <div style={{ display:'flex', alignItems:'center', gap:4, fontSize:10, color:'var(--text-muted)' }}>
+                            <FiClock style={{ fontSize:10 }} />
+                            {new Date(log.created_at).toLocaleString('en-US', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' })}
                           </div>
-                          
-                          <p className="text-[10px] sm:text-xs text-zinc-600 dark:text-zinc-400 mb-1 sm:mb-1.5 truncate">
-                            {log.endpoint}
-                          </p>
-
-                          <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-[9px] sm:text-[10px] text-zinc-500 dark:text-zinc-400">
-                            <div className="flex items-center gap-1">
-                              <FiClock className="text-[10px] sm:text-xs flex-shrink-0" />
-                              <span>{new Date(log.created_at).toLocaleString('en-US', { 
-                                month: 'short', 
-                                day: 'numeric',
-                                hour: '2-digit', 
-                                minute: '2-digit' 
-                              })}</span>
+                          {log.latency_ms && (
+                            <div style={{ display:'flex', alignItems:'center', gap:4, fontSize:10, color: log.latency_ms > 2000 ? '#fbbf24' : '#38bdf8' }}>
+                              <FiZap style={{ fontSize:10 }} />
+                              {log.latency_ms}ms
                             </div>
-                            
-                            {log.latency_ms && (
-                              <div className="flex items-center gap-1">
-                                <FiZap className="text-[10px] sm:text-xs flex-shrink-0" />
-                                <span>{log.latency_ms}ms</span>
-                              </div>
-                            )}
-                            
-                            {log.tokens_used > 0 && (
-                              <div className="flex items-center gap-1">
-                                <FiTrendingUp className="text-[10px] sm:text-xs flex-shrink-0" />
-                                <span>{log.tokens_used.toLocaleString()} tokens</span>
-                              </div>
-                            )}
-                          </div>
+                          )}
+                          {log.tokens_used > 0 && (
+                            <div style={{ display:'flex', alignItems:'center', gap:4, fontSize:10, color:'#a78bfa' }}>
+                              <FiTrendingUp style={{ fontSize:10 }} />
+                              {log.tokens_used.toLocaleString()} tokens
+                            </div>
+                          )}
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-                        <div className={`p-1 sm:p-1.5 ${config.bg} rounded-md sm:rounded-lg border ${config.border}`}>
-                          <Icon className={`${config.text} text-xs sm:text-sm`} />
+                      <div style={{ display:'flex', alignItems:'center', gap:6, flexShrink:0 }}>
+                        <div style={{
+                          width:28, height:28, borderRadius:8, display:'flex', alignItems:'center', justifyContent:'center',
+                          background: ok ? 'rgba(52,211,153,0.1)' : 'rgba(248,113,113,0.1)',
+                        }}>
+                          {ok
+                            ? <FiCheck style={{ fontSize:13, color:'#34d399' }} />
+                            : <FiAlertCircle style={{ fontSize:13, color:'#f87171' }} />
+                          }
                         </div>
-                        
-                        {(log.error_message || log.ip_address) && (
-                          <button
-                            onClick={() => setExpandedLog(isExpanded ? null : log.id)}
-                            className="p-1 sm:p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md transition-colors"
-                          >
-                            {isExpanded ? (
-                              <FiX className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400" />
-                            ) : (
-                              <FiFilter className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400" />
-                            )}
-                          </button>
+                        {hasDetails && (
+                          <FiChevronDown
+                            className={`chevron ${isExpanded ? 'open' : ''}`}
+                            style={{ fontSize:14, color:'var(--text-muted)' }}
+                          />
                         )}
                       </div>
                     </div>
 
                     {isExpanded && (
-                      <div className="space-y-2 pl-4 sm:pl-5 animate-in slide-in-from-top-2 duration-200">
+                      <div className="expand-panel" style={{ padding:'10px 18px 14px', background:'var(--expand-bg)', borderBottom:'1px solid var(--divider)' }}>
                         {log.error_message && (
-                          <div className={`p-2 sm:p-2.5 ${config.bg} rounded-lg border ${config.border}`}>
-                            <div className="flex items-start gap-1.5 sm:gap-2">
-                              <FiAlertCircle className={`${config.text} text-xs sm:text-sm flex-shrink-0 mt-0.5`} />
+                          <div style={{
+                            padding:'10px 12px', borderRadius:10, marginBottom:8,
+                            background:'rgba(248,113,113,0.06)', border:'1px solid rgba(248,113,113,0.15)',
+                          }}>
+                            <div style={{ display:'flex', gap:8, alignItems:'flex-start' }}>
+                              <FiAlertCircle style={{ fontSize:12, color:'#f87171', flexShrink:0, marginTop:1 }} />
                               <div>
-                                <p className={`text-[9px] sm:text-[10px] font-semibold ${config.text} mb-0.5`}>Error Details</p>
-                                <p className="text-[10px] sm:text-xs text-zinc-700 dark:text-zinc-300 break-words">
-                                  {log.error_message}
-                                </p>
+                                <p style={{ fontSize:10, fontWeight:700, color:'#f87171', marginBottom:3, textTransform:'uppercase', letterSpacing:'0.05em' }}>Error Details</p>
+                                <p style={{ fontSize:12, color:'var(--text-sub)', margin:0, lineHeight:1.5 }}>{log.error_message}</p>
                               </div>
                             </div>
                           </div>
                         )}
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(180px,1fr))', gap:8 }}>
                           {log.ip_address && (
-                            <div className="p-2 bg-zinc-100 dark:bg-zinc-900/50 rounded-lg border border-zinc-200 dark:border-zinc-800">
-                              <p className="text-[9px] sm:text-[10px] font-semibold text-zinc-500 dark:text-zinc-400 mb-0.5">IP Address</p>
-                              <p className="text-[10px] sm:text-xs font-mono text-zinc-900 dark:text-white">{log.ip_address}</p>
+                            <div style={{ padding:'8px 12px', borderRadius:9, background:'var(--tag-bg)', border:'1px solid var(--card-border)' }}>
+                              <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:4 }}>
+                                <FiGlobe style={{ fontSize:11, color:'var(--text-muted)' }} />
+                                <p style={{ fontSize:10, fontWeight:600, color:'var(--text-muted)', margin:0, textTransform:'uppercase', letterSpacing:'0.04em' }}>IP Address</p>
+                              </div>
+                              <p style={{ fontSize:12, fontFamily:'monospace', color:'var(--text-primary)', margin:0 }}>{log.ip_address}</p>
                             </div>
                           )}
-
                           {log.user_agent && (
-                            <div className="p-2 bg-zinc-100 dark:bg-zinc-900/50 rounded-lg border border-zinc-200 dark:border-zinc-800">
-                              <p className="text-[9px] sm:text-[10px] font-semibold text-zinc-500 dark:text-zinc-400 mb-0.5">User Agent</p>
-                              <p className="text-[10px] sm:text-xs text-zinc-900 dark:text-white truncate">{log.user_agent}</p>
+                            <div style={{ padding:'8px 12px', borderRadius:9, background:'var(--tag-bg)', border:'1px solid var(--card-border)' }}>
+                              <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:4 }}>
+                                <FiMonitor style={{ fontSize:11, color:'var(--text-muted)' }} />
+                                <p style={{ fontSize:10, fontWeight:600, color:'var(--text-muted)', margin:0, textTransform:'uppercase', letterSpacing:'0.04em' }}>User Agent</p>
+                              </div>
+                              <p style={{ fontSize:12, color:'var(--text-primary)', margin:0, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{log.user_agent}</p>
                             </div>
                           )}
                         </div>
                       </div>
                     )}
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        <div className="stats-row" style={{ display:'flex', gap:10 }}>
+          <StatCard icon={FiCheck}      label="Success Rate" value={successRate} unit="%" color="emerald" bar barValue={successRate} />
+          <StatCard icon={FiZap}        label="Avg Latency"  value={avgLatency}  unit="ms" color="sky" />
+          <StatCard icon={FiTrendingUp} label="Total Tokens" value={totalTokens} color="violet" />
+        </div>
+
+        <style>{`@keyframes spin { to { transform:rotate(360deg); } }`}</style>
       </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
-        <div className="bg-white/80 dark:bg-zinc-950 backdrop-blur-lg rounded-xl border border-zinc-200 dark:border-zinc-800 p-3 sm:p-4">
-          <div className="flex items-center gap-2 sm:gap-3 mb-2">
-            <div className="p-1.5 sm:p-2 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg">
-              <FiCheck className="text-sm sm:text-base text-emerald-600 dark:text-emerald-400" />
-            </div>
-            <div className="flex-1">
-              <p className="text-[10px] sm:text-xs font-medium text-zinc-500 dark:text-zinc-400">Success Rate</p>
-              <p className="text-lg sm:text-2xl font-bold text-zinc-900 dark:text-white">
-                {logs.length > 0 ? Math.round((successCount / logs.length) * 100) : 0}%
-              </p>
-            </div>
-          </div>
-          <div className="w-full h-1.5 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-emerald-500 to-green-500 rounded-full transition-all duration-500"
-              style={{ width: `${logs.length > 0 ? (successCount / logs.length) * 100 : 0}%` }}
-            />
-          </div>
-        </div>
-
-        <div className="bg-white/80 dark:bg-zinc-950 backdrop-blur-lg rounded-xl border border-zinc-200 dark:border-zinc-800 p-3 sm:p-4">
-          <div className="flex items-center gap-2 sm:gap-3 mb-2">
-            <div className="p-1.5 sm:p-2 bg-sky-50 dark:bg-sky-900/20 rounded-lg">
-              <FiZap className="text-sm sm:text-base text-sky-600 dark:text-sky-400" />
-            </div>
-            <div className="flex-1">
-              <p className="text-[10px] sm:text-xs font-medium text-zinc-500 dark:text-zinc-400">Avg Latency</p>
-              <p className="text-lg sm:text-2xl font-bold text-zinc-900 dark:text-white">
-                {logs.filter(l => l.latency_ms).length > 0
-                  ? Math.round(logs.filter(l => l.latency_ms).reduce((acc, l) => acc + (l.latency_ms || 0), 0) / logs.filter(l => l.latency_ms).length)
-                  : 0}ms
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white/80 dark:bg-zinc-950 backdrop-blur-lg rounded-xl border border-zinc-200 dark:border-zinc-800 p-3 sm:p-4">
-          <div className="flex items-center gap-2 sm:gap-3 mb-2">
-            <div className="p-1.5 sm:p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-              <FiTrendingUp className="text-sm sm:text-base text-purple-600 dark:text-purple-400" />
-            </div>
-            <div className="flex-1">
-              <p className="text-[10px] sm:text-xs font-medium text-zinc-500 dark:text-zinc-400">Total Tokens</p>
-              <p className="text-lg sm:text-2xl font-bold text-zinc-900 dark:text-white">
-                {logs.reduce((acc, l) => acc + l.tokens_used, 0).toLocaleString()}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    </>
   );
 }
