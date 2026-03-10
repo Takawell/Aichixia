@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { FiUser, FiMail, FiCamera, FiCheck, FiAlertCircle, FiGift, FiCreditCard, FiShield, FiSave } from 'react-icons/fi';
+import { useState, useRef } from 'react';
+import { FiUser, FiMail, FiCamera, FiCheck, FiAlertCircle, FiGift, FiCreditCard, FiShield, FiSave, FiZap, FiStar } from 'react-icons/fi';
 
 type UserProfile = {
   email: string;
@@ -26,44 +26,110 @@ const PLAN_CONFIG = {
     name: 'Free',
     limit: '100',
     color: 'sky',
-    gradient: 'from-sky-500 to-blue-500',
+    gradient: 'from-sky-500 to-blue-600',
     features: ['100 requests/day', 'Basic models', 'Community support'],
   },
   pro: {
     name: 'Pro',
     limit: '400',
     color: 'purple',
-    gradient: 'from-purple-500 to-pink-500',
+    gradient: 'from-violet-500 to-purple-600',
     features: ['400 requests/day', 'All models', 'Priority support', 'Advanced features'],
   },
   enterprise: {
     name: 'Enterprise',
     limit: '800',
     color: 'rose',
-    gradient: 'from-rose-500 to-red-500',
+    gradient: 'from-rose-500 to-red-600',
     features: ['800 requests/day', 'All models', 'Dedicated support', 'Custom solutions'],
   },
 };
 
-export default function Settings({
-  profile,
-  settings,
-  onUpdateProfile,
-  onRedeemPromo,
-  actionLoading,
-}: SettingsProps) {
+const planAccent: Record<string, { ring: string; text: string; bg: string }> = {
+  sky:    { ring: 'rgba(56,189,248,0.25)',  text: '#38bdf8', bg: 'rgba(56,189,248,0.06)'  },
+  purple: { ring: 'rgba(139,92,246,0.25)', text: '#a78bfa', bg: 'rgba(139,92,246,0.06)' },
+  rose:   { ring: 'rgba(244,63,94,0.25)',  text: '#fb7185', bg: 'rgba(244,63,94,0.06)'  },
+};
+
+function Card({ children, style, className = '' }: { children: React.ReactNode; style?: React.CSSProperties; className?: string }) {
+  return (
+    <div
+      className={`rounded-2xl border transition-all duration-300 ${className}`}
+      style={{
+        background: 'var(--card-bg)',
+        borderColor: 'var(--card-border)',
+        ...style,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+function InputField({
+  label, icon: Icon, value, onChange, placeholder, type = 'text', disabled = false,
+}: {
+  label: string; icon: any; value: string; onChange?: (v: string) => void;
+  placeholder?: string; type?: string; disabled?: boolean;
+}) {
+  const [focused, setFocused] = useState(false);
+  return (
+    <div>
+      <label style={{ display: 'block', fontSize: 11, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 6 }}>
+        {label}
+      </label>
+      <div style={{ position: 'relative' }}>
+        <Icon
+          style={{
+            position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)',
+            fontSize: 13, color: focused ? '#38bdf8' : 'var(--text-muted)',
+            transition: 'color 200ms',
+            pointerEvents: 'none',
+          }}
+        />
+        <input
+          type={type}
+          value={value}
+          onChange={onChange ? (e) => onChange(e.target.value) : undefined}
+          placeholder={placeholder}
+          disabled={disabled}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          style={{
+            width: '100%',
+            paddingLeft: 36,
+            paddingRight: 14,
+            paddingTop: 10,
+            paddingBottom: 10,
+            background: disabled ? 'var(--input-disabled)' : 'var(--input-bg)',
+            border: `1px solid ${focused ? '#38bdf8' : 'var(--card-border)'}`,
+            borderRadius: 10,
+            fontSize: 13,
+            color: disabled ? 'var(--text-muted)' : 'var(--text-primary)',
+            outline: 'none',
+            cursor: disabled ? 'not-allowed' : 'text',
+            transition: 'border-color 200ms, box-shadow 200ms',
+            boxShadow: focused ? '0 0 0 3px rgba(56,189,248,0.12)' : 'none',
+            boxSizing: 'border-box',
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+export default function Settings({ profile, settings, onUpdateProfile, onRedeemPromo, actionLoading }: SettingsProps) {
   const [editProfile, setEditProfile] = useState({
     display_name: profile?.display_name || '',
     avatar_url: profile?.avatar_url || '',
   });
   const [promoCode, setPromoCode] = useState('');
+  const [imgError, setImgError] = useState(false);
 
   const planConfig = PLAN_CONFIG[settings?.plan || 'free'];
+  const accent = planAccent[planConfig.color];
 
-  const handleUpdateProfile = () => {
-    onUpdateProfile(editProfile);
-  };
-
+  const handleUpdateProfile = () => onUpdateProfile(editProfile);
   const handleRedeemPromo = () => {
     if (!promoCode.trim()) return;
     onRedeemPromo(promoCode);
@@ -71,218 +137,296 @@ export default function Settings({
   };
 
   return (
-    <div className="space-y-3 sm:space-y-4">
-      <div className="bg-white/80 dark:bg-zinc-950 backdrop-blur-lg rounded-xl border border-zinc-200 dark:border-zinc-800 p-3 sm:p-4">
-        <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-5">
-          <div className="p-1.5 sm:p-2 bg-gradient-to-br from-sky-400 to-blue-500 rounded-lg shadow-lg">
-            <FiUser className="text-white text-sm sm:text-base" />
-          </div>
-          <div>
-            <h3 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white">Profile Settings</h3>
-            <p className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400">Update your personal information</p>
-          </div>
-        </div>
+    <>
+      <style>{`
+        :root {
+          --card-bg: #ffffff;
+          --card-border: rgba(0,0,0,0.07);
+          --text-primary: #0f0f10;
+          --text-sub: #52525b;
+          --text-muted: #a1a1aa;
+          --input-bg: #f9f9fb;
+          --input-disabled: #f4f4f6;
+          --section-label: #71717a;
+        }
+        .dark {
+          --card-bg: #111113;
+          --card-border: rgba(255,255,255,0.07);
+          --text-primary: rgba(255,255,255,0.92);
+          --text-sub: rgba(255,255,255,0.5);
+          --text-muted: rgba(255,255,255,0.28);
+          --input-bg: rgba(255,255,255,0.04);
+          --input-disabled: rgba(255,255,255,0.03);
+          --section-label: rgba(255,255,255,0.35);
+        }
+        @keyframes settingsFadeUp {
+          from { opacity: 0; transform: translateY(12px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .settings-card { animation: settingsFadeUp 0.4s cubic-bezier(0.22,1,0.36,1) both; }
+        .settings-card:nth-child(1) { animation-delay: 0.04s; }
+        .settings-card:nth-child(2) { animation-delay: 0.10s; }
+        .settings-card:nth-child(3) { animation-delay: 0.16s; }
+        .settings-card:nth-child(4) { animation-delay: 0.22s; }
+        .settings-btn {
+          display: flex; align-items: center; justify-content: center; gap: 7px;
+          width: 100%; padding: 10px 20px; border-radius: 10px; border: none;
+          font-size: 13px; font-weight: 600; cursor: pointer;
+          transition: opacity 150ms, transform 150ms, box-shadow 200ms;
+        }
+        .settings-btn:hover:not(:disabled) { opacity: 0.88; transform: translateY(-1px); }
+        .settings-btn:active:not(:disabled) { transform: scale(0.98); }
+        .settings-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+        .feature-row {
+          display: flex; align-items: center; gap: 8px;
+          padding: 5px 0;
+          border-bottom: 1px solid rgba(255,255,255,0.08);
+          font-size: 12px;
+          color: rgba(255,255,255,0.85);
+        }
+        .feature-row:last-child { border-bottom: none; }
+        .promo-input:focus { outline: none; }
+        .danger-btn {
+          display: inline-flex; align-items: center; gap: 7px;
+          padding: 9px 20px; border-radius: 10px; border: 1px solid rgba(239,68,68,0.3);
+          background: rgba(239,68,68,0.08); color: #f87171;
+          font-size: 12px; font-weight: 600; cursor: pointer;
+          transition: all 200ms;
+        }
+        .danger-btn:hover { background: rgba(239,68,68,0.14); border-color: rgba(239,68,68,0.5); }
+      `}</style>
 
-        <div className="space-y-3 sm:space-y-4">
-          <div>
-            <label className="block text-[10px] sm:text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5 sm:mb-2">
-              Display Name
-            </label>
-            <div className="relative">
-              <FiUser className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-xs sm:text-sm" />
-              <input
-                type="text"
-                value={editProfile.display_name}
-                onChange={(e) => setEditProfile({ ...editProfile, display_name: e.target.value })}
-                placeholder="Your name"
-                className="w-full pl-9 pr-3 py-2 sm:pl-10 sm:pr-4 sm:py-2.5 bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 rounded-lg text-xs sm:text-sm text-zinc-900 dark:text-white outline-none focus:border-sky-500 transition-colors"
-              />
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14, maxWidth: 680 }}>
+
+        <Card className="settings-card" style={{ padding: '22px 22px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20, paddingBottom: 16, borderBottom: '1px solid var(--card-border)' }}>
+            <FiUser style={{ fontSize: 15, color: '#38bdf8' }} />
+            <div>
+              <h3 style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.01em' }}>Profile Settings</h3>
+              <p style={{ fontSize: 11, color: 'var(--text-muted)', margin: '2px 0 0' }}>Update your personal information</p>
             </div>
           </div>
 
-          <div>
-            <label className="block text-[10px] sm:text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5 sm:mb-2">
-              Avatar URL
-            </label>
-            <div className="relative">
-              <FiCamera className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-xs sm:text-sm" />
-              <input
-                type="text"
-                value={editProfile.avatar_url}
-                onChange={(e) => setEditProfile({ ...editProfile, avatar_url: e.target.value })}
-                placeholder="https://example.com/avatar.jpg"
-                className="w-full pl-9 pr-3 py-2 sm:pl-10 sm:pr-4 sm:py-2.5 bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 rounded-lg text-xs sm:text-sm text-zinc-900 dark:text-white outline-none focus:border-sky-500 transition-colors"
-              />
-            </div>
-          </div>
-
-          {editProfile.avatar_url && (
-            <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-zinc-50 dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800">
-              <img
-                src={editProfile.avatar_url}
-                alt="Avatar preview"
-                className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-zinc-200 dark:border-zinc-700"
-                onError={(e) => {
-                  e.currentTarget.src = 'https://via.placeholder.com/48';
-                }}
-              />
-              <div>
-                <p className="text-[10px] sm:text-xs font-semibold text-zinc-900 dark:text-white">Avatar Preview</p>
-                <p className="text-[9px] sm:text-[10px] text-zinc-500 dark:text-zinc-400">This is how your avatar will appear</p>
-              </div>
-            </div>
-          )}
-
-          <button
-            onClick={handleUpdateProfile}
-            disabled={actionLoading}
-            className="w-full flex items-center justify-center gap-1.5 sm:gap-2 px-4 py-2 sm:py-2.5 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white rounded-lg font-semibold transition-all text-xs sm:text-sm disabled:opacity-50 shadow-lg"
-          >
-            {actionLoading ? (
-              <>
-                <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Updating...
-              </>
-            ) : (
-              <>
-                <FiSave className="text-sm sm:text-base" />
-                Update Profile
-              </>
-            )}
-          </button>
-        </div>
-      </div>
-
-      <div className="bg-white/80 dark:bg-zinc-950 backdrop-blur-lg rounded-xl border border-zinc-200 dark:border-zinc-800 p-3 sm:p-4">
-        <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-5">
-          <div className="p-1.5 sm:p-2 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg shadow-lg">
-            <FiMail className="text-white text-sm sm:text-base" />
-          </div>
-          <div>
-            <h3 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white">Account Information</h3>
-            <p className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400">Your account details</p>
-          </div>
-        </div>
-
-        <div className="space-y-3 sm:space-y-4">
-          <div>
-            <label className="block text-[10px] sm:text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5 sm:mb-2">
-              Email Address
-            </label>
-            <div className="relative">
-              <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-xs sm:text-sm" />
-              <input
-                type="email"
-                value={profile?.email || ''}
-                disabled
-                className="w-full pl-9 pr-3 py-2 sm:pl-10 sm:pr-4 sm:py-2.5 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg text-xs sm:text-sm text-zinc-900 dark:text-white cursor-not-allowed"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-[10px] sm:text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5 sm:mb-2">
-              Current Plan
-            </label>
-            <div className={`p-3 sm:p-4 bg-gradient-to-br ${planConfig.gradient} rounded-lg shadow-lg`}>
-              <div className="flex items-center justify-between mb-2 sm:mb-3">
-                <div className="flex items-center gap-2">
-                  <FiCreditCard className="text-white text-sm sm:text-base" />
-                  <span className="text-sm sm:text-base font-bold text-white">{planConfig.name} Plan</span>
-                </div>
-                <FiShield className="text-white/80 text-sm sm:text-base" />
-              </div>
-              <p className="text-[10px] sm:text-xs text-white/90 mb-2 sm:mb-3">
-                {planConfig.limit} requests per day
-              </p>
-              <div className="space-y-1 sm:space-y-1.5">
-                {planConfig.features.map((feature, idx) => (
-                  <div key={idx} className="flex items-center gap-1.5 sm:gap-2">
-                    <FiCheck className="text-white/90 text-xs flex-shrink-0" />
-                    <span className="text-[9px] sm:text-[10px] text-white/90">{feature}</span>
-                  </div>
-                ))}
-              </div>
-              {settings?.plan_expires_at && (
-                <div className="mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-white/20">
-                  <p className="text-[9px] sm:text-[10px] text-white/80">
-                    Expires: {new Date(settings.plan_expires_at).toLocaleDateString('en-US', {
-                      month: 'long',
-                      day: 'numeric',
-                      year: 'numeric'
-                    })}
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 rounded-xl border-2 border-purple-200 dark:border-purple-800 p-3 sm:p-4">
-        <div className="flex items-start gap-2 sm:gap-3 mb-3 sm:mb-4">
-          <div className="p-1.5 sm:p-2 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg shadow-lg">
-            <FiGift className="text-white text-sm sm:text-base" />
-          </div>
-          <div className="flex-1">
-            <h3 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white mb-1">Redeem Promo Code</h3>
-            <p className="text-[10px] sm:text-xs text-zinc-600 dark:text-zinc-400">Upgrade your plan with a promotional code</p>
-          </div>
-        </div>
-
-        <div className="flex flex-col sm:flex-row gap-2">
-          <div className="relative flex-1">
-            <FiGift className="absolute left-3 top-1/2 -translate-y-1/2 text-purple-500 dark:text-purple-400 text-xs sm:text-sm" />
-            <input
-              type="text"
-              value={promoCode}
-              onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-              placeholder="PROMO-CODE"
-              className="w-full pl-9 pr-3 py-2 sm:pl-10 sm:pr-4 sm:py-2.5 bg-white dark:bg-zinc-900 border-2 border-purple-300 dark:border-purple-700 rounded-lg text-xs sm:text-sm text-zinc-900 dark:text-white outline-none focus:border-purple-500 font-mono uppercase"
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <InputField
+              label="Display Name"
+              icon={FiUser}
+              value={editProfile.display_name}
+              onChange={(v) => setEditProfile({ ...editProfile, display_name: v })}
+              placeholder="Your name"
             />
-          </div>
-          <button
-            onClick={handleRedeemPromo}
-            disabled={actionLoading || !promoCode.trim()}
-            className="px-4 py-2 sm:px-6 sm:py-2.5 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white rounded-lg font-semibold transition-all text-xs sm:text-sm disabled:opacity-50 flex items-center justify-center gap-1.5 sm:gap-2 shadow-lg"
-          >
-            {actionLoading ? (
-              <>
-                <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Redeeming...
-              </>
-            ) : (
-              'Redeem'
-            )}
-          </button>
-        </div>
 
-        <div className="mt-3 p-2 sm:p-2.5 bg-purple-100 dark:bg-purple-950/30 rounded-lg border border-purple-200 dark:border-purple-800">
-          <div className="flex items-start gap-1.5 sm:gap-2">
-            <FiAlertCircle className="text-purple-600 dark:text-purple-400 text-xs flex-shrink-0 mt-0.5" />
-            <p className="text-[9px] sm:text-[10px] text-purple-700 dark:text-purple-300">
+            <InputField
+              label="Avatar URL"
+              icon={FiCamera}
+              value={editProfile.avatar_url}
+              onChange={(v) => { setEditProfile({ ...editProfile, avatar_url: v }); setImgError(false); }}
+              placeholder="https://example.com/avatar.jpg"
+            />
+
+            {editProfile.avatar_url && !imgError && (
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 12,
+                padding: '12px 14px', borderRadius: 10,
+                background: 'var(--input-bg)', border: '1px solid var(--card-border)',
+                animation: 'settingsFadeUp 0.3s cubic-bezier(0.22,1,0.36,1)',
+              }}>
+                <img
+                  src={editProfile.avatar_url}
+                  alt="Avatar preview"
+                  onError={() => setImgError(true)}
+                  style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--card-border)', flexShrink: 0 }}
+                />
+                <div>
+                  <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>Avatar Preview</p>
+                  <p style={{ fontSize: 11, color: 'var(--text-muted)', margin: '2px 0 0' }}>This is how your avatar will appear</p>
+                </div>
+              </div>
+            )}
+
+            <button
+              onClick={handleUpdateProfile}
+              disabled={actionLoading}
+              className="settings-btn"
+              style={{
+                background: 'linear-gradient(135deg, #38bdf8, #3b82f6)',
+                color: '#fff',
+                boxShadow: '0 4px 16px rgba(56,189,248,0.25)',
+              }}
+            >
+              {actionLoading ? (
+                <>
+                  <div style={{ width: 13, height: 13, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                  Updating...
+                </>
+              ) : (
+                <>
+                  <FiSave style={{ fontSize: 13 }} />
+                  Save Profile
+                </>
+              )}
+            </button>
+          </div>
+        </Card>
+
+        <Card className="settings-card" style={{ padding: '22px 22px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20, paddingBottom: 16, borderBottom: '1px solid var(--card-border)' }}>
+            <FiMail style={{ fontSize: 15, color: '#a78bfa' }} />
+            <div>
+              <h3 style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.01em' }}>Account Information</h3>
+              <p style={{ fontSize: 11, color: 'var(--text-muted)', margin: '2px 0 0' }}>Your account details</p>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <InputField
+              label="Email Address"
+              icon={FiMail}
+              value={profile?.email || ''}
+              disabled
+              placeholder=""
+            />
+
+            <div>
+              <label style={{ display: 'block', fontSize: 11, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 8 }}>
+                Current Plan
+              </label>
+              <div style={{
+                borderRadius: 14,
+                background: `linear-gradient(135deg, var(--g1), var(--g2))`,
+                padding: '18px 18px',
+                position: 'relative',
+                overflow: 'hidden',
+              }}
+                className={`bg-gradient-to-br ${planConfig.gradient}`}
+              >
+                <div style={{ position: 'absolute', top: -20, right: -20, width: 100, height: 100, borderRadius: '50%', background: 'rgba(255,255,255,0.07)', pointerEvents: 'none' }} />
+                <div style={{ position: 'absolute', bottom: -30, left: -10, width: 80, height: 80, borderRadius: '50%', background: 'rgba(255,255,255,0.05)', pointerEvents: 'none' }} />
+
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10, position: 'relative' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <FiZap style={{ fontSize: 14, color: '#fff' }} />
+                    <span style={{ fontSize: 15, fontWeight: 800, color: '#fff', letterSpacing: '-0.02em' }}>{planConfig.name} Plan</span>
+                  </div>
+                  <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', background: 'rgba(255,255,255,0.2)', color: '#fff', padding: '3px 8px', borderRadius: 20 }}>
+                    Active
+                  </span>
+                </div>
+
+                <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', marginBottom: 12, position: 'relative' }}>
+                  {planConfig.limit} requests per day
+                </p>
+
+                <div style={{ position: 'relative' }}>
+                  {planConfig.features.map((f, i) => (
+                    <div key={i} className="feature-row">
+                      <FiCheck style={{ fontSize: 11, color: 'rgba(255,255,255,0.9)', flexShrink: 0 }} />
+                      {f}
+                    </div>
+                  ))}
+                </div>
+
+                {settings?.plan_expires_at && (
+                  <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid rgba(255,255,255,0.15)', position: 'relative' }}>
+                    <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)' }}>
+                      Expires {new Date(settings.plan_expires_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="settings-card" style={{ padding: '22px 22px', borderColor: 'rgba(139,92,246,0.18)', background: 'var(--card-bg)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18, paddingBottom: 16, borderBottom: '1px solid rgba(139,92,246,0.12)' }}>
+            <FiGift style={{ fontSize: 15, color: '#a78bfa' }} />
+            <div>
+              <h3 style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.01em' }}>Redeem Promo Code</h3>
+              <p style={{ fontSize: 11, color: 'var(--text-muted)', margin: '2px 0 0' }}>Upgrade your plan with a promotional code</p>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+            <div style={{ position: 'relative', flex: 1 }}>
+              <FiStar style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 13, color: '#a78bfa', pointerEvents: 'none' }} />
+              <input
+                type="text"
+                value={promoCode}
+                onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                onKeyDown={(e) => e.key === 'Enter' && handleRedeemPromo()}
+                placeholder="PROMO-CODE"
+                className="promo-input"
+                style={{
+                  width: '100%',
+                  paddingLeft: 36,
+                  paddingRight: 14,
+                  paddingTop: 10,
+                  paddingBottom: 10,
+                  background: 'var(--input-bg)',
+                  border: '1px solid rgba(139,92,246,0.25)',
+                  borderRadius: 10,
+                  fontSize: 13,
+                  fontFamily: 'monospace',
+                  fontWeight: 600,
+                  letterSpacing: '0.08em',
+                  color: 'var(--text-primary)',
+                  boxSizing: 'border-box',
+                }}
+                onFocus={(e) => { e.target.style.borderColor = '#a78bfa'; e.target.style.boxShadow = '0 0 0 3px rgba(139,92,246,0.12)'; }}
+                onBlur={(e) => { e.target.style.borderColor = 'rgba(139,92,246,0.25)'; e.target.style.boxShadow = 'none'; }}
+              />
+            </div>
+            <button
+              onClick={handleRedeemPromo}
+              disabled={actionLoading || !promoCode.trim()}
+              className="settings-btn"
+              style={{
+                width: 'auto',
+                padding: '10px 20px',
+                background: 'linear-gradient(135deg, #8b5cf6, #a855f7)',
+                color: '#fff',
+                boxShadow: '0 4px 14px rgba(139,92,246,0.3)',
+                flexShrink: 0,
+              }}
+            >
+              {actionLoading ? (
+                <div style={{ width: 13, height: 13, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+              ) : 'Redeem'}
+            </button>
+          </div>
+
+          <div style={{
+            display: 'flex', alignItems: 'flex-start', gap: 8,
+            padding: '10px 12px', borderRadius: 9,
+            background: 'rgba(139,92,246,0.06)',
+            border: '1px solid rgba(139,92,246,0.12)',
+          }}>
+            <FiAlertCircle style={{ fontSize: 12, color: '#a78bfa', flexShrink: 0, marginTop: 1 }} />
+            <p style={{ fontSize: 11, color: '#a78bfa', margin: 0, lineHeight: 1.55 }}>
               Enter a valid promo code to unlock premium features and extended rate limits
             </p>
           </div>
-        </div>
-      </div>
+        </Card>
 
-      <div className="bg-red-50 dark:bg-red-950/20 rounded-xl border-2 border-red-200 dark:border-red-800 p-3 sm:p-4">
-        <div className="flex items-start gap-2 sm:gap-3 mb-3 sm:mb-4">
-          <div className="p-1.5 sm:p-2 bg-red-500 rounded-lg">
-            <FiAlertCircle className="text-white text-sm sm:text-base" />
+        <Card className="settings-card" style={{ padding: '22px 22px', borderColor: 'rgba(239,68,68,0.15)', background: 'var(--card-bg)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, paddingBottom: 16, borderBottom: '1px solid rgba(239,68,68,0.1)' }}>
+            <FiAlertCircle style={{ fontSize: 15, color: '#f87171' }} />
+            <div>
+              <h3 style={{ fontSize: 14, fontWeight: 700, color: '#f87171', margin: 0, letterSpacing: '-0.01em' }}>Danger Zone</h3>
+              <p style={{ fontSize: 11, color: 'var(--text-muted)', margin: '2px 0 0' }}>Once you delete your account, there is no going back</p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-sm sm:text-base font-bold text-red-900 dark:text-red-100 mb-1">Danger Zone</h3>
-            <p className="text-[10px] sm:text-xs text-red-700 dark:text-red-300">
-              Once you delete your account, there is no going back. Please be certain.
-            </p>
-          </div>
-        </div>
-        <button className="w-full sm:w-auto px-4 py-2 sm:px-6 sm:py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold transition-all text-xs sm:text-sm shadow-lg">
-          Delete Account
-        </button>
+          <button className="danger-btn">
+            <FiAlertCircle style={{ fontSize: 12 }} />
+            Delete Account
+          </button>
+        </Card>
+
+        <style>{`
+          @keyframes spin { to { transform: rotate(360deg); } }
+        `}</style>
       </div>
-    </div>
+    </>
   );
 }
