@@ -662,97 +662,118 @@ export default function Console() {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black text-zinc-900 dark:text-white transition-colors duration-300">
       <div className="flex h-screen overflow-hidden">
-        <aside className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-lg border-r border-zinc-200 dark:border-zinc-800 transition-transform duration-300`}>
-          <div className="flex flex-col h-full">
-            <div className="p-4 sm:p-5 border-b border-zinc-200 dark:border-zinc-800">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-sky-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-                  <FiZap className="text-white text-base sm:text-lg" />
+        <aside className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 fixed lg:static inset-y-0 left-0 z-50 w-60 flex flex-col bg-white dark:bg-zinc-950 border-r border-zinc-100 dark:border-zinc-800/60 transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]`}>
+
+          <style>{`
+            @keyframes sidebarFadeIn {
+              from { opacity: 0; transform: translateX(-6px); }
+              to   { opacity: 1; transform: translateX(0); }
+            }
+            .nav-item { animation: sidebarFadeIn 0.35s cubic-bezier(0.22,1,0.36,1) both; }
+            .nav-item:nth-child(1) { animation-delay: 0.04s; }
+            .nav-item:nth-child(2) { animation-delay: 0.08s; }
+            .nav-item:nth-child(3) { animation-delay: 0.12s; }
+            .nav-item:nth-child(4) { animation-delay: 0.16s; }
+            .nav-item:nth-child(5) { animation-delay: 0.20s; }
+            .nav-item:nth-child(6) { animation-delay: 0.24s; }
+            .active-indicator {
+              position: absolute;
+              left: 0;
+              top: 50%;
+              transform: translateY(-50%);
+              width: 3px;
+              height: 60%;
+              border-radius: 0 3px 3px 0;
+              background: linear-gradient(180deg, #38bdf8, #3b82f6);
+              transition: all 250ms cubic-bezier(0.34,1.56,0.64,1);
+            }
+          `}</style>
+
+          <div className="px-4 py-4 border-b border-zinc-100 dark:border-zinc-800/60">
+            <div className="flex items-center gap-2.5">
+              <FiZap className="text-sky-500 dark:text-sky-400 text-lg flex-shrink-0" style={{ filter: 'drop-shadow(0 0 6px rgba(56,189,248,0.5))' }} />
+              <div>
+                <h1 className="text-sm font-black text-zinc-900 dark:text-white tracking-tight leading-none">Aichixia</h1>
+                <p className="text-[9px] text-zinc-400 dark:text-zinc-500 mt-0.5 tracking-wide">API Console</p>
+              </div>
+            </div>
+          </div>
+
+          <nav className="flex-1 px-2.5 py-3 space-y-0.5 overflow-y-auto">
+            {([
+              { tab: 'overview',    icon: FiTrendingUp, label: 'Overview'    },
+              { tab: 'keys',        icon: FiKey,        label: 'API Keys'    },
+              { tab: 'activity',    icon: FiActivity,   label: 'Activity'    },
+              { tab: 'models',      icon: FiLayers,     label: 'Models'      },
+              { tab: 'playground',  icon: FiCode,       label: 'Playground'  },
+              { tab: 'settings',    icon: FiSettings,   label: 'Settings'    },
+            ] as { tab: TabType; icon: any; label: string }[]).map(({ tab, icon: Icon, label }) => {
+              const active = activeTab === tab;
+              return (
+                <div key={tab} className="nav-item relative">
+                  {active && <span className="active-indicator" />}
+                  <button
+                    onClick={() => handleTabChange(tab)}
+                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 group ${
+                      active
+                        ? 'bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400'
+                        : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800/60'
+                    }`}
+                    style={{ paddingLeft: active ? '14px' : undefined }}
+                  >
+                    <Icon
+                      className={`flex-shrink-0 transition-all duration-200 ${
+                        active
+                          ? 'text-sky-500 dark:text-sky-400'
+                          : 'text-zinc-400 dark:text-zinc-500 group-hover:text-zinc-600 dark:group-hover:text-zinc-300'
+                      }`}
+                      style={{
+                        fontSize: 14,
+                        filter: active ? 'drop-shadow(0 0 4px rgba(56,189,248,0.4))' : undefined,
+                        transform: active ? 'scale(1.1)' : 'scale(1)',
+                        transition: 'transform 250ms cubic-bezier(0.34,1.56,0.64,1), filter 200ms',
+                      }}
+                    />
+                    <span className="tracking-tight">{label}</span>
+                    {active && (
+                      <span className="ml-auto w-1.5 h-1.5 rounded-full bg-sky-400 dark:bg-sky-400" style={{ boxShadow: '0 0 6px rgba(56,189,248,0.7)' }} />
+                    )}
+                  </button>
                 </div>
-                <div>
-                  <h1 className="text-sm sm:text-base font-black text-zinc-900 dark:text-white">Aichixia</h1>
-                  <p className="text-[9px] sm:text-[10px] text-zinc-500 dark:text-zinc-400">API Console</p>
+              );
+            })}
+          </nav>
+
+          <div className="px-2.5 py-3 border-t border-zinc-100 dark:border-zinc-800/60 space-y-1">
+            <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-100 dark:border-zinc-800/60">
+              {profile?.avatar_url ? (
+                <img src={profile.avatar_url} alt="Avatar" className="w-7 h-7 rounded-full object-cover flex-shrink-0 ring-1 ring-zinc-200 dark:ring-zinc-700" />
+              ) : (
+                <div className="w-7 h-7 rounded-full flex-shrink-0 bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center text-white font-bold text-[10px] ring-1 ring-sky-300/50">
+                  {profile?.display_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase()}
                 </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-zinc-900 dark:text-white truncate leading-tight">
+                  {profile?.display_name || user?.email}
+                </p>
+                <span className={`inline-block text-[9px] font-bold px-1.5 py-0.5 rounded mt-0.5 ${
+                  planInfo.color === 'sky' ? 'bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400' :
+                  planInfo.color === 'purple' ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400' :
+                  'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400'
+                }`}>
+                  {planInfo.name}
+                </span>
               </div>
             </div>
 
-            <nav className="flex-1 p-3 sm:p-4 space-y-1">
-              <button
-                onClick={() => handleTabChange('overview')}
-                className={`w-full flex items-center gap-2 sm:gap-2.5 px-3 py-2 sm:py-2.5 rounded-lg transition-all text-xs sm:text-sm ${activeTab === 'overview' ? 'bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
-              >
-                <FiTrendingUp className="text-sm sm:text-base" />
-                <span className="font-semibold">Overview</span>
-              </button>
-
-              <button
-                onClick={() => handleTabChange('keys')}
-                className={`w-full flex items-center gap-2 sm:gap-2.5 px-3 py-2 sm:py-2.5 rounded-lg transition-all text-xs sm:text-sm ${activeTab === 'keys' ? 'bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
-              >
-                <FiKey className="text-sm sm:text-base" />
-                <span className="font-semibold">API Keys</span>
-              </button>
-
-              <button
-                onClick={() => handleTabChange('activity')}
-                className={`w-full flex items-center gap-2 sm:gap-2.5 px-3 py-2 sm:py-2.5 rounded-lg transition-all text-xs sm:text-sm ${activeTab === 'activity' ? 'bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
-              >
-                <FiActivity className="text-sm sm:text-base" />
-                <span className="font-semibold">Activity</span>
-              </button>
-
-              <button
-                onClick={() => handleTabChange('models')}
-                className={`w-full flex items-center gap-2 sm:gap-2.5 px-3 py-2 sm:py-2.5 rounded-lg transition-all text-xs sm:text-sm ${activeTab === 'models' ? 'bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
-              >
-                <FiLayers className="text-sm sm:text-base" />
-                <span className="font-semibold">Models</span>
-              </button>
-
-              <button
-                onClick={() => handleTabChange('playground')}
-                className={`w-full flex items-center gap-2 sm:gap-2.5 px-3 py-2 sm:py-2.5 rounded-lg transition-all text-xs sm:text-sm ${activeTab === 'playground' ? 'bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
-              >
-                <FiCode className="text-sm sm:text-base" />
-                <span className="font-semibold">Playground</span>
-              </button>
-
-              <button
-                onClick={() => handleTabChange('settings')}
-                className={`w-full flex items-center gap-2 sm:gap-2.5 px-3 py-2 sm:py-2.5 rounded-lg transition-all text-xs sm:text-sm ${activeTab === 'settings' ? 'bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
-              >
-                <FiSettings className="text-sm sm:text-base" />
-                <span className="font-semibold">Settings</span>
-              </button>
-            </nav>
-
-            <div className="p-3 sm:p-4 border-t border-zinc-200 dark:border-zinc-800">
-              <div className="flex items-center gap-2 sm:gap-2.5 mb-3 px-3 py-2 sm:py-2.5 bg-zinc-100 dark:bg-zinc-900 rounded-lg">
-                {profile?.avatar_url ? (
-                  <img src={profile.avatar_url} alt="Avatar" className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover" />
-                ) : (
-                  <div className="w-8 h-8 sm:w-9 sm:h-9 bg-gradient-to-br from-sky-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xs sm:text-sm">
-                    {profile?.display_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase()}
-                  </div>
-                )}
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs sm:text-sm font-semibold text-zinc-900 dark:text-white truncate">
-                    {profile?.display_name || user?.email}
-                  </p>
-                  <p className={`text-[9px] sm:text-[10px] font-bold bg-${planInfo.color}-100 dark:bg-${planInfo.color}-900/30 text-${planInfo.color}-700 dark:text-${planInfo.color}-400 px-1.5 py-0.5 rounded w-fit`}>
-                    {planInfo.name}
-                  </p>
-                </div>
-              </div>
-
-              <button
-                onClick={handleSignOut}
-                className="w-full flex items-center gap-2 sm:gap-2.5 px-3 py-2 sm:py-2.5 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all text-xs sm:text-sm font-semibold"
-              >
-                <FiLogOut className="text-sm sm:text-base" />
-                <span>Sign Out</span>
-              </button>
-            </div>
+            <button
+              onClick={handleSignOut}
+              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-zinc-400 dark:text-zinc-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/15 transition-all duration-200 group"
+            >
+              <FiLogOut className="flex-shrink-0 text-zinc-400 dark:text-zinc-500 group-hover:text-red-500 dark:group-hover:text-red-400 transition-colors duration-200" style={{ fontSize: 13 }} />
+              <span>Sign Out</span>
+            </button>
           </div>
         </aside>
 
