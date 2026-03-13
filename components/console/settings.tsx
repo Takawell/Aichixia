@@ -596,7 +596,6 @@ export default function Settings({
 
   return (
     <div className="space-y-3 sm:space-y-4">
-
       {isAdmin && (
         <div style={{ display: 'flex', gap: 4, padding: 4, background: 'var(--card-bg, #f4f4f6)', borderRadius: 12, border: '1px solid var(--card-border, rgba(0,0,0,0.07))' }}
           className="dark:bg-zinc-900 dark:border-zinc-800"
