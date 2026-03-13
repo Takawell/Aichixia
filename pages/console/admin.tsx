@@ -92,6 +92,11 @@ export default function AdminDashboard() {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const [pinVerified, setPinVerified] = useState(false);
+  const [showPinModal, setShowPinModal] = useState(false);
+  const [pinDigits, setPinDigits] = useState(["", "", "", "", "", ""]);
+  const [pinError, setPinError] = useState(false);
+  const [pinShake, setPinShake] = useState(false);
 
   const [newPromo, setNewPromo] = useState({
     code: '',
@@ -168,7 +173,9 @@ export default function AdminDashboard() {
       setLoading(false);
       return;
     }
-    fetchAllData();
+    setShowPinModal(true);
+    setInitialLoading(false);
+    setLoading(false);
   };
 
   const fetchAllData = async (force = false) => {
@@ -572,81 +579,266 @@ export default function AdminDashboard() {
 
   if (accessDenied) {
     return (
-      <div className="fixed inset-0 bg-gradient-to-br from-slate-50 via-blue-50/30 to-sky-50/20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900 flex items-center justify-center p-4 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(239,68,68,0.05),transparent_70%)] dark:bg-[radial-gradient(circle_at_50%_50%,rgba(239,68,68,0.15),transparent_70%)]" />
-        
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-red-200/10 dark:bg-red-500/5 rounded-full blur-3xl animate-float" />
-          <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-orange-200/10 dark:bg-orange-500/5 rounded-full blur-3xl animate-float-delayed" />
-        </div>
+      <div style={{
+        position: 'fixed', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: 16, background: 'radial-gradient(ellipse at 50% 40%, rgba(239,68,68,0.07) 0%, transparent 70%), #09090b',
+      }}>
+        <style>{`
+          @keyframes adFadeUp { from { opacity:0; transform:translateY(20px) scale(0.97); } to { opacity:1; transform:translateY(0) scale(1); } }
+          @keyframes adPulse { 0%,100%{opacity:.5;transform:scale(1);} 50%{opacity:1;transform:scale(1.08);} }
+          @keyframes adOrbit { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
+          .ad-card { animation: adFadeUp 0.45s cubic-bezier(0.22,1,0.36,1) both; }
+          .ad-orbit { animation: adOrbit 12s linear infinite; }
+          .ad-pulse { animation: adPulse 2.5s ease-in-out infinite; }
+          .ad-btn {
+            width:100%; padding:11px 20px; border-radius:12px; border:none;
+            background:linear-gradient(135deg,#38bdf8,#3b82f6);
+            color:#fff; font-size:13px; font-weight:700; cursor:pointer; letter-spacing:-0.01em;
+            transition:opacity 150ms,transform 150ms,box-shadow 200ms;
+            box-shadow:0 4px 16px rgba(56,189,248,0.3);
+          }
+          .ad-btn:hover { opacity:0.88; transform:translateY(-1px); box-shadow:0 6px 20px rgba(56,189,248,0.35); }
+          .ad-btn:active { transform:scale(0.98); }
+        `}</style>
 
-        <div className="relative z-10 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl border border-slate-200 dark:border-slate-700 max-w-md w-full p-6 sm:p-8 shadow-2xl">
-          <div className="relative mb-5">
-            <div className="absolute -inset-4 bg-gradient-to-r from-red-400/20 via-orange-400/20 to-red-400/20 rounded-full blur-xl animate-pulse-slow" />
-            <div className="relative w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-red-100 to-orange-100 dark:from-red-900/30 dark:to-orange-900/30 rounded-2xl flex items-center justify-center mx-auto shadow-lg">
-              <FiLock className="text-3xl sm:text-4xl text-red-600 dark:text-red-400" />
+        <div className="ad-card" style={{
+          background: 'rgba(18,18,20,0.95)', backdropFilter: 'blur(24px)',
+          border: '1px solid rgba(239,68,68,0.18)', borderRadius: 20,
+          maxWidth: 380, width: '100%', padding: '32px 28px',
+          boxShadow: '0 24px 64px rgba(0,0,0,0.6), 0 0 0 1px rgba(239,68,68,0.08)',
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 24 }}>
+            <div style={{ position: 'relative', width: 72, height: 72 }}>
+              <div className="ad-orbit" style={{
+                position: 'absolute', inset: -6, borderRadius: '50%',
+                border: '1px dashed rgba(239,68,68,0.25)',
+              }} />
+              <div style={{
+                position: 'absolute', inset: 0, borderRadius: '50%',
+                background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <FiLock style={{ fontSize: 28, color: '#f87171' }} />
+              </div>
+              <div className="ad-pulse" style={{
+                position: 'absolute', inset: -14, borderRadius: '50%',
+                background: 'rgba(239,68,68,0.06)',
+              }} />
             </div>
           </div>
-
-          <div className="text-center space-y-3 mb-6">
-            <h2 className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 dark:from-white dark:via-slate-200 dark:to-white bg-clip-text text-transparent">
+          <div style={{ textAlign: 'center', marginBottom: 20 }}>
+            <h2 style={{ fontSize: 22, fontWeight: 800, color: '#fff', letterSpacing: '-0.03em', marginBottom: 8 }}>
               Access Denied
             </h2>
-            <div className="flex items-center justify-center gap-2">
-              <div className="h-px w-8 bg-gradient-to-r from-transparent via-red-500 to-transparent" />
-              <div className="w-1 h-1 rounded-full bg-red-500 animate-pulse" />
-              <div className="h-px w-8 bg-gradient-to-r from-transparent via-red-500 to-transparent" />
-            </div>
+            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>
+              This area is restricted to administrators only.
+            </p>
           </div>
+          <div style={{
+            padding: '12px 14px', borderRadius: 12, marginBottom: 20,
+            background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)',
+            display: 'flex', alignItems: 'flex-start', gap: 10,
+          }}>
+            <FiAlertCircle style={{ fontSize: 13, color: '#f87171', flexShrink: 0, marginTop: 1 }} />
+            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: 0, lineHeight: 1.55 }}>
+              If you believe this is an error, please contact your system administrator.
+            </p>
+          </div>
+          <button className="ad-btn" onClick={() => window.location.href = '/console'}>
+            Back to Console
+          </button>
+        </div>
+      </div>
+    );
+  }
 
-          <div className="space-y-4 mb-6">
-            <div className="p-4 bg-red-50/50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/30 rounded-xl">
-              <p className="text-sm text-slate-600 dark:text-slate-400 text-center leading-relaxed">
-                You don't have permission to access the admin dashboard. This area is restricted to administrators only.
-              </p>
-            </div>
+  if (showPinModal && !pinVerified) {
+    const handlePinInput = (idx: number, val: string) => {
+      if (!/^[0-9]?$/.test(val)) return;
+      const next = [...pinDigits];
+      next[idx] = val;
+      setPinDigits(next);
+      setPinError(false);
+      if (val && idx < 5) {
+        const nextEl = document.getElementById(`pin-${idx + 1}`);
+        if (nextEl) (nextEl as HTMLInputElement).focus();
+      }
+      if (idx === 5 && val) {
+        const full = [...next].join('');
+        if (full.length === 6) verifyPin(full);
+      }
+    };
 
-            <div className="flex items-start gap-3 p-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700/50">
-              <FiAlertCircle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
-              <div className="flex-1 min-w-0">
-                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                  If you believe this is an error, please contact your system administrator.
-                </p>
+    const handlePinKey = (idx: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Backspace' && !pinDigits[idx] && idx > 0) {
+        const next = [...pinDigits];
+        next[idx - 1] = '';
+        setPinDigits(next);
+        const prevEl = document.getElementById(`pin-${idx - 1}`);
+        if (prevEl) (prevEl as HTMLInputElement).focus();
+      }
+      if (e.key === 'Enter') {
+        const full = pinDigits.join('');
+        if (full.length === 6) verifyPin(full);
+      }
+    };
+
+    const verifyPin = async (pin: string) => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const res = await fetch('/api/console/admin/verify-pin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ pin }),
+      });
+      if (res.ok) {
+        setPinVerified(true);
+        setShowPinModal(false);
+        fetchAllData();
+      } else {
+        setPinError(true);
+        setPinShake(true);
+        setPinDigits(['', '', '', '', '', '']);
+        setTimeout(() => setPinShake(false), 500);
+        setTimeout(() => {
+          const el = document.getElementById('pin-0');
+          if (el) (el as HTMLInputElement).focus();
+        }, 50);
+      }
+    };
+
+    return (
+      <div style={{
+        position: 'fixed', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: 16, background: 'radial-gradient(ellipse at 50% 40%, rgba(56,189,248,0.07) 0%, transparent 70%), #09090b',
+      }}>
+        <style>{`
+          @keyframes pinFadeUp { from { opacity:0; transform:translateY(18px) scale(0.97); } to { opacity:1; transform:translateY(0) scale(1); } }
+          @keyframes pinShakeAnim {
+            0%,100%{transform:translateX(0);}
+            15%{transform:translateX(-8px);}
+            30%{transform:translateX(8px);}
+            45%{transform:translateX(-6px);}
+            60%{transform:translateX(6px);}
+            75%{transform:translateX(-3px);}
+            90%{transform:translateX(3px);}
+          }
+          @keyframes pinOrbit { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
+          @keyframes pinPulseRing { 0%,100%{opacity:.4;transform:scale(1);} 50%{opacity:.8;transform:scale(1.12);} }
+          .pin-card { animation: pinFadeUp 0.45s cubic-bezier(0.22,1,0.36,1) both; }
+          .pin-shake { animation: pinShakeAnim 0.45s cubic-bezier(0.36,0.07,0.19,0.97) both; }
+          .pin-orbit { animation: pinOrbit 14s linear infinite; }
+          .pin-pulse-ring { animation: pinPulseRing 2.8s ease-in-out infinite; }
+          .pin-digit {
+            width: 44px; height: 52px; border-radius: 12px; text-align: center;
+            font-size: 22px; font-weight: 800;
+            background: rgba(255,255,255,0.05); color: #fff;
+            border: 1.5px solid rgba(255,255,255,0.1);
+            outline: none; caret-color: transparent;
+            transition: border-color 200ms, box-shadow 200ms, background 200ms;
+            -webkit-text-security: disc;
+          }
+          .pin-digit:focus {
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 3px rgba(56,189,248,0.18);
+            background: rgba(56,189,248,0.06);
+          }
+          .pin-digit.pin-error {
+            border-color: rgba(248,113,113,0.6) !important;
+            box-shadow: 0 0 0 3px rgba(248,113,113,0.15) !important;
+            background: rgba(248,113,113,0.06) !important;
+          }
+          .pin-submit {
+            width:100%; padding:11px 20px; border-radius:12px; border:none;
+            background:linear-gradient(135deg,#38bdf8,#3b82f6);
+            color:#fff; font-size:13px; font-weight:700; cursor:pointer;
+            transition:opacity 150ms,transform 150ms,box-shadow 200ms;
+            box-shadow:0 4px 16px rgba(56,189,248,0.3); letter-spacing:-0.01em;
+          }
+          .pin-submit:hover:not(:disabled) { opacity:0.88; transform:translateY(-1px); }
+          .pin-submit:active:not(:disabled) { transform:scale(0.98); }
+          .pin-submit:disabled { opacity:0.35; cursor:not-allowed; }
+          @media(max-width:400px){ .pin-digit{ width:38px; height:46px; font-size:18px; border-radius:10px; } }
+        `}</style>
+
+        <div className="pin-card" style={{
+          background: 'rgba(18,18,20,0.97)', backdropFilter: 'blur(24px)',
+          border: '1px solid rgba(255,255,255,0.08)', borderRadius: 22,
+          maxWidth: 360, width: '100%', padding: '32px 26px',
+          boxShadow: '0 24px 64px rgba(0,0,0,0.7), 0 0 0 1px rgba(56,189,248,0.06)',
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 26 }}>
+            <div style={{ position: 'relative', width: 68, height: 68 }}>
+              <div className="pin-pulse-ring" style={{
+                position: 'absolute', inset: -12, borderRadius: '50%',
+                background: 'rgba(56,189,248,0.07)',
+              }} />
+              <div className="pin-orbit" style={{
+                position: 'absolute', inset: -5, borderRadius: '50%',
+                border: '1px dashed rgba(56,189,248,0.2)',
+              }} />
+              <div style={{
+                position: 'absolute', inset: 0, borderRadius: '50%',
+                background: 'rgba(56,189,248,0.08)', border: '1px solid rgba(56,189,248,0.2)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <FiShield style={{ fontSize: 26, color: '#38bdf8' }} />
               </div>
             </div>
           </div>
 
-          <button
-            onClick={() => window.location.href = '/console'}
-            className="w-full px-6 py-3 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]"
-          >
-            Back to Console
-          </button>
-        </div>
+          <div style={{ textAlign: 'center', marginBottom: 26 }}>
+            <h2 style={{ fontSize: 20, fontWeight: 800, color: '#fff', letterSpacing: '-0.03em', marginBottom: 6 }}>
+              Admin Verification
+            </h2>
+            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', lineHeight: 1.6 }}>
+              Enter your 6-digit admin PIN to continue
+            </p>
+          </div>
 
-        <style jsx>{`
-          @keyframes float {
-            0%, 100% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(-15px) scale(1.05); }
-          }
-          @keyframes float-delayed {
-            0%, 100% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(-20px) scale(1.08); }
-          }
-          @keyframes pulse-slow {
-            0%, 100% { opacity: 0.6; }
-            50% { opacity: 1; }
-          }
-          .animate-float {
-            animation: float 8s ease-in-out infinite;
-          }
-          .animate-float-delayed {
-            animation: float-delayed 10s ease-in-out infinite;
-          }
-          .animate-pulse-slow {
-            animation: pulse-slow 3s ease-in-out infinite;
-          }
-        `}</style>
+          <div className={pinShake ? 'pin-shake' : ''} style={{ display: 'flex', gap: 8, justifyContent: 'center', marginBottom: 20 }}>
+            {pinDigits.map((d, i) => (
+              <input
+                key={i}
+                id={`pin-${i}`}
+                type="password"
+                inputMode="numeric"
+                maxLength={1}
+                value={d}
+                className={`pin-digit${pinError ? ' pin-error' : ''}`}
+                onChange={(e) => handlePinInput(i, e.target.value)}
+                onKeyDown={(e) => handlePinKey(i, e)}
+                autoFocus={i === 0}
+                autoComplete="off"
+              />
+            ))}
+          </div>
+
+          {pinError && (
+            <p style={{ textAlign: 'center', marginBottom: 14, fontSize: 12, color: '#f87171', animation: 'pinFadeUp 0.25s ease both' }}>
+              Incorrect PIN. Please try again.
+            </p>
+          )}
+
+          <button
+            className="pin-submit"
+            disabled={pinDigits.join('').length < 6}
+            onClick={() => verifyPin(pinDigits.join(''))}
+          >
+            Verify PIN
+          </button>
+
+          <div style={{ textAlign: 'center', marginTop: 16 }}>
+            <button
+              onClick={() => window.location.href = '/console'}
+              style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 150ms' }}
+              onMouseEnter={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.6)')}
+              onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.3)')}
+            >
+              Back to Console
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
