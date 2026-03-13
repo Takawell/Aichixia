@@ -965,7 +965,6 @@ export default function AdminDashboard() {
       </div>
     );
   }
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-sky-50/20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
