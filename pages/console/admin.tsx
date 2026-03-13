@@ -169,13 +169,19 @@ export default function AdminDashboard() {
     const data = await res.json();
     if (!data.settings?.is_admin) {
       setAccessDenied(true);
-      setInitialLoading(false);
-      setLoading(false);
+      setLoadingProgress(100);
+      setTimeout(() => {
+        setInitialLoading(false);
+        setLoading(false);
+      }, 600);
       return;
     }
-    setShowPinModal(true);
-    setInitialLoading(false);
-    setLoading(false);
+    setLoadingProgress(100);
+    setTimeout(() => {
+      setInitialLoading(false);
+      setLoading(false);
+      setShowPinModal(true);
+    }, 700);
   };
 
   const fetchAllData = async (force = false) => {
@@ -206,9 +212,6 @@ export default function AdminDashboard() {
       setUsers(usersData.users || []);
       setDailyUsage(usageData.usage || []);
       setRequestLogs(logsData.logs || []);
-      
-      setLoadingProgress(100);
-      setTimeout(() => setInitialLoading(false), 600);
     } catch (error) {
       showToast('Failed to fetch data', 'error');
     } finally {
