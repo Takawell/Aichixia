@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { FiUser, FiMail, FiCamera, FiCheck, FiAlertCircle, FiGift, FiSave, FiZap, FiShield, FiArrowRight, FiStar } from 'react-icons/fi';
-import { useRouter } from 'next/router';
+import { FiUser, FiMail, FiCamera, FiCheck, FiAlertCircle, FiGift, FiSave, FiZap } from 'react-icons/fi';
 
 type UserProfile = {
   email: string;
@@ -24,33 +23,42 @@ type SettingsProps = {
 
 const PLAN_CONFIG = {
   free: {
-    name: 'Free', limit: '100', color: 'sky',
+    name: 'Free',
+    limit: '100',
+    color: 'sky',
     gradient: 'from-sky-500 to-blue-500',
     features: ['100 requests/day', 'Basic models', 'Community support'],
   },
   pro: {
-    name: 'Pro', limit: '400', color: 'purple',
+    name: 'Pro',
+    limit: '400',
+    color: 'purple',
     gradient: 'from-purple-500 to-pink-500',
     features: ['400 requests/day', 'All models', 'Priority support', 'Advanced features'],
   },
   enterprise: {
-    name: 'Enterprise', limit: '800', color: 'rose',
+    name: 'Enterprise',
+    limit: '800',
+    color: 'rose',
     gradient: 'from-rose-500 to-red-500',
     features: ['800 requests/day', 'All models', 'Dedicated support', 'Custom solutions'],
   },
 };
 
-export default function Settings({ profile, settings, onUpdateProfile, onRedeemPromo, actionLoading }: SettingsProps) {
-  const router = useRouter();
+export default function Settings({
+  profile,
+  settings,
+  onUpdateProfile,
+  onRedeemPromo,
+  actionLoading,
+}: SettingsProps) {
   const [editProfile, setEditProfile] = useState({
     display_name: profile?.display_name || '',
     avatar_url: profile?.avatar_url || '',
   });
   const [promoCode, setPromoCode] = useState('');
-  const [adminHover, setAdminHover] = useState(false);
 
   const planConfig = PLAN_CONFIG[settings?.plan || 'free'];
-  const isAdmin = settings?.is_admin ?? false;
 
   const handleUpdateProfile = () => onUpdateProfile(editProfile);
   const handleRedeemPromo = () => {
@@ -61,122 +69,6 @@ export default function Settings({ profile, settings, onUpdateProfile, onRedeemP
 
   return (
     <div className="space-y-3 sm:space-y-4">
-      <style>{`
-        @keyframes adminCardIn {
-          from { opacity:0; transform:translateY(8px); }
-          to   { opacity:1; transform:translateY(0); }
-        }
-        @keyframes adminOrbit { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
-        @keyframes adminShimmer {
-          0%   { transform:translateX(-100%); }
-          100% { transform:translateX(200%); }
-        }
-        @keyframes adminPulse {
-          0%,100% { opacity:.6; transform:scale(1); }
-          50%     { opacity:1; transform:scale(1.06); }
-        }
-        .admin-banner {
-          animation: adminCardIn 0.4s cubic-bezier(0.22,1,0.36,1) both;
-          position: relative; overflow: hidden;
-          cursor: pointer;
-          transition: transform 200ms, box-shadow 200ms;
-        }
-        .admin-banner:hover { transform: translateY(-2px); }
-        .admin-badge {
-          display: inline-flex; align-items: center; gap: 4px;
-          padding: 3px 8px; border-radius: 99px;
-          background: rgba(167,139,250,0.15);
-          border: 1px solid rgba(167,139,250,0.3);
-          font-size: 10px; font-weight: 700; color: #a78bfa;
-          letter-spacing: 0.04em; text-transform: uppercase;
-        }
-        .admin-orbit {
-          animation: adminOrbit 10s linear infinite;
-        }
-        .admin-shimmer {
-          position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-          background: linear-gradient(90deg, transparent 0%, rgba(167,139,250,0.06) 50%, transparent 100%);
-          animation: adminShimmer 3s ease-in-out infinite;
-          pointer-events: none;
-        }
-        .admin-arrow {
-          transition: transform 220ms cubic-bezier(0.34,1.56,0.64,1);
-        }
-        .admin-banner:hover .admin-arrow {
-          transform: translateX(4px);
-        }
-        .admin-glow {
-          animation: adminPulse 3s ease-in-out infinite;
-        }
-      `}</style>
-
-      {isAdmin && (
-        <div
-          className="admin-banner"
-          onClick={() => router.push('/console/admin')}
-          style={{
-            background: adminHover
-              ? 'linear-gradient(135deg, rgba(139,92,246,0.12), rgba(167,139,250,0.08))'
-              : 'linear-gradient(135deg, rgba(139,92,246,0.08), rgba(167,139,250,0.05))',
-            border: `1px solid ${adminHover ? 'rgba(167,139,250,0.35)' : 'rgba(167,139,250,0.2)'}`,
-            borderRadius: 16,
-            padding: '16px 18px',
-            transition: 'background 200ms, border-color 200ms',
-          }}
-          onMouseEnter={() => setAdminHover(true)}
-          onMouseLeave={() => setAdminHover(false)}
-        >
-          <div className="admin-shimmer" />
-
-          <div style={{ position: 'absolute', top: -30, right: -30, width: 100, height: 100, borderRadius: '50%', background: 'rgba(139,92,246,0.06)', pointerEvents: 'none' }} />
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, position: 'relative' }}>
-            <div style={{ position: 'relative', flexShrink: 0 }}>
-              <div className="admin-glow" style={{
-                position: 'absolute', inset: -6, borderRadius: '50%',
-                background: 'rgba(139,92,246,0.1)',
-              }} />
-              <div className="admin-orbit" style={{
-                position: 'absolute', inset: -4, borderRadius: '50%',
-                border: '1px dashed rgba(167,139,250,0.3)',
-              }} />
-              <div style={{
-                width: 40, height: 40, borderRadius: '50%',
-                background: 'rgba(139,92,246,0.12)',
-                border: '1.5px solid rgba(167,139,250,0.3)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                flexShrink: 0,
-              }}>
-                <FiShield style={{ fontSize: 17, color: '#a78bfa' }} />
-              </div>
-            </div>
-
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, flexWrap: 'wrap' }}>
-                <span style={{ fontSize: 13, fontWeight: 700, color: '#a78bfa', letterSpacing: '-0.01em' }}>
-                  Admin Dashboard
-                </span>
-                <span className="admin-badge">
-                  <FiStar style={{ fontSize: 8 }} />
-                  Administrator
-                </span>
-              </div>
-              <p style={{ fontSize: 11, color: 'rgba(167,139,250,0.6)', margin: 0, lineHeight: 1.5 }}>
-                Manage users, promo codes, analytics & system
-              </p>
-            </div>
-
-            <div style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
-              background: 'rgba(139,92,246,0.12)',
-              border: '1px solid rgba(167,139,250,0.25)',
-            }}>
-              <FiArrowRight className="admin-arrow" style={{ fontSize: 14, color: '#a78bfa' }} />
-            </div>
-          </div>
-        </div>
-      )}
 
       <div className="bg-white/80 dark:bg-zinc-950 backdrop-blur-lg rounded-xl border border-zinc-200 dark:border-zinc-800 p-3 sm:p-4">
         <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-5">
@@ -284,20 +176,35 @@ export default function Settings({ profile, settings, onUpdateProfile, onRedeemP
             <label className="block text-[10px] sm:text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5 sm:mb-2">
               Current Plan
             </label>
+
             <style>{`
-              @keyframes planFadeIn { from{opacity:0;transform:translateY(6px) scale(0.99);} to{opacity:1;transform:translateY(0) scale(1);} }
+              @keyframes planFadeIn {
+                from { opacity: 0; transform: translateY(6px) scale(0.99); }
+                to   { opacity: 1; transform: translateY(0) scale(1); }
+              }
               .plan-card { animation: planFadeIn 0.45s cubic-bezier(0.22,1,0.36,1) both; }
-              .plan-feature { display:flex; align-items:center; gap:8px; padding:5px 0; border-bottom:1px solid rgba(255,255,255,0.08); font-size:11px; color:rgba(255,255,255,0.82); }
-              .plan-feature:last-child { border-bottom:none; }
-              @keyframes pulseDot { 0%,100%{opacity:1;box-shadow:0 0 6px rgba(255,255,255,0.7);} 50%{opacity:0.5;box-shadow:0 0 2px rgba(255,255,255,0.3);} }
+              .plan-feature {
+                display: flex; align-items: center; gap: 8px;
+                padding: 5px 0;
+                border-bottom: 1px solid rgba(255,255,255,0.08);
+                font-size: 11px;
+                color: rgba(255,255,255,0.82);
+              }
+              .plan-feature:last-child { border-bottom: none; }
+              @keyframes pulseDot {
+                0%, 100% { opacity: 1; box-shadow: 0 0 6px rgba(255,255,255,0.7); }
+                50% { opacity: 0.5; box-shadow: 0 0 2px rgba(255,255,255,0.3); }
+              }
               .plan-dot { animation: pulseDot 2s ease-in-out infinite; }
             `}</style>
+
             <div
               className={`plan-card bg-gradient-to-br ${planConfig.gradient} rounded-xl shadow-lg`}
               style={{ padding: '16px 18px', position: 'relative', overflow: 'hidden' }}
             >
               <div style={{ position: 'absolute', top: -24, right: -24, width: 90, height: 90, borderRadius: '50%', background: 'rgba(255,255,255,0.07)', pointerEvents: 'none' }} />
               <div style={{ position: 'absolute', bottom: -20, left: -12, width: 70, height: 70, borderRadius: '50%', background: 'rgba(255,255,255,0.05)', pointerEvents: 'none' }} />
+
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8, position: 'relative' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
                   <FiZap style={{ fontSize: 13, color: '#fff' }} />
@@ -308,21 +215,26 @@ export default function Settings({ profile, settings, onUpdateProfile, onRedeemP
                   <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.85)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Active</span>
                 </div>
               </div>
+
               <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', marginBottom: 12, position: 'relative' }}>
                 {planConfig.limit} requests per day
               </p>
+
               <div style={{ position: 'relative' }}>
-                {planConfig.features.map((f, i) => (
-                  <div key={i} className="plan-feature">
+                {planConfig.features.map((feature, idx) => (
+                  <div key={idx} className="plan-feature">
                     <FiCheck style={{ fontSize: 11, color: 'rgba(255,255,255,0.9)', flexShrink: 0 }} />
-                    {f}
+                    {feature}
                   </div>
                 ))}
               </div>
+
               {settings?.plan_expires_at && (
                 <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid rgba(255,255,255,0.15)', position: 'relative' }}>
                   <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)', margin: 0 }}>
-                    Expires {new Date(settings.plan_expires_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                    Expires {new Date(settings.plan_expires_at).toLocaleDateString('en-US', {
+                      month: 'long', day: 'numeric', year: 'numeric'
+                    })}
                   </p>
                 </div>
               )}
@@ -339,6 +251,7 @@ export default function Settings({ profile, settings, onUpdateProfile, onRedeemP
             <p className="text-[10px] sm:text-xs text-zinc-600 dark:text-zinc-400">Upgrade your plan with a promotional code</p>
           </div>
         </div>
+
         <div className="flex flex-col sm:flex-row gap-2">
           <div className="relative flex-1">
             <FiGift className="absolute left-3 top-1/2 -translate-y-1/2 text-purple-500 dark:text-purple-400 text-xs sm:text-sm" />
@@ -360,9 +273,12 @@ export default function Settings({ profile, settings, onUpdateProfile, onRedeemP
                 <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 Redeeming...
               </>
-            ) : 'Redeem'}
+            ) : (
+              'Redeem'
+            )}
           </button>
         </div>
+
         <div className="mt-3 p-2 sm:p-2.5 bg-purple-100 dark:bg-purple-950/30 rounded-lg border border-purple-200 dark:border-purple-800">
           <div className="flex items-start gap-1.5 sm:gap-2">
             <FiAlertCircle className="text-purple-600 dark:text-purple-400 text-xs flex-shrink-0 mt-0.5" />
