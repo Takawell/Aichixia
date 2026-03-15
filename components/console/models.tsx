@@ -216,7 +216,7 @@ const AVAILABLE_MODELS = [
     description: 'Efficient open-source powerhouse',
     speed: 4,
     quality: 4,
-    contextWindow: '128K tokens',
+    contextWindow: '130K tokens',
     pricing: 'Standard',
     features: ['Open source', 'Versatile', 'Community-driven'],
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
