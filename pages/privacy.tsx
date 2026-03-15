@@ -259,7 +259,6 @@ export default function PrivacyPage() {
                   transition: 'border-color 250ms, background 250ms',
                   overflow: 'hidden',
                 }}
-                style2={{ border: isOpen ? `1px solid ${sec.color}20` : '1px solid rgba(255,255,255,0.07)' }}
               >
                 <style>{`.dark .sc-${sec.id} { border-color: ${isOpen ? sec.color + '20' : 'rgba(255,255,255,0.07)'} !important; background: ${isOpen ? sec.color + '08' : 'rgba(255,255,255,0.02)'} !important; }`}</style>
                 <button
