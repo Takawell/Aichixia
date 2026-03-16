@@ -258,9 +258,7 @@ export default function TermsPage() {
                 <div className="relative">
                   <div className="trm-glow absolute inset-0 -m-4 rounded-full bg-yellow-400/10 dark:bg-yellow-500/10 pointer-events-none" />
                   <div className="trm-orbit absolute inset-0 -m-3 rounded-full border border-dashed border-yellow-400/20 dark:border-yellow-500/20 pointer-events-none" />
-                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center shadow-lg shadow-yellow-500/25">
-                    <FaFileAlt className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
-                  </div>
+                  <FaFileAlt className="w-9 h-9 sm:w-10 sm:h-10 text-yellow-500 dark:text-yellow-400" />
                 </div>
               </div>
 
@@ -277,18 +275,7 @@ export default function TermsPage() {
                 Simple, fair terms for using Aichixia. Know your rights and responsibilities clearly.
               </p>
 
-              <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap pt-1">
-                {[
-                  { dot: 'bg-blue-500', label: 'OpenAI Compatible' },
-                  { dot: 'bg-emerald-500', label: 'Free Tier Available' },
-                  { dot: 'bg-purple-500', label: '14-Day Notice Policy' },
-                ].map(b => (
-                  <div key={b.label} className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm">
-                    <div className={`w-1.5 h-1.5 rounded-full ${b.dot}`} />
-                    <span className="text-[10px] sm:text-xs font-medium text-zinc-500 dark:text-zinc-400">{b.label}</span>
-                  </div>
-                ))}
-              </div>
+
             </div>
           </div>
         </section>
@@ -304,12 +291,10 @@ export default function TermsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5">
                 {QUICK.map((q, i) => (
                   <div key={i} className="quick-item flex items-start gap-2.5">
-                    <div className="w-5 h-5 flex-shrink-0 mt-0.5 flex items-center justify-center">
-                      {q.ok
-                        ? <FaCheck className="w-2 h-2 text-emerald-600 dark:text-emerald-400" />
-                        : <FaX className="w-2 h-2 text-red-600 dark:text-red-400" />
-                      }
-                    </div>
+                    {q.ok
+                      ? <FaCheck className="w-3 h-3 flex-shrink-0 mt-0.5 text-emerald-600 dark:text-emerald-400" />
+                      : <FaX className="w-3 h-3 flex-shrink-0 mt-0.5 text-red-600 dark:text-red-400" />
+                    }
                     <span className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-snug font-medium">{q.text}</span>
                   </div>
                 ))}
@@ -334,12 +319,10 @@ export default function TermsPage() {
                     className="section-btn w-full flex items-center gap-3 p-3.5 sm:p-4 text-left"
                     onClick={() => setExpandedSection(isOpen ? null : sec.id)}
                   >
-                    <div
-                      className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                      style={{ transition: 'transform 280ms cubic-bezier(0.34,1.56,0.64,1)', transform: isOpen ? 'scale(1.08) rotate(-4deg)' : 'scale(1)' }}
-                    >
-                      <Icon className={`w-4 h-4 ${sec.accent}`} />
-                    </div>
+                    <Icon
+                      className={`w-5 h-5 flex-shrink-0 ${sec.accent}`}
+                      style={{ transform: isOpen ? 'scale(1.15) rotate(-4deg)' : 'scale(1)', transition: 'transform 280ms cubic-bezier(0.34,1.56,0.64,1)' }}
+                    />
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-0.5">
@@ -360,9 +343,7 @@ export default function TermsPage() {
                       <div className="space-y-3.5">
                         {sec.items.map((item, i) => (
                           <div key={i} className="flex gap-3">
-                            <div className="w-5 h-5 rounded-full flex-shrink-0 mt-0.5 flex items-center justify-center">
-                              <FaCheck className={`w-2 h-2 ${sec.accent}`} />
-                            </div>
+                            <FaCheck className={`w-3 h-3 flex-shrink-0 mt-1 ${sec.accent}`} />
                             <div>
                               <p className={`text-xs font-bold mb-1 uppercase tracking-wider ${sec.accent}`}>{item.heading}</p>
                               <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">{item.body}</p>
