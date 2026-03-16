@@ -1,22 +1,24 @@
 import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/router';
+import Head from 'next/head';
 import Link from 'next/link';
 import ThemeToggle from '@/components/ThemeToggle';
 import {
-  FiShield, FiChevronRight, FiDatabase, FiEye,
-  FiLock, FiUserCheck, FiGlobe, FiMail, FiArrowRight,
-  FiCheck, FiZap, FiMenu, FiX, FiBook, FiZap as FiRocketIcon,
-  FiHome
-} from 'react-icons/fi';
+  FaTerminal, FaShieldAlt, FaBars, FaTimes, FaDatabase,
+  FaEye, FaLock, FaUserCheck, FaGlobe, FaEnvelope,
+  FaCheck, FaBolt, FaChevronRight, FaArrowRight
+} from 'react-icons/fa';
 
 const LAST_UPDATED = 'March 2025';
 
 const SECTIONS = [
   {
     id: 'collection',
-    icon: FiDatabase,
-    accent: '#38bdf8',
-    label: '01',
+    num: '01',
+    icon: FaDatabase,
+    accent: 'text-blue-600 dark:text-blue-400',
+    accentBg: 'bg-blue-50 dark:bg-blue-950/20',
+    accentBorder: 'border-blue-200 dark:border-blue-900/40',
+    accentDot: 'bg-blue-500',
     title: 'Information We Collect',
     summary: 'What data we gather when you use Aichixia.',
     items: [
@@ -36,9 +38,12 @@ const SECTIONS = [
   },
   {
     id: 'usage',
-    icon: FiEye,
-    accent: '#a78bfa',
-    label: '02',
+    num: '02',
+    icon: FaEye,
+    accent: 'text-purple-600 dark:text-purple-400',
+    accentBg: 'bg-purple-50 dark:bg-purple-950/20',
+    accentBorder: 'border-purple-200 dark:border-purple-900/40',
+    accentDot: 'bg-purple-500',
     title: 'How We Use Your Data',
     summary: 'The purposes behind every data point we process.',
     items: [
@@ -58,9 +63,12 @@ const SECTIONS = [
   },
   {
     id: 'storage',
-    icon: FiLock,
-    accent: '#34d399',
-    label: '03',
+    num: '03',
+    icon: FaLock,
+    accent: 'text-emerald-600 dark:text-emerald-400',
+    accentBg: 'bg-emerald-50 dark:bg-emerald-950/20',
+    accentBorder: 'border-emerald-200 dark:border-emerald-900/40',
+    accentDot: 'bg-emerald-500',
     title: 'Storage & Security',
     summary: 'How we keep your data safe and for how long.',
     items: [
@@ -80,9 +88,12 @@ const SECTIONS = [
   },
   {
     id: 'rights',
-    icon: FiUserCheck,
-    accent: '#fbbf24',
-    label: '04',
+    num: '04',
+    icon: FaUserCheck,
+    accent: 'text-yellow-600 dark:text-yellow-400',
+    accentBg: 'bg-yellow-50 dark:bg-yellow-950/20',
+    accentBorder: 'border-yellow-200 dark:border-yellow-900/40',
+    accentDot: 'bg-yellow-500',
     title: 'Your Rights',
     summary: 'Access, correct, or delete your data at any time.',
     items: [
@@ -102,9 +113,12 @@ const SECTIONS = [
   },
   {
     id: 'sharing',
-    icon: FiGlobe,
-    accent: '#fb923c',
-    label: '05',
+    num: '05',
+    icon: FaGlobe,
+    accent: 'text-orange-600 dark:text-orange-400',
+    accentBg: 'bg-orange-50 dark:bg-orange-950/20',
+    accentBorder: 'border-orange-200 dark:border-orange-900/40',
+    accentDot: 'bg-orange-500',
     title: 'Data Sharing',
     summary: 'We never sell data. Period.',
     items: [
@@ -124,452 +138,307 @@ const SECTIONS = [
   },
 ];
 
-function useScrollProgress() {
-  const [progress, setProgress] = useState(0);
-  useEffect(() => {
-    const update = () => {
-      const el = document.documentElement;
-      const scrolled = el.scrollTop;
-      const total = el.scrollHeight - el.clientHeight;
-      setProgress(total > 0 ? (scrolled / total) * 100 : 0);
-    };
-    window.addEventListener('scroll', update, { passive: true });
-    return () => window.removeEventListener('scroll', update);
-  }, []);
-  return progress;
-}
-
-function useScrolled(threshold = 40) {
-  const [scrolled, setScrolled] = useState(false);
-  useEffect(() => {
-    const update = () => setScrolled(window.scrollY > threshold);
-    window.addEventListener('scroll', update, { passive: true });
-    return () => window.removeEventListener('scroll', update);
-  }, [threshold]);
-  return scrolled;
-}
-
-function useInView(ref: React.RefObject<HTMLElement>) {
-  const [inView, setInView] = useState(false);
-  useEffect(() => {
-    const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) setInView(true); },
-      { threshold: 0.1 }
-    );
-    if (ref.current) obs.observe(ref.current);
-    return () => obs.disconnect();
-  }, [ref]);
-  return inView;
-}
-
-function AnimatedSection({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref as React.RefObject<HTMLElement>);
-  return (
-    <div
-      ref={ref}
-      style={{
-        opacity: inView ? 1 : 0,
-        transform: inView ? 'translateY(0)' : 'translateY(20px)',
-        transition: `opacity 0.55s cubic-bezier(0.22,1,0.36,1) ${delay}ms, transform 0.55s cubic-bezier(0.22,1,0.36,1) ${delay}ms`,
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
-function SectionCard({ sec, index }: { sec: typeof SECTIONS[0]; index: number }) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref as React.RefObject<HTMLElement>);
-  const Icon = sec.icon;
-
-  return (
-    <div
-      ref={ref}
-      style={{
-        opacity: inView ? 1 : 0,
-        transform: inView ? 'translateY(0)' : 'translateY(24px)',
-        transition: `opacity 0.5s cubic-bezier(0.22,1,0.36,1) ${index * 60}ms, transform 0.5s cubic-bezier(0.22,1,0.36,1) ${index * 60}ms`,
-      }}
-    >
-      <div
-        className="privacy-card"
-        style={{
-          borderRadius: 16,
-          overflow: 'hidden',
-          border: open ? `1px solid ${sec.accent}28` : '1px solid var(--pc-border)',
-          transition: 'border-color 300ms, box-shadow 300ms',
-          boxShadow: open ? `0 8px 32px ${sec.accent}0d` : 'none',
-        }}
-      >
-        <button
-          onClick={() => setOpen(o => !o)}
-          style={{
-            width: '100%', display: 'flex', alignItems: 'center', gap: 14,
-            padding: '16px 18px', background: 'none', border: 'none', cursor: 'pointer',
-            textAlign: 'left',
-          }}
-        >
-          <div style={{
-            width: 40, height: 40, borderRadius: 12, flexShrink: 0,
-            background: `${sec.accent}14`,
-            border: `1px solid ${sec.accent}28`,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            transition: 'transform 250ms cubic-bezier(0.34,1.56,0.64,1), background 250ms',
-            transform: open ? 'scale(1.08) rotate(-3deg)' : 'scale(1)',
-          }}>
-            <Icon style={{ fontSize: 17, color: sec.accent }} />
-          </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
-              <span style={{ fontSize: 10, fontWeight: 700, color: sec.accent, letterSpacing: '0.08em', opacity: 0.7 }}>
-                {sec.label}
-              </span>
-              <span
-                className="privacy-title"
-                style={{
-                  fontSize: 14, fontWeight: 700, letterSpacing: '-0.01em',
-                  color: open ? sec.accent : 'var(--pc-text)',
-                  transition: 'color 250ms',
-                }}
-              >
-                {sec.title}
-              </span>
-            </div>
-            <p style={{ fontSize: 12, color: 'var(--pc-muted)', margin: 0, lineHeight: 1.4 }}>
-              {sec.summary}
-            </p>
-          </div>
-          <div style={{
-            width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
-            background: open ? `${sec.accent}18` : 'var(--pc-tag)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            transition: 'background 250ms, transform 350ms cubic-bezier(0.34,1.56,0.64,1)',
-            transform: open ? 'rotate(90deg)' : 'rotate(0deg)',
-          }}>
-            <FiChevronRight style={{ fontSize: 13, color: open ? sec.accent : 'var(--pc-muted)' }} />
-          </div>
-        </button>
-
-        {open && (
-          <div
-            style={{
-              padding: '0 18px 18px',
-              animation: 'pcExpand 0.3s cubic-bezier(0.22,1,0.36,1) both',
-            }}
-          >
-            <div style={{ height: 1, background: `linear-gradient(90deg, ${sec.accent}30, transparent)`, marginBottom: 16 }} />
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              {sec.items.map((item, i) => (
-                <div key={i} style={{ display: 'flex', gap: 12 }}>
-                  <div style={{
-                    width: 20, height: 20, borderRadius: '50%', flexShrink: 0, marginTop: 1,
-                    background: `${sec.accent}14`, border: `1px solid ${sec.accent}28`,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>
-                    <FiCheck style={{ fontSize: 10, color: sec.accent }} />
-                  </div>
-                  <div>
-                    <p style={{ fontSize: 12, fontWeight: 700, color: sec.accent, margin: '0 0 4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                      {item.heading}
-                    </p>
-                    <p style={{ fontSize: 13, lineHeight: 1.7, color: 'var(--pc-sub)', margin: 0 }}>
-                      {item.body}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
 export default function PrivacyPage() {
-  const scrolled = useScrolled();
-  const progress = useScrollProgress();
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [expandedSection, setExpandedSection] = useState<string | null>('collection');
+  const [scrollY, setScrollY] = useState(0);
+  const [visible, setVisible] = useState<Record<string, boolean>>({});
+  const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  useEffect(() => {
+    const onScroll = () => setScrollY(window.scrollY);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  useEffect(() => {
+    const observers: IntersectionObserver[] = [];
+    Object.entries(sectionRefs.current).forEach(([id, el]) => {
+      if (!el) return;
+      const obs = new IntersectionObserver(
+        ([entry]) => { if (entry.isIntersecting) setVisible(prev => ({ ...prev, [id]: true })); },
+        { threshold: 0.08 }
+      );
+      obs.observe(el);
+      observers.push(obs);
+    });
+    return () => observers.forEach(o => o.disconnect());
+  }, []);
+
+  const setRef = (id: string) => (el: HTMLDivElement | null) => { sectionRefs.current[id] = el; };
 
   return (
-    <div className="privacy-root" style={{ minHeight: '100vh' }}>
-      <style>{`
-        .privacy-root {
-          background: var(--pc-bg);
-          color: var(--pc-text);
-          transition: background 300ms, color 300ms;
-        }
-        :root {
-          --pc-bg: #fafafa;
-          --pc-surface: #ffffff;
-          --pc-border: rgba(0,0,0,0.08);
-          --pc-text: #0f0f10;
-          --pc-sub: #3f3f46;
-          --pc-muted: #a1a1aa;
-          --pc-tag: rgba(0,0,0,0.05);
-          --pc-header: rgba(250,250,250,0.88);
-        }
-        .dark .privacy-root, .dark.privacy-root {
-          --pc-bg: #08090d;
-          --pc-surface: #111116;
-          --pc-border: rgba(255,255,255,0.08);
-          --pc-text: rgba(255,255,255,0.92);
-          --pc-sub: rgba(255,255,255,0.6);
-          --pc-muted: rgba(255,255,255,0.3);
-          --pc-tag: rgba(255,255,255,0.06);
-          --pc-header: rgba(8,9,13,0.88);
-        }
-        @keyframes pcExpand {
-          from { opacity:0; transform:translateY(-8px); }
+    <>
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes fadeInUp {
+          from { opacity:0; transform:translateY(20px); }
           to   { opacity:1; transform:translateY(0); }
         }
-        @keyframes pcHeroIn {
-          from { opacity:0; transform:translateY(20px) scale(0.98); }
-          to   { opacity:1; transform:translateY(0) scale(1); }
+        @keyframes fadeInLeft {
+          from { opacity:0; transform:translateX(-12px); }
+          to   { opacity:1; transform:translateX(0); }
         }
-        @keyframes pcOrbit {
-          from { transform: rotate(0deg); }
-          to   { transform: rotate(360deg); }
-        }
-        @keyframes pcGlow {
-          0%,100% { opacity:.35; transform:scale(1); }
-          50%     { opacity:.7;  transform:scale(1.1); }
-        }
-        @keyframes pcProgress {
+        @keyframes progressGrow {
           from { opacity:0; }
           to   { opacity:1; }
         }
-        .pc-hero { animation: pcHeroIn 0.6s cubic-bezier(0.22,1,0.36,1) both 0.05s; }
-        .pc-orbit { animation: pcOrbit 14s linear infinite; }
-        .pc-glow  { animation: pcGlow 3.5s ease-in-out infinite; }
-        .pc-progress-bar { animation: pcProgress 0.3s ease both; }
-        .privacy-card { background: var(--pc-surface); }
-        .pc-back {
-          display: flex; align-items: center; gap: 6px;
-          padding: 6px 11px; border-radius: 9px; border: none;
-          background: transparent; cursor: pointer;
-          font-size: 13px; font-weight: 600;
-          color: var(--pc-muted);
-          transition: color 180ms, background 180ms;
+        @keyframes heroIn {
+          from { opacity:0; transform:translateY(24px) scale(0.98); }
+          to   { opacity:1; transform:translateY(0) scale(1); }
         }
-        .pc-back:hover { color: var(--pc-text); background: var(--pc-tag); }
-        .pc-contact-link {
-          color: #38bdf8; text-decoration: none; font-weight: 600;
-          transition: opacity 150ms;
+        @keyframes orbitSpin { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
+        @keyframes glowPulse { 0%,100%{opacity:.3;} 50%{opacity:.7;} }
+        @keyframes expandDown {
+          from { opacity:0; transform:translateY(-6px); }
+          to   { opacity:1; transform:translateY(0); }
         }
-        .pc-contact-link:hover { opacity: 0.75; }
-        .pc-logo-link { transition: opacity 180ms; }
-        .pc-logo-link:hover { opacity: 0.8; }
-        .pc-nav-link:hover { color: var(--pc-text) !important; background: var(--pc-tag); }
-        .pc-console-btn:hover { opacity: 0.88; transform: translateY(-1px); }
-        .pc-mobile-link:hover { background: var(--pc-tag); }
-        .pc-desktop-nav { display: none; }
-        .pc-mobile-controls { display: flex; }
-        @media (min-width: 640px) {
-          .pc-desktop-nav { display: flex !important; }
-          .pc-mobile-controls { display: none !important; }
+        .prv-hero { animation: heroIn 0.55s cubic-bezier(0.22,1,0.36,1) both 0.05s; }
+        .prv-orbit { animation: orbitSpin 14s linear infinite; }
+        .prv-glow { animation: glowPulse 3s ease-in-out infinite; }
+        .prv-expand { animation: expandDown 0.3s cubic-bezier(0.22,1,0.36,1) both; }
+        .prv-fade {
+          opacity: 0; transform: translateY(18px);
+          transition: opacity 0.5s cubic-bezier(0.22,1,0.36,1), transform 0.5s cubic-bezier(0.22,1,0.36,1);
         }
-        @media (max-width: 480px) {
-          .pc-hero h1 { font-size: 26px !important; }
+        .prv-fade.visible { opacity:1; transform:translateY(0); }
+        .stat-card {
+          transition: transform 200ms cubic-bezier(0.34,1.56,0.64,1), box-shadow 200ms;
         }
-      `}</style>
+        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.07); }
+        .dark .stat-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+        .acc-icon {
+          transition: transform 280ms cubic-bezier(0.34,1.56,0.64,1);
+        }
+        .acc-chevron {
+          transition: transform 300ms cubic-bezier(0.34,1.56,0.64,1);
+        }
+        .acc-chevron.open { transform: rotate(90deg); }
+        .section-card {
+          transition: border-color 250ms, box-shadow 250ms;
+        }
+        .section-btn { transition: background 180ms; }
+        .section-btn:hover { background: rgba(0,0,0,0.02); }
+        .dark .section-btn:hover { background: rgba(255,255,255,0.03); }
+      `}} />
+
+      <Head>
+        <title>Privacy Policy — Aichixia</title>
+        <meta name="description" content="Aichixia Privacy Policy — how we collect, use, and protect your data." />
+      </Head>
 
       <div
-        className="pc-progress-bar"
         style={{
           position: 'fixed', top: 0, left: 0, right: 0, height: 2, zIndex: 60,
-          background: 'linear-gradient(90deg, #38bdf8, #a78bfa)',
-          width: `${progress}%`,
-          transition: 'width 60ms linear',
-          transformOrigin: 'left',
+          background: 'linear-gradient(90deg, #3b82f6, #06b6d4, #a855f7)',
+          width: `${Math.min(scrollY / Math.max((typeof document !== 'undefined' ? document.documentElement.scrollHeight - window.innerHeight : 1), 1) * 100, 100)}%`,
+          transition: 'width 80ms linear',
         }}
       />
 
-      <header style={{
-        position: 'sticky', top: 0, zIndex: 40,
-        backgroundColor: scrolled ? 'var(--pc-header)' : 'transparent',
-        backdropFilter: scrolled ? 'blur(20px)' : 'none',
-        WebkitBackdropFilter: scrolled ? 'blur(20px)' : 'none',
-        borderBottom: scrolled ? '1px solid var(--pc-border)' : '1px solid transparent',
-        transition: 'background-color 300ms, border-color 300ms, backdrop-filter 300ms',
-      }}>
-        <div style={{ maxWidth: 680, margin: '0 auto', padding: '0 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 52 }}>
-          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }} className="pc-logo-link">
-            <div style={{ width: 28, height: 28, borderRadius: 8, background: 'linear-gradient(135deg, #38bdf8, #3b82f6)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <FiShield style={{ fontSize: 14, color: '#fff' }} />
-            </div>
-            <div>
-              <p style={{ fontSize: 13, fontWeight: 800, color: 'var(--pc-text)', margin: 0, letterSpacing: '-0.02em', lineHeight: 1 }}>Aichixia</p>
-              <p style={{ fontSize: 9, color: 'var(--pc-muted)', margin: 0, letterSpacing: '0.04em', lineHeight: 1.2 }}>API Platform</p>
-            </div>
-          </Link>
+      <main className="min-h-screen bg-white dark:bg-black text-zinc-900 dark:text-white transition-colors duration-300">
 
-          <nav style={{ display: 'flex', alignItems: 'center', gap: 2 }} className="pc-desktop-nav">
-            <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 11px', borderRadius: 9, fontSize: 12, fontWeight: 600, color: 'var(--pc-muted)', textDecoration: 'none', transition: 'color 180ms, background 180ms' }} className="pc-nav-link">
-              <FiHome style={{ fontSize: 12 }} />
-              Home
-            </Link>
-            <Link href="/docs" style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 11px', borderRadius: 9, fontSize: 12, fontWeight: 600, color: 'var(--pc-muted)', textDecoration: 'none', transition: 'color 180ms, background 180ms' }} className="pc-nav-link">
-              <FiBook style={{ fontSize: 12 }} />
-              Docs
-            </Link>
-            <Link href="/console" style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 14px', borderRadius: 9, fontSize: 12, fontWeight: 700, color: '#fff', background: 'linear-gradient(135deg, #38bdf8, #3b82f6)', textDecoration: 'none', boxShadow: '0 2px 8px rgba(56,189,248,0.3)', transition: 'opacity 180ms, transform 180ms' }} className="pc-console-btn">
-              <FiRocketIcon style={{ fontSize: 11 }} />
-              Console
-            </Link>
-            <div style={{ marginLeft: 6 }}>
-              <ThemeToggle />
-            </div>
-          </nav>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }} className="pc-mobile-controls">
-            <ThemeToggle />
-            <button
-              onClick={() => setMobileOpen(o => !o)}
-              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 32, height: 32, borderRadius: 9, border: '1px solid var(--pc-border)', background: 'var(--pc-tag)', cursor: 'pointer', color: 'var(--pc-muted)', transition: 'all 180ms' }}
-            >
-              {mobileOpen ? <FiX style={{ fontSize: 15 }} /> : <FiMenu style={{ fontSize: 15 }} />}
-            </button>
-          </div>
-        </div>
-
-        {mobileOpen && (
-          <div style={{ borderTop: '1px solid var(--pc-border)', background: 'var(--pc-header)', backdropFilter: 'blur(20px)' }} className="pc-mobile-menu">
-            <nav style={{ maxWidth: 680, margin: '0 auto', padding: '8px 16px 12px', display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <Link href="/" onClick={() => setMobileOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderRadius: 10, fontSize: 13, fontWeight: 600, color: 'var(--pc-sub)', textDecoration: 'none', transition: 'background 180ms' }} className="pc-mobile-link">
-                <FiHome style={{ fontSize: 14 }} />
-                Home
+        <header className={`sticky top-0 z-50 border-b transition-all duration-300 ${
+          scrollY > 20
+            ? 'border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-black/80 backdrop-blur-xl shadow-sm'
+            : 'border-transparent bg-transparent'
+        }`}>
+          <div className="max-w-3xl mx-auto px-3 sm:px-4 lg:px-6">
+            <div className="flex items-center justify-between h-12 sm:h-14">
+              <Link href="/" className="flex items-center gap-1.5 group">
+                <FaTerminal className="w-4 h-4 text-blue-500 group-hover:text-cyan-500 transition-colors duration-200" />
+                <div>
+                  <h1 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white tracking-tight">Aichixia</h1>
+                  <p className="text-[9px] sm:text-[10px] text-zinc-500 dark:text-zinc-400 -mt-0.5">API Platform</p>
+                </div>
               </Link>
-              <Link href="/docs" onClick={() => setMobileOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderRadius: 10, fontSize: 13, fontWeight: 600, color: 'var(--pc-sub)', textDecoration: 'none', transition: 'background 180ms' }} className="pc-mobile-link">
-                <FiBook style={{ fontSize: 14 }} />
-                Docs
-              </Link>
-              <Link href="/console" onClick={() => setMobileOpen(false)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '10px 12px', borderRadius: 10, fontSize: 13, fontWeight: 700, color: '#fff', background: 'linear-gradient(135deg, #38bdf8, #3b82f6)', textDecoration: 'none', marginTop: 4, boxShadow: '0 2px 12px rgba(56,189,248,0.25)' }}>
-                <FiRocketIcon style={{ fontSize: 14 }} />
-                Console
-              </Link>
-            </nav>
-          </div>
-        )}
-      </header>
 
-      <main style={{ maxWidth: 680, margin: '0 auto', padding: '0 20px 80px' }}>
+              <nav className="hidden md:flex items-center gap-0.5">
+                <Link href="/" className="px-3 py-1.5 text-xs sm:text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200">
+                  Home
+                </Link>
+                <Link href="/docs" className="px-3 py-1.5 text-xs sm:text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200">
+                  Docs
+                </Link>
+                <div className="w-px h-4 bg-zinc-200 dark:bg-zinc-800 mx-1" />
+                <Link href="/console" className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm shadow-blue-600/20 transition-all duration-200">
+                  Console
+                </Link>
+              </nav>
 
-        <div className="pc-hero" style={{ padding: '44px 0 36px', textAlign: 'center' }}>
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 22 }}>
-            <div style={{ position: 'relative', width: 60, height: 60 }}>
-              <div className="pc-glow" style={{
-                position: 'absolute', inset: -12, borderRadius: '50%',
-                background: 'radial-gradient(circle, rgba(56,189,248,0.12) 0%, transparent 70%)',
-                pointerEvents: 'none',
-              }} />
-              <div className="pc-orbit" style={{
-                position: 'absolute', inset: -5, borderRadius: '50%',
-                border: '1px dashed rgba(56,189,248,0.22)',
-                pointerEvents: 'none',
-              }} />
-              <div style={{
-                width: 60, height: 60, borderRadius: '50%',
-                background: 'rgba(56,189,248,0.09)',
-                border: '1.5px solid rgba(56,189,248,0.22)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                <FiShield style={{ fontSize: 24, color: '#38bdf8' }} />
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <ThemeToggle />
+                <button
+                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                  className="md:hidden p-1.5 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
+                >
+                  {mobileMenuOpen ? <FaTimes className="w-4 h-4" /> : <FaBars className="w-4 h-4" />}
+                </button>
               </div>
             </div>
           </div>
 
-          <h1 style={{ fontSize: 32, fontWeight: 800, letterSpacing: '-0.03em', margin: '0 0 10px', lineHeight: 1.1 }}>
-            Privacy Policy
-          </h1>
-          <p style={{ fontSize: 14, color: 'var(--pc-muted)', lineHeight: 1.7, maxWidth: 420, margin: '0 auto 18px' }}>
-            How Aichixia collects, uses, and protects your data — no legalese.
-          </p>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 11px', borderRadius: 99, background: 'rgba(56,189,248,0.08)', border: '1px solid rgba(56,189,248,0.16)' }}>
-            <FiZap style={{ fontSize: 10, color: '#38bdf8' }} />
-            <span style={{ fontSize: 11, fontWeight: 600, color: '#38bdf8' }}>Updated {LAST_UPDATED}</span>
-          </div>
-        </div>
+          {mobileMenuOpen && (
+            <div className="md:hidden border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-black">
+              <nav className="flex flex-col p-2 space-y-1">
+                <Link href="/" onClick={() => setMobileMenuOpen(false)} className="px-3 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200">Home</Link>
+                <Link href="/docs" onClick={() => setMobileMenuOpen(false)} className="px-3 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200">Docs</Link>
+                <Link href="/console" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center px-3 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-all duration-200">Console</Link>
+              </nav>
+            </div>
+          )}
+        </header>
 
-        <AnimatedSection delay={0}>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-            gap: 8, marginBottom: 28,
-          }}>
+        <section className="relative overflow-hidden border-b border-zinc-200 dark:border-zinc-800 bg-gradient-to-br from-blue-50 via-white to-cyan-50 dark:from-blue-950/20 dark:via-black dark:to-cyan-950/20">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(59,130,246,0.06),transparent_70%)] dark:bg-[radial-gradient(ellipse_at_top,rgba(59,130,246,0.1),transparent_70%)]" />
+          <div className="max-w-3xl mx-auto px-3 sm:px-4 lg:px-6 py-10 sm:py-14">
+            <div className="text-center space-y-4 prv-hero">
+              <div className="flex justify-center mb-2">
+                <div className="relative">
+                  <div className="prv-glow absolute inset-0 -m-4 rounded-full bg-blue-400/10 dark:bg-blue-500/10 pointer-events-none" />
+                  <div className="prv-orbit absolute inset-0 -m-3 rounded-full border border-dashed border-blue-400/20 dark:border-blue-500/20 pointer-events-none" />
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/25">
+                    <FaShieldAlt className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-100 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900">
+                <FaBolt className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                <span className="text-xs font-semibold text-blue-700 dark:text-blue-300">Updated {LAST_UPDATED}</span>
+              </div>
+
+              <h1 className="text-3xl sm:text-4xl font-black text-zinc-900 dark:text-white tracking-tight">
+                Privacy <span className="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">Policy</span>
+              </h1>
+
+              <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400 max-w-lg mx-auto leading-relaxed">
+                How Aichixia collects, uses, and protects your data — transparent and plain language, no legalese.
+              </p>
+
+              <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap pt-1">
+                {[
+                  { dot: 'bg-emerald-500', label: 'Data Never Sold' },
+                  { dot: 'bg-blue-500', label: 'TLS 1.3 Encrypted' },
+                  { dot: 'bg-purple-500', label: '90-Day Log Retention' },
+                ].map(b => (
+                  <div key={b.label} className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm">
+                    <div className={`w-1.5 h-1.5 rounded-full ${b.dot}`} />
+                    <span className="text-[10px] sm:text-xs font-medium text-zinc-500 dark:text-zinc-400">{b.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div className="max-w-3xl mx-auto px-3 sm:px-4 lg:px-6 py-8 sm:py-10">
+
+          <div
+            ref={setRef('stats')}
+            className={`prv-fade grid grid-cols-3 gap-2 sm:gap-3 mb-8 sm:mb-10 ${visible['stats'] ? 'visible' : ''}`}
+          >
             {[
-              { label: 'Data sold?', value: 'Never', color: '#34d399' },
-              { label: 'Log retention', value: '90 days', color: '#38bdf8' },
-              { label: 'Encryption', value: 'TLS 1.3', color: '#a78bfa' },
-            ].map(stat => (
-              <div key={stat.label} style={{
-                padding: '14px 16px', borderRadius: 14,
-                background: 'var(--pc-surface)',
-                border: '1px solid var(--pc-border)',
-                textAlign: 'center',
-              }}>
-                <p style={{ fontSize: 18, fontWeight: 800, color: stat.color, margin: '0 0 3px', letterSpacing: '-0.02em' }}>
-                  {stat.value}
-                </p>
-                <p style={{ fontSize: 11, color: 'var(--pc-muted)', margin: 0, fontWeight: 500 }}>
-                  {stat.label}
-                </p>
+              { value: 'Never', label: 'Data sold', color: 'text-emerald-600 dark:text-emerald-400' },
+              { value: 'TLS 1.3', label: 'Encryption', color: 'text-blue-600 dark:text-blue-400' },
+              { value: '90 days', label: 'Log retention', color: 'text-purple-600 dark:text-purple-400' },
+            ].map(s => (
+              <div key={s.label} className="stat-card p-3 sm:p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 text-center">
+                <p className={`text-base sm:text-xl font-black tracking-tight mb-1 ${s.color}`}>{s.value}</p>
+                <p className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 font-medium">{s.label}</p>
               </div>
             ))}
           </div>
-        </AnimatedSection>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 28 }}>
-          {SECTIONS.map((sec, i) => (
-            <SectionCard key={sec.id} sec={sec} index={i} />
-          ))}
+          <div className="space-y-2 mb-8 sm:mb-10">
+            {SECTIONS.map((sec, idx) => {
+              const Icon = sec.icon;
+              const isOpen = expandedSection === sec.id;
+              return (
+                <div
+                  key={sec.id}
+                  ref={setRef(sec.id)}
+                  className={`prv-fade section-card rounded-xl border overflow-hidden bg-white dark:bg-zinc-950 ${
+                    isOpen ? 'border-zinc-300 dark:border-zinc-700 shadow-sm' : 'border-zinc-200 dark:border-zinc-800'
+                  } ${visible[sec.id] ? 'visible' : ''}`}
+                  style={{ transitionDelay: `${idx * 50}ms` }}
+                >
+                  <button
+                    className="section-btn w-full flex items-center gap-3 p-3.5 sm:p-4 text-left"
+                    onClick={() => setExpandedSection(isOpen ? null : sec.id)}
+                  >
+                    <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center flex-shrink-0 border ${sec.accentBg} ${sec.accentBorder}`}
+                      style={{ transition: 'transform 280ms cubic-bezier(0.34,1.56,0.64,1)', transform: isOpen ? 'scale(1.08) rotate(-4deg)' : 'scale(1)' }}
+                    >
+                      <Icon className={`w-4 h-4 ${sec.accent}`} />
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className={`text-[10px] font-bold ${sec.accent} opacity-60 tracking-widest`}>{sec.num}</span>
+                        <span className={`text-sm sm:text-base font-bold tracking-tight transition-colors duration-200 ${isOpen ? sec.accent : 'text-zinc-900 dark:text-white'}`}>
+                          {sec.title}
+                        </span>
+                      </div>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-tight">{sec.summary}</p>
+                    </div>
+
+                    <FaChevronRight className={`acc-chevron w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500 flex-shrink-0 ${isOpen ? 'open' : ''}`} />
+                  </button>
+
+                  {isOpen && (
+                    <div className="prv-expand px-3.5 sm:px-4 pb-4">
+                      <div className="h-px bg-zinc-100 dark:bg-zinc-800 mb-3.5" />
+                      <div className="space-y-3.5">
+                        {sec.items.map((item, i) => (
+                          <div key={i} className="flex gap-3">
+                            <div className={`w-5 h-5 rounded-full flex-shrink-0 mt-0.5 flex items-center justify-center border ${sec.accentBg} ${sec.accentBorder}`}>
+                              <FaCheck className={`w-2 h-2 ${sec.accent}`} />
+                            </div>
+                            <div>
+                              <p className={`text-xs font-bold mb-1 uppercase tracking-wider ${sec.accent}`}>{item.heading}</p>
+                              <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">{item.body}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          <div ref={setRef('contact')} className={`prv-fade ${visible['contact'] ? 'visible' : ''}`} style={{ transitionDelay: '80ms' }}>
+            <div className="p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 flex items-start gap-3 sm:gap-4 mb-6">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-blue-100 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/40 flex items-center justify-center flex-shrink-0">
+                <FaEnvelope className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div>
+                <p className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white mb-1">Privacy questions?</p>
+                <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                  Reach us at{' '}
+                  <a href="mailto:contact@aichixia.xyz" className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">
+                    contact@aichixia.xyz
+                  </a>
+                  {' '}— we respond within 48 hours on business days.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div ref={setRef('footer')} className={`prv-fade pt-6 border-t border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-3 ${visible['footer'] ? 'visible' : ''}`} style={{ transitionDelay: '120ms' }}>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">© {new Date().getFullYear()} Aichixia. All rights reserved.</p>
+            <div className="flex items-center gap-3 text-xs">
+              <Link href="/terms" className="flex items-center gap-1 font-semibold text-blue-600 dark:text-blue-400 hover:underline">
+                Terms of Service <FaArrowRight className="w-2.5 h-2.5" />
+              </Link>
+              <span className="text-zinc-300 dark:text-zinc-700">•</span>
+              <a href="mailto:contact@aichixia.xyz" className="text-zinc-500 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">Contact</a>
+            </div>
+          </div>
         </div>
 
-        <AnimatedSection delay={80}>
-          <div style={{
-            padding: '20px 22px', borderRadius: 16,
-            background: 'var(--pc-surface)',
-            border: '1px solid var(--pc-border)',
-            display: 'flex', alignItems: 'flex-start', gap: 14,
-          }}>
-            <div style={{
-              width: 36, height: 36, borderRadius: 10, flexShrink: 0,
-              background: 'rgba(56,189,248,0.1)', border: '1px solid rgba(56,189,248,0.2)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <FiMail style={{ fontSize: 15, color: '#38bdf8' }} />
-            </div>
-            <div>
-              <p style={{ fontSize: 13, fontWeight: 700, margin: '0 0 4px', color: 'var(--pc-text)' }}>
-                Privacy questions?
-              </p>
-              <p style={{ fontSize: 12, color: 'var(--pc-muted)', margin: 0, lineHeight: 1.6 }}>
-                Reach us at{' '}
-                <a href="mailto:contact@aichixia.xyz" className="pc-contact-link">
-                  contact@aichixia.xyz
-                </a>
-                {' '}— we respond within 48 hours on business days.
-              </p>
-            </div>
-          </div>
-        </AnimatedSection>
-
-        <AnimatedSection delay={120}>
-          <div style={{ marginTop: 32, paddingTop: 24, borderTop: '1px solid var(--pc-border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-            <p style={{ fontSize: 12, color: 'var(--pc-muted)', margin: 0 }}>
-              © {new Date().getFullYear()} Aichixia. All rights reserved.
-            </p>
-            <Link href="/terms" style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 600, color: '#38bdf8', textDecoration: 'none', opacity: 0.85, transition: 'opacity 150ms' }}>
-              Terms of Service
-              <FiArrowRight style={{ fontSize: 11 }} />
-            </Link>
-          </div>
-        </AnimatedSection>
-
       </main>
-    </div>
+    </>
   );
 }
