@@ -296,9 +296,7 @@ export default function PrivacyPage() {
                 <div className="relative">
                   <div className="prv-glow absolute inset-0 -m-4 rounded-full bg-blue-400/10 dark:bg-blue-500/10 pointer-events-none" />
                   <div className="prv-orbit absolute inset-0 -m-3 rounded-full border border-dashed border-blue-400/20 dark:border-blue-500/20 pointer-events-none" />
-                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/25">
-                    <FaShieldAlt className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
-                  </div>
+                  <FaShieldAlt className="w-9 h-9 sm:w-10 sm:h-10 text-blue-500 dark:text-blue-400" />
                 </div>
               </div>
 
@@ -366,11 +364,10 @@ export default function PrivacyPage() {
                     className="section-btn w-full flex items-center gap-3 p-3.5 sm:p-4 text-left"
                     onClick={() => setExpandedSection(isOpen ? null : sec.id)}
                   >
-                    <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center flex-shrink-0 border ${sec.accentBg} ${sec.accentBorder}`}
-                      style={{ transition: 'transform 280ms cubic-bezier(0.34,1.56,0.64,1)', transform: isOpen ? 'scale(1.08) rotate(-4deg)' : 'scale(1)' }}
-                    >
-                      <Icon className={`w-4 h-4 ${sec.accent}`} />
-                    </div>
+                    <Icon
+                      className={`w-5 h-5 flex-shrink-0 ${sec.accent} transition-transform duration-300`}
+                      style={{ transform: isOpen ? 'scale(1.15) rotate(-4deg)' : 'scale(1)', transition: 'transform 280ms cubic-bezier(0.34,1.56,0.64,1)' }}
+                    />
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-0.5">
@@ -391,9 +388,7 @@ export default function PrivacyPage() {
                       <div className="space-y-3.5">
                         {sec.items.map((item, i) => (
                           <div key={i} className="flex gap-3">
-                            <div className={`w-5 h-5 rounded-full flex-shrink-0 mt-0.5 flex items-center justify-center border ${sec.accentBg} ${sec.accentBorder}`}>
-                              <FaCheck className={`w-2 h-2 ${sec.accent}`} />
-                            </div>
+                            <FaCheck className={`w-3 h-3 flex-shrink-0 mt-1 ${sec.accent}`} />
                             <div>
                               <p className={`text-xs font-bold mb-1 uppercase tracking-wider ${sec.accent}`}>{item.heading}</p>
                               <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">{item.body}</p>
@@ -410,9 +405,7 @@ export default function PrivacyPage() {
 
           <div ref={setRef('contact')} className={`prv-fade ${visible['contact'] ? 'visible' : ''}`} style={{ transitionDelay: '80ms' }}>
             <div className="p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 flex items-start gap-3 sm:gap-4 mb-6">
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-blue-100 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/40 flex items-center justify-center flex-shrink-0">
-                <FaEnvelope className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-              </div>
+              <FaEnvelope className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white mb-1">Privacy questions?</p>
                 <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
