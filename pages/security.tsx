@@ -147,7 +147,10 @@ export default function Security() {
         <link rel="icon" href="/favicon.ico" />
         <style>{`
           @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@500;700;800&display=swap');
+
+          html, body { overflow-x: hidden; max-width: 100%; }
           *, *::before, *::after { box-sizing: border-box; }
+
           .syne { font-family: 'Syne', sans-serif; }
           .mono { font-family: 'JetBrains Mono', monospace; }
 
@@ -194,16 +197,6 @@ export default function Security() {
             box-shadow: 6px 14px 36px rgba(0,0,0,.35), 0 1px 0 rgba(255,255,255,.04) inset;
           }
 
-          .depth-shadow {
-            position:relative;
-          }
-          .depth-shadow::after {
-            content:''; position:absolute;
-            bottom:-4px; left:8px; right:8px; height:14px;
-            border-radius:inherit; opacity:.2; filter:blur(10px);
-            background:inherit; z-index:-1;
-          }
-
           .top-shine::before {
             content:''; position:absolute;
             inset-x:0; top:0; height:1px;
@@ -228,7 +221,7 @@ export default function Security() {
         `}</style>
       </Head>
 
-      <main className="min-h-screen bg-white dark:bg-[#07090f] text-zinc-900 dark:text-white syne overflow-x-hidden transition-colors duration-300">
+      <main className="min-h-screen bg-white dark:bg-[#07090f] text-zinc-900 dark:text-white syne transition-colors duration-300" style={{ overflowX: "hidden", width: "100%" }}>
 
         <nav className="sticky top-0 z-50 border-b border-zinc-200/80 dark:border-zinc-800/60 bg-white/80 dark:bg-[#07090f]/80 glass">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
@@ -289,10 +282,10 @@ export default function Security() {
           )}
         </nav>
 
-        <section className="relative overflow-hidden">
-          <div className="orb w-[440px] h-[440px] bg-sky-500/10 top-[-60px] left-1/2 -translate-x-1/2" style={{ animationDelay: "0s" }} />
-          <div className="orb w-64 h-64 bg-emerald-500/8 top-12 right-[-40px]"  style={{ animationDelay: "2.5s" }} />
-          <div className="orb w-52 h-52 bg-violet-500/7 bottom-0 left-[-30px]"  style={{ animationDelay: "1.2s" }} />
+        <section className="relative" style={{ overflow: "hidden" }}>
+          <div className="orb" style={{ width: "420px", height: "420px", background: "rgba(14,165,233,0.08)", top: "-60px", left: "50%", transform: "translateX(-50%)", animationDelay: "0s" }} />
+          <div className="orb" style={{ width: "260px", height: "260px", background: "rgba(16,185,129,0.07)", top: "48px", right: "0px", animationDelay: "2.5s" }} />
+          <div className="orb" style={{ width: "200px", height: "200px", background: "rgba(139,92,246,0.06)", bottom: "0px", left: "0px", animationDelay: "1.2s" }} />
 
           <div
             className="absolute inset-0 pointer-events-none opacity-[0.03] dark:opacity-[0.055]"
@@ -302,7 +295,7 @@ export default function Security() {
             }}
           />
 
-          <div className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-14 sm:pt-22 pb-14 sm:pb-20">
+          <div className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-14 sm:pt-20 pb-14 sm:pb-20">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
 
               <div>
@@ -313,7 +306,7 @@ export default function Security() {
                   </span>
                 </div>
 
-                <h1 className="fade-up d1 text-[2.1rem] sm:text-[2.8rem] font-black leading-[1.1] tracking-tight mb-4">
+                <h1 className="fade-up d1 text-[2rem] sm:text-[2.6rem] font-black leading-[1.1] tracking-tight mb-4">
                   Built Secure,<br />
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-cyan-300 to-sky-500">
                     By Default
@@ -362,7 +355,7 @@ export default function Security() {
               </div>
 
               <div className="flex justify-center lg:justify-end">
-                <div className="fade-up d2 float-el w-full max-w-[300px] sm:max-w-[320px]">
+                <div className="fade-up d2 float-el" style={{ width: "100%", maxWidth: "300px" }}>
                   <div className="relative bg-white dark:bg-[#0d1525] rounded-2xl border border-zinc-200 dark:border-zinc-700/50 p-5 shadow-2xl shadow-zinc-300/30 dark:shadow-black/60 top-shine">
                     <div className="flex items-center gap-2.5 mb-5">
                       <div className="flex gap-1.5">
@@ -375,14 +368,14 @@ export default function Security() {
 
                     <div className="space-y-3">
                       {[
-                        { num: "1", color: "text-sky-400",     bg: "bg-sky-400",     line: "TLS 1.3 handshake",        sub: "edge → client" },
-                        { num: "2", color: "text-violet-400",  bg: "bg-violet-400",  line: "API key validated",        sub: "bcrypt check" },
-                        { num: "3", color: "text-emerald-400", bg: "bg-emerald-400", line: "Memory-only processing",   sub: "never on disk" },
-                        { num: "4", color: "text-amber-400",   bg: "bg-amber-400",   line: "Response re-encrypted",    sub: "AES-256-GCM" },
-                        { num: "5", color: "text-rose-400",    bg: "bg-rose-400",    line: "Context destroyed",        sub: "0ms retention" },
+                        { num: "1", color: "text-sky-400",     bg: "rgba(14,165,233,0.1)",  line: "TLS 1.3 handshake",       sub: "edge → client" },
+                        { num: "2", color: "text-violet-400",  bg: "rgba(139,92,246,0.1)",  line: "API key validated",        sub: "bcrypt check" },
+                        { num: "3", color: "text-emerald-400", bg: "rgba(16,185,129,0.1)",  line: "Memory-only processing",  sub: "never on disk" },
+                        { num: "4", color: "text-amber-400",   bg: "rgba(245,158,11,0.1)",  line: "Response re-encrypted",   sub: "AES-256-GCM" },
+                        { num: "5", color: "text-rose-400",    bg: "rgba(244,63,94,0.1)",   line: "Context destroyed",       sub: "0ms retention" },
                       ].map(({ num, color, bg, line, sub }) => (
                         <div key={num} className="flex items-start gap-3">
-                          <div className={`w-5 h-5 rounded-lg ${bg} bg-opacity-10 flex items-center justify-center shrink-0 mt-0.5`}>
+                          <div className="w-5 h-5 rounded-lg flex items-center justify-center shrink-0 mt-0.5" style={{ background: bg }}>
                             <span className={`text-[9px] font-black mono ${color}`}>{num}</span>
                           </div>
                           <div className="min-w-0 flex-1">
@@ -401,9 +394,9 @@ export default function Security() {
                       <span className="text-[10px] mono text-zinc-400 dark:text-zinc-600">aichixia.xyz</span>
                     </div>
                   </div>
-                  <div className="absolute -bottom-4 left-8 right-8 h-10 bg-sky-500/8 blur-xl rounded-full" />
                 </div>
               </div>
+
             </div>
           </div>
         </section>
@@ -427,12 +420,11 @@ export default function Security() {
                   >
                     <div
                       className="absolute top-0 right-0 w-14 h-14 rounded-bl-3xl transition-opacity duration-300"
-                      style={{ background: isH ? accentMap[p.accent].dot.replace("bg-", "") : "transparent", opacity: isH ? 0.1 : 0.05 }}
+                      style={{ opacity: isH ? 0.1 : 0.05, background: isH ? "currentColor" : "transparent" }}
                     />
-                    <div className="absolute inset-0 rounded-xl pointer-events-none"
-                      style={{
-                        background: "linear-gradient(135deg,rgba(255,255,255,.03) 0%,transparent 60%)",
-                      }}
+                    <div
+                      className="absolute inset-0 rounded-xl pointer-events-none"
+                      style={{ background: "linear-gradient(135deg,rgba(255,255,255,.03) 0%,transparent 60%)" }}
                     />
                     <div className="relative z-10 flex flex-col h-full">
                       <div className="flex items-start justify-between mb-3">
@@ -594,7 +586,7 @@ export default function Security() {
                     key={idx}
                     className={`rounded-xl border overflow-hidden transition-colors duration-200 ${
                       expandedFaq === idx
-                        ? "border-sky-500/30 bg-sky-500/3 dark:bg-sky-500/4"
+                        ? "border-sky-500/30 bg-sky-500/[0.03] dark:bg-sky-500/[0.04]"
                         : "border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950"
                     }`}
                   >
