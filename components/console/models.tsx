@@ -322,7 +322,7 @@ const AVAILABLE_MODELS = [
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
-    id: 'flux-2',
+    id: 'flux-2-dev',
     name: 'Flux 2',
     icon: SiFlux,
     color: 'from-purple-500 to-pink-500',
@@ -333,7 +333,7 @@ const AVAILABLE_MODELS = [
     contextWindow: 'N/A',
     pricing: 'Standard',
     features: ['Photorealistic', 'High quality', 'Fast generation'],
-    endpoint: 'https://www.aichixia.xyz/api/models/flux',
+    endpoint: 'https://www.aichixia.xyz/api/v1/images/generations',
   },
   {
     id: 'lucid-origin',
@@ -347,7 +347,7 @@ const AVAILABLE_MODELS = [
     contextWindow: 'N/A',
     pricing: 'Standard',
     features: ['Artistic', 'Creative', 'Unique style'],
-    endpoint: 'https://www.aichixia.xyz/api/models/lucid',
+    endpoint: 'https://www.aichixia.xyz/api/v1/images/generations',
   },
   {
     id: 'phoenix-1.0',
@@ -361,10 +361,10 @@ const AVAILABLE_MODELS = [
     contextWindow: 'N/A',
     pricing: 'Budget',
     features: ['Quick', 'Artistic', 'Efficient'],
-    endpoint: 'https://www.aichixia.xyz/api/models/phoenix',
+    endpoint: 'https://www.aichixia.xyz/api/v1/images/generations',
   },
   {
-    id: 'nano-banana-pro',
+    id: 'nano-image',
     name: 'Nano Banana Pro',
     icon: SiGooglegemini,
     color: 'from-yellow-400 to-orange-400',
@@ -375,7 +375,7 @@ const AVAILABLE_MODELS = [
     contextWindow: 'N/A',
     pricing: 'Budget',
     features: ['Lightweight', 'Fast', 'Compact'],
-    endpoint: 'https://www.aichixia.xyz/api/models/nano',
+    endpoint: 'https://www.aichixia.xyz/api/v1/images/generations',
   },
   {
     id: 'starling-tts',
@@ -388,8 +388,9 @@ const AVAILABLE_MODELS = [
     quality: 4,
     contextWindow: '2K chars',
     pricing: 'Standard',
+    voiceId: 'tc_66bc60339ab2db047154b94e',
     features: ['Emotional', 'Natural', 'Multi-language'],
-    endpoint: 'https://www.aichixia.xyz/api/models/starling',
+    endpoint: 'https://www.aichixia.xyz/api/v1/audio/speech',
   },
   {
     id: 'lindsay-tts',
@@ -402,8 +403,9 @@ const AVAILABLE_MODELS = [
     quality: 5,
     contextWindow: '2K chars',
     pricing: 'Premium',
+    voiceId: 'tc_632a759503f3cb7b9c8a717b',
     features: ['Premium', 'Prosody', 'Enhanced'],
-    endpoint: 'https://www.aichixia.xyz/api/models/lindsay',
+    endpoint: 'https://www.aichixia.xyz/api/v1/audio/speech',
   },
 ];
 
@@ -450,6 +452,7 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
   const [modelSearch, setModelSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [activeModal, setActiveModal] = useState<any>(null);
+
   const isModelLocked = (model: any) => {
     if (!model.requiresPlan) return false;
     if (!settings) return true;
@@ -463,7 +466,6 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
     const matchesSearch = model.name.toLowerCase().includes(modelSearch.toLowerCase()) ||
       model.id.toLowerCase().includes(modelSearch.toLowerCase()) ||
       model.description.toLowerCase().includes(modelSearch.toLowerCase());
-    
     const matchesCategory = selectedCategory === 'All' || model.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
@@ -473,6 +475,18 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
     acc[model.category].push(model);
     return acc;
   }, {} as Record<string, typeof AVAILABLE_MODELS>);
+
+  const getDisplayValue = (model: any) => {
+    if (model.category === 'Text Generation') return model.id;
+    if (model.category === 'Text-to-Speech') return model.voiceId || model.id;
+    return model.id;
+  };
+
+  const getCopyValue = (model: any) => {
+    if (model.category === 'Text Generation') return model.id;
+    if (model.category === 'Text-to-Speech') return model.voiceId || model.id;
+    return model.id;
+  };
 
   return (
     <div className="space-y-3 sm:space-y-4">
@@ -542,13 +556,13 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
                     <div className="flex-1 h-px bg-gradient-to-r from-zinc-200 dark:from-zinc-700 to-transparent" />
                     <span className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 font-medium">{models.length} models</span>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-3">
                     {models.map((model) => {
                       const locked = isModelLocked(model);
                       const Icon = model.icon;
                       const pricingConfig = PRICING_CONFIG[model.pricing as keyof typeof PRICING_CONFIG];
-                      const displayValue = model.category === 'Text Generation' ? model.id : model.endpoint;
+                      const displayValue = getDisplayValue(model);
 
                       return (
                         <div
@@ -592,7 +606,7 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
                                 </code>
                               </div>
                               <button
-                                onClick={() => onCopy(displayValue, model.id)}
+                                onClick={() => onCopy(getCopyValue(model), model.id)}
                                 disabled={locked}
                                 className="p-1 sm:p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md transition-colors flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
                               >
@@ -660,7 +674,7 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
 
                           <div className="px-3 sm:px-4 pb-3 sm:pb-4 pt-0 flex items-center justify-between border-t border-zinc-100 dark:border-zinc-800/60 mt-0">
                             <span className="text-[9px] text-zinc-400 dark:text-zinc-600 font-mono truncate mr-2">
-                              {model.category === 'Text Generation' ? 'OpenAI-compatible' : model.endpoint.replace('https://www.aichixia.xyz', '')}
+                              {model.endpoint.replace('https://www.aichixia.xyz', '')}
                             </span>
                             <button
                               onClick={() => setActiveModal(model)}
@@ -758,17 +772,31 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
 
               <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
                 <p className="text-[9px] uppercase tracking-widest font-semibold text-zinc-400 dark:text-zinc-500 mb-2">Endpoint</p>
+                <div className="flex items-center gap-2 mb-2">
+                  <code className="flex-1 text-[10px] sm:text-xs font-mono text-zinc-700 dark:text-zinc-300 break-all leading-relaxed">
+                    <span className="text-zinc-400 dark:text-zinc-500">Base URL: </span>
+                    {activeModal.endpoint.replace('https://www.aichixia.xyz', 'https://www.aichixia.xyz')}
+                  </code>
+                </div>
                 <div className="flex items-center gap-2">
                   <code className="flex-1 text-[10px] sm:text-xs font-mono text-zinc-700 dark:text-zinc-300 break-all leading-relaxed">
                     {activeModal.category === 'Text Generation' ? (
                       <>
-                        <span className="text-zinc-400 dark:text-zinc-500">Base URL: </span>https://www.aichixia.xyz/api/v1<br />
                         <span className="text-zinc-400 dark:text-zinc-500">Model ID: </span>{activeModal.id}
                       </>
-                    ) : activeModal.endpoint}
+                    ) : activeModal.category === 'Text-to-Speech' ? (
+                      <>
+                        <span className="text-zinc-400 dark:text-zinc-500">Model: </span>{activeModal.id}<br />
+                        <span className="text-zinc-400 dark:text-zinc-500">Voice ID: </span>{activeModal.voiceId}
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-zinc-400 dark:text-zinc-500">Model: </span>{activeModal.id}
+                      </>
+                    )}
                   </code>
                   <button
-                    onClick={() => onCopy(activeModal.category === 'Text Generation' ? activeModal.id : activeModal.endpoint, activeModal.id + '-modal')}
+                    onClick={() => onCopy(getCopyValue(activeModal), activeModal.id + '-modal')}
                     className="p-1.5 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-all flex-shrink-0"
                   >
                     {copiedKey === activeModal.id + '-modal' ? <FiCheck className="w-3.5 h-3.5 text-emerald-500" /> : <FiCopy className="w-3.5 h-3.5" />}
