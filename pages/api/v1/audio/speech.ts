@@ -45,7 +45,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       api_key_id: apiKeyData.id,
       user_id: apiKeyData.user_id,
       model: req.body?.model || DEFAULT_MODEL,
-      endpoint: "/v1/audio/speech",
+      endpoint: "/api/v1/audio/speech",
       status: 429,
       tokens_used: 0,
       error_message: verifyResult.error,
@@ -75,7 +75,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       api_key_id: apiKeyData.id,
       user_id: apiKeyData.user_id,
       model,
-      endpoint: "/v1/audio/speech",
+      endpoint: "/api/v1/audio/speech",
       status: 400,
       tokens_used: 0,
       error_message: "Missing required field: input",
@@ -91,7 +91,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const ttsConfig = {
       text: input,
       voiceId: voice_id || voice,
-      model,
       language,
       emotion,
       emotionIntensity: emotion_intensity,
@@ -112,7 +111,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         api_key_id: apiKeyData.id,
         user_id: apiKeyData.user_id,
         model,
-        endpoint: "/v1/audio/speech",
+        endpoint: "/api/v1/audio/speech",
         status: 500,
         latency_ms: latency,
         tokens_used: 0,
@@ -131,7 +130,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       api_key_id: apiKeyData.id,
       user_id: apiKeyData.user_id,
       model,
-      endpoint: "/v1/audio/speech",
+      endpoint: "/api/v1/audio/speech",
       status: 200,
       latency_ms: latency,
       tokens_used: 0,
@@ -151,6 +150,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   } catch (error: any) {
     const latency = Date.now() - startTime;
+
     const isRateLimit = error instanceof StarlingRateLimitError || error instanceof LindsayRateLimitError;
     const isQuota = error instanceof StarlingQuotaError || error instanceof LindsayQuotaError;
     const status = isRateLimit ? 429 : isQuota ? 402 : 500;
@@ -159,7 +159,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       api_key_id: apiKeyData.id,
       user_id: apiKeyData.user_id,
       model,
-      endpoint: "/v1/audio/speech",
+      endpoint: "/api/v1/audio/speech",
       status,
       latency_ms: latency,
       tokens_used: 0,
@@ -178,7 +178,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: { message: error.message, type: "invalid_request_error", code: null } });
     }
 
-    console.error("[v1/audio/speech] Unexpected error:", error);
+    console.error("[api/v1/audio/speech] Unexpected error:", error);
     return res.status(500).json({ error: { message: "Internal server error", type: "server_error", code: null } });
   }
 }
