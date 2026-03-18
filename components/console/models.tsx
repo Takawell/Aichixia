@@ -388,7 +388,6 @@ const AVAILABLE_MODELS = [
     quality: 4,
     contextWindow: '2K chars',
     pricing: 'Standard',
-    voiceId: 'tc_66bc60339ab2db047154b94e',
     features: ['Emotional', 'Natural', 'Multi-language'],
     endpoint: 'https://www.aichixia.xyz/api/v1/audio/speech',
   },
@@ -403,7 +402,6 @@ const AVAILABLE_MODELS = [
     quality: 5,
     contextWindow: '2K chars',
     pricing: 'Premium',
-    voiceId: 'tc_632a759503f3cb7b9c8a717b',
     features: ['Premium', 'Prosody', 'Enhanced'],
     endpoint: 'https://www.aichixia.xyz/api/v1/audio/speech',
   },
@@ -476,17 +474,8 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
     return acc;
   }, {} as Record<string, typeof AVAILABLE_MODELS>);
 
-  const getDisplayValue = (model: any) => {
-    if (model.category === 'Text Generation') return model.id;
-    if (model.category === 'Text-to-Speech') return model.voiceId || model.id;
-    return model.id;
-  };
-
-  const getCopyValue = (model: any) => {
-    if (model.category === 'Text Generation') return model.id;
-    if (model.category === 'Text-to-Speech') return model.voiceId || model.id;
-    return model.id;
-  };
+  const getDisplayValue = (model: any) => model.id;
+  const getCopyValue = (model: any) => model.id;
 
   return (
     <div className="space-y-3 sm:space-y-4">
@@ -775,7 +764,7 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
                 <div className="flex items-center gap-2 mb-2">
                   <code className="flex-1 text-[10px] sm:text-xs font-mono text-zinc-700 dark:text-zinc-300 break-all leading-relaxed">
                     <span className="text-zinc-400 dark:text-zinc-500">Base URL: </span>
-                    {activeModal.endpoint.replace('https://www.aichixia.xyz', 'https://www.aichixia.xyz')}
+                    {activeModal.endpoint}
                   </code>
                 </div>
                 <div className="flex items-center gap-2">
@@ -786,8 +775,7 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
                       </>
                     ) : activeModal.category === 'Text-to-Speech' ? (
                       <>
-                        <span className="text-zinc-400 dark:text-zinc-500">Model: </span>{activeModal.id}<br />
-                        <span className="text-zinc-400 dark:text-zinc-500">Voice ID: </span>{activeModal.voiceId}
+                        <span className="text-zinc-400 dark:text-zinc-500">Model: </span>{activeModal.id}
                       </>
                     ) : (
                       <>
@@ -796,7 +784,7 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
                     )}
                   </code>
                   <button
-                    onClick={() => onCopy(getCopyValue(activeModal), activeModal.id + '-modal')}
+                    onClick={() => onCopy(activeModal.id, activeModal.id + '-modal')}
                     className="p-1.5 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-all flex-shrink-0"
                   >
                     {copiedKey === activeModal.id + '-modal' ? <FiCheck className="w-3.5 h-3.5 text-emerald-500" /> : <FiCopy className="w-3.5 h-3.5" />}
