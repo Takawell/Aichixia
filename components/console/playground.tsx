@@ -50,15 +50,15 @@ const TEXT_MODELS: AnyModel[] = [
 ];
 
 const IMAGE_MODELS: AnyModel[] = [
-  { id: 'flux', name: 'Flux 2', provider: 'Black Forest', icon: SiFlux, color: 'from-purple-500 to-pink-500', pricing: 'Standard', context: '—', type: 'image', endpoint: `${base}/api/models/flux` },
-  { id: 'lucid', name: 'Lucid Origin', provider: 'Lucid', icon: SiImagedotsc, color: 'from-teal-500 to-cyan-600', pricing: 'Standard', context: '—', type: 'image', endpoint: `${base}/api/models/lucid` },
-  { id: 'phoenix', name: 'Phoenix 1.0', provider: 'Phoenix', icon: GiFire, color: 'from-red-500 to-orange-500', pricing: 'Budget', context: '—', type: 'image', endpoint: `${base}/api/models/phoenix` },
-  { id: 'nano', name: 'Nano Banana Pro', provider: 'Nano', icon: SiGooglegemini, color: 'from-yellow-400 to-orange-400', pricing: 'Budget', context: '—', type: 'image', endpoint: `${base}/api/models/nano` },
+  { id: 'flux-2-dev', name: 'Flux 2', provider: 'Black Forest', icon: SiFlux, color: 'from-purple-500 to-pink-500', pricing: 'Standard', context: '—', type: 'image', endpoint: `${base}/api/v1/images/generations` },
+  { id: 'lucid-origin', name: 'Lucid Origin', provider: 'Lucid', icon: SiImagedotsc, color: 'from-teal-500 to-cyan-600', pricing: 'Standard', context: '—', type: 'image', endpoint: `${base}/api/v1/images/generations` },
+  { id: 'phoenix-1.0', name: 'Phoenix 1.0', provider: 'Phoenix', icon: GiFire, color: 'from-red-500 to-orange-500', pricing: 'Budget', context: '—', type: 'image', endpoint: `${base}/api/v1/images/generations` },
+  { id: 'nano-image', name: 'Nano Banana Pro', provider: 'Nano', icon: SiGooglegemini, color: 'from-yellow-400 to-orange-400', pricing: 'Budget', context: '—', type: 'image', endpoint: `${base}/api/v1/images/generations` },
 ];
 
 const TTS_MODELS: AnyModel[] = [
-  { id: 'lindsay', name: 'Lindsay TTS', provider: 'Typecast', icon: SiLapce, color: 'from-rose-500 to-pink-500', pricing: 'Standard', context: '—', type: 'tts', endpoint: `${base}/api/models/lindsay` },
-  { id: 'starling', name: 'Starling TTS', provider: 'Aichiverse', icon: SiSecurityscorecard, color: 'from-violet-500 to-purple-500', pricing: 'Standard', context: '—', type: 'tts', endpoint: `${base}/api/models/starling` },
+  { id: 'lindsay-tts', name: 'Lindsay TTS', provider: 'Typecast', icon: SiLapce, color: 'from-rose-500 to-pink-500', pricing: 'Standard', context: '—', type: 'tts', endpoint: `${base}/api/v1/audio/speech` },
+  { id: 'starling-tts', name: 'Starling TTS', provider: 'Aichiverse', icon: SiSecurityscorecard, color: 'from-violet-500 to-purple-500', pricing: 'Standard', context: '—', type: 'tts', endpoint: `${base}/api/v1/audio/speech` },
 ];
 
 const PRICING_STYLE: Record<string, string> = {
@@ -1029,17 +1029,18 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
     const t0 = Date.now();
     try {
       if (selectedModel.type === 'image') {
-        const res = await fetch(selectedModel.endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` }, body: JSON.stringify({ prompt: message, steps: 4 }) });
+        const res = await fetch(selectedModel.endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` }, body: JSON.stringify({ model: selectedModel.id, prompt: message, steps: 4 }) });
         const data = await res.json(); setLatency(Date.now() - t0);
-        if (!res.ok) { setError(data.error || `Error ${res.status}`); return; }
-        setImageBase64(data.imageBase64); setActiveTab('response'); return;
+        if (!res.ok) { setError(data.error?.message || `Error ${res.status}`); return; }
+        setImageBase64(data.data?.[0]?.b64_json ?? null); setActiveTab('response'); return;
       }
       if (selectedModel.type === 'tts') {
-        const res = await fetch(selectedModel.endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` }, body: JSON.stringify({ text: message, emotion: ttsEmotion, volume: 100, pitch: 0, tempo: 1 }) });
+        const res = await fetch(selectedModel.endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` }, body: JSON.stringify({ model: selectedModel.id, input: message, emotion: ttsEmotion, volume: 100, pitch: 0, tempo: 1 }) });
         const data = await res.json(); setLatency(Date.now() - t0);
-        if (!res.ok) { setError(data.error || `Error ${res.status}`); return; }
-        setAudioUrl(data.audio); setActiveTab('response');
-        if (data.audio) { const a = new Audio(data.audio); a.onended = () => setIsPlaying(false); a.play().catch(() => {}); audioRef.current = a; setIsPlaying(true); }
+        if (!res.ok) { setError(data.error?.message || `Error ${res.status}`); return; }
+        const ttsAudio = data.audio_url ?? data.audio ?? null;
+        setAudioUrl(ttsAudio); setActiveTab('response');
+        if (ttsAudio) { const a = new Audio(ttsAudio); a.onended = () => setIsPlaying(false); a.play().catch(() => {}); audioRef.current = a; setIsPlaying(true); }
         return;
       }
       const msgs: any[] = [];
