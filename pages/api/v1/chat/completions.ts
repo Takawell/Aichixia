@@ -20,6 +20,7 @@ import { chatMimo, MimoRateLimitError, MimoQuotaError } from "@/lib/mimo";
 import { chatMinimax, MinimaxRateLimitError, MinimaxQuotaError } from "@/lib/minimax";
 import { chatGrokFast, GrokFastRateLimitError, GrokFastQuotaError } from "@/lib/grok-fast";
 import { chatGrok, GrokRateLimitError, GrokQuotaError } from "@/lib/grok";
+import { chatZhipu, ZhipuRateLimitError, ZhipuQuotaError } from "@/lib/zhipu";
 import { verifyApiKey, incrementUsage, logRequest, updateDailyUsage } from "@/lib/console-utils";
 import { getServiceSupabase } from "@/lib/supabase";
 
@@ -56,6 +57,7 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "cohere-command-a": { fn: chatCohere, provider: "cohere" },
   "grok-3": { fn: chatGrok, provider: "grok" },
   "grok-4-fast": { fn: chatGrokFast, provider: "grok-fast" },
+  "glm-4.7-flash": { fn: chatZhipu, provider: "zhipu" },
   "aichixia-flash": { fn: chatAichixia, provider: "aichixia" },
 };
 
@@ -80,6 +82,7 @@ const RATE_LIMIT_ERRORS = [
   MinimaxRateLimitError,
   GrokRateLimitError,
   GrokFastRateLimitError,
+  ZhipuRateLimitError,
   AichixiaRateLimitError,
 ];
 
@@ -102,6 +105,7 @@ const QUOTA_ERRORS = [
   MinimaxQuotaError,
   GrokQuotaError,
   GrokFastQuotaError,
+  ZhipuQuotaError,
   AichixiaQuotaError,
 ];
 
