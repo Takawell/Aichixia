@@ -9,8 +9,7 @@ export type ChatMessage = {
 
 const ZHIPU_API_KEY = process.env.ZHIPU_API_KEY;
 const ZHIPU_ACCOUNT_ID = process.env.ZHIPU_ACCOUNT_ID;
-const ZHIPU_BASE_URL = process.env.ZHIPU_BASE_URL;
-const ZHIPU_MODEL = process.env.ZHIPU_MODEL || "glm-4-flash";
+const ZHIPU_MODEL = process.env.ZHIPU_MODEL;
 
 if (!ZHIPU_API_KEY || !ZHIPU_ACCOUNT_ID) {
   console.warn("[lib/zhipu] Warning: ZHIPU credentials not set in env.");
@@ -18,7 +17,7 @@ if (!ZHIPU_API_KEY || !ZHIPU_ACCOUNT_ID) {
 
 const client = new OpenAI({
   apiKey: ZHIPU_API_KEY,
-  baseURL: ZHIPU_BASE_URL,
+  baseURL: `https://api.cloudflare.com/client/v4/accounts/${ZHIPU_ACCOUNT_ID}/ai/v1`,
 });
 
 export class ZhipuRateLimitError extends Error {
