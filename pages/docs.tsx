@@ -45,45 +45,41 @@ export default function Docs() {
   };
 
   const codeExamples = {
-    chatCompletionsJS: `const response = await fetch('${base}/api/v1/chat/completions', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer YOUR_API_KEY'
-  },
-  body: JSON.stringify({
-    model: 'claude-opus-4.5',
-    messages: [
-      { role: 'user', content: 'Explain quantum computing' }
-    ],
-    temperature: 0.7,
-    max_tokens: 1000
-  })
+    chatCompletionsJS: `import OpenAI from "openai";
+
+const client = new OpenAI({
+  apiKey: "YOUR_API_KEY",
+  baseURL: "${base}/api/v1",
 });
 
-const data = await response.json();
-console.log(data.choices[0].message.content);`,
+const response = await client.chat.completions.create({
+  model: "claude-opus-4.5",
+  messages: [
+    { role: "user", content: "Explain quantum computing" }
+  ],
+  temperature: 0.7,
+  max_tokens: 1000,
+});
 
-    chatCompletionsPython: `import requests
+console.log(response.choices[0].message.content);`,
 
-response = requests.post(
-    '${base}/api/v1/chat/completions',
-    headers={
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer YOUR_API_KEY'
-    },
-    json={
-        'model': 'claude-opus-4.5',
-        'messages': [
-            {'role': 'user', 'content': 'Explain quantum computing'}
-        ],
-        'temperature': 0.7,
-        'max_tokens': 1000
-    }
+    chatCompletionsPython: `from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_API_KEY",
+    base_url="${base}/api/v1",
 )
 
-data = response.json()
-print(data['choices'][0]['message']['content'])`,
+response = client.chat.completions.create(
+    model="claude-opus-4.5",
+    messages=[
+        {"role": "user", "content": "Explain quantum computing"}
+    ],
+    temperature=0.7,
+    max_tokens=1000,
+)
+
+print(response.choices[0].message.content)`,
 
     chatCompletionsOpenAI: `from openai import OpenAI
 
@@ -112,6 +108,25 @@ print(response.choices[0].message.content)`,
     "temperature": 0.7,
     "max_tokens": 500
   }'`,
+
+    chatCompletionsNode: `const OpenAI = require("openai");
+
+const client = new OpenAI({
+  apiKey: "YOUR_API_KEY",
+  baseURL: "${base}/api/v1",
+});
+
+async function main() {
+  const response = await client.chat.completions.create({
+    model: "gpt-5-mini",
+    messages: [{ role: "user", content: "Hello!" }],
+    temperature: 0.7,
+    max_tokens: 500,
+  });
+  console.log(response.choices[0].message.content);
+}
+
+main();`,
 
     visionJS: `const response = await fetch('${base}/api/v1/chat/completions', {
   method: 'POST',
@@ -467,8 +482,8 @@ print(data['audio_url'])`,
                     </div>
                   </div>
 
-                  <CodeBlock code={codeExamples.chatCompletionsJS} lang="JavaScript" id="quickstart-js" />
-                  <CodeBlock code={codeExamples.chatCompletionsOpenAI} lang="Python (OpenAI SDK)" id="quickstart-openai" />
+                  <CodeBlock code={codeExamples.chatCompletionsJS} lang="TypeScript (OpenAI SDK)" id="quickstart-js" />
+                  <CodeBlock code={codeExamples.chatCompletionsPython} lang="Python (OpenAI SDK)" id="quickstart-openai" />
                 </div>
               )}
 
@@ -597,8 +612,9 @@ print(data['audio_url'])`,
                     )}
                   </div>
 
-                  <CodeBlock code={codeExamples.chatCompletionsJS} lang="JavaScript" id="chat-js" />
-                  <CodeBlock code={codeExamples.chatCompletionsPython} lang="Python" id="chat-python" />
+                  <CodeBlock code={codeExamples.chatCompletionsJS} lang="TypeScript (OpenAI SDK)" id="chat-js" />
+                  <CodeBlock code={codeExamples.chatCompletionsPython} lang="Python (OpenAI SDK)" id="chat-python" />
+                  <CodeBlock code={codeExamples.chatCompletionsNode} lang="Node.js (CommonJS)" id="chat-node" />
                   <CodeBlock code={codeExamples.chatCompletionsCurl} lang="cURL" id="chat-curl" />
 
                   <div className="p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
