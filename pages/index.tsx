@@ -8,6 +8,39 @@ import { oneDark, oneLight } from 'react-syntax-highlighter/dist/cjs/styles/pris
 
 const base = "https://www.aichixia.xyz";
 
+const allModelTicker = [
+  "DeepSeek V3.2", "Claude Opus 4.5", "Gemini 3 Flash", "GPT-5 Mini", "Kimi K2",
+  "Qwen3 235B", "Llama 3.3 70B", "Mistral 3.1", "Grok 3", "Grok 4 Fast",
+  "GLM 4.7", "DeepSeek V3.1", "MiniMax M2.1", "Aichixia 114B", "MiMo V2 Flash",
+  "GPT-OSS 120B", "Cohere Command A", "Groq Compound", "Qwen3 Coder 480B", "GLM 4.7 Flash",
+];
+
+const sdkBadges = [
+  { name: "OpenAI SDK", color: "from-emerald-500 to-green-600" },
+  { name: "Anthropic SDK", color: "from-orange-500 to-amber-600" },
+  { name: "Python", color: "from-blue-500 to-indigo-600" },
+  { name: "TypeScript", color: "from-sky-500 to-cyan-600" },
+  { name: "Node.js", color: "from-green-600 to-emerald-700" },
+  { name: "Go", color: "from-cyan-500 to-teal-600" },
+  { name: "Ruby", color: "from-red-500 to-rose-600" },
+  { name: "PHP", color: "from-purple-500 to-violet-600" },
+  { name: "Java", color: "from-orange-600 to-red-700" },
+  { name: "Rust", color: "from-orange-700 to-red-800" },
+  { name: "cURL", color: "from-zinc-600 to-zinc-700" },
+  { name: "Kotlin", color: "from-purple-600 to-indigo-700" },
+];
+
+const comparisonRows = [
+  { feature: "OpenAI Compatible", aichixia: true, openai: true },
+  { feature: "Anthropic SDK Support", aichixia: true, openai: false },
+  { feature: "20+ Models", aichixia: true, openai: false },
+  { feature: "Image Generation", aichixia: true, openai: true },
+  { feature: "Text-to-Speech", aichixia: true, openai: true },
+  { feature: "Free Tier", aichixia: true, openai: false },
+  { feature: "Free Pro Plan", aichixia: true, openai: false },
+  { feature: "Single Endpoint", aichixia: true, openai: false },
+];
+
 const models = [
   { id: "deepseek-v3.2", name: "DeepSeek V3.2", provider: "DeepSeek", description: "Deep reasoning and code generation", color: "from-purple-500 to-pink-500" },
   { id: "claude-opus-4.5", name: "Claude Opus 4.5", provider: "Anthropic", description: "World's #1 AI model for complex tasks", color: "from-orange-500 to-red-500" },
@@ -72,7 +105,9 @@ const quickStartSteps = [
     title: "Install SDK",
     description: "Use OpenAI's official SDK or any HTTP client. Works with all major languages.",
     code: `npm install openai
+npm install @anthropic-ai/sdk
 pip install openai
+pip install anthropic
 gem install ruby-openai
 go get github.com/sashabaranov/go-openai`,
     icon: FaBoxOpen,
@@ -398,6 +433,35 @@ export default function Home() {
         .stagger-delay-4 { animation-delay: 0.4s; }
         .stagger-delay-5 { animation-delay: 0.5s; }
         .stagger-delay-6 { animation-delay: 0.6s; }
+        @keyframes marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .animate-marquee {
+          animation: marquee 30s linear infinite;
+          will-change: transform;
+        }
+        .animate-marquee:hover {
+          animation-play-state: paused;
+        }
+        @keyframes marquee-slow {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .animate-marquee-slow {
+          animation: marquee-slow 40s linear infinite;
+          will-change: transform;
+        }
+        @keyframes pulse-glow {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
+          50% { box-shadow: 0 0 0 8px rgba(34,197,94,0); }
+        }
+        .pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+        @keyframes countUp {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .count-up { animation: countUp 0.5s ease-out forwards; }
       `}} />
       
       <Head>
@@ -606,13 +670,29 @@ export default function Home() {
         )}
       </header>
 
+      <div className="relative z-40 bg-emerald-500/10 dark:bg-emerald-500/5 border-b border-emerald-200 dark:border-emerald-900/50 py-1.5 overflow-hidden">
+        <div className="flex items-center justify-center gap-3 text-[10px] sm:text-xs font-semibold text-emerald-700 dark:text-emerald-400">
+          <div className="flex items-center gap-1.5">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <span>All systems operational</span>
+          </div>
+          <span className="text-emerald-400 dark:text-emerald-600">•</span>
+          <span>99.99% uptime</span>
+          <span className="text-emerald-400 dark:text-emerald-600">•</span>
+          <span className="hidden sm:inline">API latency: &lt;100ms</span>
+        </div>
+      </div>
+
       <section className="relative pt-12 sm:pt-16 lg:pt-20 pb-16 sm:pb-20 lg:pb-24 px-3 sm:px-4 lg:px-6 overflow-hidden">
         <div className="max-w-7xl mx-auto">
           <div className="text-center space-y-4 sm:space-y-6">
             <div className="space-y-3 sm:space-y-4 opacity-0 fade-in-up stagger-delay-1">
               <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50">
                 <FaStar className="w-3 h-3 text-blue-600 dark:text-blue-400" />
-                <span className="text-[10px] sm:text-xs font-semibold text-blue-700 dark:text-blue-300">20+ AI Models in One API</span>
+                <span className="text-[10px] sm:text-xs font-semibold text-blue-700 dark:text-blue-300">20+ AI Models · OpenAI & Anthropic Compatible</span>
               </div>
               
               <h1 className="text-3xl sm:text-4xl lg:text-6xl font-black text-zinc-900 dark:text-white leading-tight tracking-tight px-4">
@@ -624,7 +704,7 @@ export default function Home() {
               </h1>
               
               <p className="text-sm sm:text-base lg:text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto leading-relaxed px-4">
-                One unified API for Claude, GPT, Gemini, and more. Switch models instantly, scale effortlessly, and ship AI features in minutes.
+                One unified API for Claude, GPT, Gemini, and more. Compatible with OpenAI <span className="font-semibold text-zinc-800 dark:text-zinc-200">and</span> Anthropic SDKs. Switch models instantly, scale effortlessly.
               </p>
             </div>
 
@@ -660,6 +740,31 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <div className="py-6 sm:py-8 overflow-hidden border-y border-zinc-100 dark:border-zinc-900 bg-white dark:bg-black">
+        <div className="mb-4 sm:mb-5 text-center">
+          <p className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-600">20+ Models Available</p>
+        </div>
+        <div className="relative flex overflow-hidden">
+          <div className="flex animate-marquee gap-3 whitespace-nowrap">
+            {[...allModelTicker, ...allModelTicker].map((model, i) => (
+              <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:border-blue-400 dark:hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-default flex-shrink-0">
+                <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex-shrink-0"></span>
+                {model}
+              </span>
+            ))}
+          </div>
+        </div>
+        <div className="mt-5 sm:mt-6 relative flex overflow-hidden">
+          <div className="flex animate-marquee-slow gap-2 whitespace-nowrap" style={{animationDirection: 'reverse'}}>
+            {[...sdkBadges, ...sdkBadges].map((sdk, i) => (
+              <span key={i} className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r ${sdk.color} text-white text-[10px] sm:text-xs font-bold shadow-sm flex-shrink-0`}>
+                {sdk.name}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
 
       <section className="py-12 sm:py-16 lg:py-20 px-3 sm:px-4 lg:px-6 bg-zinc-50 dark:bg-zinc-950/50" id="features" data-animate="features">
         <div className="max-w-7xl mx-auto">
@@ -790,6 +895,31 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <div className="py-8 sm:py-10 px-3 sm:px-4 lg:px-6 bg-gradient-to-r from-blue-600 via-cyan-600 to-purple-600">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6">
+            <div className="text-center sm:text-left">
+              <p className="text-white/70 text-xs sm:text-sm font-semibold uppercase tracking-widest mb-1">One line of code to switch</p>
+              <p className="text-white font-black text-lg sm:text-xl">Already using OpenAI? Migrate in seconds.</p>
+            </div>
+            <div className="flex flex-col gap-2 w-full sm:w-auto sm:min-w-[380px]">
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-500/20 border border-red-400/30">
+                <span className="text-red-200 text-[10px] font-bold uppercase tracking-wider flex-shrink-0">Before</span>
+                <code className="text-white/80 text-[10px] sm:text-xs font-mono truncate">baseURL: "https://api.openai.com/v1"</code>
+              </div>
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-500/20 border border-emerald-400/30">
+                <span className="text-emerald-200 text-[10px] font-bold uppercase tracking-wider flex-shrink-0">After</span>
+                <code className="text-white text-[10px] sm:text-xs font-mono truncate">baseURL: "https://www.aichixia.xyz/api/v1"</code>
+              </div>
+            </div>
+            <Link href="/console" className="flex-shrink-0 flex items-center gap-1.5 px-5 py-2.5 text-sm font-bold text-blue-600 bg-white hover:bg-zinc-50 rounded-lg shadow-xl transition-all duration-300 hover:scale-105 whitespace-nowrap">
+              <FaArrowRight className="w-3.5 h-3.5" />
+              Start Free
+            </Link>
+          </div>
+        </div>
+      </div>
 
       <section className="py-12 sm:py-16 lg:py-20 px-3 sm:px-4 lg:px-6 bg-zinc-50 dark:bg-zinc-950/50" data-animate="usecases">
         <div className="max-w-7xl mx-auto">
@@ -1132,6 +1262,78 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="py-12 sm:py-16 lg:py-20 px-3 sm:px-4 lg:px-6" data-animate="comparison">
+        <div className="max-w-4xl mx-auto">
+          <div className={`text-center space-y-3 mb-10 sm:mb-12 transition-all duration-700 ${isVisible.comparison ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50">
+              <FaBolt className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+              <span className="text-[10px] sm:text-xs font-semibold text-blue-700 dark:text-blue-300">Why Choose Aichixia</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-zinc-900 dark:text-white px-4">
+              Aichixia vs OpenAI API
+            </h2>
+            <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400 max-w-xl mx-auto px-4">
+              Everything OpenAI offers, plus 20+ additional models, Anthropic SDK support, and a free Pro plan.
+            </p>
+          </div>
+
+          <div className={`transition-all duration-700 ${isVisible.comparison ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+            <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-xl bg-white dark:bg-zinc-950">
+              <div className="grid grid-cols-3 bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
+                <div className="p-4 sm:p-5 text-xs sm:text-sm font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Feature</div>
+                <div className="p-4 sm:p-5 text-center">
+                  <div className="inline-flex flex-col items-center">
+                    <div className="text-sm sm:text-base font-black text-zinc-900 dark:text-white flex items-center gap-1.5">
+                      <FaTerminal className="w-3.5 h-3.5 text-blue-500" />
+                      Aichixia
+                    </div>
+                    <span className="text-[9px] text-blue-600 dark:text-blue-400 font-semibold">Our Platform</span>
+                  </div>
+                </div>
+                <div className="p-4 sm:p-5 text-center">
+                  <div className="inline-flex flex-col items-center">
+                    <div className="text-sm sm:text-base font-black text-zinc-500 dark:text-zinc-400">OpenAI</div>
+                    <span className="text-[9px] text-zinc-400 dark:text-zinc-500 font-semibold">Competitor</span>
+                  </div>
+                </div>
+              </div>
+              {comparisonRows.map((row, idx) => (
+                <div key={idx} className={`grid grid-cols-3 border-b border-zinc-100 dark:border-zinc-800/60 last:border-0 ${idx % 2 === 0 ? '' : 'bg-zinc-50/50 dark:bg-zinc-900/30'}`}>
+                  <div className="p-3.5 sm:p-4 text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 flex items-center">{row.feature}</div>
+                  <div className="p-3.5 sm:p-4 flex items-center justify-center">
+                    {row.aichixia ? (
+                      <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+                        <FaCheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+                        <span className="text-[10px] sm:text-xs font-bold hidden sm:inline">Yes</span>
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1 text-red-400 dark:text-red-500">
+                        <FaTimes className="w-4 h-4 sm:w-5 sm:h-5" />
+                        <span className="text-[10px] sm:text-xs font-bold hidden sm:inline">No</span>
+                      </span>
+                    )}
+                  </div>
+                  <div className="p-3.5 sm:p-4 flex items-center justify-center">
+                    {row.openai ? (
+                      <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+                        <FaCheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+                        <span className="text-[10px] sm:text-xs font-bold hidden sm:inline">Yes</span>
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1 text-red-400 dark:text-red-500">
+                        <FaTimes className="w-4 h-4 sm:w-5 sm:h-5" />
+                        <span className="text-[10px] sm:text-xs font-bold hidden sm:inline">No</span>
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="text-center text-xs text-zinc-400 dark:text-zinc-600 mt-4">Aichixia is compatible with both OpenAI and Anthropic SDKs — change just one line of code to switch.</p>
+          </div>
+        </div>
+      </section>
+
       <section className="py-12 sm:py-16 lg:py-20 px-3 sm:px-4 lg:px-6" data-animate="testimonials">
         <div className="max-w-7xl mx-auto">
           <div className={`text-center space-y-3 mb-10 sm:mb-12 transition-all duration-700 ${isVisible.testimonials ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
@@ -1180,6 +1382,32 @@ export default function Home() {
                   </div>
                 </div>
               </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-12 sm:py-16 lg:py-20 px-3 sm:px-4 lg:px-6 bg-zinc-50 dark:bg-zinc-950/50" data-animate="faq">
+        <div className="max-w-3xl mx-auto">
+          <div className={`text-center space-y-3 mb-10 sm:mb-12 transition-all duration-700 ${isVisible.faq ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-zinc-900 dark:text-white px-4">Frequently Asked</h2>
+            <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400 max-w-xl mx-auto px-4">Everything you need to know about Aichixia.</p>
+          </div>
+          <div className={`space-y-3 transition-all duration-700 ${isVisible.faq ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+            {[
+              { q: "Is Aichixia really free?", a: "Yes. The free tier gives you access to all models with standard rate limits. No credit card required. Pro tier is also free — find the redeem code hidden in our docs." },
+              { q: "Do I need to change my code to use Aichixia?", a: "No. If you already use the OpenAI SDK, just change one line — the baseURL. Everything else stays the same. We also support the Anthropic SDK natively." },
+              { q: "Which models are available?", a: "20+ models including Claude Opus 4.5, GPT-5 Mini, Gemini 3 Flash, Grok 3, DeepSeek V3.2, Kimi K2, Qwen3 235B, Llama 3.3 70B, Mistral 3.1, and many more. New models are added regularly." },
+              { q: "What about image generation and TTS?", a: "Yes! We support image generation via /api/v1/images/generations (Flux 2, Lucid Origin, Phoenix, Nano) and text-to-speech via /api/v1/audio/speech (Starling TTS, Lindsay TTS)." },
+              { q: "Can I use the Anthropic SDK?", a: "Yes! Point the Anthropic SDK to our /api/v1/messages endpoint with your Aichixia API key. All Aichixia models are accessible — not just Claude." },
+            ].map((faq, idx) => (
+              <details key={idx} className="group p-4 sm:p-5 rounded-xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 transition-all duration-200 cursor-pointer">
+                <summary className="flex items-center justify-between gap-3 list-none">
+                  <span className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white">{faq.q}</span>
+                  <FaChevronDown className="w-3.5 h-3.5 text-zinc-400 group-open:rotate-180 transition-transform duration-200 flex-shrink-0" />
+                </summary>
+                <p className="mt-3 text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">{faq.a}</p>
+              </details>
             ))}
           </div>
         </div>
