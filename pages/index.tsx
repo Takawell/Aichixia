@@ -191,7 +191,7 @@ const pricingPlans = [
 
 const stats = [
   { label: "API Calls", value: "1.2B+", icon: FaChartLine },
-  { label: "Developers", value: "50K+", icon: FaUsers },
+  { label: "Developers", value: "40K+", icon: FaUsers },
   { label: "Uptime", value: "99.99%", icon: FaClock },
   { label: "Models", value: "20+", icon: FaRobot }
 ];
@@ -201,21 +201,21 @@ const testimonials = [
     name: "Takawell",
     role: "Founder of Aichiverse",
     avatar: "https://avatars.githubusercontent.com/u/175643773?v=4",
-    content: "Aichixia has been a total game-changer for our unit economics. Before switching, our AI infrastructure costs were scaling faster than our revenue, but their API helped us slash those expenses by 70% overnight. The best part? The OpenAI-compatible endpoint meant we only had to change a single line of code to migrate—zero downtime, zero headaches.",
+    content: "We built Aichixia to solve our own unit economics. By slashing infrastructure costs by 70% while maintaining a 100% OpenAI-compatible endpoint, we've ensured that scaling no longer comes with a financial headache or technical downtime.",
     rating: 5
   },
   {
     name: "Reinaa",
-    role: "Founder of CodeAssist",
+    role: "Co-Founder of Aichiverse",
     avatar: "https://avatars.githubusercontent.com/u/227315981?v=4",
-    content: "In terms of reliability and low latency, Aichixia is in a league of its own. We benchmarked several providers, and this was the only one that remained lightning-fast during peak traffic. The native multi-model support is brilliant; it allows my team to route simple tasks to faster models while reserving high-reasoning power for complex logic, all through one interface.",
+    content: "Our engineering focus is obsessed with reliability. We’ve architected Aichixia to stay lightning-fast even during peak traffic, using native multi-model support to intelligently route tasks without compromising on high-reasoning power.",
     rating: 5
   },
   {
     name: "Ivy",
-    role: "Founder of CodeAssist",
+    role: "CPO of Aichiverse",
     avatar: "https://i.ibb.co/MxvTQVpH/7ec6e394511b100ced3e56a912acad4e.jpg",
-    content: "The developer experience here is top-tier. Most providers give you a raw API and wish you luck, but Aichixia provides world-class documentation and a playground that makes prototyping incredibly efficient. Beyond the tech, their support team is exceptionally responsive—it truly feels like having an extension of our own engineering team.",
+    content: "Developer experience is our north star. From world-class documentation to an efficient playground, we've designed every touchpoint to feel like an extension of your own engineering team, making prototyping faster than ever before.",
     rating: 5
   }
 ];
@@ -676,7 +676,7 @@ export default function Home() {
             <div className="space-y-3 sm:space-y-4 opacity-0 fade-in-up stagger-delay-1">
               <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50">
                 <FaStar className="w-3 h-3 text-blue-600 dark:text-blue-400" />
-                <span className="text-[10px] sm:text-xs font-semibold text-blue-700 dark:text-blue-300">20+ AI Models · OpenAI & Anthropic Compatible</span>
+                <span className="text-[10px] sm:text-xs font-semibold text-blue-700 dark:text-blue-300">OpenAI & Anthropic Compatible</span>
               </div>
               
               <h1 className="text-3xl sm:text-4xl lg:text-6xl font-black text-zinc-900 dark:text-white leading-tight tracking-tight px-4">
@@ -698,7 +698,7 @@ export default function Home() {
                 className="group flex items-center gap-1.5 sm:gap-2 px-5 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base font-bold text-white bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 rounded-lg shadow-xl hover:shadow-blue-500/50 transition-all duration-300 hover:scale-105 w-full sm:w-auto justify-center"
               >
                 <FaRocket className="w-4 h-4" />
-                <span>Start Building Free</span>
+                <span>Start Free</span>
                 <FaArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform duration-300" />
               </Link>
               
@@ -1326,10 +1326,10 @@ export default function Home() {
               <span className="text-[10px] sm:text-xs font-semibold text-yellow-700 dark:text-yellow-300">Loved by Developers</span>
             </div>
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-zinc-900 dark:text-white px-4">
-              What Our Users Say
+              The Minds Behind Aichiverse
             </h2>
             <p className="text-sm sm:text-base lg:text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto px-4">
-              Join thousands of developers building the future with Aichixia.
+              Insights from our founders and engineering leads on why we built Aichixia to be the fastest in the market.
             </p>
           </div>
 
