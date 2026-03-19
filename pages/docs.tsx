@@ -353,7 +353,7 @@ console.log(message.content[0].text);`,
         <div>
           <p className="text-xs font-bold text-amber-800 dark:text-amber-300 mb-1">Built-in Tool Calling</p>
           <p className="text-xs text-amber-700 dark:text-amber-400 leading-relaxed">
-            Several models have native tool calling and web search built-in — you do not need to define or pass a <code className="bg-amber-100 dark:bg-amber-900/30 px-1 rounded">tools</code> array. Just send your prompt and the model handles it automatically. Models with built-in tools: <code className="bg-amber-100 dark:bg-amber-900/30 px-1 rounded">grok-3</code>, <code className="bg-amber-100 dark:bg-amber-900/30 px-1 rounded">grok-4-fast</code>, <code className="bg-amber-100 dark:bg-amber-900/30 px-1 rounded">groq-compound</code>, <code className="bg-amber-100 dark:bg-amber-900/30 px-1 rounded">kimi-k2</code>, <code className="bg-amber-100 dark:bg-amber-900/30 px-1 rounded">cohere-command-a</code>.
+            Several models have native tool calling and web search built-in — you do not need to define or pass a <code className="bg-amber-100 dark:bg-amber-900/30 px-1 rounded">tools</code> array. Just send your prompt and the model handles it automatically. Models with built-in tools: <code className="bg-amber-100 dark:bg-amber-900/30 px-1 rounded">gemini-3-flash</code>, <code className="bg-amber-100 dark:bg-amber-900/30 px-1 rounded">deepseek-v3.1</code>, <code className="bg-amber-100 dark:bg-amber-900/30 px-1 rounded">groq-compound</code>, <code className="bg-amber-100 dark:bg-amber-900/30 px-1 rounded">kimi-k2</code>, <code className="bg-amber-100 dark:bg-amber-900/30 px-1 rounded">cohere-command-a and more</code>.
           </p>
         </div>
       </div>
