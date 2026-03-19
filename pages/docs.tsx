@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Head from "next/head";
 import Link from "next/link";
-import { FaCopy, FaCheck, FaChevronRight, FaTerminal, FaBolt, FaBook, FaMoon, FaSun, FaBars, FaTimes, FaKey, FaMicrophone, FaImage, FaCode, FaCheckCircle, FaRocket, FaLayerGroup, FaDatabase, FaPlay } from "react-icons/fa";
+import { FaCopy, FaCheck, FaChevronRight, FaTerminal, FaBolt, FaBook, FaMoon, FaSun, FaBars, FaTimes, FaKey, FaMicrophone, FaImage, FaCode, FaCheckCircle, FaRocket, FaLayerGroup, FaDatabase, FaPlay, FaInfoCircle } from "react-icons/fa";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 
@@ -10,7 +10,7 @@ const base = "https://www.aichixia.xyz";
 export default function Docs() {
   const [isDark, setIsDark] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'chat' | 'image' | 'tts' | 'quickstart'>('quickstart');
+  const [activeTab, setActiveTab] = useState<'chat' | 'image' | 'tts' | 'quickstart' | 'anthropic'>('quickstart');
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [expandedSection, setExpandedSection] = useState<string | null>('chat-completions');
 
@@ -81,34 +81,6 @@ response = client.chat.completions.create(
 
 print(response.choices[0].message.content)`,
 
-    chatCompletionsOpenAI: `from openai import OpenAI
-
-client = OpenAI(
-    api_key="YOUR_API_KEY",
-    base_url="${base}/api/v1",
-)
-
-response = client.chat.completions.create(
-    model="claude-opus-4.5",
-    messages=[
-        {"role": "user", "content": "Explain quantum computing"}
-    ],
-    temperature=0.7,
-    max_tokens=1000,
-)
-
-print(response.choices[0].message.content)`,
-
-    chatCompletionsCurl: `curl -X POST ${base}/api/v1/chat/completions \\
-  -H "Authorization: Bearer YOUR_API_KEY" \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "model": "gpt-5-mini",
-    "messages": [{"role": "user", "content": "Hello!"}],
-    "temperature": 0.7,
-    "max_tokens": 500
-  }'`,
-
     chatCompletionsNode: `const OpenAI = require("openai");
 
 const client = new OpenAI({
@@ -127,6 +99,16 @@ async function main() {
 }
 
 main();`,
+
+    chatCompletionsCurl: `curl -X POST ${base}/api/v1/chat/completions \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "gpt-5-mini",
+    "messages": [{"role": "user", "content": "Hello!"}],
+    "temperature": 0.7,
+    "max_tokens": 500
+  }'`,
 
     visionJS: `const response = await fetch('${base}/api/v1/chat/completions', {
   method: 'POST',
@@ -174,7 +156,6 @@ const imageBase64 = data.data[0].b64_json;
 console.log(imageBase64);`,
 
     imageGenerationPython: `import requests
-import base64
 
 response = requests.post(
     '${base}/api/v1/images/generations',
@@ -261,6 +242,69 @@ print(data['audio_url'])`,
     "tempo": 1,
     "response_format": "mp3"
   }'`,
+
+    anthropicTS: `import Anthropic from "@anthropic-ai/sdk";
+
+const client = new Anthropic({
+  apiKey: "YOUR_API_KEY",
+  baseURL: "${base}/api/v1",
+});
+
+const message = await client.messages.create({
+  model: "claude-opus-4.5",
+  max_tokens: 1024,
+  messages: [
+    { role: "user", content: "Explain quantum computing" }
+  ],
+});
+
+console.log(message.content[0].text);`,
+
+    anthropicPython: `import anthropic
+
+client = anthropic.Anthropic(
+    api_key="YOUR_API_KEY",
+    base_url="${base}/api/v1",
+)
+
+message = client.messages.create(
+    model="claude-opus-4.5",
+    max_tokens=1024,
+    messages=[
+        {"role": "user", "content": "Explain quantum computing"}
+    ],
+)
+
+print(message.content[0].text)`,
+
+    anthropicSystem: `import Anthropic from "@anthropic-ai/sdk";
+
+const client = new Anthropic({
+  apiKey: "YOUR_API_KEY",
+  baseURL: "${base}/api/v1",
+});
+
+const message = await client.messages.create({
+  model: "grok-3",
+  max_tokens: 1024,
+  system: "You are a helpful assistant that speaks concisely.",
+  messages: [
+    { role: "user", content: "What is the capital of France?" }
+  ],
+});
+
+console.log(message.content[0].text);`,
+
+    anthropicCurl: `curl -X POST ${base}/api/v1/messages \\
+  -H "x-api-key: YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "claude-opus-4.5",
+    "max_tokens": 1024,
+    "messages": [
+      {"role": "user", "content": "Explain quantum computing"}
+    ]
+  }'`,
   };
 
   const CopyButton = ({ code, id }: { code: string; id: string }) => (
@@ -280,7 +324,7 @@ print(data['audio_url'])`,
       </div>
       <div className="rounded-lg bg-zinc-100 dark:bg-zinc-900 overflow-hidden">
         <SyntaxHighlighter
-          language={lang === 'cURL' ? 'bash' : lang.toLowerCase()}
+          language={lang.toLowerCase().includes('curl') ? 'bash' : lang.toLowerCase().includes('python') ? 'python' : 'typescript'}
           style={isDark ? oneDark : oneLight}
           customStyle={{ margin: 0, padding: '12px', background: 'transparent', fontSize: '11px' }}
           wrapLongLines={true}
@@ -299,6 +343,20 @@ print(data['audio_url'])`,
         {type && <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 font-mono">{type}</span>}
       </div>
       <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">{desc}</p>
+    </div>
+  );
+
+  const ToolCallingNote = () => (
+    <div className="p-4 rounded-xl border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-950/20">
+      <div className="flex items-start gap-2.5">
+        <FaInfoCircle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
+        <div>
+          <p className="text-xs font-bold text-amber-800 dark:text-amber-300 mb-1">Built-in Tool Calling</p>
+          <p className="text-xs text-amber-700 dark:text-amber-400 leading-relaxed">
+            Several models have native tool calling and web search built-in — you do not need to define or pass a <code className="bg-amber-100 dark:bg-amber-900/30 px-1 rounded">tools</code> array. Just send your prompt and the model handles it automatically. Models with built-in tools: <code className="bg-amber-100 dark:bg-amber-900/30 px-1 rounded">grok-3</code>, <code className="bg-amber-100 dark:bg-amber-900/30 px-1 rounded">grok-4-fast</code>, <code className="bg-amber-100 dark:bg-amber-900/30 px-1 rounded">groq-compound</code>, <code className="bg-amber-100 dark:bg-amber-900/30 px-1 rounded">kimi-k2</code>, <code className="bg-amber-100 dark:bg-amber-900/30 px-1 rounded">cohere-command-a</code>.
+          </p>
+        </div>
+      </div>
     </div>
   );
 
@@ -330,12 +388,8 @@ print(data['audio_url'])`,
               </Link>
 
               <nav className="hidden md:flex items-center gap-0.5">
-                <Link href="/" className="px-3 py-1.5 text-xs sm:text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200">
-                  Home
-                </Link>
-                <Link href="/console" className="px-3 py-1.5 text-xs sm:text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200">
-                  Console
-                </Link>
+                <Link href="/" className="px-3 py-1.5 text-xs sm:text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200">Home</Link>
+                <Link href="/console" className="px-3 py-1.5 text-xs sm:text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200">Console</Link>
                 <div className="w-px h-4 bg-zinc-200 dark:bg-zinc-800 mx-1" />
                 <Link href="/console" className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm shadow-blue-600/20 transition-all duration-200">
                   <FaKey className="w-2.5 h-2.5" />
@@ -344,18 +398,10 @@ print(data['audio_url'])`,
               </nav>
 
               <div className="flex items-center gap-1.5 sm:gap-2">
-                <button
-                  onClick={toggleTheme}
-                  className="p-1.5 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
-                  aria-label="Toggle theme"
-                >
+                <button onClick={toggleTheme} className="p-1.5 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200" aria-label="Toggle theme">
                   {isDark ? <FaSun className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <FaMoon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
                 </button>
-                <button
-                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                  className="md:hidden p-1.5 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
-                  aria-label="Toggle menu"
-                >
+                <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-1.5 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200" aria-label="Toggle menu">
                   {mobileMenuOpen ? <FaTimes className="w-4 h-4" /> : <FaBars className="w-4 h-4" />}
                 </button>
               </div>
@@ -387,9 +433,9 @@ print(data['audio_url'])`,
                 Complete guide to integrating Aichixia's AI models. Chat, images, voice, and more — all through one unified API.
               </p>
               <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap pt-1">
-                {['OpenAI Compatible', '20+ Models', 'Image Generation', 'Text-to-Speech'].map((tag, i) => (
+                {['OpenAI Compatible', 'Anthropic Compatible', 'Image Generation', 'Text-to-Speech'].map((tag, i) => (
                   <div key={i} className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm">
-                    <div className={`w-1.5 h-1.5 rounded-full ${i === 0 ? 'bg-emerald-500 animate-pulse' : i === 1 ? 'bg-blue-500' : i === 2 ? 'bg-pink-500' : 'bg-violet-500'}`} />
+                    <div className={`w-1.5 h-1.5 rounded-full ${i === 0 ? 'bg-emerald-500 animate-pulse' : i === 1 ? 'bg-orange-500' : i === 2 ? 'bg-pink-500' : 'bg-violet-500'}`} />
                     <span className="text-[10px] sm:text-xs font-medium text-zinc-500 dark:text-zinc-400">{tag}</span>
                   </div>
                 ))}
@@ -405,6 +451,7 @@ print(data['audio_url'])`,
                 {([
                   { id: 'quickstart', label: 'Quick Start', icon: FaRocket },
                   { id: 'chat', label: 'Chat Completions', icon: FaTerminal },
+                  { id: 'anthropic', label: 'Anthropic SDK', icon: FaLayerGroup },
                   { id: 'image', label: 'Image Generation', icon: FaImage },
                   { id: 'tts', label: 'Text-to-Speech', icon: FaMicrophone },
                 ] as const).map(({ id, label, icon: Icon }) => (
@@ -438,14 +485,14 @@ print(data['audio_url'])`,
                   <div>
                     <h2 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white mb-3">Getting Started</h2>
                     <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400">
-                      Get your API key and start building in under 60 seconds. All endpoints are OpenAI-compatible.
+                      Get your API key and start building in under 60 seconds. Supports both OpenAI and Anthropic SDK.
                     </p>
                   </div>
 
                   <div className="grid sm:grid-cols-3 gap-3 sm:gap-4">
                     {[
                       { icon: FaKey, color: 'text-blue-600 dark:text-blue-400', title: '1. Get API Key', desc: 'Sign up and generate your free API key from the console' },
-                      { icon: FaCode, color: 'text-purple-600 dark:text-purple-400', title: '2. Make Request', desc: 'Use any OpenAI SDK or HTTP client to call our API' },
+                      { icon: FaCode, color: 'text-purple-600 dark:text-purple-400', title: '2. Make Request', desc: 'Use OpenAI SDK, Anthropic SDK, or plain HTTP client' },
                       { icon: FaCheckCircle, color: 'text-green-600 dark:text-green-400', title: '3. Ship Fast', desc: 'Deploy your AI features with confidence and scale' },
                     ].map(({ icon: Icon, color, title, desc }) => (
                       <div key={title} className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
@@ -456,34 +503,48 @@ print(data['audio_url'])`,
                     ))}
                   </div>
 
-                  <div className="p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-base font-bold text-zinc-900 dark:text-white">Installation</h3>
-                      <CopyButton code="npm install openai" id="install" />
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    <div className="p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-sm font-bold text-zinc-900 dark:text-white">OpenAI SDK</h3>
+                        <CopyButton code="npm install openai" id="install-openai" />
+                      </div>
+                      <div className="rounded-lg bg-zinc-100 dark:bg-zinc-900 p-3">
+                        <code className="text-xs text-zinc-800 dark:text-zinc-200">npm install openai</code>
+                      </div>
                     </div>
-                    <div className="rounded-lg bg-zinc-100 dark:bg-zinc-900 p-3 overflow-x-auto">
-                      <code className="text-xs text-zinc-800 dark:text-zinc-200">npm install openai</code>
+                    <div className="p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-sm font-bold text-zinc-900 dark:text-white">Anthropic SDK</h3>
+                        <CopyButton code="npm install @anthropic-ai/sdk" id="install-anthropic" />
+                      </div>
+                      <div className="rounded-lg bg-zinc-100 dark:bg-zinc-900 p-3">
+                        <code className="text-xs text-zinc-800 dark:text-zinc-200">npm install @anthropic-ai/sdk</code>
+                      </div>
                     </div>
                   </div>
 
                   <div className="p-4 sm:p-5 rounded-xl border border-blue-200 dark:border-blue-900/50 bg-blue-50/50 dark:bg-blue-950/10">
-                    <h3 className="text-sm font-bold text-zinc-900 dark:text-white mb-3">Base URLs</h3>
+                    <h3 className="text-sm font-bold text-zinc-900 dark:text-white mb-3">Endpoints</h3>
                     <div className="space-y-2">
                       {[
-                        { label: 'Chat Completions', url: `${base}/api/v1/chat/completions` },
+                        { label: 'Chat Completions (OpenAI)', url: `${base}/api/v1/chat/completions` },
+                        { label: 'Messages (Anthropic)', url: `${base}/api/v1/messages` },
                         { label: 'Image Generation', url: `${base}/api/v1/images/generations` },
                         { label: 'Text-to-Speech', url: `${base}/api/v1/audio/speech` },
                       ].map(({ label, url }) => (
                         <div key={label} className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
-                          <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 min-w-[140px]">{label}</span>
+                          <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 min-w-[180px]">{label}</span>
                           <code className="text-xs text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded break-all">{url}</code>
                         </div>
                       ))}
                     </div>
                   </div>
 
+                  <ToolCallingNote />
+
                   <CodeBlock code={codeExamples.chatCompletionsJS} lang="TypeScript (OpenAI SDK)" id="quickstart-js" />
-                  <CodeBlock code={codeExamples.chatCompletionsPython} lang="Python (OpenAI SDK)" id="quickstart-openai" />
+                  <CodeBlock code={codeExamples.anthropicTS} lang="TypeScript (Anthropic SDK)" id="quickstart-anthropic" />
                 </div>
               )}
 
@@ -502,34 +563,30 @@ print(data['audio_url'])`,
                       <div>
                         <h4 className="text-sm font-bold text-blue-900 dark:text-blue-100 mb-1">Endpoint</h4>
                         <code className="text-xs text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded">POST {base}/api/v1/chat/completions</code>
-                        <p className="text-xs text-blue-700 dark:text-blue-300 mt-1.5">Fully OpenAI-compatible. Use any OpenAI SDK with <code className="bg-blue-100 dark:bg-blue-900/30 px-1 rounded">baseURL: "{base}/api/v1"</code></p>
+                        <p className="text-xs text-blue-700 dark:text-blue-300 mt-1.5">Fully OpenAI-compatible. Set <code className="bg-blue-100 dark:bg-blue-900/30 px-1 rounded">baseURL: "{base}/api/v1"</code> in any OpenAI SDK.</p>
                       </div>
                     </div>
                   </div>
 
+                  <ToolCallingNote />
+
                   <div className="space-y-2.5">
-                    <button
-                      onClick={() => toggleSection('chat-request')}
-                      className="w-full flex items-center justify-between p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors"
-                    >
+                    <button onClick={() => toggleSection('chat-request')} className="w-full flex items-center justify-between p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
                       <h3 className="text-base font-bold text-zinc-900 dark:text-white">Request Body</h3>
                       <FaChevronRight className={`w-4 h-4 text-zinc-400 transition-transform duration-200 ${expandedSection === 'chat-request' ? 'rotate-90' : ''}`} />
                     </button>
                     {expandedSection === 'chat-request' && (
                       <div className="p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
-                        <Param name="model" required type="string" desc="Model ID to use. e.g. claude-opus-4.5, gpt-5-mini, deepseek-v3.2, gemini-3-flash, grok-3" />
+                        <Param name="model" required type="string" desc="Model ID. e.g. claude-opus-4.5, gpt-5-mini, deepseek-v3.2, gemini-3-flash, grok-3" />
                         <Param name="messages" required type="array" desc="Array of message objects with role (system | user | assistant) and content" />
                         <Param name="temperature" type="number" desc="Sampling temperature 0–2. Higher = more creative. Default: 0.8" />
                         <Param name="max_tokens" type="number" desc="Maximum tokens to generate. Default: 1080" />
-                        <Param name="stream" type="boolean" desc="Enable streaming responses via SSE. Default: false. Note: not supported on this endpoint." />
-                        <Param name="top_p" type="number" desc="Nucleus sampling 0–1. Alternative to temperature" />
+                        <Param name="stream" type="boolean" desc="Streaming via SSE. Default: false. Not supported on this endpoint." />
+                        <Param name="top_p" type="number" desc="Nucleus sampling 0–1. Alternative to temperature." />
                       </div>
                     )}
 
-                    <button
-                      onClick={() => toggleSection('chat-response')}
-                      className="w-full flex items-center justify-between p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors"
-                    >
+                    <button onClick={() => toggleSection('chat-response')} className="w-full flex items-center justify-between p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
                       <h3 className="text-base font-bold text-zinc-900 dark:text-white">Response Format</h3>
                       <FaChevronRight className={`w-4 h-4 text-zinc-400 transition-transform duration-200 ${expandedSection === 'chat-response' ? 'rotate-90' : ''}`} />
                     </button>
@@ -563,10 +620,7 @@ print(data['audio_url'])`,
                       </div>
                     )}
 
-                    <button
-                      onClick={() => toggleSection('chat-models')}
-                      className="w-full flex items-center justify-between p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors"
-                    >
+                    <button onClick={() => toggleSection('chat-models')} className="w-full flex items-center justify-between p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
                       <h3 className="text-base font-bold text-zinc-900 dark:text-white">Available Text Models</h3>
                       <FaChevronRight className={`w-4 h-4 text-zinc-400 transition-transform duration-200 ${expandedSection === 'chat-models' ? 'rotate-90' : ''}`} />
                     </button>
@@ -618,7 +672,7 @@ print(data['audio_url'])`,
                   <CodeBlock code={codeExamples.chatCompletionsCurl} lang="cURL" id="chat-curl" />
 
                   <div className="p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
-                    <h3 className="text-base font-bold text-zinc-900 dark:text-white mb-3">Vision (Image Input)</h3>
+                    <h3 className="text-base font-bold text-zinc-900 dark:text-white mb-2">Vision (Image Input)</h3>
                     <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-3">Supported by: <code>gemini-3-flash</code>, <code>gpt-5.2</code>, <code>aichixia-flash</code>, <code>grok-4-fast</code></p>
                     <div className="rounded-lg bg-zinc-100 dark:bg-zinc-900 overflow-hidden">
                       <SyntaxHighlighter language="javascript" style={isDark ? oneDark : oneLight} customStyle={{ margin: 0, padding: '12px', background: 'transparent', fontSize: '11px' }} wrapLongLines={true}>
@@ -629,6 +683,116 @@ print(data['audio_url'])`,
                       {copiedCode === 'vision-js' ? <><FaCheck className="w-3 h-3 text-emerald-500" /><span className="text-emerald-500">Copied</span></> : <><FaCopy className="w-3 h-3" /><span>Copy</span></>}
                     </button>
                   </div>
+                </div>
+              )}
+
+              {activeTab === 'anthropic' && (
+                <div className="space-y-6 animate-fade-in-up">
+                  <div>
+                    <h2 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white mb-3">Anthropic SDK</h2>
+                    <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400">
+                      Use the official Anthropic SDK with Aichixia by setting a custom <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">baseURL</code>. All Aichixia models available — not just Claude.
+                    </p>
+                  </div>
+
+                  <div className="p-4 sm:p-5 rounded-xl border-l-4 border-orange-500 bg-orange-50/50 dark:bg-orange-950/10 border border-orange-200 dark:border-orange-900/50">
+                    <div className="flex items-start gap-3">
+                      <FaBolt className="w-4 h-4 text-orange-600 dark:text-orange-400 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <h4 className="text-sm font-bold text-orange-900 dark:text-orange-100 mb-1">Endpoint</h4>
+                        <code className="text-xs text-orange-700 dark:text-orange-300 bg-orange-100 dark:bg-orange-900/30 px-2 py-1 rounded">POST {base}/api/v1/messages</code>
+                        <p className="text-xs text-orange-700 dark:text-orange-300 mt-1.5">Set <code className="bg-orange-100 dark:bg-orange-900/30 px-1 rounded">baseURL: "{base}/api/v1"</code> in the Anthropic SDK constructor.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-sm font-bold text-zinc-900 dark:text-white">Installation</h3>
+                      <CopyButton code="npm install @anthropic-ai/sdk" id="install-anthropic-tab" />
+                    </div>
+                    <div className="rounded-lg bg-zinc-100 dark:bg-zinc-900 p-3">
+                      <code className="text-xs text-zinc-800 dark:text-zinc-200">npm install @anthropic-ai/sdk</code>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    <button onClick={() => toggleSection('anthropic-request')} className="w-full flex items-center justify-between p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
+                      <h3 className="text-base font-bold text-zinc-900 dark:text-white">Request Body</h3>
+                      <FaChevronRight className={`w-4 h-4 text-zinc-400 transition-transform duration-200 ${expandedSection === 'anthropic-request' ? 'rotate-90' : ''}`} />
+                    </button>
+                    {expandedSection === 'anthropic-request' && (
+                      <div className="p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+                        <Param name="model" required type="string" desc="Model ID. Any model supported by Aichixia — not just Claude models." />
+                        <Param name="messages" required type="array" desc="Array of message objects with role (user | assistant) and content." />
+                        <Param name="max_tokens" required type="number" desc="Maximum tokens to generate. Required by Anthropic SDK." />
+                        <Param name="system" type="string" desc="System prompt — passed as a separate field, not inside messages." />
+                        <Param name="temperature" type="number" desc="Sampling temperature 0–2. Default: 0.8" />
+                      </div>
+                    )}
+
+                    <button onClick={() => toggleSection('anthropic-response')} className="w-full flex items-center justify-between p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
+                      <h3 className="text-base font-bold text-zinc-900 dark:text-white">Response Format</h3>
+                      <FaChevronRight className={`w-4 h-4 text-zinc-400 transition-transform duration-200 ${expandedSection === 'anthropic-response' ? 'rotate-90' : ''}`} />
+                    </button>
+                    {expandedSection === 'anthropic-response' && (
+                      <div className="p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+                        <div className="rounded-lg bg-zinc-100 dark:bg-zinc-900 overflow-hidden">
+                          <SyntaxHighlighter language="json" style={isDark ? oneDark : oneLight} customStyle={{ margin: 0, padding: '12px', background: 'transparent', fontSize: '11px' }}>
+{`{
+  "id": "msg_1234567890",
+  "type": "message",
+  "role": "assistant",
+  "content": [
+    {
+      "type": "text",
+      "text": "Your response here..."
+    }
+  ],
+  "model": "claude-opus-4.5",
+  "stop_reason": "end_turn",
+  "stop_sequence": null,
+  "usage": {
+    "input_tokens": 10,
+    "output_tokens": 50
+  }
+}`}
+                          </SyntaxHighlighter>
+                        </div>
+                        <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-2">Access text via: <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">message.content[0].text</code></p>
+                      </div>
+                    )}
+
+                    <button onClick={() => toggleSection('anthropic-diff')} className="w-full flex items-center justify-between p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
+                      <h3 className="text-base font-bold text-zinc-900 dark:text-white">Differences from OpenAI SDK</h3>
+                      <FaChevronRight className={`w-4 h-4 text-zinc-400 transition-transform duration-200 ${expandedSection === 'anthropic-diff' ? 'rotate-90' : ''}`} />
+                    </button>
+                    {expandedSection === 'anthropic-diff' && (
+                      <div className="p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+                        <div className="grid grid-cols-3 gap-2 mb-2 text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                          <span></span><span>OpenAI</span><span className="text-orange-500 dark:text-orange-400">Anthropic</span>
+                        </div>
+                        {[
+                          { label: 'Auth header', openai: 'Authorization: Bearer', anthropic: 'x-api-key' },
+                          { label: 'System prompt', openai: 'Inside messages', anthropic: 'Separate system field' },
+                          { label: 'max_tokens', openai: 'Optional', anthropic: 'Required' },
+                          { label: 'Response text', openai: 'choices[0].message.content', anthropic: 'content[0].text' },
+                          { label: 'Token usage', openai: 'prompt_tokens / completion_tokens', anthropic: 'input_tokens / output_tokens' },
+                        ].map(({ label, openai, anthropic }) => (
+                          <div key={label} className="grid grid-cols-3 gap-2 text-xs py-2 border-b border-zinc-100 dark:border-zinc-800/60 last:border-0 items-start">
+                            <span className="font-semibold text-zinc-700 dark:text-zinc-300">{label}</span>
+                            <code className="bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded text-[10px] text-zinc-600 dark:text-zinc-400 break-all">{openai}</code>
+                            <code className="bg-orange-50 dark:bg-orange-950/20 px-1.5 py-0.5 rounded text-[10px] text-orange-600 dark:text-orange-400 break-all">{anthropic}</code>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <CodeBlock code={codeExamples.anthropicTS} lang="TypeScript (Anthropic SDK)" id="anthropic-ts" />
+                  <CodeBlock code={codeExamples.anthropicPython} lang="Python (Anthropic SDK)" id="anthropic-python" />
+                  <CodeBlock code={codeExamples.anthropicSystem} lang="TypeScript — with system prompt" id="anthropic-system" />
+                  <CodeBlock code={codeExamples.anthropicCurl} lang="cURL" id="anthropic-curl" />
                 </div>
               )}
 
@@ -653,10 +817,7 @@ print(data['audio_url'])`,
                   </div>
 
                   <div className="space-y-2.5">
-                    <button
-                      onClick={() => toggleSection('image-request')}
-                      className="w-full flex items-center justify-between p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors"
-                    >
+                    <button onClick={() => toggleSection('image-request')} className="w-full flex items-center justify-between p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
                       <h3 className="text-base font-bold text-zinc-900 dark:text-white">Request Body</h3>
                       <FaChevronRight className={`w-4 h-4 text-zinc-400 transition-transform duration-200 ${expandedSection === 'image-request' ? 'rotate-90' : ''}`} />
                     </button>
@@ -664,20 +825,17 @@ print(data['audio_url'])`,
                       <div className="p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
                         <Param name="model" required type="string" desc="Image model ID: flux-2-dev, lucid-origin, phoenix-1.0, nano-image" />
                         <Param name="prompt" required type="string" desc="Text description of the image to generate" />
-                        <Param name="size" type="string" desc="Image dimensions in WxH format. e.g. 1024x1024, 512x512. Default: 1024x1024" />
-                        <Param name="steps" type="number" desc="Number of diffusion steps. Higher = better quality but slower. Default: 25–30" />
+                        <Param name="size" type="string" desc="Image dimensions WxH. e.g. 1024x1024, 512x512. Default: 1024x1024" />
+                        <Param name="steps" type="number" desc="Diffusion steps. Higher = better quality but slower. Default: 25–30" />
                         <Param name="seed" type="number" desc="Random seed for reproducibility. Optional." />
-                        <Param name="guidance" type="number" desc="Guidance scale. Controls how closely image follows prompt. Optional." />
+                        <Param name="guidance" type="number" desc="Guidance scale. How closely image follows prompt. Optional." />
                         <Param name="negative_prompt" type="string" desc="What to exclude from the image. Not supported by nano-image." />
                         <Param name="response_format" type="string" desc="Output format: b64_json (default) or url" />
                         <Param name="n" type="number" desc="Number of images to generate. Default: 1" />
                       </div>
                     )}
 
-                    <button
-                      onClick={() => toggleSection('image-response')}
-                      className="w-full flex items-center justify-between p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors"
-                    >
+                    <button onClick={() => toggleSection('image-response')} className="w-full flex items-center justify-between p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
                       <h3 className="text-base font-bold text-zinc-900 dark:text-white">Response Format</h3>
                       <FaChevronRight className={`w-4 h-4 text-zinc-400 transition-transform duration-200 ${expandedSection === 'image-response' ? 'rotate-90' : ''}`} />
                     </button>
@@ -695,14 +853,11 @@ print(data['audio_url'])`,
 }`}
                           </SyntaxHighlighter>
                         </div>
-                        <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-2">To display the image: <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">{'`data:image/png;base64,${data.data[0].b64_json}`'}</code></p>
+                        <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-2">To display: <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">{'`data:image/png;base64,${data.data[0].b64_json}`'}</code></p>
                       </div>
                     )}
 
-                    <button
-                      onClick={() => toggleSection('image-models')}
-                      className="w-full flex items-center justify-between p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors"
-                    >
+                    <button onClick={() => toggleSection('image-models')} className="w-full flex items-center justify-between p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
                       <h3 className="text-base font-bold text-zinc-900 dark:text-white">Available Image Models</h3>
                       <FaChevronRight className={`w-4 h-4 text-zinc-400 transition-transform duration-200 ${expandedSection === 'image-models' ? 'rotate-90' : ''}`} />
                     </button>
@@ -750,16 +905,13 @@ print(data['audio_url'])`,
                       <div>
                         <h4 className="text-sm font-bold text-violet-900 dark:text-violet-100 mb-1">Endpoint</h4>
                         <code className="text-xs text-violet-700 dark:text-violet-300 bg-violet-100 dark:bg-violet-900/30 px-2 py-1 rounded">POST {base}/api/v1/audio/speech</code>
-                        <p className="text-xs text-violet-700 dark:text-violet-300 mt-1.5">Returns audio as base64 in <code className="bg-violet-100 dark:bg-violet-900/30 px-1 rounded">audio_url</code> (data URI) and raw base64 in <code className="bg-violet-100 dark:bg-violet-900/30 px-1 rounded">audio</code></p>
+                        <p className="text-xs text-violet-700 dark:text-violet-300 mt-1.5">Returns audio as data URI in <code className="bg-violet-100 dark:bg-violet-900/30 px-1 rounded">audio_url</code> and raw base64 in <code className="bg-violet-100 dark:bg-violet-900/30 px-1 rounded">audio</code></p>
                       </div>
                     </div>
                   </div>
 
                   <div className="space-y-2.5">
-                    <button
-                      onClick={() => toggleSection('tts-request')}
-                      className="w-full flex items-center justify-between p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors"
-                    >
+                    <button onClick={() => toggleSection('tts-request')} className="w-full flex items-center justify-between p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
                       <h3 className="text-base font-bold text-zinc-900 dark:text-white">Request Body</h3>
                       <FaChevronRight className={`w-4 h-4 text-zinc-400 transition-transform duration-200 ${expandedSection === 'tts-request' ? 'rotate-90' : ''}`} />
                     </button>
@@ -769,8 +921,8 @@ print(data['audio_url'])`,
                         <Param name="input" required type="string" desc="The text to convert to speech. Max 2000 characters." />
                         <Param name="emotion" type="string" desc="Emotional tone: normal, happy, sad, angry, fearful, disgusted, surprised. Default: normal" />
                         <Param name="volume" type="number" desc="Output volume 0–200. Default: 100" />
-                        <Param name="pitch" type="number" desc="Pitch adjustment in semitones -12 to 12. Default: 0" />
-                        <Param name="tempo" type="number" desc="Speech speed multiplier 0.5–2.0. Default: 1" />
+                        <Param name="pitch" type="number" desc="Pitch in semitones -12 to 12. Default: 0" />
+                        <Param name="tempo" type="number" desc="Speed multiplier 0.5–2.0. Default: 1" />
                         <Param name="response_format" type="string" desc="Audio format: mp3 or wav. Default: mp3" />
                         <Param name="emotion_intensity" type="number" desc="Emotion intensity 0–2. Default: 1" />
                         <Param name="language" type="string" desc="Language code. Default: eng" />
@@ -778,10 +930,7 @@ print(data['audio_url'])`,
                       </div>
                     )}
 
-                    <button
-                      onClick={() => toggleSection('tts-response')}
-                      className="w-full flex items-center justify-between p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors"
-                    >
+                    <button onClick={() => toggleSection('tts-response')} className="w-full flex items-center justify-between p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
                       <h3 className="text-base font-bold text-zinc-900 dark:text-white">Response Format</h3>
                       <FaChevronRight className={`w-4 h-4 text-zinc-400 transition-transform duration-200 ${expandedSection === 'tts-response' ? 'rotate-90' : ''}`} />
                     </button>
@@ -800,14 +949,11 @@ print(data['audio_url'])`,
 }`}
                           </SyntaxHighlighter>
                         </div>
-                        <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-2">To play audio: <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">{'new Audio(data.audio_url).play()'}</code></p>
+                        <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-2">To play: <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">{'new Audio(data.audio_url).play()'}</code></p>
                       </div>
                     )}
 
-                    <button
-                      onClick={() => toggleSection('tts-models')}
-                      className="w-full flex items-center justify-between p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors"
-                    >
+                    <button onClick={() => toggleSection('tts-models')} className="w-full flex items-center justify-between p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
                       <h3 className="text-base font-bold text-zinc-900 dark:text-white">Available TTS Models</h3>
                       <FaChevronRight className={`w-4 h-4 text-zinc-400 transition-transform duration-200 ${expandedSection === 'tts-models' ? 'rotate-90' : ''}`} />
                     </button>
