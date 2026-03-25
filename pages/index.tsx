@@ -394,7 +394,6 @@ export default function Home() {
   };
 
   const selectedModelData = models.find(m => m.id === selectedModel);
-
   return (
     <>
       <style dangerouslySetInnerHTML={{__html: `
@@ -1611,17 +1610,6 @@ export default function Home() {
               <button onClick={() => setShowModelModal(false)} className="px-3 py-1.5 text-xs font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-all">
                 Close
               </button>
-            </div>
-          </div>
-        </div>
-      )}
-                    </div>
-                    <div className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-white mb-0.5">{model.name}</div>
-                    <div className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 mb-1.5">{model.provider}</div>
-                    <p className="text-[10px] sm:text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">{model.description}</p>
-                  </button>
-                ))}
-              </div>
             </div>
           </div>
         </div>
