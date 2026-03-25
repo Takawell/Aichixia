@@ -42,14 +42,27 @@ const comparisonRows = [
 ];
 
 const models = [
-  { id: "deepseek-v3.2", name: "DeepSeek V3.2", provider: "DeepSeek", description: "Deep reasoning and code generation", color: "from-purple-500 to-pink-500" },
-  { id: "claude-opus-4.5", name: "Claude Opus 4.5", provider: "Anthropic", description: "World's #1 AI model for complex tasks", color: "from-orange-500 to-red-500" },
-  { id: "gemini-3-flash", name: "Gemini 3 Flash", provider: "Google", description: "Multimodal understanding and accuracy", color: "from-blue-500 to-cyan-500" },
-  { id: "gpt-5-mini", name: "GPT-5 Mini", provider: "OpenAI", description: "Balanced performance for general tasks", color: "from-green-500 to-emerald-500" },
-  { id: "kimi-k2", name: "Kimi K2", provider: "Moonshot", description: "Superior tool calling and reasoning", color: "from-indigo-500 to-purple-500" },
-  { id: "qwen3-235b", name: "Qwen3 235B", provider: "Alibaba", description: "Large multilingual model", color: "from-yellow-500 to-orange-500" },
-  { id: "llama-3.3-70b", name: "Llama 3.3 70B", provider: "Meta", description: "Efficient open-source powerhouse", color: "from-teal-500 to-green-500" },
-  { id: "mistral-3.1", name: "Mistral 3.1", provider: "Mistral AI", description: "Fast inference with European focus", color: "from-rose-500 to-pink-500" },
+  { id: "deepseek-v3.2", name: "DeepSeek V3.2", provider: "DeepSeek", description: "Deep reasoning and code generation", color: "from-purple-500 to-pink-500", plan: "pro" },
+  { id: "claude-opus-4.5", name: "Claude Opus 4.5", provider: "Anthropic", description: "World's #1 AI model for complex tasks", color: "from-orange-500 to-red-500", plan: "pro" },
+  { id: "gemini-3-flash", name: "Gemini 3 Flash", provider: "Google", description: "Multimodal understanding and accuracy", color: "from-blue-500 to-cyan-500", plan: "free" },
+  { id: "gpt-5-mini", name: "GPT-5 Mini", provider: "OpenAI", description: "Balanced performance for general tasks", color: "from-green-500 to-emerald-500", plan: "free" },
+  { id: "gpt-5.2", name: "GPT-5.2", provider: "OpenAI", description: "Latest GPT with enhanced reasoning & vision", color: "from-emerald-500 to-green-600", plan: "free" },
+  { id: "gpt-oss-120b", name: "GPT-OSS 120B", provider: "OpenAI", description: "Large open-source with browser search", color: "from-pink-500 to-rose-600", plan: "free" },
+  { id: "grok-3", name: "Grok 3", provider: "xAI", description: "Flagship model with real-time web data", color: "from-slate-600 to-zinc-700", plan: "free" },
+  { id: "grok-4-fast", name: "Grok 4 Fast", provider: "xAI", description: "Ultra-fast Grok 4 with 2M context", color: "from-zinc-700 to-slate-900", plan: "pro" },
+  { id: "kimi-k2", name: "Kimi K2", provider: "Moonshot", description: "Superior tool calling and reasoning", color: "from-indigo-500 to-purple-500", plan: "free" },
+  { id: "qwen3-235b", name: "Qwen3 235B", provider: "Alibaba", description: "Large multilingual model with deep reasoning", color: "from-yellow-500 to-orange-500", plan: "pro" },
+  { id: "qwen3-coder-480b", name: "Qwen3 Coder 480B", provider: "Alibaba", description: "Specialized coding and Asian languages", color: "from-purple-600 to-fuchsia-600", plan: "free" },
+  { id: "llama-3.3-70b", name: "Llama 3.3 70B", provider: "Meta", description: "Efficient open-source powerhouse", color: "from-teal-500 to-green-500", plan: "free" },
+  { id: "mistral-3.1", name: "Mistral 3.1", provider: "Mistral AI", description: "Fast inference with European focus", color: "from-rose-500 to-pink-500", plan: "free" },
+  { id: "deepseek-v3.1", name: "DeepSeek V3.1", provider: "DeepSeek", description: "Previous generation DeepSeek model", color: "from-cyan-600 to-teal-600", plan: "free" },
+  { id: "glm-4.7", name: "GLM 4.7", provider: "Zhipu", description: "Multilingual excellence with strong reasoning", color: "from-blue-700 to-indigo-900", plan: "pro" },
+  { id: "glm-4.7-flash", name: "GLM 4.7 Flash", provider: "Zhipu", description: "Very fast for real-time applications", color: "from-blue-600 to-indigo-700", plan: "free" },
+  { id: "minimax-m2.1", name: "MiniMax M2.1", provider: "MiniMax", description: "Multilingual coding with agent workflows", color: "from-cyan-600 to-blue-600", plan: "pro" },
+  { id: "mimo-v2-flash", name: "MiMo V2 Flash", provider: "Xiaomi", description: "Efficient 309B MoE for reasoning and coding", color: "from-blue-600 to-purple-600", plan: "free" },
+  { id: "groq-compound", name: "Groq Compound", provider: "Groq", description: "Multi-model agentic system with tools", color: "from-orange-600 to-red-600", plan: "free" },
+  { id: "cohere-command-a", name: "Cohere Command A", provider: "Cohere", description: "Enterprise-grade with excellent tool use", color: "from-emerald-600 to-teal-600", plan: "free" },
+  { id: "aichixia-flash", name: "Aichixia 114B", provider: "Aichiverse", description: "High-efficiency MoE with 28B active params", color: "from-blue-600 to-slate-900", plan: "pro" },
 ];
 
 const features = [
@@ -961,9 +974,10 @@ export default function Home() {
           <div className={`grid lg:grid-cols-2 gap-4 sm:gap-6 transition-all duration-700 ${isVisible.playground ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <div className="space-y-3 sm:space-y-4 min-w-0">
               <div className="p-4 sm:p-5 rounded-xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 shadow-lg">
-                <div className="flex items-center justify-between mb-4 sm:mb-5">
+                <div className="flex items-center gap-2 mb-4 sm:mb-5">
+                  <div className="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/20"><FaCog className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" /></div>
                   <h3 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white">Request Configuration</h3>
-                  <FaCog className="w-4 h-4 text-zinc-400" />
+                  <div className="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/20"><FaCog className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" /></div>
                 </div>
 
                 <div className="space-y-3 sm:space-y-4">
@@ -1545,49 +1559,62 @@ export default function Home() {
       )}
 
       {showModelModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200" onClick={() => setShowModelModal(false)}>
-          <div className="bg-white dark:bg-zinc-950 rounded-xl shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-hidden border border-zinc-200 dark:border-zinc-800" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between p-4 sm:p-5 border-b border-zinc-200 dark:border-zinc-800">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/70 backdrop-blur-xl" onClick={() => setShowModelModal(false)}>
+          <div className="w-full sm:max-w-2xl bg-white dark:bg-zinc-950 rounded-t-2xl sm:rounded-2xl shadow-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-4 sm:px-5 py-4 border-b border-zinc-100 dark:border-zinc-800">
               <div>
                 <h3 className="text-base sm:text-lg font-black text-zinc-900 dark:text-white">Select AI Model</h3>
-                <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 mt-0.5">Choose from 20+ state-of-the-art models</p>
+                <p className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">{models.length} models available</p>
               </div>
-              <button
-                onClick={() => setShowModelModal(false)}
-                className="p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-colors duration-200"
-              >
-                <FaTimes className="w-4 h-4 text-zinc-600 dark:text-zinc-400" />
+              <button onClick={() => setShowModelModal(false)} className="p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-colors">
+                <FaTimes className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
               </button>
             </div>
-            <div className="overflow-y-auto max-h-[calc(85vh-80px)] p-3 sm:p-4">
-              <div className="grid sm:grid-cols-2 gap-2.5 sm:gap-3">
-                {models.map((model, idx) => (
+            <div className="overflow-y-auto max-h-[60vh] sm:max-h-[65vh] p-3 sm:p-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {models.map((model) => (
                   <button
                     key={model.id}
-                    onClick={() => {
-                      setSelectedModel(model.id);
-                      setShowModelModal(false);
-                    }}
-                    className={`relative p-4 sm:p-5 rounded-lg text-left transition-all duration-300 hover:scale-105 ${
+                    onClick={() => { setSelectedModel(model.id); setShowModelModal(false); }}
+                    className={`group relative flex items-center gap-3 p-3 rounded-xl text-left transition-all duration-200 ${
                       selectedModel === model.id
-                        ? 'bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 border-2 border-blue-500 dark:border-blue-400 shadow-lg shadow-blue-500/20'
-                        : 'bg-zinc-50 dark:bg-zinc-900 border-2 border-transparent hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                        ? 'bg-blue-50 dark:bg-blue-900/20 border border-blue-300 dark:border-blue-700 shadow-sm'
+                        : 'bg-zinc-50 dark:bg-zinc-900 border border-transparent hover:border-zinc-200 dark:hover:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800'
                     }`}
                   >
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <FaRobot className={`flex-shrink-0 w-6 h-6 sm:w-7 sm:h-7 ${
-                        idx === 0 ? 'text-purple-600 dark:text-purple-400' :
-                        idx === 1 ? 'text-orange-600 dark:text-orange-400' :
-                        idx === 2 ? 'text-cyan-600 dark:text-cyan-400' :
-                        idx === 3 ? 'text-emerald-600 dark:text-emerald-400' :
-                        idx === 4 ? 'text-indigo-600 dark:text-indigo-400' :
-                        idx === 5 ? 'text-yellow-600 dark:text-yellow-400' :
-                        idx === 6 ? 'text-teal-600 dark:text-teal-400' :
-                        'text-rose-600 dark:text-rose-400'
-                      }`} />
-                      {selectedModel === model.id && (
-                        <FaCheck className="flex-shrink-0 w-4 h-4 text-blue-600 dark:text-blue-400" />
-                      )}
+                    <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${model.color} flex items-center justify-center flex-shrink-0 shadow-sm`}>
+                      <FaRobot className="w-4 h-4 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5 mb-0.5">
+                        <span className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-white truncate">{model.name}</span>
+                        {model.plan === 'pro' && (
+                          <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 font-bold flex-shrink-0">PRO</span>
+                        )}
+                      </div>
+                      <div className="text-[10px] text-zinc-400 dark:text-zinc-500 mb-0.5">{model.provider}</div>
+                      <p className="text-[10px] text-zinc-500 dark:text-zinc-400 leading-relaxed line-clamp-1">{model.description}</p>
+                    </div>
+                    {selectedModel === model.id && (
+                      <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
+                        <FaCheck className="w-2.5 h-2.5 text-white" />
+                      </div>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="px-4 sm:px-5 py-3 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
+              <p className="text-[10px] text-zinc-400 dark:text-zinc-500">
+                <span className="text-orange-500 font-semibold">PRO</span> models require Pro or Enterprise plan
+              </p>
+              <button onClick={() => setShowModelModal(false)} className="px-3 py-1.5 text-xs font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-all">
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
                     </div>
                     <div className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-white mb-0.5">{model.name}</div>
                     <div className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 mb-1.5">{model.provider}</div>
