@@ -280,6 +280,9 @@ export default function Home() {
   const [copiedRequest, setCopiedRequest] = useState(false);
   const [copiedResponse, setCopiedResponse] = useState(false);
   const [showApiKeyInput, setShowApiKeyInput] = useState(false);
+  const [selectedSdk, setSelectedSdk] = useState<'openai' | 'anthropic'>('openai');
+  const [selectedLang, setSelectedLang] = useState<'curl' | 'typescript' | 'python' | 'go'>('curl');
+  const [modelSearch, setModelSearch] = useState("");
   const [activeStep, setActiveStep] = useState(0);
   const [scrollY, setScrollY] = useState(0);
   const [isVisible, setIsVisible] = useState<{ [key: string]: boolean }>({});
@@ -375,17 +378,150 @@ export default function Home() {
     }
   };
 
-  const generateCurl = () => {
-    return `curl -X POST ${base}/api/v1/chat/completions \\
-  -H "Authorization: Bearer ${apiKey || 'YOUR_API_KEY'}" \\
+  const generateCode = (sdk: 'openai' | 'anthropic', lang: 'curl' | 'typescript' | 'python' | 'go') => {
+    const key = apiKey || 'YOUR_API_KEY';
+    const msg = message.replace(/"/g, '\\"');
+    const model = selectedModel;
+
+    if (sdk === 'openai') {
+      if (lang === 'curl') return `curl -X POST ${base}/api/v1/chat/completions \\
+  -H "Authorization: Bearer ${key}" \\
   -H "Content-Type: application/json" \\
   -d '{
-    "model": "${selectedModel}",
+    "model": "${model}",
     "messages": [
-      {"role": "user", "content": "${message}"}
+      {"role": "user", "content": "${msg}"}
+    ],
+    "temperature": 0.8,
+    "max_tokens": 1080
+  }'`;
+      if (lang === 'typescript') return `import OpenAI from "openai";
+
+const client = new OpenAI({
+  apiKey: "${key}",
+  baseURL: "${base}/api/v1",
+});
+
+const response = await client.chat.completions.create({
+  model: "${model}",
+  messages: [{ role: "user", content: "${msg}" }],
+  temperature: 0.8,
+  max_tokens: 1080,
+});
+
+console.log(response.choices[0].message.content);`;
+      if (lang === 'python') return `from openai import OpenAI
+
+client = OpenAI(
+    api_key="${key}",
+    base_url="${base}/api/v1",
+)
+
+response = client.chat.completions.create(
+    model="${model}",
+    messages=[{"role": "user", "content": "${msg}"}],
+    temperature=0.8,
+    max_tokens=1080,
+)
+
+print(response.choices[0].message.content)`;
+      if (lang === 'go') return `package main
+
+import (
+	"context"
+	"fmt"
+	openai "github.com/sashabaranov/go-openai"
+)
+
+func main() {
+	config := openai.DefaultConfig("${key}")
+	config.BaseURL = "${base}/api/v1"
+	client := openai.NewClientWithConfig(config)
+
+	resp, err := client.CreateChatCompletion(
+		context.Background(),
+		openai.ChatCompletionRequest{
+			Model: "${model}",
+			Messages: []openai.ChatCompletionMessage{
+				{Role: openai.ChatMessageRoleUser, Content: "${msg}"},
+			},
+		},
+	)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(resp.Choices[0].Message.Content)
+}`;
+    } else {
+      if (lang === 'curl') return `curl -X POST ${base}/api/v1/messages \\
+  -H "x-api-key: ${key}" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "${model}",
+    "max_tokens": 1080,
+    "messages": [
+      {"role": "user", "content": "${msg}"}
     ]
   }'`;
+      if (lang === 'typescript') return `import Anthropic from "@anthropic-ai/sdk";
+
+const client = new Anthropic({
+  apiKey: "${key}",
+  baseURL: "${base}/api/v1",
+});
+
+const message = await client.messages.create({
+  model: "${model}",
+  max_tokens: 1080,
+  messages: [{ role: "user", content: "${msg}" }],
+});
+
+console.log(message.content[0].text);`;
+      if (lang === 'python') return `import anthropic
+
+client = anthropic.Anthropic(
+    api_key="${key}",
+    base_url="${base}/api/v1",
+)
+
+message = client.messages.create(
+    model="${model}",
+    max_tokens=1080,
+    messages=[{"role": "user", "content": "${msg}"}],
+)
+
+print(message.content[0].text)`;
+      if (lang === 'go') return `package main
+
+import (
+	"context"
+	"fmt"
+	anthropic "github.com/anthropics/anthropic-sdk-go"
+)
+
+func main() {
+	client := anthropic.NewClient(
+		anthropic.WithAPIKey("${key}"),
+		anthropic.WithBaseURL("${base}/api/v1"),
+	)
+
+	message, err := client.Messages.New(context.Background(), anthropic.MessageNewParams{
+		Model:     anthropic.F(anthropic.Model("${model}")),
+		MaxTokens: anthropic.F(int64(1080)),
+		Messages: anthropic.F([]anthropic.MessageParam{
+			anthropic.NewUserMessage(anthropic.NewTextBlock("${msg}")),
+		}),
+	})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(message.Content[0].Text)
+}`;
+    }
+    return '';
   };
+
+  const generateCurl = () => generateCode('openai', 'curl');
 
   const copyToClipboard = (text: string, type: 'request' | 'response') => {
     navigator.clipboard.writeText(text);
@@ -1065,39 +1201,68 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="p-4 sm:p-5 rounded-xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 shadow-lg min-w-0">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-1.5">
-                    <FaTerminal className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-zinc-600 dark:text-zinc-400" />
-                    <span className="text-xs sm:text-sm font-bold text-zinc-700 dark:text-zinc-300">cURL Example</span>
+              <div className="rounded-xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 shadow-lg overflow-hidden min-w-0">
+                <div className="flex items-center gap-0 border-b border-zinc-100 dark:border-zinc-800">
+                  <div className="flex items-center gap-1.5 px-4 py-2.5 border-r border-zinc-100 dark:border-zinc-800 flex-shrink-0">
+                    <FaCode className="w-3 h-3 text-zinc-500 dark:text-zinc-400" />
+                    <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300">Code</span>
                   </div>
-                  <button
-                    onClick={() => copyToClipboard(generateCurl(), 'request')}
-                    className="p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-colors duration-200 flex-shrink-0"
-                  >
-                    {copiedRequest ? (
-                      <FaCheck className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-green-500" />
-                    ) : (
-                      <FaCopy className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-zinc-500" />
-                    )}
-                  </button>
-                </div>
-                <div className="rounded-lg bg-zinc-100 dark:bg-zinc-900 p-2.5 sm:p-3 overflow-x-auto max-w-full">
-                  <div className="min-w-0">
-                    <SyntaxHighlighter
-                      language="bash"
-                      style={isDark ? oneDark : oneLight}
-                      customStyle={{
-                        margin: 0,
-                        padding: 0,
-                        background: 'transparent',
-                        fontSize: '10px',
-                      }}
-                      wrapLongLines={true}
+                  <div className="flex items-center flex-1 px-2 py-1.5 gap-1 overflow-x-auto">
+                    {(['curl', 'typescript', 'python', 'go'] as const).map((lang) => (
+                      <button
+                        key={lang}
+                        onClick={() => setSelectedLang(lang)}
+                        className={`px-2.5 py-1 rounded-md text-[10px] font-bold whitespace-nowrap transition-all duration-150 flex-shrink-0 ${
+                          selectedLang === lang
+                            ? 'bg-blue-500 text-white shadow-sm'
+                            : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-800 dark:hover:text-zinc-200'
+                        }`}
+                      >
+                        {lang === 'curl' ? 'cURL' : lang === 'typescript' ? 'TypeScript' : lang === 'python' ? 'Python' : 'Go'}
+                      </button>
+                    ))}
+                    <div className="flex-1" />
+                    <div className="flex items-center gap-0.5 p-0.5 rounded-lg bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex-shrink-0">
+                      <button
+                        onClick={() => setSelectedSdk('openai')}
+                        className={`flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-bold transition-all duration-150 ${
+                          selectedSdk === 'openai'
+                            ? 'bg-white dark:bg-zinc-800 text-emerald-700 dark:text-emerald-400 shadow-sm'
+                            : 'text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300'
+                        }`}
+                      >
+                        <SiOpenai className="w-2.5 h-2.5" />
+                        OpenAI
+                      </button>
+                      <button
+                        onClick={() => setSelectedSdk('anthropic')}
+                        className={`flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-bold transition-all duration-150 ${
+                          selectedSdk === 'anthropic'
+                            ? 'bg-white dark:bg-zinc-800 text-orange-700 dark:text-orange-400 shadow-sm'
+                            : 'text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300'
+                        }`}
+                      >
+                        <SiAnthropic className="w-2.5 h-2.5" />
+                        Anthropic
+                      </button>
+                    </div>
+                    <button
+                      onClick={() => copyToClipboard(generateCode(selectedSdk, selectedLang), 'request')}
+                      className="flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-semibold text-zinc-400 dark:text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors flex-shrink-0"
                     >
-                      {generateCurl()}
-                    </SyntaxHighlighter>
+                      {copiedRequest ? <FaCheck className="w-2.5 h-2.5 text-emerald-500" /> : <FaCopy className="w-2.5 h-2.5" />}
+                    </button>
                   </div>
+                </div>
+                <div className="overflow-x-auto max-w-full">
+                  <SyntaxHighlighter
+                    language={selectedLang === 'curl' ? 'bash' : selectedLang === 'typescript' ? 'typescript' : selectedLang === 'python' ? 'python' : 'go'}
+                    style={isDark ? oneDark : oneLight}
+                    customStyle={{ margin: 0, padding: '12px 16px', background: 'transparent', fontSize: '10px', minHeight: '160px' }}
+                    wrapLongLines={true}
+                  >
+                    {generateCode(selectedSdk, selectedLang)}
+                  </SyntaxHighlighter>
                 </div>
               </div>
             </div>
@@ -1573,76 +1738,145 @@ export default function Home() {
       )}
 
       {showModelModal && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-200" onClick={() => setShowModelModal(false)}>
-          <div className="bg-white dark:bg-zinc-950 rounded-t-2xl sm:rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] sm:max-h-[85vh] overflow-hidden border border-zinc-200 dark:border-zinc-800 flex flex-col" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-100 dark:border-zinc-800 flex-shrink-0">
+        <div
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
+          style={{ backgroundColor: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(16px)' }}
+          onClick={() => { setShowModelModal(false); setModelSearch(""); }}
+        >
+          <div
+            className="w-full sm:max-w-xl flex flex-col rounded-t-3xl sm:rounded-2xl overflow-hidden border border-white/10 dark:border-white/5"
+            style={{
+              maxHeight: '88vh',
+              background: 'rgba(9,9,11,0.92)',
+              boxShadow: '0 0 0 1px rgba(255,255,255,0.05), 0 32px 80px rgba(0,0,0,0.7)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              className="absolute inset-x-0 top-0 h-32 pointer-events-none"
+              style={{ background: 'radial-gradient(ellipse at 50% -20%, rgba(59,130,246,0.15), transparent 70%)' }}
+            />
+
+            <div className="relative flex items-center justify-between px-5 pt-5 pb-4 flex-shrink-0">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+                <div
+                  className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: 'linear-gradient(135deg, #3b82f6, #06b6d4)', boxShadow: '0 0 16px rgba(59,130,246,0.4)' }}
+                >
                   <FaRobot className="w-4 h-4 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-black text-zinc-900 dark:text-white">Select AI Model</h3>
-                  <p className="text-[10px] text-zinc-500 dark:text-zinc-400">{models.length} models available</p>
+                  <h3 className="text-sm font-black text-white">Select Model</h3>
+                  <p className="text-[10px] text-zinc-500">{models.filter(m => m.name.toLowerCase().includes(modelSearch.toLowerCase()) || m.provider.toLowerCase().includes(modelSearch.toLowerCase())).length} of {models.length} models</p>
                 </div>
               </div>
               <button
-                onClick={() => setShowModelModal(false)}
-                className="w-8 h-8 flex items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-900 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors duration-200"
+                onClick={() => { setShowModelModal(false); setModelSearch(""); }}
+                className="w-8 h-8 flex items-center justify-center rounded-xl text-zinc-500 hover:text-white transition-colors"
+                style={{ background: 'rgba(255,255,255,0.06)' }}
               >
-                <FaTimes className="w-3.5 h-3.5 text-zinc-600 dark:text-zinc-400" />
+                <FaTimes className="w-3.5 h-3.5" />
               </button>
             </div>
-            <div className="overflow-y-auto flex-1 p-3 sm:p-4">
-              <div className="grid sm:grid-cols-2 gap-2">
-                {models.map((model) => {
-                  const ModelIcon = model.icon;
-                  const isSelected = selectedModel === model.id;
-                  return (
-                    <button
-                      key={model.id}
-                      onClick={() => {
-                        setSelectedModel(model.id);
-                        setShowModelModal(false);
-                      }}
-                      className={`relative p-3.5 rounded-xl text-left transition-all duration-200 group ${
-                        isSelected
-                          ? 'bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/20 border-2 border-blue-500 dark:border-blue-400 shadow-md shadow-blue-500/10'
-                          : 'bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:bg-white dark:hover:bg-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-sm'
-                      }`}
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${model.color} flex items-center justify-center flex-shrink-0 shadow-sm`}>
-                          <ModelIcon className="w-4 h-4 text-white" />
+
+            <div className="px-4 pb-3 flex-shrink-0">
+              <div className="relative">
+                <FaRobot className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-zinc-500 pointer-events-none" />
+                <input
+                  type="text"
+                  value={modelSearch}
+                  onChange={(e) => setModelSearch(e.target.value)}
+                  placeholder="Search models..."
+                  autoFocus
+                  className="w-full pl-8 pr-3 py-2 rounded-xl text-xs text-white placeholder-zinc-500 outline-none transition-all"
+                  style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}
+                  onFocus={(e) => { e.target.style.borderColor = 'rgba(59,130,246,0.5)'; e.target.style.background = 'rgba(59,130,246,0.06)'; }}
+                  onBlur={(e) => { e.target.style.borderColor = 'rgba(255,255,255,0.08)'; e.target.style.background = 'rgba(255,255,255,0.06)'; }}
+                />
+              </div>
+            </div>
+
+            <div className="overflow-y-auto flex-1 px-4 pb-2" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.1) transparent' }}>
+              <div className="grid sm:grid-cols-2 gap-1.5 pb-2">
+                {models
+                  .filter(m => m.name.toLowerCase().includes(modelSearch.toLowerCase()) || m.provider.toLowerCase().includes(modelSearch.toLowerCase()))
+                  .map((model) => {
+                    const ModelIcon = model.icon;
+                    const isSelected = selectedModel === model.id;
+                    return (
+                      <button
+                        key={model.id}
+                        onClick={() => { setSelectedModel(model.id); setShowModelModal(false); setModelSearch(""); }}
+                        className="relative flex items-center gap-3 p-3 rounded-xl text-left transition-all duration-150 group w-full"
+                        style={{
+                          background: isSelected ? 'rgba(59,130,246,0.15)' : 'rgba(255,255,255,0.03)',
+                          border: isSelected ? '1px solid rgba(59,130,246,0.5)' : '1px solid rgba(255,255,255,0.05)',
+                        }}
+                        onMouseEnter={(e) => { if (!isSelected) { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.06)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.1)'; } }}
+                        onMouseLeave={(e) => { if (!isSelected) { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.03)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.05)'; } }}
+                      >
+                        <div
+                          className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+                          style={{ background: `linear-gradient(135deg, var(--tw-gradient-stops))` }}
+                        >
+                          <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${model.color} flex items-center justify-center flex-shrink-0`}>
+                            <ModelIcon className="w-4 h-4 text-white" />
+                          </div>
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
-                            <span className="text-xs font-bold text-zinc-900 dark:text-white truncate">{model.name}</span>
+                            <span className="text-xs font-bold text-white truncate leading-tight">{model.name}</span>
                             {model.requiresPro && (
-                              <span className="text-[8px] font-black px-1.5 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 text-white leading-none flex-shrink-0">PRO</span>
+                              <span
+                                className="text-[7px] font-black px-1.5 py-0.5 rounded-full leading-none flex-shrink-0 text-white"
+                                style={{ background: 'linear-gradient(135deg, #f59e0b, #ef4444)' }}
+                              >PRO</span>
                             )}
                             {model.limited && (
-                              <span className="text-[8px] font-black px-1.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-700 leading-none flex-shrink-0">LIMITED</span>
+                              <span className="text-[7px] font-black px-1.5 py-0.5 rounded-full leading-none flex-shrink-0 text-amber-400 border border-amber-700/50" style={{ background: 'rgba(251,191,36,0.1)' }}>LIMITED</span>
                             )}
                           </div>
-                          <div className="text-[10px] text-zinc-500 dark:text-zinc-400 mb-1">{model.provider}</div>
-                          <p className="text-[10px] text-zinc-500 dark:text-zinc-400 leading-relaxed line-clamp-2">{model.description}</p>
+                          <p className="text-[9px] text-zinc-500 truncate">{model.provider}</p>
                         </div>
                         {isSelected && (
-                          <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
+                          <div
+                            className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
+                            style={{ background: 'linear-gradient(135deg, #3b82f6, #06b6d4)', boxShadow: '0 0 8px rgba(59,130,246,0.5)' }}
+                          >
                             <FaCheck className="w-2.5 h-2.5 text-white" />
                           </div>
                         )}
-                      </div>
-                    </button>
-                  );
-                })}
+                      </button>
+                    );
+                  })}
+                {models.filter(m => m.name.toLowerCase().includes(modelSearch.toLowerCase()) || m.provider.toLowerCase().includes(modelSearch.toLowerCase())).length === 0 && (
+                  <div className="col-span-2 flex flex-col items-center justify-center py-12 text-center">
+                    <FaRobot className="w-8 h-8 text-zinc-700 mb-3" />
+                    <p className="text-sm font-semibold text-zinc-500">No models found</p>
+                    <p className="text-xs text-zinc-600 mt-1">Try a different search term</p>
+                  </div>
+                )}
               </div>
             </div>
-            <div className="px-4 py-3 border-t border-zinc-100 dark:border-zinc-800 flex-shrink-0">
-              <div className="flex items-center gap-2 text-[10px] text-zinc-400 dark:text-zinc-500">
-                <span className="w-2 h-2 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 flex-shrink-0"></span>
-                <span><span className="font-bold text-amber-600 dark:text-amber-400">PRO</span> models require a Pro or Enterprise plan</span>
+
+            <div
+              className="px-4 py-3 flex items-center justify-between flex-shrink-0"
+              style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}
+            >
+              <div className="flex items-center gap-2 text-[9px] text-zinc-600">
+                <span
+                  className="w-2 h-2 rounded-full flex-shrink-0"
+                  style={{ background: 'linear-gradient(135deg, #f59e0b, #ef4444)' }}
+                />
+                <span><span className="font-bold text-amber-500">PRO</span> models require a Pro or Enterprise plan</span>
               </div>
+              <Link
+                href="/console"
+                className="text-[9px] font-bold text-blue-400 hover:text-blue-300 transition-colors"
+                onClick={() => { setShowModelModal(false); setModelSearch(""); }}
+              >
+                Get Pro →
+              </Link>
             </div>
           </div>
         </div>
