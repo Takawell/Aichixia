@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { FiPlay, FiCopy, FiCheck, FiChevronDown, FiZap, FiCode, FiTerminal, FiSettings, FiClock, FiCpu, FiAlertCircle, FiRotateCcw, FiEye, FiEyeOff, FiImage, FiVolume2, FiDownload, FiPause, FiX, FiUpload, FiMaximize2, FiMinimize2, FiLayout } from 'react-icons/fi';
+import { FiPlay, FiCopy, FiCheck, FiChevronDown, FiZap, FiCode, FiTerminal, FiSettings, FiClock, FiCpu, FiAlertCircle, FiRotateCcw, FiEye, FiEyeOff, FiImage, FiVolume2, FiDownload, FiPause, FiX, FiUpload, FiMaximize2, FiMinimize2, FiLayout, FiMinus, FiSmile, FiFrown, FiAlertTriangle, FiThumbsDown, FiBell, FiActivity, FiFastForward, FiSliders, FiMonitor, FiLayers, FiTarget, FiHash, FiXCircle } from 'react-icons/fi';
 import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiAirbrake, SiFlux, SiLapce, SiSecurityscorecard, SiDigikeyelectronics, SiMatternet, SiMaze, SiImagedotsc } from 'react-icons/si';
 import { GiSpermWhale, GiPowerLightning, GiClover, GiCloverSpiked, GiFire } from 'react-icons/gi';
 import { TbSquareLetterZ, TbLetterM } from 'react-icons/tb';
@@ -912,7 +912,16 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
   const [showSystem, setShowSystem] = useState(false);
   const [temperature, setTemperature] = useState(0.7);
   const [maxTokens, setMaxTokens] = useState(1024);
-  const [ttsEmotion, setTtsEmotion] = useState<'normal' | 'happy' | 'angry'>('normal');
+  const [ttsEmotion, setTtsEmotion] = useState<'normal' | 'happy' | 'angry' | 'sad' | 'fearful' | 'disgusted' | 'surprised'>('normal');
+  const [ttsVolume, setTtsVolume] = useState(100);
+  const [ttsPitch, setTtsPitch] = useState(0);
+  const [ttsTempo, setTtsTempo] = useState(1.0);
+  const [ttsEmotionIntensity, setTtsEmotionIntensity] = useState(1.0);
+  const [imageSize, setImageSize] = useState('1024x1024');
+  const [imageSteps, setImageSteps] = useState(25);
+  const [imageGuidance, setImageGuidance] = useState(7.5);
+  const [imageNegativePrompt, setImageNegativePrompt] = useState('');
+  const [imageSeed, setImageSeed] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [response, setResponse] = useState<any>(null);
   const [imageBase64, setImageBase64] = useState<string | null>(null);
@@ -1029,13 +1038,31 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
     const t0 = Date.now();
     try {
       if (selectedModel.type === 'image') {
-        const res = await fetch(selectedModel.endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` }, body: JSON.stringify({ model: selectedModel.id, prompt: message, steps: 4 }) });
+        const res = await fetch(selectedModel.endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` }, body: JSON.stringify({
+          model: selectedModel.id,
+          prompt: message,
+          steps: imageSteps,
+          size: imageSize,
+          guidance: imageGuidance,
+          ...(imageNegativePrompt.trim() ? { negative_prompt: imageNegativePrompt } : {}),
+          ...(imageSeed.trim() ? { seed: parseInt(imageSeed) } : {}),
+          response_format: 'b64_json',
+        }) });
         const data = await res.json(); setLatency(Date.now() - t0);
         if (!res.ok) { setError(data.error?.message || `Error ${res.status}`); return; }
         setImageBase64(data.data?.[0]?.b64_json ?? null); setActiveTab('response'); return;
       }
       if (selectedModel.type === 'tts') {
-        const res = await fetch(selectedModel.endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` }, body: JSON.stringify({ model: selectedModel.id, input: message, emotion: ttsEmotion, volume: 100, pitch: 0, tempo: 1 }) });
+        const res = await fetch(selectedModel.endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` }, body: JSON.stringify({
+          model: selectedModel.id,
+          input: message,
+          emotion: ttsEmotion,
+          emotion_intensity: ttsEmotionIntensity,
+          volume: ttsVolume,
+          pitch: ttsPitch,
+          tempo: ttsTempo,
+          response_format: 'mp3',
+        }) });
         const data = await res.json(); setLatency(Date.now() - t0);
         if (!res.ok) { setError(data.error?.message || `Error ${res.status}`); return; }
         const ttsAudio = data.audio_url ?? data.audio ?? null;
@@ -1316,19 +1343,123 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
               </div>
             )}
 
+            {selectedModel.type === 'image' && (
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1.5 flex items-center gap-1"><FiMonitor className="w-3 h-3" /> Size</label>
+                  <div className="grid grid-cols-3 gap-1">
+                    {(['512x512', '768x768', '1024x1024', '1024x768', '768x1024', '1152x896'] as const).map(s => (
+                      <button
+                        key={s}
+                        onClick={() => setImageSize(s)}
+                        className={`py-1.5 px-1 rounded-lg text-[9px] font-semibold transition-all border ${imageSize === s ? 'bg-blue-400 text-white border-blue-400' : 'text-zinc-500 dark:text-zinc-400 border-zinc-200 dark:border-zinc-800 hover:border-blue-300'}`}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2.5">
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 flex items-center gap-1"><FiLayers className="w-3 h-3" /> Steps</label>
+                      <span className="text-[10px] font-bold text-blue-400 tabular-nums">{imageSteps}</span>
+                    </div>
+                    <input type="range" min="4" max="50" step="1" value={imageSteps} onChange={e => setImageSteps(parseInt(e.target.value))} className="w-full h-1 rounded-full appearance-none bg-zinc-200 dark:bg-zinc-800 accent-blue-400 cursor-pointer" />
+                    <div className="flex justify-between mt-0.5"><span className="text-[8px] text-zinc-400">4</span><span className="text-[8px] text-zinc-400">50</span></div>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 flex items-center gap-1"><FiTarget className="w-3 h-3" /> Guidance</label>
+                      <span className="text-[10px] font-bold text-blue-400 tabular-nums">{imageGuidance.toFixed(1)}</span>
+                    </div>
+                    <input type="range" min="1" max="20" step="0.5" value={imageGuidance} onChange={e => setImageGuidance(parseFloat(e.target.value))} className="w-full h-1 rounded-full appearance-none bg-zinc-200 dark:bg-zinc-800 accent-blue-400 cursor-pointer" />
+                    <div className="flex justify-between mt-0.5"><span className="text-[8px] text-zinc-400">1</span><span className="text-[8px] text-zinc-400">20</span></div>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1 flex items-center gap-1"><FiHash className="w-3 h-3" /> Seed <span className="text-zinc-400 font-normal">(optional)</span></label>
+                  <input
+                    type="number"
+                    value={imageSeed}
+                    onChange={e => setImageSeed(e.target.value)}
+                    placeholder="Random"
+                    className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[10px] sm:text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:border-blue-300 dark:focus:border-blue-400 outline-none transition-all"
+                  />
+                </div>
+                {selectedModel.id !== 'nano-image' && (
+                  <div>
+                    <label className="block text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1 flex items-center gap-1"><FiXCircle className="w-3 h-3" /> Negative Prompt <span className="text-zinc-400 font-normal">(optional)</span></label>
+                    <input
+                      type="text"
+                      value={imageNegativePrompt}
+                      onChange={e => setImageNegativePrompt(e.target.value)}
+                      placeholder="blurry, low quality, watermark..."
+                      className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[10px] sm:text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:border-blue-300 dark:focus:border-blue-400 outline-none transition-all"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+
             {selectedModel.type === 'tts' && (
-              <div>
-                <label className="block text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1.5">Emotion</label>
-                <div className="flex gap-1.5">
-                  {(['normal', 'happy', 'angry'] as const).map(e => (
-                    <button
-                      key={e}
-                      onClick={() => setTtsEmotion(e)}
-                      className={`flex-1 py-1.5 rounded-lg text-[9px] sm:text-[10px] font-semibold capitalize transition-all border ${ttsEmotion === e ? 'bg-blue-400 text-white border-blue-400' : 'text-zinc-500 dark:text-zinc-400 border-zinc-200 dark:border-zinc-800 hover:border-blue-300'}`}
-                    >
-                      {e === 'normal' ? '😐' : e === 'happy' ? '😊' : '😠'} {e}
-                    </button>
-                  ))}
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1.5">Emotion</label>
+                  <div className="grid grid-cols-4 gap-1">
+                    {([
+                      { val: 'normal', icon: FiMinus },
+                      { val: 'happy', icon: FiSmile },
+                      { val: 'sad', icon: FiFrown },
+                      { val: 'angry', icon: FiZap },
+                      { val: 'fearful', icon: FiAlertTriangle },
+                      { val: 'disgusted', icon: FiThumbsDown },
+                      { val: 'surprised', icon: FiBell },
+                    ] as const).map(({ val, icon: Icon }) => (
+                      <button
+                        key={val}
+                        onClick={() => setTtsEmotion(val as any)}
+                        className={`flex flex-col items-center gap-0.5 py-1.5 px-1 rounded-lg text-[9px] font-semibold capitalize transition-all border ${ttsEmotion === val ? 'bg-blue-400 text-white border-blue-400' : 'text-zinc-500 dark:text-zinc-400 border-zinc-200 dark:border-zinc-800 hover:border-blue-300'}`}
+                      >
+                        <Icon className="w-3 h-3" />
+                        {val}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2.5">
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 flex items-center gap-1"><FiVolume2 className="w-3 h-3" /> Volume</label>
+                      <span className="text-[10px] font-bold text-blue-400 tabular-nums">{ttsVolume}</span>
+                    </div>
+                    <input type="range" min="0" max="200" step="10" value={ttsVolume} onChange={e => setTtsVolume(parseInt(e.target.value))} className="w-full h-1 rounded-full appearance-none bg-zinc-200 dark:bg-zinc-800 accent-blue-400 cursor-pointer" />
+                    <div className="flex justify-between mt-0.5"><span className="text-[8px] text-zinc-400">0</span><span className="text-[8px] text-zinc-400">200</span></div>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 flex items-center gap-1"><FiActivity className="w-3 h-3" /> Pitch</label>
+                      <span className="text-[10px] font-bold text-blue-400 tabular-nums">{ttsPitch > 0 ? `+${ttsPitch}` : ttsPitch}</span>
+                    </div>
+                    <input type="range" min="-12" max="12" step="1" value={ttsPitch} onChange={e => setTtsPitch(parseInt(e.target.value))} className="w-full h-1 rounded-full appearance-none bg-zinc-200 dark:bg-zinc-800 accent-blue-400 cursor-pointer" />
+                    <div className="flex justify-between mt-0.5"><span className="text-[8px] text-zinc-400">-12</span><span className="text-[8px] text-zinc-400">+12</span></div>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 flex items-center gap-1"><FiFastForward className="w-3 h-3" /> Tempo</label>
+                      <span className="text-[10px] font-bold text-blue-400 tabular-nums">{ttsTempo.toFixed(1)}x</span>
+                    </div>
+                    <input type="range" min="0.5" max="2.0" step="0.1" value={ttsTempo} onChange={e => setTtsTempo(parseFloat(e.target.value))} className="w-full h-1 rounded-full appearance-none bg-zinc-200 dark:bg-zinc-800 accent-blue-400 cursor-pointer" />
+                    <div className="flex justify-between mt-0.5"><span className="text-[8px] text-zinc-400">0.5x</span><span className="text-[8px] text-zinc-400">2.0x</span></div>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 flex items-center gap-1"><FiSliders className="w-3 h-3" /> Intensity</label>
+                      <span className="text-[10px] font-bold text-blue-400 tabular-nums">{ttsEmotionIntensity.toFixed(1)}</span>
+                    </div>
+                    <input type="range" min="0" max="2" step="0.1" value={ttsEmotionIntensity} onChange={e => setTtsEmotionIntensity(parseFloat(e.target.value))} className="w-full h-1 rounded-full appearance-none bg-zinc-200 dark:bg-zinc-800 accent-blue-400 cursor-pointer" />
+                    <div className="flex justify-between mt-0.5"><span className="text-[8px] text-zinc-400">0</span><span className="text-[8px] text-zinc-400">2</span></div>
+                  </div>
                 </div>
               </div>
             )}
