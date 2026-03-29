@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { FiPlay, FiCopy, FiCheck, FiChevronDown, FiZap, FiCode, FiTerminal, FiSettings, FiClock, FiCpu, FiAlertCircle, FiRotateCcw, FiEye, FiEyeOff, FiImage, FiVolume2, FiDownload, FiPause, FiX, FiUpload, FiMaximize2, FiMinimize2, FiLayout, FiMinus, FiSmile, FiFrown, FiAlertTriangle, FiThumbsDown, FiBell, FiActivity, FiFastForward, FiSliders, FiMonitor, FiLayers, FiTarget, FiHash, FiXCircle, FiLock } from 'react-icons/fi';
+import { FiPlay, FiCopy, FiCheck, FiChevronDown, FiZap, FiCode, FiTerminal, FiSettings, FiClock, FiCpu, FiAlertCircle, FiRotateCcw, FiEye, FiEyeOff, FiImage, FiVolume2, FiDownload, FiPause, FiX, FiUpload, FiMaximize2, FiMinimize2, FiLayout, FiMinus, FiSmile, FiFrown, FiAlertTriangle, FiThumbsDown, FiBell, FiActivity, FiFastForward, FiSliders, FiMonitor, FiLayers, FiTarget, FiHash, FiXCircle } from 'react-icons/fi';
 import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiAirbrake, SiFlux, SiLapce, SiSecurityscorecard, SiDigikeyelectronics, SiMatternet, SiMaze, SiImagedotsc } from 'react-icons/si';
 import { GiSpermWhale, GiPowerLightning, GiClover, GiCloverSpiked, GiFire } from 'react-icons/gi';
 import { TbSquareLetterZ, TbLetterM } from 'react-icons/tb';
@@ -7,15 +7,9 @@ import { FaXTwitter } from 'react-icons/fa6';
 
 const base = 'https://www.aichixia.xyz';
 
-const VISION_MODEL_IDS = new Set(['gpt-5.2', 'gemini-3-flash', 'aichixia-flash', 'grok-4-fast', 'kimi-k2.5']);
+const VISION_MODEL_IDS = new Set(['gpt-5.2', 'gemini-3-flash', 'aichixia-flash', 'grok-4-fast']);
 
 type ModelType = 'text' | 'image' | 'tts';
-
-type UserSettings = {
-  plan: 'free' | 'pro' | 'enterprise';
-  plan_expires_at: string | null;
-  is_admin: boolean;
-};
 
 type AnyModel = {
   id: string;
@@ -41,7 +35,7 @@ const TEXT_MODELS: AnyModel[] = [
   { id: 'gemini-3-flash', name: 'Gemini 3 Flash', provider: 'Google', icon: SiGooglegemini, color: 'from-indigo-500 to-purple-600', pricing: 'Budget', context: '1M', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'grok-3', name: 'Grok 3', provider: 'xAI', icon: FaXTwitter, color: 'from-slate-600 to-zinc-700', pricing: 'Premium', context: '1M', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'glm-4.7', name: 'GLM 4.7', provider: 'Zhipu', icon: TbSquareLetterZ, color: 'from-blue-700 to-indigo-800', pricing: 'Premium', context: '200K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
-  { id: 'kimi-k2.5', name: 'Kimi K2.5', provider: 'Moonshot', icon: SiDigikeyelectronics, color: 'from-blue-500 to-cyan-600', pricing: 'Premium', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
+  { id: 'kimi-k2', name: 'Kimi K2', provider: 'Moonshot', icon: SiDigikeyelectronics, color: 'from-blue-500 to-cyan-600', pricing: 'Premium', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'glm-4.7-flash', name: 'GLM 4.7 Flash', provider: 'Zhipu', icon: TbSquareLetterZ, color: 'from-blue-700 to-indigo-800', pricing: 'Standard', context: '131K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
   { id: 'qwen3-235b', name: 'Qwen3 235B', provider: 'Alibaba', icon: SiMatternet, color: 'from-purple-500 to-pink-500', pricing: 'Premium', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
   { id: 'qwen3-coder-480b', name: 'Qwen3 Coder 480B', provider: 'Alibaba', icon: SiMatternet, color: 'from-purple-600 to-fuchsia-600', pricing: 'Premium', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
@@ -505,301 +499,309 @@ puts response.dig("choices", 0, "message", "content")`;
   if (lang === 'go') return `package main
 
 import (
-  "bytes"
-  "encoding/json"
+  "context"
   "fmt"
-  "io"
-  "net/http"
+  openai "github.com/sashabaranov/go-openai"
 )
 
 func main() {
-  body, _ := json.Marshal(map[string]any{
-    "model":       "${model.id}",
-    "messages":    []map[string]string{{"role": "user", "content": "${msg}"}},
-    "temperature": ${temperature},
-    "max_tokens":  ${maxTokens},
-  })
+  config := openai.DefaultConfig("${key}")
+  config.BaseURL = "${base}/api/v1"
+  client := openai.NewClientWithConfig(config)
 
-  req, _ := http.NewRequest("POST", "${base}/api/v1/chat/completions", bytes.NewBuffer(body))
-  req.Header.Set("Content-Type", "application/json")
-  req.Header.Set("Authorization", "Bearer ${key}")
+  resp, _ := client.CreateChatCompletion(
+    context.Background(),
+    openai.ChatCompletionRequest{
+      Model: "${model.id}",
+      Messages: []openai.ChatCompletionMessage{
+        {Role: openai.ChatMessageRoleUser, Content: "${msg}"},
+      },
+      Temperature: ${temperature},
+      MaxTokens:   ${maxTokens},
+    },
+  )
 
-  resp, _ := http.DefaultClient.Do(req)
-  defer resp.Body.Close()
-  b, _ := io.ReadAll(resp.Body)
-  fmt.Println(string(b))
+  fmt.Println(resp.Choices[0].Message.Content)
 }`;
   if (lang === 'php') return `<?php
-$ch = curl_init("${base}/api/v1/chat/completions");
-curl_setopt_array($ch, [
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_POST => true,
-    CURLOPT_HTTPHEADER => [
-        "Content-Type: application/json",
-        "Authorization: Bearer ${key}",
+require_once 'vendor/autoload.php';
+
+$client = OpenAI::factory()
+    ->withApiKey('${key}')
+    ->withBaseUri('${base}/api/v1')
+    ->make();
+
+$response = $client->chat()->create([
+    'model' => '${model.id}',
+    'messages' => [
+        ['role' => 'user', 'content' => '${msg}'],
     ],
-    CURLOPT_POSTFIELDS => json_encode([
-        "model" => "${model.id}",
-        "messages" => [["role" => "user", "content" => "${msg}"]],
-        "temperature" => ${temperature},
-        "max_tokens" => ${maxTokens},
-    ]),
+    'temperature' => ${temperature},
+    'max_tokens' => ${maxTokens},
 ]);
-$data = json_decode(curl_exec($ch), true);
-echo $data["choices"][0]["message"]["content"];`;
-  if (lang === 'java') return `import java.net.URI;
-import java.net.http.*;
-import java.net.http.HttpRequest.BodyPublishers;
 
-var client = HttpClient.newHttpClient();
-var body = """
-    {
-      "model": "${model.id}",
-      "messages": [{"role": "user", "content": "${msg}"}],
-      "temperature": ${temperature},
-      "max_tokens": ${maxTokens}
-    }
-    """;
-var request = HttpRequest.newBuilder()
-    .uri(URI.create("${base}/api/v1/chat/completions"))
-    .header("Content-Type", "application/json")
-    .header("Authorization", "Bearer ${key}")
-    .POST(BodyPublishers.ofString(body))
+echo $response->choices[0]->message->content;`;
+  if (lang === 'java') return `import com.theokanning.openai.completion.chat.*;
+import com.theokanning.openai.service.OpenAiService;
+import java.util.List;
+
+var service = new OpenAiService("${key}", "${base}/api/v1");
+var request = ChatCompletionRequest.builder()
+    .model("${model.id}")
+    .messages(List.of(new ChatMessage("user", "${msg}")))
+    .temperature(${temperature})
+    .maxTokens(${maxTokens})
     .build();
-var response = client.send(request, HttpResponse.BodyHandlers.ofString());
-System.out.println(response.body());`;
-  if (lang === 'csharp') return `using var client = new HttpClient();
-client.DefaultRequestHeaders.Add("Authorization", "Bearer ${key}");
-var payload = new {
-    model = "${model.id}",
-    messages = new[] { new { role = "user", content = "${msg}" } },
-    temperature = ${temperature},
-    max_tokens = ${maxTokens}
-};
-var body = new StringContent(
-    System.Text.Json.JsonSerializer.Serialize(payload),
-    System.Text.Encoding.UTF8, "application/json");
-var response = await client.PostAsync("${base}/api/v1/chat/completions", body);
-Console.WriteLine(await response.Content.ReadAsStringAsync());`;
-  if (lang === 'kotlin') return `import java.net.URI
-import java.net.http.*
-import java.net.http.HttpRequest.BodyPublishers
+System.out.println(service.createChatCompletion(request)
+    .getChoices().get(0).getMessage().getContent());`;
+  if (lang === 'csharp') return `using OpenAI.Chat;
+using OpenAI;
 
-val client = HttpClient.newHttpClient()
-val request = HttpRequest.newBuilder()
-    .uri(URI.create("${base}/api/v1/chat/completions"))
-    .header("Content-Type", "application/json")
-    .header("Authorization", "Bearer ${key}")
-    .POST(BodyPublishers.ofString("""
-        {
-          "model": "${model.id}",
-          "messages": [{"role": "user", "content": "${msg}"}],
-          "temperature": ${temperature},
-          "max_tokens": ${maxTokens}
-        }
-    """.trimIndent()))
-    .build()
-println(client.send(request, HttpResponse.BodyHandlers.ofString()).body())`;
-  if (lang === 'swift') return `import Foundation
+var client = new ChatClient(
+    model: "${model.id}",
+    apiKey: "${key}",
+    options: new OpenAIClientOptions { Endpoint = new Uri("${base}/api/v1") });
 
-let url = URL(string: "${base}/api/v1/chat/completions")!
-var request = URLRequest(url: url)
-request.httpMethod = "POST"
-request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-request.setValue("Bearer ${key}", forHTTPHeaderField: "Authorization")
-request.httpBody = try! JSONSerialization.data(withJSONObject: [
-    "model": "${model.id}",
-    "messages": [["role": "user", "content": "${msg}"]],
-    "temperature": ${temperature},
-    "max_tokens": ${maxTokens}
-])
-let (data, _) = try! await URLSession.shared.data(for: request)
-print(String(data: data, encoding: .utf8)!)`;
-  if (lang === 'rust') return `use reqwest::header::{AUTHORIZATION, CONTENT_TYPE};
-use serde_json::json;
+var completion = await client.CompleteChatAsync(new UserChatMessage("${msg}"));
+Console.WriteLine(completion.Value.Content[0].Text);`;
+  if (lang === 'kotlin') return `import com.aallam.openai.api.chat.*
+import com.aallam.openai.api.model.ModelId
+import com.aallam.openai.client.OpenAI
+import com.aallam.openai.client.OpenAIHost
+
+val openAI = OpenAI(
+    token = "${key}",
+    host = OpenAIHost("${base}/api/v1")
+)
+val request = chatCompletionRequest {
+    model = ModelId("${model.id}")
+    messages { user { content = "${msg}" } }
+    temperature = ${temperature}
+    maxTokens = ${maxTokens}
+}
+val response = openAI.chatCompletion(request)
+println(response.choices.first().message.content)`;
+  if (lang === 'swift') return `import OpenAI
+
+let openAI = OpenAI(configuration: .init(
+    token: "${key}",
+    host: "${base}"
+))
+let query = ChatQuery(
+    messages: [.user(.init(content: .string("${msg}")))],
+    model: "${model.id}",
+    maxTokens: ${maxTokens},
+    temperature: ${temperature}
+)
+let result = try await openAI.chats(query: query)
+print(result.choices.first?.message.content?.string ?? "")`;
+  if (lang === 'rust') return `use async_openai::{Client, config::OpenAIConfig, types::*};
 
 #[tokio::main]
 async fn main() {
-    let client = reqwest::Client::new();
-    let res = client.post("${base}/api/v1/chat/completions")
-        .header(CONTENT_TYPE, "application/json")
-        .header(AUTHORIZATION, "Bearer ${key}")
-        .json(&json!({
-            "model": "${model.id}",
-            "messages": [{"role": "user", "content": "${msg}"}],
-            "temperature": ${temperature},
-            "max_tokens": ${maxTokens}
-        }))
-        .send().await.unwrap();
-    println!("{}", res.text().await.unwrap());
+    let config = OpenAIConfig::new()
+        .with_api_key("${key}")
+        .with_api_base("${base}/api/v1");
+    let client = Client::with_config(config);
+    let request = CreateChatCompletionRequestArgs::default()
+        .model("${model.id}")
+        .messages([ChatCompletionRequestUserMessageArgs::default()
+            .content("${msg}").build().unwrap().into()])
+        .temperature(${temperature}_f32)
+        .max_tokens(${maxTokens}_u16)
+        .build().unwrap();
+    let response = client.chat().create(request).await.unwrap();
+    println!("{}", response.choices[0].message.content.as_deref().unwrap_or(""));
 }`;
-  if (lang === 'elixir') return `HTTPoison.post!(
-  "${base}/api/v1/chat/completions",
-  Jason.encode!(%{
-    model: "${model.id}",
-    messages: [%{role: "user", content: "${msg}"}],
-    temperature: ${temperature},
-    max_tokens: ${maxTokens}
-  }),
-  [
-    {"Content-Type", "application/json"},
-    {"Authorization", "Bearer ${key}"}
-  ]
-) |> Map.get(:body) |> IO.puts()`;
+  if (lang === 'elixir') return `{:ok, response} = OpenAI.chat_completion(
+  model: "${model.id}",
+  messages: [%{role: "user", content: "${msg}"}],
+  temperature: ${temperature},
+  max_tokens: ${maxTokens},
+  config: %OpenAI.Config{
+    api_key: "${key}",
+    api_url: "${base}/api/v1"
+  }
+)
+response |> get_in(["choices", Access.at(0), "message", "content"]) |> IO.puts()`;
   return '';
 }
 
-type ArtifactData = { type: string; code: string; lang: string };
+type TokenType = 'keyword' | 'string' | 'number' | 'comment' | 'function' | 'operator' | 'plain';
+type Token = { type: TokenType; value: string };
 
-function detectArtifact(text: string): ArtifactData | null {
-  const fenceRe = /```(html|svg|jsx?|tsx?|css|javascript|react|markdown|md)\n([\s\S]*?)```/i;
-  const m = text.match(fenceRe);
-  if (!m) return null;
-  const lang = m[1].toLowerCase();
-  const code = m[2];
-  const type = ['html', 'svg'].includes(lang) ? lang
-    : ['jsx', 'tsx', 'react'].includes(lang) ? 'react'
-    : ['js', 'javascript'].includes(lang) ? 'javascript'
-    : lang === 'css' ? 'css'
-    : ['md', 'markdown'].includes(lang) ? 'markdown'
-    : null;
-  if (!type) return null;
-  return { type, code, lang };
+const KEYWORDS: Record<Lang, string[]> = {
+  typescript: ['import','from','const','let','var','async','await','new','return','function','export','default','true','false','null','undefined','typeof'],
+  python: ['import','from','def','class','return','with','as','await','async','True','False','None','print','if','else','elif','for','while','in'],
+  curl: ['curl','POST','GET','PUT','DELETE','PATCH'],
+  ruby: ['require','def','end','puts','do','class','module','return','true','false','nil','if','else'],
+  go: ['package','import','func','return','var','const','type','struct','true','false','nil','if','else','for','map'],
+  php: ['echo','require_once','true','false','null','new','return','function','class','if','else','foreach'],
+  java: ['import','class','public','private','static','void','var','new','return','true','false','null','if','else','for','while'],
+  csharp: ['using','var','new','await','async','return','true','false','null','class','public','private','static','void','string','int'],
+  kotlin: ['import','val','var','fun','return','true','false','null','class','object','if','else','for','while','when','is','in'],
+  swift: ['import','let','var','func','return','true','false','nil','class','struct','if','else','for','while','try','await','async'],
+  rust: ['use','fn','let','mut','pub','struct','impl','return','true','false','None','Some','if','else','for','while','async','await','mod'],
+  elixir: ['def','defmodule','do','end','true','false','nil','if','else','case','when','in','fn','import','alias','use','require'],
+};
+
+const TOKEN_COLORS: Record<TokenType, string> = {
+  keyword: 'text-blue-400 dark:text-blue-300',
+  string: 'text-emerald-600 dark:text-emerald-400',
+  number: 'text-amber-500 dark:text-amber-400',
+  comment: 'text-zinc-400 dark:text-zinc-500 italic',
+  function: 'text-sky-500 dark:text-sky-400',
+  operator: 'text-zinc-500 dark:text-zinc-400',
+  plain: 'text-zinc-700 dark:text-zinc-300',
+};
+
+function tokenizeLine(line: string, lang: Lang): Token[] {
+  const kwSet = new Set(KEYWORDS[lang] || []);
+  const tokens: Token[] = [];
+  let i = 0;
+  const isComment = (s: string) => {
+    if (['typescript', 'go', 'php', 'ruby', 'java', 'csharp', 'kotlin', 'swift', 'rust'].includes(lang) && s.startsWith('//')) return true;
+    if (['python', 'ruby', 'curl', 'elixir'].includes(lang) && s[0] === '#') return true;
+    return false;
+  };
+  while (i < line.length) {
+    const rest = line.slice(i);
+    if (isComment(rest)) { tokens.push({ type: 'comment', value: rest }); break; }
+    if (rest[0] === '"' || rest[0] === "'" || rest[0] === '`') {
+      const q = rest[0]; let j = 1;
+      while (j < rest.length) { if (rest[j] === '\\') { j += 2; continue; } if (rest[j] === q) { j++; break; } j++; }
+      tokens.push({ type: 'string', value: rest.slice(0, j) }); i += j; continue;
+    }
+    const numM = rest.match(/^\d+\.?\d*/);
+    if (numM && (i === 0 || !/[a-zA-Z_$]/.test(line[i - 1]))) { tokens.push({ type: 'number', value: numM[0] }); i += numM[0].length; continue; }
+    const wordM = rest.match(/^[a-zA-Z_$][a-zA-Z0-9_$]*/);
+    if (wordM) {
+      const w = wordM[0]; const after = line[i + w.length];
+      tokens.push({ type: kwSet.has(w) ? 'keyword' : after === '(' ? 'function' : 'plain', value: w });
+      i += w.length; continue;
+    }
+    const opM = rest.match(/^[{}[\]().,;:=<>!+\-*/%&|^~?\\@]+/);
+    if (opM) { tokens.push({ type: 'operator', value: opM[0] }); i += opM[0].length; continue; }
+    tokens.push({ type: 'plain', value: rest[0] }); i++;
+  }
+  return tokens;
 }
 
+function CodeHighlight({ code, lang }: { code: string; lang: Lang }) {
+  const lines = code.split('\n');
+  return (
+    <code className="block w-full">
+      {lines.map((line, li) => (
+        <div key={li} className="flex w-full group hover:bg-white/5 transition-colors duration-75">
+          <span className="w-6 sm:w-7 text-right text-zinc-500/40 dark:text-zinc-600/60 select-none mr-3 flex-shrink-0 tabular-nums text-[9px] leading-5 group-hover:text-zinc-400 transition-colors">{li + 1}</span>
+          <span className="flex-1 min-w-0 whitespace-pre-wrap break-all leading-5 text-[9px] sm:text-[10px]">
+            {tokenizeLine(line, lang).map((tok, ti) => <span key={ti} className={TOKEN_COLORS[tok.type]}>{tok.value}</span>)}
+            {line.length === 0 && '\u00a0'}
+          </span>
+        </div>
+      ))}
+    </code>
+  );
+}
+
+type CodeBlockProps = { code: string; language?: string; onCopy: (t: string, id: string) => void; copied: string | null; id: string };
+
+function CodeBlock({ code, language, onCopy, copied, id }: CodeBlockProps) {
+  return (
+    <div className="my-2.5 rounded-xl overflow-hidden border border-zinc-200/80 dark:border-zinc-700/50 shadow-sm">
+      <div className="flex items-center justify-between px-3 py-1.5 bg-zinc-100 dark:bg-zinc-800/80 border-b border-zinc-200/80 dark:border-zinc-700/50">
+        <span className="text-[9px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">{language || 'code'}</span>
+        <button
+          onClick={() => onCopy(code, id)}
+          className="flex items-center gap-1 text-[9px] font-semibold text-zinc-500 dark:text-zinc-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+        >
+          {copied === id ? <FiCheck className="w-2.5 h-2.5 text-emerald-500" /> : <FiCopy className="w-2.5 h-2.5" />}
+          {copied === id ? 'Copied' : 'Copy'}
+        </button>
+      </div>
+      <div className="overflow-x-auto bg-zinc-50 dark:bg-zinc-900/80 p-3">
+        <pre className="font-mono text-[10px] sm:text-[11px] leading-relaxed text-zinc-800 dark:text-zinc-200 whitespace-pre">{code}</pre>
+      </div>
+    </div>
+  );
+}
+
+type ArtifactData = { type: 'html' | 'svg'; content: string; title: string };
+
 function ArtifactViewer({ artifact, onClose }: { artifact: ArtifactData; onClose: () => void }) {
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-
-  const getSrcDoc = () => {
-    if (artifact.type === 'html') return artifact.code;
-    if (artifact.type === 'svg') return `<!DOCTYPE html><html><body style="margin:0;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0a0a0a">${artifact.code}</body></html>`;
-    if (artifact.type === 'css') return `<!DOCTYPE html><html><head><style>${artifact.code}</style></head><body style="background:#0a0a0a;color:#e4e4e7;font-family:sans-serif;padding:20px"><div class="container"><h1>CSS Preview</h1><p>Sample paragraph text</p><button>Button</button></div></body></html>`;
-    if (artifact.type === 'markdown') return `<!DOCTYPE html><html><head><script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"><\/script><style>body{background:#0a0a0a;color:#e4e4e7;font-family:system-ui;padding:24px;max-width:800px;margin:0 auto}pre{background:#18181b;padding:12px;border-radius:8px;overflow-x:auto}code{background:#18181b;padding:2px 6px;border-radius:4px}a{color:#60a5fa}</style></head><body><div id="out"></div><script>document.getElementById("out").innerHTML=marked.parse(${JSON.stringify(artifact.code)})<\/script></body></html>`;
-    if (artifact.type === 'javascript') return `<!DOCTYPE html><html><head><style>body{background:#0a0a0a;color:#e4e4e7;font-family:monospace;padding:16px}#console{white-space:pre-wrap;font-size:13px}span.log{color:#a1a1aa}span.err{color:#f87171}</style></head><body><div id="console"></div><script>
-const _c=document.getElementById('console');
-const _orig={log:console.log,error:console.error,warn:console.warn};
-['log','warn','error'].forEach(m=>{console[m]=(...a)=>{const s=document.createElement('span');s.className=m==='error'?'err':'log';s.textContent=a.map(x=>typeof x==='object'?JSON.stringify(x,null,2):String(x)).join(' ')+'\\n';_c.appendChild(s);_orig[m](...a);}});
-try{${artifact.code}}catch(e){const s=document.createElement('span');s.className='err';s.textContent='Error: '+e.message;_c.appendChild(s);}
-<\/script></body></html>`;
-    if (artifact.type === 'react') return `<!DOCTYPE html><html><head><style>body{margin:0;background:#0a0a0a;color:#e4e4e7;font-family:system-ui}</style></head><body><div id="root"></div>
-<script src="https://unpkg.com/react@18/umd/react.development.js"><\/script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"><\/script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"><\/script>
-<script type="text/babel">
-${artifact.code}
-const root=ReactDOM.createRoot(document.getElementById('root'));
-const exports={default:null};
-try{root.render(React.createElement(typeof App!=='undefined'?App:()=>React.createElement('div',{style:{padding:16,color:'#f87171'}},'No default export found')))}catch(e){root.render(React.createElement('div',{style:{padding:16,color:'#f87171',fontFamily:'monospace'}},'Error: '+e.message))}
-<\/script></body></html>`;
-    return '';
-  };
-
-  const height = isFullscreen ? '100%' : artifact.type === 'markdown' ? '400px' : '320px';
+  const [fullscreen, setFullscreen] = useState(false);
+  const srcDoc = artifact.type === 'svg'
+    ? `<!DOCTYPE html><html><body style="margin:0;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#fff">${artifact.content}</body></html>`
+    : artifact.content;
 
   return (
-    <div className={`${isFullscreen ? 'fixed inset-0 z-50 bg-black flex flex-col' : 'rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden'}`}>
-      <div className={`flex items-center justify-between px-3 py-2 bg-zinc-100 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 ${isFullscreen ? 'flex-shrink-0' : ''}`}>
+    <div className={`${fullscreen ? 'fixed inset-0 z-[100] bg-zinc-950 flex flex-col' : ''} rounded-xl overflow-hidden border border-blue-200 dark:border-blue-800/50 shadow-xl`}>
+      <div className="flex items-center justify-between px-3 py-2 bg-gradient-to-r from-blue-50 to-blue-100/50 dark:from-blue-950/50 dark:to-blue-900/20 border-b border-blue-200 dark:border-blue-800/50 flex-shrink-0">
         <div className="flex items-center gap-2">
-          <div className="flex gap-1.5">
-            <div className="w-3 h-3 rounded-full bg-red-500" />
-            <div className="w-3 h-3 rounded-full bg-yellow-500" />
-            <div className="w-3 h-3 rounded-full bg-green-500" />
+          <div className="flex gap-1">
+            <div className="w-2.5 h-2.5 rounded-full bg-red-400/90" />
+            <div className="w-2.5 h-2.5 rounded-full bg-yellow-400/90" />
+            <div className="w-2.5 h-2.5 rounded-full bg-green-400/90" />
           </div>
-          <span className="text-[10px] font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">{artifact.type} preview</span>
+          <span className="text-[10px] font-bold text-blue-500 dark:text-blue-300">{artifact.title}</span>
+          <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-400 dark:text-blue-300 border border-blue-100 dark:border-blue-700 font-bold uppercase tracking-wider">{artifact.type}</span>
         </div>
         <div className="flex items-center gap-1">
-          <button onClick={() => setIsFullscreen(!isFullscreen)} className="p-1 rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-all">
-            {isFullscreen ? <FiMinimize2 className="w-3 h-3" /> : <FiMaximize2 className="w-3 h-3" />}
+          <button
+            onClick={() => setFullscreen(!fullscreen)}
+            className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-blue-50 dark:hover:bg-blue-800/30 text-blue-400 dark:text-blue-300 transition-colors"
+          >
+            {fullscreen ? <FiMinimize2 className="w-3 h-3" /> : <FiMaximize2 className="w-3 h-3" />}
           </button>
-          <button onClick={onClose} className="p-1 rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-all">
+          <button
+            onClick={onClose}
+            className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-red-100 dark:hover:bg-red-900/30 text-zinc-400 hover:text-red-500 transition-colors"
+          >
             <FiX className="w-3 h-3" />
           </button>
         </div>
       </div>
       <iframe
-        ref={iframeRef}
-        srcDoc={getSrcDoc()}
-        sandbox="allow-scripts"
-        className={`w-full border-0 bg-zinc-950 ${isFullscreen ? 'flex-1' : ''}`}
-        style={{ height: isFullscreen ? undefined : height }}
-        title="Artifact Preview"
+        srcDoc={srcDoc}
+        className={`w-full border-0 bg-white ${fullscreen ? 'flex-1' : 'h-64 sm:h-80'}`}
+        sandbox="allow-scripts allow-same-origin"
+        title={artifact.title}
       />
     </div>
   );
 }
 
-function CodeBlock({ code, language, onCopy, copied, id }: { code: string; language: string; onCopy: (t: string, id: string) => void; copied: string | null; id: string }) {
-  return (
-    <div className="rounded-lg overflow-hidden border border-zinc-200 dark:border-zinc-800">
-      <div className="flex items-center justify-between px-3 py-1.5 bg-zinc-100 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
-        <span className="text-[9px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">{language}</span>
-        <button onClick={() => onCopy(code, id)} className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-semibold text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-all">
-          {copied === id ? <FiCheck className="w-2.5 h-2.5 text-emerald-500" /> : <FiCopy className="w-2.5 h-2.5" />}
-          {copied === id ? 'Copied' : 'Copy'}
-        </button>
-      </div>
-      <pre className="p-3 overflow-x-auto bg-zinc-50 dark:bg-zinc-950"><code className="text-[10px] sm:text-xs font-mono text-zinc-700 dark:text-zinc-300 leading-relaxed">{code}</code></pre>
-    </div>
-  );
+function detectArtifact(text: string): ArtifactData | null {
+  const html = text.match(/```html\n([\s\S]*?)```/i);
+  if (html) return { type: 'html', content: html[1].trim(), title: 'HTML Artifact' };
+  const svg = text.match(/```svg\n([\s\S]*?)```/i);
+  if (svg) return { type: 'svg', content: svg[1].trim(), title: 'SVG Artifact' };
+  return null;
 }
 
-function CodeHighlight({ code, lang }: { code: string; lang: string }) {
-  const keywords: Record<string, string[]> = {
-    typescript: ['import','from','const','let','var','async','await','function','return','new','if','else','try','catch','throw','export','default','type','interface'],
-    python: ['import','from','def','return','async','await','class','if','else','elif','try','except','with','as','print','True','False','None'],
-    curl: ['curl','-X','POST','GET','-H','-d','--data'],
-    go: ['package','import','func','main','var','return','if','else','defer','range','for','map','make'],
-    rust: ['use','fn','let','mut','async','await','pub','struct','impl','return','if','else','match'],
-    java: ['import','class','public','private','static','void','var','new','return','if','else','try','catch'],
-    csharp: ['using','var','new','await','async','return','if','else','try','catch','public','private','class'],
-  };
-  const strings = /"[^"]*"|'[^']*'|`[^`]*`/g;
-  const kws = keywords[lang] || [];
-  const lines = code.split('\n');
-  return (
-    <>
-      {lines.map((line, i) => {
-        const parts: React.ReactNode[] = [];
-        let remaining = line;
-        let ki = 0;
-        const strMatches = [...line.matchAll(strings)];
-        let last = 0;
-        for (const m of strMatches) {
-          const pre = line.slice(last, m.index);
-          const words = pre.split(/(\s+|[(){}[\],;.])/);
-          words.forEach((w, wi) => {
-            if (kws.includes(w)) parts.push(<span key={`kw-${i}-${ki++}`} className="text-blue-400 dark:text-blue-300">{w}</span>);
-            else parts.push(<span key={`w-${i}-${ki++}`}>{w}</span>);
-          });
-          parts.push(<span key={`str-${i}-${ki++}`} className="text-emerald-500 dark:text-emerald-400">{m[0]}</span>);
-          last = (m.index || 0) + m[0].length;
-        }
-        const tail = line.slice(last);
-        tail.split(/(\s+|[(){}[\],;.])/).forEach((w, wi) => {
-          if (kws.includes(w)) parts.push(<span key={`tkw-${i}-${ki++}`} className="text-blue-400 dark:text-blue-300">{w}</span>);
-          else parts.push(<span key={`tw-${i}-${wi}`}>{w}</span>);
-        });
-        return <div key={i} className="text-[10px] sm:text-xs font-mono text-zinc-700 dark:text-zinc-300 leading-relaxed whitespace-pre">{parts}</div>;
-      })}
-    </>
-  );
-}
+type MDProps = { text: string; onCopy: (t: string, id: string) => void; copied: string | null; onArtifact: (a: ArtifactData) => void };
 
-function MarkdownRenderer({ text, onCopy, copied, onArtifact }: { text: string; onCopy: (t: string, id: string) => void; copied: string | null; onArtifact: (a: ArtifactData) => void }) {
-  const renderInline = (str: string, key: string): React.ReactNode[] => {
+function MarkdownRenderer({ text, onCopy, copied, onArtifact }: MDProps) {
+  const renderInline = (str: string, keyPrefix: string): React.ReactNode[] => {
     const parts: React.ReactNode[] = [];
-    const re = /(`[^`]+`)|(\*\*[^*]+\*\*)|(\*[^*]+\*)|(_[^_]+_)|(~~[^~]+~~)|(\[[^\]]+\]\([^)]+\))/g;
-    let last = 0; let k = 0;
-    for (const m of str.matchAll(re)) {
-      if ((m.index || 0) > last) parts.push(str.slice(last, m.index));
+    const regex = /(`[^`\n]+`|\*\*([^*]+)\*\*|\*([^*\n]+)\*|~~([^~]+)~~|\[([^\]]+)\]\(([^)]+)\))/g;
+    let last = 0; let m: RegExpExecArray | null;
+    while ((m = regex.exec(str)) !== null) {
+      if (m.index > last) parts.push(str.slice(last, m.index));
       const raw = m[0];
-      if (raw.startsWith('`')) parts.push(<code key={`${key}-${k++}`} className="px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-[10px] font-mono text-blue-400 dark:text-blue-300">{raw.slice(1, -1)}</code>);
-      else if (raw.startsWith('**')) parts.push(<strong key={`${key}-${k++}`} className="font-bold text-zinc-900 dark:text-white">{raw.slice(2, -2)}</strong>);
-      else if (raw.startsWith('*') || raw.startsWith('_')) parts.push(<em key={`${key}-${k++}`} className="italic">{raw.slice(1, -1)}</em>);
-      else if (raw.startsWith('~~')) parts.push(<del key={`${key}-${k++}`} className="line-through opacity-60">{raw.slice(2, -2)}</del>);
-      else if (raw.startsWith('[')) parts.push(<a key={`${key}-${k++}`} href={m[6]} target="_blank" rel="noopener noreferrer" className="text-blue-400 dark:text-blue-300 underline underline-offset-2 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">{m[5]}</a>);
-      last = (m.index || 0) + raw.length;
+      const k = `${keyPrefix}-${m.index}`;
+      if (raw.startsWith('`')) {
+        parts.push(<code key={k} className="px-1 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/20 text-blue-500 dark:text-blue-300 font-mono text-[10px] border border-blue-100 dark:border-blue-900/40">{raw.slice(1, -1)}</code>);
+      } else if (raw.startsWith('**')) {
+        parts.push(<strong key={k} className="font-bold text-zinc-900 dark:text-white">{raw.slice(2, -2)}</strong>);
+      } else if (raw.startsWith('*')) {
+        parts.push(<em key={k} className="italic">{raw.slice(1, -1)}</em>);
+      } else if (raw.startsWith('~~')) {
+        parts.push(<del key={k} className="line-through opacity-60">{raw.slice(2, -2)}</del>);
+      } else if (raw.startsWith('[')) {
+        parts.push(<a key={k} href={m[6]} target="_blank" rel="noopener noreferrer" className="text-blue-400 dark:text-blue-300 underline underline-offset-2 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">{m[5]}</a>);
+      }
+      last = m.index + raw.length;
     }
     if (last < str.length) parts.push(str.slice(last));
     return parts;
@@ -811,6 +813,7 @@ function MarkdownRenderer({ text, onCopy, copied, onArtifact }: { text: string; 
 
   while (i < lines.length) {
     const line = lines[i];
+
     if (line.startsWith('```')) {
       const langTag = line.slice(3).trim().toLowerCase();
       const codeLines: string[] = [];
@@ -823,7 +826,10 @@ function MarkdownRenderer({ text, onCopy, copied, onArtifact }: { text: string; 
         <div key={bid} className="space-y-1.5">
           <CodeBlock code={codeStr} language={langTag} onCopy={onCopy} copied={copied} id={bid} />
           {artCandidate && (
-            <button onClick={() => onArtifact(artCandidate)} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-400 dark:text-blue-300 border border-blue-100 dark:border-blue-700/60 text-[10px] font-semibold hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-all duration-150 hover:scale-[1.01]">
+            <button
+              onClick={() => onArtifact(artCandidate)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-400 dark:text-blue-300 border border-blue-100 dark:border-blue-700/60 text-[10px] font-semibold hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-all duration-150 hover:scale-[1.01]"
+            >
               <FiLayout className="w-3 h-3" />
               Preview as Artifact
             </button>
@@ -832,18 +838,32 @@ function MarkdownRenderer({ text, onCopy, copied, onArtifact }: { text: string; 
       );
       i++; continue;
     }
+
     if (/^#{1,3}\s/.test(line)) {
       const level = line.match(/^(#+)/)?.[1].length || 1;
       const content = line.replace(/^#+\s/, '');
-      const cls = level === 1 ? 'text-base sm:text-lg font-bold text-zinc-900 dark:text-white mt-4 mb-1.5' : level === 2 ? 'text-sm sm:text-base font-bold text-zinc-900 dark:text-white mt-3 mb-1 pb-1.5 border-b border-zinc-200 dark:border-zinc-700/60' : 'text-xs sm:text-sm font-bold text-zinc-800 dark:text-zinc-200 mt-2.5 mb-1';
+      const cls = level === 1
+        ? 'text-base sm:text-lg font-bold text-zinc-900 dark:text-white mt-4 mb-1.5'
+        : level === 2
+        ? 'text-sm sm:text-base font-bold text-zinc-900 dark:text-white mt-3 mb-1 pb-1.5 border-b border-zinc-200 dark:border-zinc-700/60'
+        : 'text-xs sm:text-sm font-bold text-zinc-800 dark:text-zinc-200 mt-2.5 mb-1';
       const Tag = (['h1','h2','h3'] as const)[level - 1];
       elements.push(<Tag key={i} className={cls}>{renderInline(content, `h${i}`)}</Tag>);
     } else if (line.startsWith('> ')) {
-      elements.push(<blockquote key={i} className="pl-3 border-l-2 border-blue-300 dark:border-blue-400 my-1.5 text-zinc-600 dark:text-zinc-400 text-[11px] italic">{renderInline(line.slice(2), `bq${i}`)}</blockquote>);
+      elements.push(
+        <blockquote key={i} className="pl-3 border-l-2 border-blue-300 dark:border-blue-400 my-1.5 text-zinc-600 dark:text-zinc-400 text-[11px] italic">
+          {renderInline(line.slice(2), `bq${i}`)}
+        </blockquote>
+      );
     } else if (/^[-*]\s/.test(line)) {
       const items: React.ReactNode[] = [];
       while (i < lines.length && /^[-*]\s/.test(lines[i])) {
-        items.push(<li key={i} className="flex gap-2 items-start leading-relaxed"><span className="mt-[7px] w-1.5 h-1.5 rounded-full bg-blue-300 dark:bg-blue-400 flex-shrink-0" /><span>{renderInline(lines[i].replace(/^[-*]\s/, ''), `li${i}`)}</span></li>);
+        items.push(
+          <li key={i} className="flex gap-2 items-start leading-relaxed">
+            <span className="mt-[7px] w-1.5 h-1.5 rounded-full bg-blue-300 dark:bg-blue-400 flex-shrink-0" />
+            <span>{renderInline(lines[i].replace(/^[-*]\s/, ''), `li${i}`)}</span>
+          </li>
+        );
         i++;
       }
       elements.push(<ul key={`ul${i}`} className="my-1.5 space-y-0.5 text-[11px] sm:text-xs text-zinc-700 dark:text-zinc-300">{items}</ul>);
@@ -851,7 +871,12 @@ function MarkdownRenderer({ text, onCopy, copied, onArtifact }: { text: string; 
     } else if (/^\d+\.\s/.test(line)) {
       const items: React.ReactNode[] = []; let n = 1;
       while (i < lines.length && /^\d+\.\s/.test(lines[i])) {
-        items.push(<li key={i} className="flex gap-2 items-start leading-relaxed"><span className="flex-shrink-0 min-w-[18px] h-[18px] mt-0.5 rounded-full bg-blue-100 dark:bg-blue-800/30 text-blue-400 dark:text-blue-300 text-[8px] font-bold flex items-center justify-center">{n}</span><span>{renderInline(lines[i].replace(/^\d+\.\s/, ''), `ol${i}`)}</span></li>);
+        items.push(
+          <li key={i} className="flex gap-2 items-start leading-relaxed">
+            <span className="flex-shrink-0 min-w-[18px] h-[18px] mt-0.5 rounded-full bg-blue-100 dark:bg-blue-800/30 text-blue-400 dark:text-blue-300 text-[8px] font-bold flex items-center justify-center">{n}</span>
+            <span>{renderInline(lines[i].replace(/^\d+\.\s/, ''), `ol${i}`)}</span>
+          </li>
+        );
         n++; i++;
       }
       elements.push(<ol key={`ol${i}`} className="my-1.5 space-y-0.5 text-[11px] sm:text-xs text-zinc-700 dark:text-zinc-300">{items}</ol>);
@@ -861,7 +886,11 @@ function MarkdownRenderer({ text, onCopy, copied, onArtifact }: { text: string; 
     } else if (line.trim() === '') {
       elements.push(<div key={i} className="h-1.5" />);
     } else {
-      elements.push(<p key={i} className="text-[11px] sm:text-xs text-zinc-700 dark:text-zinc-300 leading-relaxed">{renderInline(line, `p${i}`)}</p>);
+      elements.push(
+        <p key={i} className="text-[11px] sm:text-xs text-zinc-700 dark:text-zinc-300 leading-relaxed">
+          {renderInline(line, `p${i}`)}
+        </p>
+      );
     }
     i++;
   }
@@ -870,12 +899,9 @@ function MarkdownRenderer({ text, onCopy, copied, onArtifact }: { text: string; 
 }
 
 type UploadedImage = { file: File; base64: string; preview: string; mimeType: string };
-type PlaygroundProps = {
-  keys?: { key: string; name: string; is_active: boolean }[];
-  settings?: UserSettings | null;
-};
+type PlaygroundProps = { keys?: { key: string; name: string; is_active: boolean }[] };
 
-export default function Playground({ keys = [], settings = null }: PlaygroundProps) {
+export default function Playground({ keys = [] }: PlaygroundProps) {
   const [selectedModel, setSelectedModel] = useState<AnyModel>(TEXT_MODELS[0]);
   const [modelOpen, setModelOpen] = useState(false);
   const [modelTab, setModelTab] = useState<'text' | 'image' | 'tts'>('text');
@@ -917,14 +943,6 @@ export default function Playground({ keys = [], settings = null }: PlaygroundPro
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dropZoneRef = useRef<HTMLDivElement>(null);
   const isVisionModel = VISION_MODEL_IDS.has(selectedModel.id);
-
-  const isModelLocked = (model: AnyModel) => {
-    if (!model.requiresPro) return false;
-    if (!settings) return true;
-    if (settings.plan === 'free') return true;
-    if (settings.plan === 'enterprise') return false;
-    return false;
-  };
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -1016,7 +1034,6 @@ export default function Playground({ keys = [], settings = null }: PlaygroundPro
   const handleRun = async () => {
     if (!apiKey.trim()) { setError('Please enter your API key'); return; }
     if (!message.trim() && uploadedImages.length === 0) { setError('Please enter a message'); return; }
-    if (isModelLocked(selectedModel)) { setError('This model requires a Pro or higher plan.'); return; }
     setIsLoading(true); clearResult();
     const t0 = Date.now();
     try {
@@ -1081,7 +1098,6 @@ export default function Playground({ keys = [], settings = null }: PlaygroundPro
   const tokensUsed = response?.usage?.total_tokens ?? null;
   const ModelIcon = selectedModel.icon as any;
   const tabModels = modelsForTab();
-  const selectedLocked = isModelLocked(selectedModel);
 
   return (
     <div className="space-y-3 sm:space-y-4 min-h-0 w-full max-w-full">
@@ -1120,20 +1136,14 @@ export default function Playground({ keys = [], settings = null }: PlaygroundPro
                 className="w-full flex items-center justify-between px-2.5 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-blue-300 dark:hover:border-blue-400 transition-all duration-200 group"
               >
                 <div className="flex items-center gap-1.5 min-w-0 flex-1">
-                  <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-gradient-to-br ${selectedLocked ? 'from-zinc-400 to-zinc-500' : selectedModel.color} flex items-center justify-center flex-shrink-0 shadow-sm`}>
-                    {selectedLocked ? <FiLock className="w-2.5 h-2.5 text-white" /> : <ModelIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />}
+                  <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-gradient-to-br ${selectedModel.color} flex items-center justify-center flex-shrink-0 shadow-sm`}>
+                    <ModelIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />
                   </div>
                   <div className="min-w-0 flex-1 flex flex-col items-start">
                     <div className="flex items-center gap-1 flex-wrap">
-                      <span className={`text-[10px] sm:text-xs font-bold truncate ${selectedLocked ? 'text-zinc-400 dark:text-zinc-500' : 'text-zinc-900 dark:text-white'}`}>{selectedModel.name}</span>
-                      {isVisionModel && !selectedLocked && (
-                        <span className="inline-flex items-center gap-0.5 text-[8px] font-semibold px-1.5 py-0.5 rounded-full bg-gradient-to-r from-violet-500/10 to-blue-500/10 text-violet-500 dark:text-violet-400 border border-violet-200 dark:border-violet-800/60 flex-shrink-0">
-                          <FiEye className="w-2 h-2" />
-                          Vision
-                        </span>
-                      )}
-                      {selectedLocked && (
-                        <span className="text-[8px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800/60 flex-shrink-0">Pro</span>
+                      <span className="text-[10px] sm:text-xs font-bold text-zinc-900 dark:text-white truncate">{selectedModel.name}</span>
+                      {isVisionModel && (
+                        <span className="text-[8px] font-bold px-1 py-0.5 rounded-full bg-blue-100 dark:bg-blue-800/30 text-blue-400 dark:text-blue-300 border border-blue-100 dark:border-blue-700 flex-shrink-0">Vision</span>
                       )}
                     </div>
                     <span className="text-[9px] sm:text-[10px] text-zinc-500 truncate">{selectedModel.provider}</span>
@@ -1173,28 +1183,17 @@ export default function Playground({ keys = [], settings = null }: PlaygroundPro
                     ) : tabModels.map(model => {
                       const Icon = model.icon as any;
                       const hasVision = VISION_MODEL_IDS.has(model.id);
-                      const locked = isModelLocked(model);
                       return (
                         <button
                           key={model.id}
                           onClick={() => { setSelectedModel(model); setModelOpen(false); setModelSearch(''); clearResult(); }}
-                          className={`w-full flex items-center gap-1.5 px-2 py-1.5 rounded-lg transition-all duration-150 text-left ${selectedModel.id === model.id ? 'bg-blue-50 dark:bg-blue-800/20 border border-blue-100 dark:border-blue-700' : 'hover:bg-zinc-50 dark:hover:bg-zinc-800'} ${locked ? 'opacity-60' : ''}`}
+                          className={`w-full flex items-center gap-1.5 px-2 py-1.5 rounded-lg transition-all duration-150 text-left ${selectedModel.id === model.id ? 'bg-blue-50 dark:bg-blue-800/20 border border-blue-100 dark:border-blue-700' : 'hover:bg-zinc-50 dark:hover:bg-zinc-800'}`}
                         >
-                          <div className={`w-5 h-5 rounded-md bg-gradient-to-br ${locked ? 'from-zinc-400 to-zinc-500' : model.color} flex items-center justify-center flex-shrink-0`}>
-                            {locked ? <FiLock className="w-2.5 h-2.5 text-white" /> : <Icon className="w-2.5 h-2.5 text-white" />}
-                          </div>
+                          <div className={`w-5 h-5 rounded-md bg-gradient-to-br ${model.color} flex items-center justify-center flex-shrink-0`}><Icon className="w-2.5 h-2.5 text-white" /></div>
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-1 flex-wrap">
-                              <span className={`text-[10px] font-semibold truncate ${locked ? 'text-zinc-400 dark:text-zinc-500' : 'text-zinc-900 dark:text-white'}`}>{model.name}</span>
-                              {hasVision && !locked && (
-                                <span className="inline-flex items-center gap-0.5 text-[7px] font-semibold px-1 py-0.5 rounded-full bg-gradient-to-r from-violet-500/10 to-blue-500/10 text-violet-500 dark:text-violet-400 border border-violet-200 dark:border-violet-800/60 flex-shrink-0">
-                                  <FiEye className="w-1.5 h-1.5" />
-                                  Vision
-                                </span>
-                              )}
-                              {locked && (
-                                <span className="text-[7px] font-semibold px-1 py-0.5 rounded-full bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800/60 flex-shrink-0">Pro</span>
-                              )}
+                              <span className="text-[10px] font-semibold text-zinc-900 dark:text-white truncate">{model.name}</span>
+                              {hasVision && <span className="text-[8px] font-bold px-1 py-0.5 rounded-full bg-blue-100 dark:bg-blue-800/30 text-blue-400 dark:text-blue-300 border border-blue-100 dark:border-blue-700 flex-shrink-0">Vision</span>}
                             </div>
                             <div className="text-[9px] text-zinc-500 truncate">{model.provider}{model.context !== '—' ? ` · ${model.context}` : ''}</div>
                           </div>
@@ -1468,13 +1467,11 @@ export default function Playground({ keys = [], settings = null }: PlaygroundPro
             <div className="flex gap-2 pt-0.5">
               <button
                 onClick={handleRun}
-                disabled={isLoading || selectedLocked}
+                disabled={isLoading}
                 className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 sm:py-2.5 rounded-lg bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white font-bold text-[10px] sm:text-xs shadow-lg hover:shadow-blue-400/25 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:hover:scale-100"
               >
                 {isLoading ? (
                   <><div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" /><span>Running...</span></>
-                ) : selectedLocked ? (
-                  <><FiLock className="w-3 h-3" /><span>Pro Required</span></>
                 ) : (
                   <><FiPlay className="w-3 h-3" /><span>Run</span></>
                 )}
