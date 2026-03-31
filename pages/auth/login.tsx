@@ -21,7 +21,9 @@ function useEyeDir(ref: React.RefObject<HTMLElement>, mousePos: MousePos, max = 
   return dir;
 }
 
-function Eye({ cx, cy, r = 7, pr = 4, dx = 0, dy = 0 }: { cx: number; cy: number; r?: number; pr?: number; dx?: number; dy?: number; }) {
+function Eye({ cx, cy, r = 7, pr = 4, dx = 0, dy = 0 }: {
+  cx: number; cy: number; r?: number; pr?: number; dx?: number; dy?: number;
+}) {
   return (
     <g>
       <circle cx={cx} cy={cy} r={r} fill="white" />
@@ -31,16 +33,24 @@ function Eye({ cx, cy, r = 7, pr = 4, dx = 0, dy = 0 }: { cx: number; cy: number
   );
 }
 
-function ClosedEye({ cx, cy }: { cx: number; cy: number }) {
-  return <path d={`M${cx - 7} ${cy + 1} Q${cx} ${cy - 5} ${cx + 7} ${cy + 1}`} stroke="white" strokeWidth="2" fill="none" strokeLinecap="round" />;
+function ClosedEye({ cx, cy, r = 7 }: { cx: number; cy: number; r?: number }) {
+  return (
+    <path
+      d={`M${cx - r} ${cy + 1} Q${cx} ${cy - r * 0.7} ${cx + r} ${cy + 1}`}
+      stroke="white" strokeWidth="2" fill="none" strokeLinecap="round"
+    />
+  );
 }
 
-function PeekEye({ cx, cy, dx = 0 }: { cx: number; cy: number; dx?: number }) {
+function PeekEye({ cx, cy, dx = 0, r = 7 }: { cx: number; cy: number; dx?: number; r?: number }) {
   return (
     <g>
-      <path d={`M${cx - 7} ${cy + 2} Q${cx} ${cy - 3} ${cx + 7} ${cy + 2}`} stroke="white" strokeWidth="2" fill="none" strokeLinecap="round" />
-      <circle cx={cx + dx} cy={cy + 3} r="3.5" fill="white" />
-      <circle cx={cx + dx + 1} cy={cy + 2.5} r="2" fill="#1a1a2e" />
+      <path
+        d={`M${cx - r} ${cy + 2} Q${cx} ${cy - r * 0.4} ${cx + r} ${cy + 2}`}
+        stroke="white" strokeWidth="2" fill="none" strokeLinecap="round"
+      />
+      <circle cx={cx + dx} cy={cy + 3.5} r={r * 0.5} fill="white" />
+      <circle cx={cx + dx + 1} cy={cy + 3} r={r * 0.28} fill="#1a1a2e" />
     </g>
   );
 }
@@ -50,51 +60,69 @@ function CharTall({ mousePos, isCovered, isPeeking, isError, isSuccess, isTyping
   isError: boolean; isSuccess: boolean; isTyping: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const dir = useEyeDir(ref as React.RefObject<HTMLElement>, mousePos, 4.5);
-  const col = isError ? '#ff6b6b' : isSuccess ? '#51cf66' : '#845ef7';
-  const colLight = isError ? '#ff9999' : isSuccess ? '#69db7c' : '#a78bfa';
+  const dir = useEyeDir(ref as React.RefObject<HTMLElement>, mousePos, 4);
+  const col = isError ? '#e03131' : isSuccess ? '#2f9e44' : '#7048e8';
+  const colLight = isError ? '#ff6b6b' : isSuccess ? '#51cf66' : '#9775fa';
 
   return (
-    <div ref={ref} className="char-tall" style={{ position: 'absolute', left: 60, bottom: 0 }}>
-      <svg width="92" height="168" viewBox="0 0 92 168" style={{ overflow: 'visible', filter: `drop-shadow(0 10px 28px ${col}55)` }}>
+    <div ref={ref} className="char-tall" style={{ position: 'absolute', left: 48, bottom: 0 }}>
+      <svg width="96" height="200" viewBox="0 0 96 200" style={{ overflow: 'visible', filter: `drop-shadow(0 10px 28px ${col}55)` }}>
         <defs>
           <linearGradient id="tg" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor={colLight} />
             <stop offset="100%" stopColor={col} />
           </linearGradient>
         </defs>
-        <rect x="6" y="42" width="80" height="122" rx="13" fill="url(#tg)" />
-        <rect x="6" y="42" width="80" height="26" rx="13" fill={col} />
+
+        <rect x="8" y="0" width="80" height="196" rx="14" fill="url(#tg)" />
+
+        <rect x="8" y="0" width="80" height="76" rx="14" fill={col} />
+        <rect x="8" y="62" width="80" height="14" fill={col} />
+
         {isTyping && (
           <g>
-            {[0,1,2].map(i => (
-              <circle key={i} cx={26 + i * 18} cy={162} r="5" fill={colLight} opacity="0.6"
-                style={{ animation: `dotBounce 0.8s ease-in-out ${i * 0.18}s infinite alternate` }} />
+            {[0, 1, 2].map(i => (
+              <circle
+                key={i}
+                cx={28 + i * 20} cy={188} r="5"
+                fill="white" opacity="0.5"
+                style={{ animation: `dotBounce 0.7s ease-in-out ${i * 0.18}s infinite alternate` }}
+              />
             ))}
           </g>
         )}
+
         {!isCovered && !isPeeking && (
           <>
-            <Eye cx={26} cy={24} r={10} pr={5.5} dx={dir.x} dy={dir.y} />
-            <Eye cx={60} cy={24} r={10} pr={5.5} dx={dir.x} dy={dir.y} />
-            {isError && <path d="M18 40 Q43 35 68 40" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round" />}
-            {isSuccess && <path d="M18 37 Q43 43 68 37" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round" />}
+            <Eye cx={30} cy={36} r={11} pr={6} dx={dir.x} dy={dir.y} />
+            <Eye cx={66} cy={36} r={11} pr={6} dx={dir.x} dy={dir.y} />
+            {isError && (
+              <path d="M20 58 Q48 52 76 58" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+            )}
+            {isSuccess && (
+              <path d="M20 55 Q48 62 76 55" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+            )}
             {!isError && !isSuccess && (
-              <path d={isTyping ? "M20 39 Q43 34 66 39" : "M20 37 Q43 41 66 37"} stroke="white" strokeWidth="1.8" fill="none" strokeLinecap="round" opacity="0.55" />
+              <path
+                d={isTyping ? 'M22 57 Q48 51 74 57' : 'M22 55 Q48 60 74 55'}
+                stroke="white" strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.6"
+              />
             )}
           </>
         )}
+
         {isCovered && !isPeeking && (
           <>
-            <ClosedEye cx={26} cy={24} />
-            <ClosedEye cx={60} cy={24} />
-            <path d="M20 38 Q43 33 66 38" stroke="white" strokeWidth="1.8" fill="none" strokeLinecap="round" opacity="0.4" />
+            <ClosedEye cx={30} cy={36} r={11} />
+            <ClosedEye cx={66} cy={36} r={11} />
+            <path d="M22 56 Q48 51 74 56" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.45" />
           </>
         )}
+
         {isPeeking && (
           <>
-            <PeekEye cx={26} cy={26} dx={dir.x * 0.5} />
-            <PeekEye cx={60} cy={26} dx={dir.x * 0.5} />
+            <PeekEye cx={30} cy={38} dx={dir.x * 0.5} r={11} />
+            <PeekEye cx={66} cy={38} dx={dir.x * 0.5} r={11} />
           </>
         )}
       </svg>
@@ -107,39 +135,40 @@ function CharRound({ mousePos, isCovered, isPeeking, isError, isSuccess }: {
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const dir = useEyeDir(ref as React.RefObject<HTMLElement>, mousePos, 4);
-  const col = isError ? '#ff922b' : isSuccess ? '#20c997' : '#ff6b35';
-  const colL = isError ? '#ffa94d' : isSuccess ? '#38d9a9' : '#ff8c5a';
+  const col = isError ? '#e8590c' : isSuccess ? '#099268' : '#e8590c';
+  const colL = isError ? '#ff922b' : isSuccess ? '#20c997' : '#ff8c5a';
 
   return (
     <div ref={ref} className="char-round" style={{ position: 'absolute', left: 168, bottom: 0 }}>
-      <svg width="116" height="116" viewBox="0 0 116 116" style={{ overflow: 'visible', filter: `drop-shadow(0 10px 28px ${col}55)` }}>
+      <svg width="120" height="120" viewBox="0 0 120 120" style={{ overflow: 'visible', filter: `drop-shadow(0 10px 28px ${col}55)` }}>
         <defs>
           <radialGradient id="rg" cx="35%" cy="30%" r="70%">
             <stop offset="0%" stopColor={colL} />
             <stop offset="100%" stopColor={col} />
           </radialGradient>
         </defs>
-        <circle cx="58" cy="58" r="52" fill="url(#rg)" />
+        <circle cx="60" cy="60" r="56" fill="url(#rg)" />
+
         {!isCovered && !isPeeking && (
           <>
-            <Eye cx={40} cy={50} r={9} pr={5} dx={dir.x} dy={dir.y} />
-            <Eye cx={76} cy={50} r={9} pr={5} dx={dir.x} dy={dir.y} />
-            {isError && <path d="M34 72 Q58 65 82 72" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round" />}
-            {isSuccess && <path d="M34 69 Q58 78 82 69" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round" />}
-            {!isError && !isSuccess && <path d="M36 69 Q58 77 80 69" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.65" />}
+            <Eye cx={40} cy={52} r={10} pr={5.5} dx={dir.x} dy={dir.y} />
+            <Eye cx={80} cy={52} r={10} pr={5.5} dx={dir.x} dy={dir.y} />
+            {isError && <path d="M34 76 Q60 68 86 76" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round" />}
+            {isSuccess && <path d="M34 72 Q60 82 86 72" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round" />}
+            {!isError && !isSuccess && <path d="M36 72 Q60 81 84 72" stroke="white" strokeWidth="2.2" fill="none" strokeLinecap="round" opacity="0.65" />}
           </>
         )}
         {isCovered && !isPeeking && (
           <>
-            <ClosedEye cx={40} cy={50} />
-            <ClosedEye cx={76} cy={50} />
-            <path d="M36 69 Q58 74 80 69" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.45" />
+            <ClosedEye cx={40} cy={52} r={10} />
+            <ClosedEye cx={80} cy={52} r={10} />
+            <path d="M36 72 Q60 77 84 72" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.45" />
           </>
         )}
         {isPeeking && (
           <>
-            <PeekEye cx={40} cy={53} dx={dir.x * 0.5} />
-            <PeekEye cx={76} cy={53} dx={dir.x * 0.5} />
+            <PeekEye cx={40} cy={55} dx={dir.x * 0.5} r={10} />
+            <PeekEye cx={80} cy={55} dx={dir.x * 0.5} r={10} />
           </>
         )}
       </svg>
@@ -151,21 +180,21 @@ function CharSmall({ mousePos }: { mousePos: MousePos }) {
   const ref = useRef<HTMLDivElement>(null);
   const dir = useEyeDir(ref as React.RefObject<HTMLElement>, mousePos, 3);
   return (
-    <div ref={ref} className="char-small" style={{ position: 'absolute', left: 298, bottom: 0 }}>
-      <svg width="76" height="108" viewBox="0 0 76 108" style={{ overflow: 'visible', filter: 'drop-shadow(0 8px 22px rgba(252,196,25,0.5))' }}>
+    <div ref={ref} className="char-small" style={{ position: 'absolute', left: 310, bottom: 0 }}>
+      <svg width="78" height="112" viewBox="0 0 78 112" style={{ overflow: 'visible', filter: 'drop-shadow(0 8px 22px rgba(252,196,25,0.55))' }}>
         <defs>
           <linearGradient id="sg" x1="0%" y1="0%" x2="0%" y2="100%">
             <stop offset="0%" stopColor="#ffe066" />
-            <stop offset="100%" stopColor="#fcc419" />
+            <stop offset="100%" stopColor="#f59f00" />
           </linearGradient>
         </defs>
-        <rect x="10" y="26" width="56" height="78" rx="28" fill="url(#sg)" />
-        <rect x="22" y="14" width="8" height="20" rx="4" fill="#fcc419" />
-        <circle cx="26" cy="12" r="8" fill="#fcc419" />
-        <Eye cx={27} cy={54} r={7} pr={4} dx={dir.x * 0.7} dy={dir.y * 0.7} />
-        <Eye cx={49} cy={54} r={7} pr={4} dx={dir.x * 0.7} dy={dir.y * 0.7} />
-        <path d="M23 68 Q38 74 53 68" stroke="#1a1a2e" strokeWidth="1.8" fill="none" strokeLinecap="round" opacity="0.4" />
-        <rect x="0" y="72" width="10" height="24" rx="5" fill="#fcc419" opacity="0.75" />
+        <rect x="10" y="28" width="58" height="80" rx="29" fill="url(#sg)" />
+        <rect x="22" y="14" width="9" height="22" rx="4.5" fill="#f59f00" />
+        <circle cx="26" cy="13" r="9" fill="#f59f00" />
+        <Eye cx={28} cy={58} r={8} pr={4.5} dx={dir.x * 0.65} dy={dir.y * 0.65} />
+        <Eye cx={50} cy={58} r={8} pr={4.5} dx={dir.x * 0.65} dy={dir.y * 0.65} />
+        <path d="M24 74 Q39 80 54 74" stroke="#7b4f00" strokeWidth="1.8" fill="none" strokeLinecap="round" opacity="0.45" />
+        <rect x="0" y="74" width="11" height="26" rx="5.5" fill="#f59f00" opacity="0.8" />
       </svg>
     </div>
   );
@@ -213,7 +242,7 @@ function PrimaryBtn({ loading, children }: { loading: boolean; children: React.R
       onMouseDown={() => setPress(true)} onMouseUp={() => setPress(false)}
       style={{
         width: '100%', padding: '15px 0', marginBottom: 12,
-        background: hov ? 'linear-gradient(135deg,#5f4fe8,#845ef7)' : 'linear-gradient(135deg,#6c5ce7,#9775fa)',
+        background: hov ? 'linear-gradient(135deg,#5f4fe8,#7048e8)' : 'linear-gradient(135deg,#6c5ce7,#9775fa)',
         color: 'white', fontSize: 15, fontWeight: 700, fontFamily: 'inherit',
         border: 'none', borderRadius: 14, cursor: loading ? 'not-allowed' : 'pointer',
         opacity: loading ? 0.7 : 1,
@@ -224,13 +253,21 @@ function PrimaryBtn({ loading, children }: { loading: boolean; children: React.R
         letterSpacing: '0.02em',
       }}
     >
-      {loading && <span style={{ width: 16, height: 16, border: '2.5px solid rgba(255,255,255,0.35)', borderTopColor: 'white', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.7s linear infinite' }} />}
+      {loading && (
+        <span style={{
+          width: 16, height: 16, border: '2.5px solid rgba(255,255,255,0.35)',
+          borderTopColor: 'white', borderRadius: '50%', display: 'inline-block',
+          animation: 'spin 0.7s linear infinite',
+        }} />
+      )}
       {children}
     </button>
   );
 }
 
-function OAuthBtn({ onClick, loading, icon, label }: { onClick: () => void; loading: boolean; icon: React.ReactNode; label: string }) {
+function OAuthBtn({ onClick, loading, icon, label }: {
+  onClick: () => void; loading: boolean; icon: React.ReactNode; label: string;
+}) {
   const [hov, setHov] = useState(false);
   return (
     <button type="button" onClick={onClick} disabled={loading}
@@ -255,10 +292,10 @@ function OAuthBtn({ onClick, loading, icon, label }: { onClick: () => void; load
 function GoogleIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24">
-      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
     </svg>
   );
 }
@@ -266,8 +303,145 @@ function GoogleIcon() {
 function GitHubIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="#24292e">
-      <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+      <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
     </svg>
+  );
+}
+
+function FormPanel({ shaking, error, success, email, setEmail, password, setPassword, loading, googleLoading, githubLoading, showPassword, setShowPassword, remember, setRemember, isCovered, setIsCovered, isPeeking, setIsPeeking, handleLogin, handleGoogleLogin, handleGithubLogin, handleTyping }: {
+  shaking: boolean; error: string; success: string; email: string; setEmail: (v: string) => void;
+  password: string; setPassword: (v: string) => void; loading: boolean; googleLoading: boolean;
+  githubLoading: boolean; showPassword: boolean; setShowPassword: (v: boolean) => void;
+  remember: boolean; setRemember: (v: boolean) => void; isCovered: boolean;
+  setIsCovered: (v: boolean) => void; isPeeking: boolean; setIsPeeking: (v: boolean) => void;
+  handleLogin: (e: React.FormEvent) => void; handleGoogleLogin: () => void;
+  handleGithubLogin: () => void; handleTyping: () => void;
+}) {
+  return (
+    <div className={shaking ? 'shake' : ''} style={{ width: '100%', maxWidth: 380 }}>
+      <div style={{ textAlign: 'center', marginBottom: 34 }}>
+        <div style={{
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+          width: 50, height: 50, borderRadius: 15, marginBottom: 18,
+          background: 'linear-gradient(135deg,#6c5ce7,#a29bfe)',
+          boxShadow: '0 4px 22px rgba(108,92,231,0.38)',
+        }}>
+          <svg viewBox="0 0 32 32" width="24" height="24" fill="none">
+            <polygon points="16,3 29,26 3,26" stroke="white" strokeWidth="2.5" fill="none" strokeLinejoin="round" />
+            <polygon points="16,10 24,24 8,24" fill="white" opacity="0.28" />
+          </svg>
+        </div>
+        <h1 style={{ fontSize: 28, fontWeight: 800, color: '#1a1a2e', letterSpacing: '-0.03em', marginBottom: 8, lineHeight: 1.1 }}>
+          Welcome back!
+        </h1>
+        <p style={{ fontSize: 14, color: '#868e96', fontWeight: 400 }}>Please enter your details</p>
+      </div>
+
+      {error && (
+        <div className="pop-in" style={{
+          marginBottom: 18, padding: '12px 16px',
+          background: '#fff5f5', border: '1.5px solid #ffc9c9', borderRadius: 12,
+          display: 'flex', alignItems: 'flex-start', gap: 10,
+        }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, marginTop: 1 }}>
+            <circle cx="12" cy="12" r="10" stroke="#ff6b6b" strokeWidth="1.5" />
+            <path d="M12 8v4m0 4h.01" stroke="#ff6b6b" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+          <span style={{ fontSize: 13, color: '#fa5252', lineHeight: 1.45 }}>{error}</span>
+        </div>
+      )}
+
+      {success && (
+        <div className="pop-in" style={{
+          marginBottom: 18, padding: '12px 16px',
+          background: '#f0fff4', border: '1.5px solid #b2f2bb', borderRadius: 12,
+          display: 'flex', alignItems: 'center', gap: 10,
+        }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" stroke="#51cf66" strokeWidth="1.5" />
+            <path d="M8 12l3 3 5-5" stroke="#51cf66" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          <span style={{ fontSize: 13, color: '#2f9e44' }}>{success}</span>
+        </div>
+      )}
+
+      <form onSubmit={handleLogin}>
+        <InputField
+          type="email" value={email}
+          onChange={v => { setEmail(v); handleTyping(); }}
+          onFocus={() => {}}
+          onBlur={() => {}}
+          placeholder="Email" required isError={!!error}
+        />
+
+        <InputField
+          type={showPassword ? 'text' : 'password'} value={password}
+          onChange={v => { setPassword(v); handleTyping(); }}
+          onFocus={() => { if (!showPassword) setIsCovered(true); }}
+          onBlur={() => { if (!showPassword) setIsCovered(false); }}
+          placeholder="Password" required isError={!!error}
+        >
+          <button
+            type="button"
+            onMouseEnter={() => { if (!showPassword) { setIsCovered(false); setIsPeeking(true); } }}
+            onMouseLeave={() => { if (!showPassword) { setIsPeeking(false); setIsCovered(true); } }}
+            onClick={() => setShowPassword(!showPassword)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#adb5bd', padding: 4, display: 'flex', alignItems: 'center', transition: 'color 0.18s' }}
+            onMouseOver={e => (e.currentTarget.style.color = '#6c5ce7')}
+            onMouseOut={e => (e.currentTarget.style.color = '#adb5bd')}
+          >
+            {showPassword
+              ? <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" /><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" /><line x1="1" y1="1" x2="23" y2="23" /></svg>
+              : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
+            }
+          </button>
+        </InputField>
+
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, color: '#495057', userSelect: 'none' }}>
+            <div onClick={() => setRemember(!remember)} style={{
+              width: 17, height: 17, borderRadius: 5, flexShrink: 0,
+              border: `2px solid ${remember ? '#6c5ce7' : '#ced4da'}`,
+              background: remember ? '#6c5ce7' : 'white',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'all 0.18s ease', cursor: 'pointer',
+            }}>
+              {remember && (
+                <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                  <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              )}
+            </div>
+            Remember for 30 days
+          </label>
+          <a href="#" style={{ fontSize: 13, color: '#6c5ce7', fontWeight: 600, textDecoration: 'none' }}
+            onMouseOver={e => (e.currentTarget.style.opacity = '0.7')}
+            onMouseOut={e => (e.currentTarget.style.opacity = '1')}>
+            Forgot password?
+          </a>
+        </div>
+
+        <PrimaryBtn loading={loading}>{loading ? 'Signing in...' : 'Log In'}</PrimaryBtn>
+      </form>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+        <div style={{ flex: 1, height: 1, background: '#e9ecef' }} />
+        <span style={{ fontSize: 12, color: '#adb5bd', fontWeight: 500, letterSpacing: '0.05em' }}>OR</span>
+        <div style={{ flex: 1, height: 1, background: '#e9ecef' }} />
+      </div>
+
+      <OAuthBtn onClick={handleGoogleLogin} loading={googleLoading} icon={<GoogleIcon />} label="Log In with Google" />
+      <OAuthBtn onClick={handleGithubLogin} loading={githubLoading} icon={<GitHubIcon />} label="Log In with GitHub" />
+
+      <p style={{ textAlign: 'center', fontSize: 13, color: '#868e96', marginTop: 18 }}>
+        Don't have an account?{' '}
+        <Link href="/auth/register" style={{ color: '#6c5ce7', fontWeight: 700, textDecoration: 'none' }}
+          onMouseOver={e => ((e.target as HTMLElement).style.textDecoration = 'underline')}
+          onMouseOut={e => ((e.target as HTMLElement).style.textDecoration = 'none')}>
+          Sign Up
+        </Link>
+      </p>
+    </div>
   );
 }
 
@@ -331,6 +505,13 @@ export default function Login() {
     if (authError) { setError(authError.message); setGoogleLoading(false); }
   };
 
+  const formProps = {
+    shaking, error, success, email, setEmail, password, setPassword,
+    loading, googleLoading, githubLoading, showPassword, setShowPassword,
+    remember, setRemember, isCovered, setIsCovered, isPeeking, setIsPeeking,
+    handleLogin, handleGoogleLogin, handleGithubLogin, handleTyping,
+  };
+
   return (
     <>
       <style>{`
@@ -346,7 +527,7 @@ export default function Login() {
         @keyframes gradShift{0%,100%{background-position:0% 50%;}50%{background-position:100% 50%;}}
         @keyframes popIn{0%{opacity:0;transform:scale(0.85);}60%{transform:scale(1.04);}100%{opacity:1;transform:scale(1);}}
         @keyframes orbDrift{0%,100%{transform:translate(0,0) scale(1);}33%{transform:translate(8px,-12px) scale(1.04);}66%{transform:translate(-6px,6px) scale(0.97);}}
-        @keyframes dotBounce{from{transform:translateY(0);}to{transform:translateY(-6px);}}
+        @keyframes dotBounce{from{transform:translateY(0);}to{transform:translateY(-7px);}}
         @keyframes groundPulse{0%,100%{transform:scaleX(1);opacity:0.18;}50%{transform:scaleX(1.08);opacity:0.26;}}
         .char-tall{animation:charBobAlt 3.2s ease-in-out infinite;}
         .char-round{animation:charBob 2.8s ease-in-out 0.4s infinite;}
@@ -358,6 +539,13 @@ export default function Login() {
         input::placeholder{color:#adb5bd;}
         input:focus{outline:none;}
         input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus{-webkit-text-fill-color:#1a1a2e;-webkit-box-shadow:0 0 0px 1000px #faf9ff inset;}
+        .desktop-left{display:flex;}
+        .mobile-only{display:none;}
+        @media(max-width:768px){
+          .desktop-left{display:none !important;}
+          .mobile-only{display:flex !important;}
+          .right-panel-wrap{display:none !important;}
+        }
       `}</style>
 
       <div style={{ display: 'flex', minHeight: '100vh', fontFamily: "'Plus Jakarta Sans',sans-serif", background: '#fff' }}>
@@ -365,12 +553,11 @@ export default function Login() {
           <ThemeToggle />
         </div>
 
-        <div style={{
+        <div className="desktop-left" style={{
           flex: '0 0 52%',
-          background: 'linear-gradient(148deg, #f3f0ff 0%, #ede9fe 45%, #fce4ec 100%)',
+          background: 'linear-gradient(148deg,#f3f0ff 0%,#ede9fe 45%,#fce4ec 100%)',
           position: 'relative', overflow: 'hidden',
-          display: 'flex', flexDirection: 'column',
-          alignItems: 'center', justifyContent: 'center',
+          flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
         }}>
           <div style={{ position: 'absolute', top: 26, left: 30 }}>
             <span className="brand-gradient" style={{ fontSize: 13, fontWeight: 800, letterSpacing: '0.18em', textTransform: 'uppercase' }}>
@@ -394,19 +581,19 @@ export default function Login() {
             }} />
           ))}
 
-          <div style={{ position: 'relative', width: 420, height: 220 }}>
+          <div style={{ position: 'relative', width: 440, height: 220 }}>
             <CharTall mousePos={mousePos} isCovered={isCovered} isPeeking={isPeeking} isError={!!error} isSuccess={!!success} isTyping={isTyping} />
             <CharRound mousePos={mousePos} isCovered={isCovered} isPeeking={isPeeking} isError={!!error} isSuccess={!!success} />
             <CharSmall mousePos={mousePos} />
             <div style={{
-              position: 'absolute', bottom: -10, left: '6%', right: '6%', height: 20,
-              background: 'radial-gradient(ellipse, rgba(108,92,231,0.28) 0%, transparent 70%)',
+              position: 'absolute', bottom: -10, left: '4%', right: '4%', height: 20,
+              background: 'radial-gradient(ellipse,rgba(108,92,231,0.28) 0%,transparent 70%)',
               animation: 'groundPulse 3s ease-in-out infinite', borderRadius: '50%',
             }} />
           </div>
 
           <div style={{ marginTop: 36, textAlign: 'center', padding: '0 48px' }}>
-            <p style={{ fontSize: 16, fontWeight: 600, color: '#6c5ce7', lineHeight: 1.5, letterSpacing: '0.005em' }}>
+            <p style={{ fontSize: 16, fontWeight: 600, color: '#6c5ce7', lineHeight: 1.5 }}>
               One unified API for 20+ AI models
             </p>
             <p style={{ fontSize: 13, color: '#a29bfe', marginTop: 6, letterSpacing: '0.02em', fontWeight: 500 }}>
@@ -423,125 +610,19 @@ export default function Login() {
           </div>
         </div>
 
-        <div className="right-panel" style={{
+        <div className="right-panel-wrap right-panel" style={{
           flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
           padding: '48px 32px', background: '#fff',
         }}>
-          <div className={shaking ? 'shake' : ''} style={{ width: '100%', maxWidth: 380 }}>
-            <div style={{ textAlign: 'center', marginBottom: 34 }}>
-              <div style={{
-                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                width: 50, height: 50, borderRadius: 15, marginBottom: 18,
-                background: 'linear-gradient(135deg,#6c5ce7,#a29bfe)',
-                boxShadow: '0 4px 22px rgba(108,92,231,0.38)',
-              }}>
-                <svg viewBox="0 0 32 32" width="24" height="24" fill="none">
-                  <polygon points="16,3 29,26 3,26" stroke="white" strokeWidth="2.5" fill="none" strokeLinejoin="round" />
-                  <polygon points="16,10 24,24 8,24" fill="white" opacity="0.28" />
-                </svg>
-              </div>
-              <h1 style={{ fontSize: 28, fontWeight: 800, color: '#1a1a2e', letterSpacing: '-0.03em', marginBottom: 8, lineHeight: 1.1 }}>
-                Welcome back!
-              </h1>
-              <p style={{ fontSize: 14, color: '#868e96', fontWeight: 400 }}>
-                Please enter your details
-              </p>
-            </div>
+          <FormPanel {...formProps} />
+        </div>
 
-            {error && (
-              <div className="pop-in" style={{
-                marginBottom: 18, padding: '12px 16px',
-                background: '#fff5f5', border: '1.5px solid #ffc9c9', borderRadius: 12,
-                display: 'flex', alignItems: 'flex-start', gap: 10,
-              }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, marginTop: 1 }}>
-                  <circle cx="12" cy="12" r="10" stroke="#ff6b6b" strokeWidth="1.5" />
-                  <path d="M12 8v4m0 4h.01" stroke="#ff6b6b" strokeWidth="2" strokeLinecap="round" />
-                </svg>
-                <span style={{ fontSize: 13, color: '#fa5252', lineHeight: 1.45 }}>{error}</span>
-              </div>
-            )}
-
-            {success && (
-              <div className="pop-in" style={{
-                marginBottom: 18, padding: '12px 16px',
-                background: '#f0fff4', border: '1.5px solid #b2f2bb', borderRadius: 12,
-                display: 'flex', alignItems: 'center', gap: 10,
-              }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="10" stroke="#51cf66" strokeWidth="1.5" />
-                  <path d="M8 12l3 3 5-5" stroke="#51cf66" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                <span style={{ fontSize: 13, color: '#2f9e44' }}>{success}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleLogin}>
-              <InputField type="email" value={email} onChange={v => { setEmail(v); handleTyping(); }}
-                onFocus={() => setIsTyping(true)} onBlur={() => setIsTyping(false)}
-                placeholder="Email" required isError={!!error} />
-
-              <InputField type={showPassword ? 'text' : 'password'} value={password}
-                onChange={v => { setPassword(v); handleTyping(); }}
-                onFocus={() => { if (!showPassword) setIsCovered(true); }}
-                onBlur={() => { if (!showPassword) setIsCovered(false); }}
-                placeholder="Password" required isError={!!error}>
-                <button type="button"
-                  onMouseEnter={() => { if (!showPassword) { setIsCovered(false); setIsPeeking(true); } }}
-                  onMouseLeave={() => { if (!showPassword) { setIsPeeking(false); setIsCovered(true); } }}
-                  onClick={() => setShowPassword(!showPassword)}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#adb5bd', padding: 4, display: 'flex', alignItems: 'center', transition: 'color 0.18s' }}
-                  onMouseOver={e => (e.currentTarget.style.color = '#6c5ce7')}
-                  onMouseOut={e => (e.currentTarget.style.color = '#adb5bd')}
-                >
-                  {showPassword
-                    ? <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-                    : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                  }
-                </button>
-              </InputField>
-
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, color: '#495057', userSelect: 'none' }}>
-                  <div onClick={() => setRemember(!remember)} style={{
-                    width: 17, height: 17, borderRadius: 5, flexShrink: 0,
-                    border: `2px solid ${remember ? '#6c5ce7' : '#ced4da'}`,
-                    background: remember ? '#6c5ce7' : 'white',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    transition: 'all 0.18s ease', cursor: 'pointer',
-                  }}>
-                    {remember && <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>}
-                  </div>
-                  Remember for 30 days
-                </label>
-                <a href="#" style={{ fontSize: 13, color: '#6c5ce7', fontWeight: 600, textDecoration: 'none' }}
-                  onMouseOver={e => (e.currentTarget.style.opacity = '0.7')}
-                  onMouseOut={e => (e.currentTarget.style.opacity = '1')}>
-                  Forgot password?
-                </a>
-              </div>
-
-              <PrimaryBtn loading={loading}>{loading ? 'Signing in...' : 'Log In'}</PrimaryBtn>
-            </form>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-              <div style={{ flex: 1, height: 1, background: '#e9ecef' }} />
-              <span style={{ fontSize: 12, color: '#adb5bd', fontWeight: 500, letterSpacing: '0.05em' }}>OR</span>
-              <div style={{ flex: 1, height: 1, background: '#e9ecef' }} />
-            </div>
-
-            <OAuthBtn onClick={handleGoogleLogin} loading={googleLoading} icon={<GoogleIcon />} label="Log In with Google" />
-            <OAuthBtn onClick={handleGithubLogin} loading={githubLoading} icon={<GitHubIcon />} label="Log In with GitHub" />
-
-            <p style={{ textAlign: 'center', fontSize: 13, color: '#868e96', marginTop: 18 }}>
-              Don't have an account?{' '}
-              <Link href="/auth/register" style={{ color: '#6c5ce7', fontWeight: 700, textDecoration: 'none' }}
-                onMouseOver={e => ((e.target as HTMLElement).style.textDecoration = 'underline')}
-                onMouseOut={e => ((e.target as HTMLElement).style.textDecoration = 'none')}>
-                Sign Up
-              </Link>
-            </p>
-          </div>
+        <div className="mobile-only" style={{
+          flex: 1, alignItems: 'center', justifyContent: 'center',
+          padding: '60px 24px 40px', background: '#fff', minHeight: '100vh',
+          flexDirection: 'column',
+        }}>
+          <FormPanel {...formProps} />
         </div>
       </div>
     </>
