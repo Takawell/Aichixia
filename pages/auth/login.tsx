@@ -157,8 +157,6 @@ function CharSmall({ mousePos }: { mousePos: MousePos }) {
           </linearGradient>
         </defs>
         <rect x="13" y="32" width="56" height="84" rx="28" fill="url(#sg)" />
-        <rect x="37" y="16" width="8" height="20" rx="4" fill="#f59f00" />
-        <circle cx="41" cy="13" r="8" fill="#f59f00" />
         <Eye cx={30} cy={62} r={8} pr={4.5} dx={dir.x * 0.65} dy={dir.y * 0.65} />
         <Eye cx={52} cy={62} r={8} pr={4.5} dx={dir.x * 0.65} dy={dir.y * 0.65} />
         <path d="M26 78 Q41 85 56 78" stroke="#7b4f00" strokeWidth="1.8" fill="none" strokeLinecap="round" opacity="0.45" />
