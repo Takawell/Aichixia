@@ -1,9 +1,22 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import ThemeToggle from '@/components/ThemeToggle';
 
 interface MousePos { x: number; y: number; }
+
+function useIsDark() {
+  const [dark, setDark] = useState(false);
+  useEffect(() => {
+    const check = () => setDark(document.documentElement.classList.contains('dark'));
+    check();
+    const obs = new MutationObserver(check);
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => obs.disconnect();
+  }, []);
+  return dark;
+}
 
 function useEyeDir(ref: React.RefObject<HTMLElement>, mousePos: MousePos, max = 5) {
   const [dir, setDir] = useState({ x: 0, y: 0 });
@@ -20,9 +33,7 @@ function useEyeDir(ref: React.RefObject<HTMLElement>, mousePos: MousePos, max = 
   return dir;
 }
 
-function Eye({ cx, cy, r = 7, pr = 4, dx = 0, dy = 0 }: {
-  cx: number; cy: number; r?: number; pr?: number; dx?: number; dy?: number;
-}) {
+function Eye({ cx, cy, r = 7, pr = 4, dx = 0, dy = 0 }: { cx: number; cy: number; r?: number; pr?: number; dx?: number; dy?: number }) {
   return (
     <g>
       <circle cx={cx} cy={cy} r={r} fill="white" />
@@ -33,38 +44,30 @@ function Eye({ cx, cy, r = 7, pr = 4, dx = 0, dy = 0 }: {
 }
 
 function ClosedEye({ cx, cy, r = 7 }: { cx: number; cy: number; r?: number }) {
-  return (
-    <path d={`M${cx - r} ${cy + 1} Q${cx} ${cy - r * 0.7} ${cx + r} ${cy + 1}`}
-      stroke="white" strokeWidth="2" fill="none" strokeLinecap="round" />
-  );
+  return <path d={`M${cx - r} ${cy + 1} Q${cx} ${cy - r * 0.7} ${cx + r} ${cy + 1}`} stroke="white" strokeWidth="2" fill="none" strokeLinecap="round" />;
 }
 
 function PeekEye({ cx, cy, dx = 0, r = 7 }: { cx: number; cy: number; dx?: number; r?: number }) {
   return (
     <g>
-      <path d={`M${cx - r} ${cy + 2} Q${cx} ${cy - r * 0.4} ${cx + r} ${cy + 2}`}
-        stroke="white" strokeWidth="2" fill="none" strokeLinecap="round" />
+      <path d={`M${cx - r} ${cy + 2} Q${cx} ${cy - r * 0.4} ${cx + r} ${cy + 2}`} stroke="white" strokeWidth="2" fill="none" strokeLinecap="round" />
       <circle cx={cx + dx} cy={cy + 3.5} r={r * 0.5} fill="white" />
       <circle cx={cx + dx + 1} cy={cy + 3} r={r * 0.28} fill="#1a1a2e" />
     </g>
   );
 }
 
-function CharTall({ mousePos, isCovered, isPeeking, isError, isSuccess, isTyping }: {
-  mousePos: MousePos; isCovered: boolean; isPeeking: boolean;
-  isError: boolean; isSuccess: boolean; isTyping: boolean;
-}) {
+function CharTall({ mousePos, isCovered, isPeeking, isError, isSuccess, isTyping }: { mousePos: MousePos; isCovered: boolean; isPeeking: boolean; isError: boolean; isSuccess: boolean; isTyping: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   const dir = useEyeDir(ref as React.RefObject<HTMLElement>, mousePos, 4);
   const col = isError ? '#e03131' : isSuccess ? '#2f9e44' : '#7048e8';
-  const colLight = isError ? '#ff6b6b' : isSuccess ? '#51cf66' : '#9775fa';
+  const colL = isError ? '#ff6b6b' : isSuccess ? '#51cf66' : '#9775fa';
   return (
-    <div ref={ref} className="char-tall" style={{ position: 'absolute', left: 20, bottom: 0 }}>
+    <div ref={ref} className="char-tall" style={{ position: 'absolute', left: 10, bottom: 0 }}>
       <svg width="96" height="200" viewBox="0 0 96 200" style={{ overflow: 'visible', filter: `drop-shadow(0 10px 28px ${col}55)` }}>
         <defs>
           <linearGradient id="tg" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor={colLight} />
-            <stop offset="100%" stopColor={col} />
+            <stop offset="0%" stopColor={colL} /><stop offset="100%" stopColor={col} />
           </linearGradient>
         </defs>
         <rect x="8" y="0" width="80" height="196" rx="14" fill="url(#tg)" />
@@ -101,20 +104,17 @@ function CharTall({ mousePos, isCovered, isPeeking, isError, isSuccess, isTyping
   );
 }
 
-function CharRound({ mousePos, isCovered, isPeeking, isError, isSuccess }: {
-  mousePos: MousePos; isCovered: boolean; isPeeking: boolean; isError: boolean; isSuccess: boolean;
-}) {
+function CharRound({ mousePos, isCovered, isPeeking, isError, isSuccess }: { mousePos: MousePos; isCovered: boolean; isPeeking: boolean; isError: boolean; isSuccess: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   const dir = useEyeDir(ref as React.RefObject<HTMLElement>, mousePos, 4);
   const col = isError ? '#e8590c' : isSuccess ? '#099268' : '#e8590c';
   const colL = isError ? '#ff922b' : isSuccess ? '#20c997' : '#ff8c5a';
   return (
-    <div ref={ref} className="char-round" style={{ position: 'absolute', left: 148, bottom: 0 }}>
+    <div ref={ref} className="char-round" style={{ position: 'absolute', left: 134, bottom: 0 }}>
       <svg width="120" height="120" viewBox="0 0 120 120" style={{ overflow: 'visible', filter: `drop-shadow(0 10px 28px ${col}55)` }}>
         <defs>
           <radialGradient id="rg" cx="35%" cy="30%" r="70%">
-            <stop offset="0%" stopColor={colL} />
-            <stop offset="100%" stopColor={col} />
+            <stop offset="0%" stopColor={colL} /><stop offset="100%" stopColor={col} />
           </radialGradient>
         </defs>
         <circle cx="60" cy="60" r="56" fill="url(#rg)" />
@@ -149,84 +149,62 @@ function CharSmall({ mousePos }: { mousePos: MousePos }) {
   const ref = useRef<HTMLDivElement>(null);
   const dir = useEyeDir(ref as React.RefObject<HTMLElement>, mousePos, 3);
   return (
-    <div ref={ref} className="char-small" style={{ position: 'absolute', left: 292, bottom: 0 }}>
-      <svg width="80" height="116" viewBox="0 0 80 116" style={{ overflow: 'visible', filter: 'drop-shadow(0 8px 22px rgba(252,196,25,0.55))' }}>
+    <div ref={ref} className="char-small" style={{ position: 'absolute', left: 276, bottom: 0 }}>
+      <svg width="82" height="120" viewBox="0 0 82 120" style={{ overflow: 'visible', filter: 'drop-shadow(0 8px 22px rgba(252,196,25,0.55))' }}>
         <defs>
           <linearGradient id="sg" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#ffe066" />
-            <stop offset="100%" stopColor="#f59f00" />
+            <stop offset="0%" stopColor="#ffe066" /><stop offset="100%" stopColor="#f59f00" />
           </linearGradient>
         </defs>
-        <rect x="12" y="30" width="56" height="82" rx="28" fill="url(#sg)" />
-        <rect x="24" y="16" width="9" height="22" rx="4.5" fill="#f59f00" />
-        <circle cx="28" cy="14" r="9" fill="#f59f00" />
-        <Eye cx={29} cy={60} r={8} pr={4.5} dx={dir.x * 0.65} dy={dir.y * 0.65} />
-        <Eye cx={51} cy={60} r={8} pr={4.5} dx={dir.x * 0.65} dy={dir.y * 0.65} />
-        <path d="M25 76 Q40 83 55 76" stroke="#7b4f00" strokeWidth="1.8" fill="none" strokeLinecap="round" opacity="0.45" />
-        <rect x="68" y="70" width="11" height="28" rx="5.5" fill="#f59f00" opacity="0.8" />
+        <rect x="13" y="32" width="56" height="84" rx="28" fill="url(#sg)" />
+        <rect x="25" y="17" width="9" height="22" rx="4.5" fill="#f59f00" />
+        <circle cx="29" cy="15" r="9" fill="#f59f00" />
+        <Eye cx={30} cy={62} r={8} pr={4.5} dx={dir.x * 0.65} dy={dir.y * 0.65} />
+        <Eye cx={52} cy={62} r={8} pr={4.5} dx={dir.x * 0.65} dy={dir.y * 0.65} />
+        <path d="M26 78 Q41 85 56 78" stroke="#7b4f00" strokeWidth="1.8" fill="none" strokeLinecap="round" opacity="0.45" />
+        <rect x="69" y="68" width="11" height="28" rx="5.5" fill="#f59f00" opacity="0.85" />
+        <rect x="2" y="68" width="11" height="28" rx="5.5" fill="#f59f00" opacity="0.85" />
       </svg>
     </div>
   );
 }
 
-function CharStar({ mousePos }: { mousePos: MousePos }) {
+function CharGhost({ mousePos }: { mousePos: MousePos }) {
   const ref = useRef<HTMLDivElement>(null);
   const dir = useEyeDir(ref as React.RefObject<HTMLElement>, mousePos, 3.5);
+  const [wave, setWave] = useState(0);
+  useEffect(() => {
+    let raf: number;
+    let t = 0;
+    const tick = () => { t += 0.04; setWave(Math.sin(t) * 6); raf = requestAnimationFrame(tick); };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+  const tailY = 112 + wave * 0.4;
   return (
-    <div ref={ref} className="char-star" style={{ position: 'absolute', left: 388, bottom: 4 }}>
-      <svg width="72" height="130" viewBox="0 0 72 130" style={{ overflow: 'visible', filter: 'drop-shadow(0 8px 22px rgba(240,100,148,0.5))' }}>
+    <div ref={ref} className="char-ghost" style={{ position: 'absolute', left: 376, bottom: 0 }}>
+      <svg width="80" height="130" viewBox="0 0 80 130" style={{ overflow: 'visible', filter: 'drop-shadow(0 8px 26px rgba(32,201,151,0.5))' }}>
         <defs>
-          <linearGradient id="starg" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#f783ac" />
-            <stop offset="100%" stopColor="#e64980" />
+          <linearGradient id="gg" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#63e6be" /><stop offset="100%" stopColor="#20c997" />
+          </linearGradient>
+          <linearGradient id="gg2" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#38d9a9" /><stop offset="100%" stopColor="#0ca678" />
           </linearGradient>
         </defs>
-        <polygon points="36,4 44,28 70,28 50,44 58,68 36,54 14,68 22,44 2,28 28,28"
-          fill="url(#starg)" />
-        <polygon points="36,16 41,30 56,30 44,39 49,53 36,44 23,53 28,39 16,30 31,30"
-          fill="#f9a8c9" opacity="0.5" />
-        <Eye cx={29} cy={28} r={6} pr={3.5} dx={dir.x * 0.7} dy={dir.y * 0.7} />
-        <Eye cx={43} cy={28} r={6} pr={3.5} dx={dir.x * 0.7} dy={dir.y * 0.7} />
-        <path d="M27 38 Q36 43 45 38" stroke="white" strokeWidth="1.8" fill="none" strokeLinecap="round" opacity="0.6" />
-        <rect x="28" y="66" width="16" height="60" rx="8" fill="url(#starg)" />
-        <rect x="4" y="78" width="26" height="14" rx="7" fill="#e64980" />
-        <rect x="42" y="78" width="26" height="14" rx="7" fill="#e64980" />
+        <path d={`M8 60 Q8 10 40 10 Q72 10 72 60 L72 ${tailY} Q62 ${tailY - 10} 52 ${tailY} Q42 ${tailY + 10} 40 ${tailY} Q38 ${tailY + 10} 28 ${tailY} Q18 ${tailY - 10} 8 ${tailY} Z`} fill="url(#gg)" />
+        <path d={`M8 60 Q8 10 40 10 Q72 10 72 60 L72 68 Q62 58 52 68 Q42 78 40 68 Q38 58 28 68 Q18 78 8 68 Z`} fill="url(#gg2)" opacity="0.35" />
+        <Eye cx={27} cy={50} r={9} pr={5} dx={dir.x * 0.7} dy={dir.y * 0.7} />
+        <Eye cx={53} cy={50} r={9} pr={5} dx={dir.x * 0.7} dy={dir.y * 0.7} />
+        <path d="M28 68 Q40 75 52 68" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.6" />
+        <circle cx="27" cy="30" r="4" fill="white" opacity="0.25" />
+        <circle cx="36" cy="22" r="2.5" fill="white" opacity="0.2" />
       </svg>
     </div>
   );
 }
 
-function ThemeToggleInline({ dark, onToggle }: { dark: boolean; onToggle: () => void }) {
-  return (
-    <button
-      onClick={onToggle}
-      aria-label="Toggle theme"
-      style={{
-        width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer',
-        background: dark ? '#6c5ce7' : '#e9ecef',
-        position: 'relative', transition: 'background 0.3s ease',
-        flexShrink: 0, padding: 0,
-      }}
-    >
-      <span style={{
-        position: 'absolute', top: 3, left: dark ? 23 : 3,
-        width: 18, height: 18, borderRadius: '50%',
-        background: dark ? 'white' : '#868e96',
-        transition: 'left 0.3s cubic-bezier(0.4,0,0.2,1)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontSize: 10,
-      }}>
-        {dark ? '🌙' : '☀️'}
-      </span>
-    </button>
-  );
-}
-
-function InputField({ type, value, onChange, onFocus, onBlur, placeholder, required, children, isError, dark }: {
-  type: string; value: string; onChange: (v: string) => void;
-  onFocus?: () => void; onBlur?: () => void; placeholder: string;
-  required?: boolean; children?: React.ReactNode; isError?: boolean; dark: boolean;
-}) {
+function InputField({ type, value, onChange, onFocus, onBlur, placeholder, required, children, isError, dark }: { type: string; value: string; onChange: (v: string) => void; onFocus?: () => void; onBlur?: () => void; placeholder: string; required?: boolean; children?: React.ReactNode; isError?: boolean; dark: boolean }) {
   const [focused, setFocused] = useState(false);
   return (
     <div style={{ position: 'relative', marginBottom: 14 }}>
@@ -239,9 +217,7 @@ function InputField({ type, value, onChange, onFocus, onBlur, placeholder, requi
           width: '100%', padding: '14px 16px', paddingRight: children ? 50 : 16,
           fontSize: 14, fontFamily: 'inherit',
           color: dark ? '#f1f3f5' : '#1a1a2e',
-          background: dark
-            ? (focused ? '#2d2b55' : '#242240')
-            : (focused ? '#faf9ff' : '#f8f9fa'),
+          background: dark ? (focused ? '#2d2b55' : '#1e1c42') : (focused ? '#faf9ff' : '#f8f9fa'),
           border: `2px solid ${isError ? '#ff6b6b' : focused ? '#6c5ce7' : dark ? '#3d3a6e' : '#e9ecef'}`,
           borderRadius: 14, outline: 'none',
           boxShadow: focused ? `0 0 0 4px ${isError ? 'rgba(255,107,107,0.12)' : 'rgba(108,92,231,0.12)'}` : 'none',
@@ -249,11 +225,7 @@ function InputField({ type, value, onChange, onFocus, onBlur, placeholder, requi
           boxSizing: 'border-box',
         }}
       />
-      {children && (
-        <div style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)' }}>
-          {children}
-        </div>
-      )}
+      {children && <div style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)' }}>{children}</div>}
     </div>
   );
 }
@@ -274,40 +246,28 @@ function PrimaryBtn({ loading, children }: { loading: boolean; children: React.R
         transform: press ? 'scale(0.98)' : hov ? 'translateY(-1px)' : 'none',
         boxShadow: hov ? '0 8px 32px rgba(108,92,231,0.45)' : '0 4px 16px rgba(108,92,231,0.28)',
         transition: 'all 0.2s cubic-bezier(0.4,0,0.2,1)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-        letterSpacing: '0.02em',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, letterSpacing: '0.02em',
       }}
     >
-      {loading && (
-        <span style={{
-          width: 16, height: 16, border: '2.5px solid rgba(255,255,255,0.35)',
-          borderTopColor: 'white', borderRadius: '50%', display: 'inline-block',
-          animation: 'spin 0.7s linear infinite',
-        }} />
-      )}
+      {loading && <span style={{ width: 16, height: 16, border: '2.5px solid rgba(255,255,255,0.35)', borderTopColor: 'white', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.7s linear infinite' }} />}
       {children}
     </button>
   );
 }
 
-function OAuthBtn({ onClick, loading, icon, label, dark }: {
-  onClick: () => void; loading: boolean; icon: React.ReactNode; label: string; dark: boolean;
-}) {
+function OAuthBtn({ onClick, loading, icon, label, dark }: { onClick: () => void; loading: boolean; icon: React.ReactNode; label: string; dark: boolean }) {
   const [hov, setHov] = useState(false);
   return (
     <button type="button" onClick={onClick} disabled={loading}
       onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
       style={{
         width: '100%', padding: '13px 0', marginBottom: 10,
-        background: hov ? (dark ? '#2d2b55' : '#f1f3f5') : (dark ? '#242240' : '#f8f9fa'),
-        color: dark ? '#e9ecef' : '#2d2d2d',
-        fontSize: 14, fontWeight: 600, fontFamily: 'inherit',
-        border: `2px solid ${dark ? '#3d3a6e' : '#e9ecef'}`,
-        borderRadius: 14,
+        background: hov ? (dark ? '#2d2b55' : '#f1f3f5') : (dark ? '#1e1c42' : '#f8f9fa'),
+        color: dark ? '#e9ecef' : '#2d2d2d', fontSize: 14, fontWeight: 600, fontFamily: 'inherit',
+        border: `2px solid ${dark ? '#3d3a6e' : '#e9ecef'}`, borderRadius: 14,
         cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.6 : 1,
         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-        transition: 'all 0.18s ease',
-        boxShadow: hov ? '0 2px 12px rgba(0,0,0,0.1)' : 'none',
+        transition: 'all 0.18s ease', boxShadow: hov ? '0 2px 12px rgba(0,0,0,0.1)' : 'none',
       }}
     >
       {icon}
@@ -335,48 +295,27 @@ function GitHubIcon({ dark }: { dark: boolean }) {
   );
 }
 
-function FormPanel({ shaking, error, success, email, setEmail, password, setPassword, loading, googleLoading, githubLoading, showPassword, setShowPassword, remember, setRemember, isCovered, setIsCovered, isPeeking, setIsPeeking, handleLogin, handleGoogleLogin, handleGithubLogin, handleTyping, dark }: {
-  shaking: boolean; error: string; success: string; email: string; setEmail: (v: string) => void;
-  password: string; setPassword: (v: string) => void; loading: boolean; googleLoading: boolean;
-  githubLoading: boolean; showPassword: boolean; setShowPassword: (v: boolean) => void;
-  remember: boolean; setRemember: (v: boolean) => void; isCovered: boolean;
-  setIsCovered: (v: boolean) => void; isPeeking: boolean; setIsPeeking: (v: boolean) => void;
-  handleLogin: (e: React.FormEvent) => void; handleGoogleLogin: () => void;
-  handleGithubLogin: () => void; handleTyping: () => void; dark: boolean;
-}) {
+function FormPanel({ shaking, error, success, email, setEmail, password, setPassword, loading, googleLoading, githubLoading, showPassword, setShowPassword, remember, setRemember, isCovered, setIsCovered, isPeeking, setIsPeeking, handleLogin, handleGoogleLogin, handleGithubLogin, handleTyping, dark }: { shaking: boolean; error: string; success: string; email: string; setEmail: (v: string) => void; password: string; setPassword: (v: string) => void; loading: boolean; googleLoading: boolean; githubLoading: boolean; showPassword: boolean; setShowPassword: (v: boolean) => void; remember: boolean; setRemember: (v: boolean) => void; isCovered: boolean; setIsCovered: (v: boolean) => void; isPeeking: boolean; setIsPeeking: (v: boolean) => void; handleLogin: (e: React.FormEvent) => void; handleGoogleLogin: () => void; handleGithubLogin: () => void; handleTyping: () => void; dark: boolean }) {
   const txt = dark ? '#f1f3f5' : '#1a1a2e';
   const sub = dark ? '#8b8ab8' : '#868e96';
-  const linkCol = '#6c5ce7';
+  const divider = dark ? '#3d3a6e' : '#e9ecef';
+  const link = '#6c5ce7';
 
   return (
     <div className={shaking ? 'shake' : ''} style={{ width: '100%', maxWidth: 380 }}>
-      <div style={{ textAlign: 'center', marginBottom: 34 }}>
-        <div style={{
-          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-          width: 50, height: 50, borderRadius: 15, marginBottom: 18,
-          background: 'linear-gradient(135deg,#6c5ce7,#a29bfe)',
-          boxShadow: '0 4px 22px rgba(108,92,231,0.38)',
-        }}>
+      <div style={{ textAlign: 'center', marginBottom: 32 }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 50, height: 50, borderRadius: 15, marginBottom: 18, background: 'linear-gradient(135deg,#6c5ce7,#a29bfe)', boxShadow: '0 4px 22px rgba(108,92,231,0.38)' }}>
           <svg viewBox="0 0 32 32" width="24" height="24" fill="none">
             <polygon points="16,3 29,26 3,26" stroke="white" strokeWidth="2.5" fill="none" strokeLinejoin="round" />
             <polygon points="16,10 24,24 8,24" fill="white" opacity="0.28" />
           </svg>
         </div>
-        <h1 style={{ fontSize: 28, fontWeight: 800, color: txt, letterSpacing: '-0.03em', marginBottom: 8, lineHeight: 1.1, transition: 'color 0.3s' }}>
-          Welcome back!
-        </h1>
-        <p style={{ fontSize: 14, color: sub, fontWeight: 400, transition: 'color 0.3s' }}>
-          Please enter your details
-        </p>
+        <h1 style={{ fontSize: 28, fontWeight: 800, color: txt, letterSpacing: '-0.03em', marginBottom: 8, lineHeight: 1.1, transition: 'color 0.3s' }}>Welcome back!</h1>
+        <p style={{ fontSize: 14, color: sub, fontWeight: 400, transition: 'color 0.3s' }}>Please enter your details</p>
       </div>
 
       {error && (
-        <div className="pop-in" style={{
-          marginBottom: 18, padding: '12px 16px',
-          background: dark ? 'rgba(255,107,107,0.1)' : '#fff5f5',
-          border: `1.5px solid ${dark ? 'rgba(255,107,107,0.3)' : '#ffc9c9'}`,
-          borderRadius: 12, display: 'flex', alignItems: 'flex-start', gap: 10,
-        }}>
+        <div className="pop-in" style={{ marginBottom: 18, padding: '12px 16px', background: dark ? 'rgba(255,107,107,0.1)' : '#fff5f5', border: `1.5px solid ${dark ? 'rgba(255,107,107,0.3)' : '#ffc9c9'}`, borderRadius: 12, display: 'flex', alignItems: 'flex-start', gap: 10 }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, marginTop: 1 }}>
             <circle cx="12" cy="12" r="10" stroke="#ff6b6b" strokeWidth="1.5" />
             <path d="M12 8v4m0 4h.01" stroke="#ff6b6b" strokeWidth="2" strokeLinecap="round" />
@@ -386,12 +325,7 @@ function FormPanel({ shaking, error, success, email, setEmail, password, setPass
       )}
 
       {success && (
-        <div className="pop-in" style={{
-          marginBottom: 18, padding: '12px 16px',
-          background: dark ? 'rgba(81,207,102,0.1)' : '#f0fff4',
-          border: `1.5px solid ${dark ? 'rgba(81,207,102,0.3)' : '#b2f2bb'}`,
-          borderRadius: 12, display: 'flex', alignItems: 'center', gap: 10,
-        }}>
+        <div className="pop-in" style={{ marginBottom: 18, padding: '12px 16px', background: dark ? 'rgba(81,207,102,0.1)' : '#f0fff4', border: `1.5px solid ${dark ? 'rgba(81,207,102,0.3)' : '#b2f2bb'}`, borderRadius: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
             <circle cx="12" cy="12" r="10" stroke="#51cf66" strokeWidth="1.5" />
             <path d="M8 12l3 3 5-5" stroke="#51cf66" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -401,19 +335,8 @@ function FormPanel({ shaking, error, success, email, setEmail, password, setPass
       )}
 
       <form onSubmit={handleLogin}>
-        <InputField
-          type="email" value={email}
-          onChange={v => { setEmail(v); handleTyping(); }}
-          onFocus={() => {}} onBlur={() => {}}
-          placeholder="Email" required isError={!!error} dark={dark}
-        />
-        <InputField
-          type={showPassword ? 'text' : 'password'} value={password}
-          onChange={v => { setPassword(v); handleTyping(); }}
-          onFocus={() => { if (!showPassword) setIsCovered(true); }}
-          onBlur={() => { if (!showPassword) setIsCovered(false); }}
-          placeholder="Password" required isError={!!error} dark={dark}
-        >
+        <InputField type="email" value={email} onChange={v => { setEmail(v); handleTyping(); }} onFocus={() => {}} onBlur={() => {}} placeholder="Email" required isError={!!error} dark={dark} />
+        <InputField type={showPassword ? 'text' : 'password'} value={password} onChange={v => { setPassword(v); handleTyping(); }} onFocus={() => { if (!showPassword) setIsCovered(true); }} onBlur={() => { if (!showPassword) setIsCovered(false); }} placeholder="Password" required isError={!!error} dark={dark}>
           <button type="button"
             onMouseEnter={() => { if (!showPassword) { setIsCovered(false); setIsPeeking(true); } }}
             onMouseLeave={() => { if (!showPassword) { setIsPeeking(false); setIsCovered(true); } }}
@@ -431,31 +354,21 @@ function FormPanel({ shaking, error, success, email, setEmail, password, setPass
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
           <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, color: sub, userSelect: 'none', transition: 'color 0.3s' }}>
-            <div onClick={() => setRemember(!remember)} style={{
-              width: 17, height: 17, borderRadius: 5, flexShrink: 0,
-              border: `2px solid ${remember ? '#6c5ce7' : (dark ? '#4a4880' : '#ced4da')}`,
-              background: remember ? '#6c5ce7' : 'transparent',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              transition: 'all 0.18s ease', cursor: 'pointer',
-            }}>
+            <div onClick={() => setRemember(!remember)} style={{ width: 17, height: 17, borderRadius: 5, flexShrink: 0, border: `2px solid ${remember ? '#6c5ce7' : dark ? '#4a4880' : '#ced4da'}`, background: remember ? '#6c5ce7' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.18s ease', cursor: 'pointer' }}>
               {remember && <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>}
             </div>
             Remember for 30 days
           </label>
-          <a href="#" style={{ fontSize: 13, color: linkCol, fontWeight: 600, textDecoration: 'none' }}
-            onMouseOver={e => (e.currentTarget.style.opacity = '0.7')}
-            onMouseOut={e => (e.currentTarget.style.opacity = '1')}>
-            Forgot password?
-          </a>
+          <a href="#" style={{ fontSize: 13, color: link, fontWeight: 600, textDecoration: 'none' }} onMouseOver={e => (e.currentTarget.style.opacity = '0.7')} onMouseOut={e => (e.currentTarget.style.opacity = '1')}>Forgot password?</a>
         </div>
 
         <PrimaryBtn loading={loading}>{loading ? 'Signing in...' : 'Log In'}</PrimaryBtn>
       </form>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-        <div style={{ flex: 1, height: 1, background: dark ? '#3d3a6e' : '#e9ecef', transition: 'background 0.3s' }} />
+        <div style={{ flex: 1, height: 1, background: divider, transition: 'background 0.3s' }} />
         <span style={{ fontSize: 12, color: sub, fontWeight: 500, letterSpacing: '0.05em', transition: 'color 0.3s' }}>OR</span>
-        <div style={{ flex: 1, height: 1, background: dark ? '#3d3a6e' : '#e9ecef', transition: 'background 0.3s' }} />
+        <div style={{ flex: 1, height: 1, background: divider, transition: 'background 0.3s' }} />
       </div>
 
       <OAuthBtn onClick={handleGoogleLogin} loading={googleLoading} icon={<GoogleIcon />} label="Log In with Google" dark={dark} />
@@ -463,26 +376,14 @@ function FormPanel({ shaking, error, success, email, setEmail, password, setPass
 
       <p style={{ textAlign: 'center', fontSize: 13, color: sub, marginTop: 18, transition: 'color 0.3s' }}>
         Don't have an account?{' '}
-        <Link href="/auth/register" style={{ color: linkCol, fontWeight: 700, textDecoration: 'none' }}
-          onMouseOver={e => ((e.target as HTMLElement).style.textDecoration = 'underline')}
-          onMouseOut={e => ((e.target as HTMLElement).style.textDecoration = 'none')}>
-          Sign Up
-        </Link>
+        <Link href="/auth/register" style={{ color: link, fontWeight: 700, textDecoration: 'none' }} onMouseOver={e => ((e.target as HTMLElement).style.textDecoration = 'underline')} onMouseOut={e => ((e.target as HTMLElement).style.textDecoration = 'none')}>Sign Up</Link>
       </p>
 
-      <p style={{ textAlign: 'center', fontSize: 12, color: dark ? '#5a5890' : '#adb5bd', marginTop: 20, lineHeight: 1.6, transition: 'color 0.3s' }}>
+      <p style={{ textAlign: 'center', fontSize: 12, color: dark ? '#4a4880' : '#adb5bd', marginTop: 16, lineHeight: 1.7, transition: 'color 0.3s' }}>
         By signing in, you agree to our{' '}
-        <a href="/terms" style={{ color: linkCol, textDecoration: 'none', fontWeight: 500 }}
-          onMouseOver={e => (e.currentTarget.style.textDecoration = 'underline')}
-          onMouseOut={e => (e.currentTarget.style.textDecoration = 'none')}>
-          Terms of Service
-        </a>
+        <a href="/terms" style={{ color: link, textDecoration: 'none', fontWeight: 500 }} onMouseOver={e => (e.currentTarget.style.textDecoration = 'underline')} onMouseOut={e => (e.currentTarget.style.textDecoration = 'none')}>Terms of Service</a>
         {' '}and{' '}
-        <a href="/privacy" style={{ color: linkCol, textDecoration: 'none', fontWeight: 500 }}
-          onMouseOver={e => (e.currentTarget.style.textDecoration = 'underline')}
-          onMouseOut={e => (e.currentTarget.style.textDecoration = 'none')}>
-          Privacy Policy
-        </a>
+        <a href="/privacy" style={{ color: link, textDecoration: 'none', fontWeight: 500 }} onMouseOver={e => (e.currentTarget.style.textDecoration = 'underline')} onMouseOut={e => (e.currentTarget.style.textDecoration = 'none')}>Privacy Policy</a>
       </p>
     </div>
   );
@@ -490,6 +391,7 @@ function FormPanel({ shaking, error, success, email, setEmail, password, setPass
 
 export default function Login() {
   const router = useRouter();
+  const dark = useIsDark();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -504,25 +406,22 @@ export default function Login() {
   const [isPeeking, setIsPeeking] = useState(false);
   const [remember, setRemember] = useState(false);
   const [shaking, setShaking] = useState(false);
-  const [dark, setDark] = useState(false);
+  const [tiltX, setTiltX] = useState(0);
+  const [tiltY, setTiltY] = useState(0);
+  const leftPanelRef = useRef<HTMLDivElement>(null);
   const typingRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem('theme');
-    if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      setDark(true);
-    }
-  }, []);
-
-  const toggleDark = () => {
-    setDark(d => {
-      localStorage.setItem('theme', !d ? 'dark' : 'light');
-      return !d;
-    });
-  };
-
-  useEffect(() => {
-    const h = (e: MouseEvent) => setMousePos({ x: e.clientX, y: e.clientY });
+    const h = (e: MouseEvent) => {
+      setMousePos({ x: e.clientX, y: e.clientY });
+      if (leftPanelRef.current) {
+        const r = leftPanelRef.current.getBoundingClientRect();
+        const rx = ((e.clientX - r.left) / r.width - 0.5) * 2;
+        const ry = ((e.clientY - r.top) / r.height - 0.5) * 2;
+        setTiltX(rx * 4);
+        setTiltY(ry * -4);
+      }
+    };
     window.addEventListener('mousemove', h);
     return () => window.removeEventListener('mousemove', h);
   }, []);
@@ -564,16 +463,9 @@ export default function Login() {
   };
 
   const bg = dark ? '#13122a' : '#ffffff';
-  const leftBg = dark
-    ? 'linear-gradient(148deg,#1a1838 0%,#1e1b40 50%,#221630 100%)'
-    : 'linear-gradient(148deg,#f3f0ff 0%,#ede9fe 45%,#fce4ec 100%)';
+  const leftBg = dark ? 'linear-gradient(148deg,#1a1838 0%,#1e1b40 50%,#221630 100%)' : 'linear-gradient(148deg,#f3f0ff 0%,#ede9fe 45%,#fce4ec 100%)';
 
-  const formProps = {
-    shaking, error, success, email, setEmail, password, setPassword,
-    loading, googleLoading, githubLoading, showPassword, setShowPassword,
-    remember, setRemember, isCovered, setIsCovered, isPeeking, setIsPeeking,
-    handleLogin, handleGoogleLogin, handleGithubLogin, handleTyping, dark,
-  };
+  const formProps = { shaking, error, success, email, setEmail, password, setPassword, loading, googleLoading, githubLoading, showPassword, setShowPassword, remember, setRemember, isCovered, setIsCovered, isPeeking, setIsPeeking, handleLogin, handleGoogleLogin, handleGithubLogin, handleTyping, dark };
 
   return (
     <>
@@ -587,17 +479,17 @@ export default function Login() {
         @keyframes charBobAlt{0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
         @keyframes charBob{0%,100%{transform:translateY(0);}50%{transform:translateY(-9px);}}
         @keyframes charBobSlow{0%,100%{transform:translateY(0);}50%{transform:translateY(-7px);}}
-        @keyframes charBobFast{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+        @keyframes charGhostFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-14px);}}
         @keyframes gradShift{0%,100%{background-position:0% 50%;}50%{background-position:100% 50%;}}
         @keyframes popIn{0%{opacity:0;transform:scale(0.85);}60%{transform:scale(1.04);}100%{opacity:1;transform:scale(1);}}
         @keyframes orbDrift{0%,100%{transform:translate(0,0) scale(1);}33%{transform:translate(8px,-12px) scale(1.04);}66%{transform:translate(-6px,6px) scale(0.97);}}
         @keyframes dotBounce{from{transform:translateY(0);}to{transform:translateY(-7px);}}
         @keyframes groundPulse{0%,100%{transform:scaleX(1);opacity:0.18;}50%{transform:scaleX(1.08);opacity:0.28;}}
-        @keyframes starSpin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
+        @keyframes ghostWiggle{0%,100%{transform:rotate(0deg);}25%{transform:rotate(-3deg);}75%{transform:rotate(3deg);}}
         .char-tall{animation:charBobAlt 3.2s ease-in-out infinite;}
         .char-round{animation:charBob 2.8s ease-in-out 0.4s infinite;}
         .char-small{animation:charBobSlow 3.6s ease-in-out 0.9s infinite;}
-        .char-star{animation:charBobFast 2.4s ease-in-out 1.2s infinite;}
+        .char-ghost{animation:charGhostFloat 2.4s ease-in-out 1.1s infinite, ghostWiggle 4s ease-in-out infinite;}
         .shake{animation:shake 0.65s cubic-bezier(0.36,0.07,0.19,0.97) both;}
         .pop-in{animation:popIn 0.35s cubic-bezier(0.4,0,0.2,1) both;}
         .right-panel{animation:fadeUp 0.55s cubic-bezier(0.4,0,0.2,1) 0.08s both;}
@@ -605,37 +497,27 @@ export default function Login() {
         input::placeholder{color:#8b8ab8;}
         input:focus{outline:none;}
         input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus{-webkit-text-fill-color:inherit;transition:background-color 9999s ease-in-out 0s;}
-        @media(max-width:768px){
-          .desktop-left{display:none !important;}
-          .desktop-right{display:flex !important;}
-        }
-        @media(min-width:769px){
-          .mobile-form{display:none !important;}
-          .desktop-right{display:flex !important;}
-        }
+        @media(max-width:768px){.desktop-left{display:none !important;}}
+        @media(min-width:769px){.desktop-left{display:flex !important;}}
       `}</style>
 
       <div style={{ display: 'flex', minHeight: '100vh', fontFamily: "'Plus Jakarta Sans',sans-serif", background: bg, transition: 'background 0.35s ease' }}>
 
-        <div style={{ position: 'fixed', top: 18, right: 22, zIndex: 60, display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 12, color: dark ? '#8b8ab8' : '#adb5bd', transition: 'color 0.3s' }}>
-            {dark ? 'Dark' : 'Light'}
-          </span>
-          <ThemeToggleInline dark={dark} onToggle={toggleDark} />
+        <div style={{ position: 'fixed', top: 18, right: 22, zIndex: 60 }}>
+          <ThemeToggle />
         </div>
 
-        <div className="desktop-left" style={{
-          flex: '0 0 52%',
-          background: leftBg,
-          position: 'relative', overflow: 'hidden',
-          display: 'flex', flexDirection: 'column',
-          alignItems: 'center', justifyContent: 'center',
-          transition: 'background 0.35s ease',
-        }}>
+        <div
+          ref={leftPanelRef}
+          className="desktop-left"
+          style={{
+            flex: '0 0 52%', background: leftBg, position: 'relative', overflow: 'hidden',
+            flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            transition: 'background 0.35s ease', perspective: '800px',
+          }}
+        >
           <div style={{ position: 'absolute', top: 26, left: 30 }}>
-            <span className="brand-gradient" style={{ fontSize: 13, fontWeight: 800, letterSpacing: '0.18em', textTransform: 'uppercase' }}>
-              aichixia.xyz
-            </span>
+            <span className="brand-gradient" style={{ fontSize: 13, fontWeight: 800, letterSpacing: '0.18em', textTransform: 'uppercase' }}>aichixia.xyz</span>
           </div>
 
           {[
@@ -644,33 +526,38 @@ export default function Login() {
             { s: 110, c: dark ? 'rgba(240,196,25,0.13)' : 'rgba(252,196,25,0.22)', x: '72%', y: '62%', d: 2 },
             { s: 90, c: dark ? 'rgba(81,207,102,0.12)' : 'rgba(81,207,102,0.2)', x: '8%', y: '70%', d: 0.5 },
             { s: 70, c: dark ? 'rgba(230,73,128,0.15)' : 'rgba(240,101,149,0.18)', x: '50%', y: '4%', d: 1.7 },
-            { s: 60, c: dark ? 'rgba(108,92,231,0.12)' : 'rgba(132,94,247,0.14)', x: '85%', y: '40%', d: 2.5 },
+            { s: 55, c: dark ? 'rgba(32,201,151,0.13)' : 'rgba(32,201,151,0.18)', x: '82%', y: '42%', d: 2.8 },
           ].map((o, i) => (
             <div key={i} style={{
-              position: 'absolute', left: o.x, top: o.y,
-              width: o.s, height: o.s, borderRadius: '50%',
+              position: 'absolute', left: o.x, top: o.y, width: o.s, height: o.s, borderRadius: '50%',
               background: o.c, filter: 'blur(2px)',
               animation: `orbDrift ${5 + o.d}s ease-in-out ${o.d}s infinite`,
               pointerEvents: 'none', transition: 'background 0.35s ease',
+              transform: `translate(${tiltX * 0.5}px, ${tiltY * 0.5}px)`,
             }} />
           ))}
 
-          <div style={{ position: 'relative', width: 480, height: 230, maxWidth: '90%' }}>
+          <div
+            style={{
+              position: 'relative', width: 490, height: 230, maxWidth: '90%',
+              transform: `rotateX(${tiltY * 0.5}deg) rotateY(${tiltX * 0.5}deg)`,
+              transition: 'transform 0.15s ease-out',
+              transformStyle: 'preserve-3d',
+            }}
+          >
             <CharTall mousePos={mousePos} isCovered={isCovered} isPeeking={isPeeking} isError={!!error} isSuccess={!!success} isTyping={isTyping} />
             <CharRound mousePos={mousePos} isCovered={isCovered} isPeeking={isPeeking} isError={!!error} isSuccess={!!success} />
             <CharSmall mousePos={mousePos} />
-            <CharStar mousePos={mousePos} />
+            <CharGhost mousePos={mousePos} />
             <div style={{
               position: 'absolute', bottom: -10, left: '2%', right: '2%', height: 22,
-              background: dark
-                ? 'radial-gradient(ellipse,rgba(108,92,231,0.35) 0%,transparent 70%)'
-                : 'radial-gradient(ellipse,rgba(108,92,231,0.28) 0%,transparent 70%)',
+              background: dark ? 'radial-gradient(ellipse,rgba(108,92,231,0.35) 0%,transparent 70%)' : 'radial-gradient(ellipse,rgba(108,92,231,0.28) 0%,transparent 70%)',
               animation: 'groundPulse 3s ease-in-out infinite', borderRadius: '50%',
               transition: 'background 0.35s ease',
             }} />
           </div>
 
-          <div style={{ marginTop: 36, textAlign: 'center', padding: '0 48px' }}>
+          <div style={{ marginTop: 36, textAlign: 'center', padding: '0 48px', transform: `translate(${tiltX * 0.8}px, ${tiltY * 0.8}px)`, transition: 'transform 0.15s ease-out' }}>
             <p style={{ fontSize: 16, fontWeight: 600, color: dark ? '#a29bfe' : '#6c5ce7', lineHeight: 1.5, transition: 'color 0.3s' }}>
               One unified API for 20+ AI models
             </p>
@@ -681,17 +568,12 @@ export default function Login() {
 
           <div style={{ position: 'absolute', bottom: 20, display: 'flex', gap: 22 }}>
             {['OpenAI Compatible', 'Supabase', 'Next.js 14'].map(t => (
-              <span key={t} style={{ fontSize: 11, color: dark ? '#4a4880' : '#c5bef8', letterSpacing: '0.07em', textTransform: 'uppercase', fontWeight: 500, transition: 'color 0.3s' }}>
-                {t}
-              </span>
+              <span key={t} style={{ fontSize: 11, color: dark ? '#4a4880' : '#c5bef8', letterSpacing: '0.07em', textTransform: 'uppercase', fontWeight: 500, transition: 'color 0.3s' }}>{t}</span>
             ))}
           </div>
         </div>
 
-        <div className="desktop-right right-panel" style={{
-          flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
-          padding: '60px 32px 40px', background: bg, transition: 'background 0.35s ease',
-        }}>
+        <div className="right-panel" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 32px 40px', background: bg, transition: 'background 0.35s ease' }}>
           <FormPanel {...formProps} />
         </div>
 
