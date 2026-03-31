@@ -1,571 +1,272 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import ThemeToggle from '@/components/ThemeToggle';
 
-interface Particle {
-  id: number;
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  size: number;
-  opacity: number;
-  color: string;
-  life: number;
-  maxLife: number;
-}
+interface MousePos { x: number; y: number; }
 
-interface MousePos {
-  x: number;
-  y: number;
-}
-
-function ParticleCanvas({ mousePos }: { mousePos: MousePos }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const particlesRef = useRef<Particle[]>([]);
-  const animFrameRef = useRef<number>(0);
-  const counterRef = useRef(0);
-
-  const colors = ['#6366f1', '#8b5cf6', '#a78bfa', '#c4b5fd', '#60a5fa', '#34d399'];
-
+function useEyeDir(ref: React.RefObject<HTMLElement>, mousePos: MousePos, max = 5) {
+  const [dir, setDir] = useState({ x: 0, y: 0 });
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-    resize();
-    window.addEventListener('resize', resize);
-
-    const spawnParticle = (x: number, y: number) => {
-      const angle = Math.random() * Math.PI * 2;
-      const speed = Math.random() * 1.5 + 0.3;
-      particlesRef.current.push({
-        id: counterRef.current++,
-        x,
-        y,
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed,
-        size: Math.random() * 3 + 1,
-        opacity: Math.random() * 0.6 + 0.3,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        life: 0,
-        maxLife: Math.random() * 80 + 40,
-      });
-    };
-
-    let lastMouse = { x: mousePos.x, y: mousePos.y };
-
-    const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      if (
-        Math.abs(mousePos.x - lastMouse.x) > 2 ||
-        Math.abs(mousePos.y - lastMouse.y) > 2
-      ) {
-        for (let i = 0; i < 2; i++) {
-          spawnParticle(
-            mousePos.x + (Math.random() - 0.5) * 10,
-            mousePos.y + (Math.random() - 0.5) * 10
-          );
-        }
-        lastMouse = { ...mousePos };
-      }
-
-      if (Math.random() < 0.04) {
-        spawnParticle(
-          Math.random() * canvas.width,
-          Math.random() * canvas.height
-        );
-      }
-
-      particlesRef.current = particlesRef.current.filter((p) => p.life < p.maxLife);
-
-      particlesRef.current.forEach((p) => {
-        p.life++;
-        p.x += p.vx;
-        p.y += p.vy;
-        p.vy -= 0.01;
-        p.vx *= 0.99;
-
-        const progress = p.life / p.maxLife;
-        const alpha = p.opacity * (1 - progress);
-
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size * (1 - progress * 0.5), 0, Math.PI * 2);
-        ctx.fillStyle = p.color + Math.floor(alpha * 255).toString(16).padStart(2, '0');
-        ctx.fill();
-      });
-
-      const gridSpacing = 80;
-      const cols = Math.ceil(canvas.width / gridSpacing) + 1;
-      const rows = Math.ceil(canvas.height / gridSpacing) + 1;
-
-      for (let i = 0; i < cols; i++) {
-        for (let j = 0; j < rows; j++) {
-          const gx = i * gridSpacing;
-          const gy = j * gridSpacing;
-          const dist = Math.sqrt(
-            Math.pow(mousePos.x - gx, 2) + Math.pow(mousePos.y - gy, 2)
-          );
-          const influence = Math.max(0, 1 - dist / 200);
-          if (influence > 0.01) {
-            ctx.beginPath();
-            ctx.arc(gx, gy, 1 + influence * 2, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(99,102,241,${influence * 0.4})`;
-            ctx.fill();
-          } else {
-            ctx.beginPath();
-            ctx.arc(gx, gy, 0.8, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(99,102,241,0.08)';
-            ctx.fill();
-          }
-        }
-      }
-
-      animFrameRef.current = requestAnimationFrame(animate);
-    };
-
-    animate();
-
-    return () => {
-      window.removeEventListener('resize', resize);
-      cancelAnimationFrame(animFrameRef.current);
-    };
-  }, []);
-
-  useEffect(() => {}, [mousePos]);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-0"
-      style={{ opacity: 0.9 }}
-    />
-  );
-}
-
-function EyeCharacter({
-  isWatching,
-  isCovered,
-  isPeeking,
-  isError,
-  isSuccess,
-  mousePos,
-}: {
-  isWatching: boolean;
-  isCovered: boolean;
-  isPeeking: boolean;
-  isError: boolean;
-  isSuccess: boolean;
-  mousePos: MousePos;
-}) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [eyeDir, setEyeDir] = useState({ x: 0, y: 0 });
-
-  useEffect(() => {
-    if (!containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
+    if (!ref.current) return;
+    const r = ref.current.getBoundingClientRect();
+    const cx = r.left + r.width / 2;
+    const cy = r.top + r.height / 2;
     const dx = mousePos.x - cx;
     const dy = mousePos.y - cy;
     const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-    const maxMove = 6;
-    setEyeDir({
-      x: (dx / dist) * Math.min(maxMove, dist / 20),
-      y: (dy / dist) * Math.min(maxMove, dist / 20),
-    });
+    setDir({ x: (dx / dist) * Math.min(max, dist / 25), y: (dy / dist) * Math.min(max, dist / 25) });
   }, [mousePos]);
+  return dir;
+}
 
-  const eyeColor = isError ? '#f87171' : isSuccess ? '#34d399' : '#6366f1';
-  const glowColor = isError
-    ? '0 0 20px rgba(248,113,113,0.6)'
-    : isSuccess
-    ? '0 0 20px rgba(52,211,153,0.6)'
-    : '0 0 20px rgba(99,102,241,0.6)';
+function Eye({ cx, cy, r = 7, pr = 4, dx = 0, dy = 0 }: { cx: number; cy: number; r?: number; pr?: number; dx?: number; dy?: number; }) {
+  return (
+    <g>
+      <circle cx={cx} cy={cy} r={r} fill="white" />
+      <circle cx={cx + dx} cy={cy + dy} r={pr} fill="#1a1a2e" />
+      <circle cx={cx + dx + pr * 0.35} cy={cy + dy - pr * 0.35} r={pr * 0.28} fill="white" opacity="0.85" />
+    </g>
+  );
+}
+
+function ClosedEye({ cx, cy }: { cx: number; cy: number }) {
+  return <path d={`M${cx - 7} ${cy + 1} Q${cx} ${cy - 5} ${cx + 7} ${cy + 1}`} stroke="white" strokeWidth="2" fill="none" strokeLinecap="round" />;
+}
+
+function PeekEye({ cx, cy, dx = 0 }: { cx: number; cy: number; dx?: number }) {
+  return (
+    <g>
+      <path d={`M${cx - 7} ${cy + 2} Q${cx} ${cy - 3} ${cx + 7} ${cy + 2}`} stroke="white" strokeWidth="2" fill="none" strokeLinecap="round" />
+      <circle cx={cx + dx} cy={cy + 3} r="3.5" fill="white" />
+      <circle cx={cx + dx + 1} cy={cy + 2.5} r="2" fill="#1a1a2e" />
+    </g>
+  );
+}
+
+function CharTall({ mousePos, isCovered, isPeeking, isError, isSuccess, isTyping }: {
+  mousePos: MousePos; isCovered: boolean; isPeeking: boolean;
+  isError: boolean; isSuccess: boolean; isTyping: boolean;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const dir = useEyeDir(ref as React.RefObject<HTMLElement>, mousePos, 4.5);
+  const col = isError ? '#ff6b6b' : isSuccess ? '#51cf66' : '#845ef7';
+  const colLight = isError ? '#ff9999' : isSuccess ? '#69db7c' : '#a78bfa';
 
   return (
-    <div
-      ref={containerRef}
-      className="relative flex items-center justify-center"
-      style={{
-        width: 120,
-        height: 120,
-        filter: `drop-shadow(${glowColor})`,
-        transition: 'filter 0.5s ease',
-      }}
-    >
-      <svg
-        viewBox="0 0 120 120"
-        width="120"
-        height="120"
-        style={{ overflow: 'visible' }}
-      >
+    <div ref={ref} className="char-tall" style={{ position: 'absolute', left: 60, bottom: 0 }}>
+      <svg width="92" height="168" viewBox="0 0 92 168" style={{ overflow: 'visible', filter: `drop-shadow(0 10px 28px ${col}55)` }}>
         <defs>
-          <radialGradient id="faceGrad" cx="50%" cy="40%" r="60%">
-            <stop offset="0%" stopColor="#1e1b4b" />
-            <stop offset="100%" stopColor="#0f0e1a" />
-          </radialGradient>
-          <radialGradient id="eyeGlow" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor={eyeColor} stopOpacity="0.8" />
-            <stop offset="100%" stopColor={eyeColor} stopOpacity="0" />
-          </radialGradient>
-          <filter id="glow">
-            <feGaussianBlur stdDeviation="2" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
+          <linearGradient id="tg" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor={colLight} />
+            <stop offset="100%" stopColor={col} />
+          </linearGradient>
         </defs>
-
-        <circle
-          cx="60"
-          cy="60"
-          r="52"
-          fill="url(#faceGrad)"
-          stroke={eyeColor}
-          strokeWidth="1.5"
-          strokeOpacity="0.4"
-          style={{ transition: 'stroke 0.4s ease' }}
-        />
-
-        <circle cx="60" cy="60" r="52" fill="url(#eyeGlow)" opacity="0.15" />
-
-        {[...Array(3)].map((_, i) => (
-          <circle
-            key={i}
-            cx="60"
-            cy="60"
-            r={52 - i * 4}
-            fill="none"
-            stroke={eyeColor}
-            strokeWidth="0.3"
-            strokeOpacity={0.1 - i * 0.02}
-          />
-        ))}
-
+        <rect x="6" y="42" width="80" height="122" rx="13" fill="url(#tg)" />
+        <rect x="6" y="42" width="80" height="26" rx="13" fill={col} />
+        {isTyping && (
+          <g>
+            {[0,1,2].map(i => (
+              <circle key={i} cx={26 + i * 18} cy={162} r="5" fill={colLight} opacity="0.6"
+                style={{ animation: `dotBounce 0.8s ease-in-out ${i * 0.18}s infinite alternate` }} />
+            ))}
+          </g>
+        )}
         {!isCovered && !isPeeking && (
           <>
-            <g filter="url(#glow)">
-              <ellipse cx={36 + eyeDir.x} cy={52 + eyeDir.y} rx="11" ry="11" fill="white" />
-              <circle cx={36 + eyeDir.x} cy={52 + eyeDir.y} r="7" fill={eyeColor} style={{ transition: 'fill 0.3s ease' }} />
-              <circle cx={36 + eyeDir.x} cy={52 + eyeDir.y} r="4" fill="#050408" />
-              <circle cx={38 + eyeDir.x} cy={50 + eyeDir.y} r="1.5" fill="white" opacity="0.9" />
-            </g>
-
-            <g filter="url(#glow)">
-              <ellipse cx={84 + eyeDir.x} cy={52 + eyeDir.y} rx="11" ry="11" fill="white" />
-              <circle cx={84 + eyeDir.x} cy={52 + eyeDir.y} r="7" fill={eyeColor} style={{ transition: 'fill 0.3s ease' }} />
-              <circle cx={84 + eyeDir.x} cy={52 + eyeDir.y} r="4" fill="#050408" />
-              <circle cx={86 + eyeDir.x} cy={50 + eyeDir.y} r="1.5" fill="white" opacity="0.9" />
-            </g>
-
-            {isWatching && (
-              <>
-                <path d="M28 44 Q36 40 44 44" stroke={eyeColor} strokeWidth="1.5" strokeLinecap="round" fill="none" opacity="0.6" />
-                <path d="M76 44 Q84 40 92 44" stroke={eyeColor} strokeWidth="1.5" strokeLinecap="round" fill="none" opacity="0.6" />
-              </>
-            )}
-
-            {isError && (
-              <>
-                <path d="M28 48 Q36 44 44 48" stroke="#f87171" strokeWidth="2" strokeLinecap="round" fill="none" />
-                <path d="M76 48 Q84 44 92 48" stroke="#f87171" strokeWidth="2" strokeLinecap="round" fill="none" />
-                <path d="M44 80 Q60 72 76 80" stroke="#f87171" strokeWidth="2" strokeLinecap="round" fill="none" />
-              </>
-            )}
-
-            {isSuccess && (
-              <>
-                <path d="M28 42 Q36 46 44 42" stroke="#34d399" strokeWidth="2" strokeLinecap="round" fill="none" />
-                <path d="M76 42 Q84 46 92 42" stroke="#34d399" strokeWidth="2" strokeLinecap="round" fill="none" />
-                <path d="M44 76 Q60 86 76 76" stroke="#34d399" strokeWidth="2" strokeLinecap="round" fill="none" />
-              </>
-            )}
-
+            <Eye cx={26} cy={24} r={10} pr={5.5} dx={dir.x} dy={dir.y} />
+            <Eye cx={60} cy={24} r={10} pr={5.5} dx={dir.x} dy={dir.y} />
+            {isError && <path d="M18 40 Q43 35 68 40" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round" />}
+            {isSuccess && <path d="M18 37 Q43 43 68 37" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round" />}
             {!isError && !isSuccess && (
-              <path d="M44 78 Q60 84 76 78" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+              <path d={isTyping ? "M20 39 Q43 34 66 39" : "M20 37 Q43 41 66 37"} stroke="white" strokeWidth="1.8" fill="none" strokeLinecap="round" opacity="0.55" />
             )}
           </>
         )}
-
         {isCovered && !isPeeking && (
           <>
-            <rect x="22" y="46" width="29" height="14" rx="7" fill="#312e81" />
-            <path d="M22 50 Q36 42 51 50" stroke={eyeColor} strokeWidth="2" strokeLinecap="round" fill="none" opacity="0.7" />
-            <rect x="70" y="46" width="29" height="14" rx="7" fill="#312e81" />
-            <path d="M70 50 Q84 42 99 50" stroke={eyeColor} strokeWidth="2" strokeLinecap="round" fill="none" opacity="0.7" />
-            <path d="M40 80 Q60 74 80 80" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+            <ClosedEye cx={26} cy={24} />
+            <ClosedEye cx={60} cy={24} />
+            <path d="M20 38 Q43 33 66 38" stroke="white" strokeWidth="1.8" fill="none" strokeLinecap="round" opacity="0.4" />
           </>
         )}
-
         {isPeeking && (
           <>
-            <rect x="22" y="50" width="29" height="10" rx="5" fill="#312e81" />
-            <path d="M22 52 Q36 44 51 52" stroke={eyeColor} strokeWidth="2" strokeLinecap="round" fill="none" opacity="0.7" />
-            <circle cx={36 + eyeDir.x * 0.5} cy={57 + eyeDir.y * 0.3} r="5" fill="white" />
-            <circle cx={36 + eyeDir.x * 0.5} cy={57 + eyeDir.y * 0.3} r="3" fill={eyeColor} />
-            <circle cx={37.5 + eyeDir.x * 0.5} cy={55.5 + eyeDir.y * 0.3} r="1" fill="white" opacity="0.9" />
-
-            <rect x="70" y="50" width="29" height="10" rx="5" fill="#312e81" />
-            <path d="M70 52 Q84 44 99 52" stroke={eyeColor} strokeWidth="2" strokeLinecap="round" fill="none" opacity="0.7" />
-            <circle cx={84 + eyeDir.x * 0.5} cy={57 + eyeDir.y * 0.3} r="5" fill="white" />
-            <circle cx={84 + eyeDir.x * 0.5} cy={57 + eyeDir.y * 0.3} r="3" fill={eyeColor} />
-            <circle cx={85.5 + eyeDir.x * 0.5} cy={55.5 + eyeDir.y * 0.3} r="1" fill="white" opacity="0.9" />
-
-            <path d="M40 80 Q60 86 80 80" stroke={eyeColor} strokeWidth="1.5" strokeLinecap="round" fill="none" opacity="0.5" />
+            <PeekEye cx={26} cy={26} dx={dir.x * 0.5} />
+            <PeekEye cx={60} cy={26} dx={dir.x * 0.5} />
           </>
         )}
       </svg>
-
-      {isError && (
-        <div
-          className="absolute inset-0 rounded-full pointer-events-none"
-          style={{
-            background: 'radial-gradient(circle, rgba(248,113,113,0.1) 0%, transparent 70%)',
-            animation: 'pulse 0.8s ease-in-out',
-          }}
-        />
-      )}
     </div>
   );
 }
 
-function FloatingLabel({
-  label,
-  isFocused,
-  hasValue,
-  color,
-}: {
-  label: string;
-  isFocused: boolean;
-  hasValue: boolean;
-  color: string;
+function CharRound({ mousePos, isCovered, isPeeking, isError, isSuccess }: {
+  mousePos: MousePos; isCovered: boolean; isPeeking: boolean; isError: boolean; isSuccess: boolean;
 }) {
-  const active = isFocused || hasValue;
+  const ref = useRef<HTMLDivElement>(null);
+  const dir = useEyeDir(ref as React.RefObject<HTMLElement>, mousePos, 4);
+  const col = isError ? '#ff922b' : isSuccess ? '#20c997' : '#ff6b35';
+  const colL = isError ? '#ffa94d' : isSuccess ? '#38d9a9' : '#ff8c5a';
+
   return (
-    <span
-      style={{
-        position: 'absolute',
-        left: 0,
-        top: active ? '-22px' : '12px',
-        fontSize: active ? '11px' : '14px',
-        color: isFocused ? color : 'rgba(255,255,255,0.4)',
-        letterSpacing: active ? '0.08em' : '0.02em',
-        textTransform: active ? 'uppercase' : 'none',
-        fontWeight: active ? 600 : 400,
-        transition: 'all 0.25s cubic-bezier(0.4,0,0.2,1)',
-        pointerEvents: 'none',
-        userSelect: 'none',
-      }}
-    >
-      {label}
-    </span>
+    <div ref={ref} className="char-round" style={{ position: 'absolute', left: 168, bottom: 0 }}>
+      <svg width="116" height="116" viewBox="0 0 116 116" style={{ overflow: 'visible', filter: `drop-shadow(0 10px 28px ${col}55)` }}>
+        <defs>
+          <radialGradient id="rg" cx="35%" cy="30%" r="70%">
+            <stop offset="0%" stopColor={colL} />
+            <stop offset="100%" stopColor={col} />
+          </radialGradient>
+        </defs>
+        <circle cx="58" cy="58" r="52" fill="url(#rg)" />
+        {!isCovered && !isPeeking && (
+          <>
+            <Eye cx={40} cy={50} r={9} pr={5} dx={dir.x} dy={dir.y} />
+            <Eye cx={76} cy={50} r={9} pr={5} dx={dir.x} dy={dir.y} />
+            {isError && <path d="M34 72 Q58 65 82 72" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round" />}
+            {isSuccess && <path d="M34 69 Q58 78 82 69" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round" />}
+            {!isError && !isSuccess && <path d="M36 69 Q58 77 80 69" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.65" />}
+          </>
+        )}
+        {isCovered && !isPeeking && (
+          <>
+            <ClosedEye cx={40} cy={50} />
+            <ClosedEye cx={76} cy={50} />
+            <path d="M36 69 Q58 74 80 69" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.45" />
+          </>
+        )}
+        {isPeeking && (
+          <>
+            <PeekEye cx={40} cy={53} dx={dir.x * 0.5} />
+            <PeekEye cx={76} cy={53} dx={dir.x * 0.5} />
+          </>
+        )}
+      </svg>
+    </div>
   );
 }
 
-function InputField({
-  type,
-  value,
-  onChange,
-  onFocus,
-  onBlur,
-  label,
-  required,
-  children,
-  accentColor,
-  isError,
-}: {
-  type: string;
-  value: string;
-  onChange: (v: string) => void;
-  onFocus?: () => void;
-  onBlur?: () => void;
-  label: string;
-  required?: boolean;
-  children?: React.ReactNode;
-  accentColor: string;
-  isError?: boolean;
+function CharSmall({ mousePos }: { mousePos: MousePos }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const dir = useEyeDir(ref as React.RefObject<HTMLElement>, mousePos, 3);
+  return (
+    <div ref={ref} className="char-small" style={{ position: 'absolute', left: 298, bottom: 0 }}>
+      <svg width="76" height="108" viewBox="0 0 76 108" style={{ overflow: 'visible', filter: 'drop-shadow(0 8px 22px rgba(252,196,25,0.5))' }}>
+        <defs>
+          <linearGradient id="sg" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#ffe066" />
+            <stop offset="100%" stopColor="#fcc419" />
+          </linearGradient>
+        </defs>
+        <rect x="10" y="26" width="56" height="78" rx="28" fill="url(#sg)" />
+        <rect x="22" y="14" width="8" height="20" rx="4" fill="#fcc419" />
+        <circle cx="26" cy="12" r="8" fill="#fcc419" />
+        <Eye cx={27} cy={54} r={7} pr={4} dx={dir.x * 0.7} dy={dir.y * 0.7} />
+        <Eye cx={49} cy={54} r={7} pr={4} dx={dir.x * 0.7} dy={dir.y * 0.7} />
+        <path d="M23 68 Q38 74 53 68" stroke="#1a1a2e" strokeWidth="1.8" fill="none" strokeLinecap="round" opacity="0.4" />
+        <rect x="0" y="72" width="10" height="24" rx="5" fill="#fcc419" opacity="0.75" />
+      </svg>
+    </div>
+  );
+}
+
+function InputField({ type, value, onChange, onFocus, onBlur, placeholder, required, children, isError }: {
+  type: string; value: string; onChange: (v: string) => void;
+  onFocus?: () => void; onBlur?: () => void; placeholder: string;
+  required?: boolean; children?: React.ReactNode; isError?: boolean;
 }) {
   const [focused, setFocused] = useState(false);
-
   return (
-    <div style={{ position: 'relative', paddingTop: 28, paddingBottom: 4 }}>
-      <FloatingLabel
-        label={label}
-        isFocused={focused}
-        hasValue={value.length > 0}
-        color={isError ? '#f87171' : accentColor}
-      />
-      <div style={{ position: 'relative' }}>
-        <input
-          type={type}
-          value={value}
-          required={required}
-          onChange={(e) => onChange(e.target.value)}
-          onFocus={() => {
-            setFocused(true);
-            onFocus?.();
-          }}
-          onBlur={() => {
-            setFocused(false);
-            onBlur?.();
-          }}
-          style={{
-            width: '100%',
-            background: 'transparent',
-            border: 'none',
-            borderBottom: `1.5px solid ${
-              isError ? '#f87171' : focused ? accentColor : 'rgba(255,255,255,0.15)'
-            }`,
-            color: 'white',
-            fontSize: 15,
-            padding: '10px 0',
-            paddingRight: children ? 36 : 0,
-            outline: 'none',
-            transition: 'border-color 0.25s ease',
-            fontFamily: 'inherit',
-            letterSpacing: '0.01em',
-          }}
-          autoComplete="off"
-        />
-        {children && (
-          <div
-            style={{
-              position: 'absolute',
-              right: 0,
-              top: '50%',
-              transform: 'translateY(-50%)',
-            }}
-          >
-            {children}
-          </div>
-        )}
-      </div>
-      <div
+    <div style={{ position: 'relative', marginBottom: 14 }}>
+      <input
+        type={type} value={value} required={required} placeholder={placeholder}
+        onChange={e => onChange(e.target.value)}
+        onFocus={() => { setFocused(true); onFocus?.(); }}
+        onBlur={() => { setFocused(false); onBlur?.(); }}
         style={{
-          position: 'absolute',
-          bottom: 4,
-          left: 0,
-          right: 0,
-          height: 1.5,
-          background: isError ? '#f87171' : accentColor,
-          transform: focused ? 'scaleX(1)' : 'scaleX(0)',
-          transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1)',
-          borderRadius: 2,
+          width: '100%', padding: '14px 16px', paddingRight: children ? 50 : 16,
+          fontSize: 14, fontFamily: 'inherit', color: '#1a1a2e',
+          background: focused ? '#faf9ff' : '#f8f9fa',
+          border: `2px solid ${isError ? '#ff6b6b' : focused ? '#6c5ce7' : '#e9ecef'}`,
+          borderRadius: 14, outline: 'none',
+          boxShadow: focused ? `0 0 0 4px ${isError ? 'rgba(255,107,107,0.1)' : 'rgba(108,92,231,0.1)'}` : 'none',
+          transition: 'all 0.22s cubic-bezier(0.4,0,0.2,1)',
+          boxSizing: 'border-box',
         }}
       />
+      {children && (
+        <div style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)' }}>
+          {children}
+        </div>
+      )}
     </div>
   );
 }
 
-function GlowButton({
-  onClick,
-  disabled,
-  loading,
-  children,
-  variant = 'primary',
-  accentColor,
-}: {
-  onClick?: () => void;
-  disabled?: boolean;
-  loading?: boolean;
-  children: React.ReactNode;
-  variant?: 'primary' | 'secondary';
-  accentColor: string;
-}) {
-  const [hovered, setHovered] = useState(false);
-  const [pressed, setPressed] = useState(false);
-
+function PrimaryBtn({ loading, children }: { loading: boolean; children: React.ReactNode }) {
+  const [hov, setHov] = useState(false);
+  const [press, setPress] = useState(false);
   return (
-    <button
-      type={onClick ? 'button' : 'submit'}
-      onClick={onClick}
-      disabled={disabled || loading}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => { setHovered(false); setPressed(false); }}
-      onMouseDown={() => setPressed(true)}
-      onMouseUp={() => setPressed(false)}
+    <button type="submit" disabled={loading}
+      onMouseEnter={() => setHov(true)} onMouseLeave={() => { setHov(false); setPress(false); }}
+      onMouseDown={() => setPress(true)} onMouseUp={() => setPress(false)}
       style={{
-        width: '100%',
-        padding: '14px 0',
-        borderRadius: 12,
-        border: variant === 'primary' ? 'none' : `1px solid rgba(255,255,255,0.1)`,
-        background:
-          variant === 'primary'
-            ? hovered
-              ? `linear-gradient(135deg, ${accentColor}ee, #8b5cf6ee)`
-              : `linear-gradient(135deg, ${accentColor}, #8b5cf6)`
-            : hovered
-            ? 'rgba(255,255,255,0.08)'
-            : 'rgba(255,255,255,0.04)',
-        color: 'white',
-        fontSize: 14,
-        fontWeight: 600,
-        letterSpacing: '0.05em',
-        cursor: disabled || loading ? 'not-allowed' : 'pointer',
-        opacity: disabled || loading ? 0.5 : 1,
-        transform: pressed ? 'scale(0.98)' : hovered ? 'scale(1.01)' : 'scale(1)',
-        boxShadow:
-          variant === 'primary' && hovered
-            ? `0 8px 30px ${accentColor}55, 0 2px 8px rgba(0,0,0,0.3)`
-            : variant === 'primary'
-            ? `0 4px 20px ${accentColor}33`
-            : 'none',
+        width: '100%', padding: '15px 0', marginBottom: 12,
+        background: hov ? 'linear-gradient(135deg,#5f4fe8,#845ef7)' : 'linear-gradient(135deg,#6c5ce7,#9775fa)',
+        color: 'white', fontSize: 15, fontWeight: 700, fontFamily: 'inherit',
+        border: 'none', borderRadius: 14, cursor: loading ? 'not-allowed' : 'pointer',
+        opacity: loading ? 0.7 : 1,
+        transform: press ? 'scale(0.98)' : hov ? 'translateY(-1px)' : 'none',
+        boxShadow: hov ? '0 8px 32px rgba(108,92,231,0.45)' : '0 4px 16px rgba(108,92,231,0.28)',
         transition: 'all 0.2s cubic-bezier(0.4,0,0.2,1)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 10,
-        fontFamily: 'inherit',
-        position: 'relative',
-        overflow: 'hidden',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+        letterSpacing: '0.02em',
       }}
     >
-      {loading ? (
-        <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span
-            style={{
-              width: 16,
-              height: 16,
-              border: '2px solid rgba(255,255,255,0.3)',
-              borderTopColor: 'white',
-              borderRadius: '50%',
-              display: 'inline-block',
-              animation: 'spin 0.7s linear infinite',
-            }}
-          />
-          {children}
-        </span>
-      ) : (
-        children
-      )}
+      {loading && <span style={{ width: 16, height: 16, border: '2.5px solid rgba(255,255,255,0.35)', borderTopColor: 'white', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.7s linear infinite' }} />}
+      {children}
     </button>
   );
 }
 
-function OAuthIcon({ type }: { type: 'google' | 'github' }) {
-  if (type === 'google') {
-    return (
-      <svg width="18" height="18" viewBox="0 0 24 24">
-        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-      </svg>
-    );
-  }
+function OAuthBtn({ onClick, loading, icon, label }: { onClick: () => void; loading: boolean; icon: React.ReactNode; label: string }) {
+  const [hov, setHov] = useState(false);
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
-      <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+    <button type="button" onClick={onClick} disabled={loading}
+      onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
+      style={{
+        width: '100%', padding: '13px 0', marginBottom: 10,
+        background: hov ? '#f1f3f5' : '#f8f9fa', color: '#2d2d2d',
+        fontSize: 14, fontWeight: 600, fontFamily: 'inherit',
+        border: '2px solid #e9ecef', borderRadius: 14,
+        cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.6 : 1,
+        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+        transition: 'all 0.18s ease',
+        boxShadow: hov ? '0 2px 12px rgba(0,0,0,0.07)' : 'none',
+      }}
+    >
+      {icon}
+      {loading ? 'Redirecting...' : label}
+    </button>
+  );
+}
+
+function GoogleIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24">
+      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+    </svg>
+  );
+}
+
+function GitHubIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="#24292e">
+      <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
     </svg>
   );
 }
@@ -581,579 +282,266 @@ export default function Login() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [mousePos, setMousePos] = useState<MousePos>({ x: 0, y: 0 });
-  const [isWatching, setIsWatching] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
   const [isCovered, setIsCovered] = useState(false);
   const [isPeeking, setIsPeeking] = useState(false);
-  const [mounted, setMounted] = useState(false);
-  const [shaking, setShaking] = useState(false);
   const [remember, setRemember] = useState(false);
-  const accentColor = '#6366f1';
+  const [shaking, setShaking] = useState(false);
+  const typingRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    setMounted(true);
-    const handler = (e: MouseEvent) => setMousePos({ x: e.clientX, y: e.clientY });
-    window.addEventListener('mousemove', handler);
-    return () => window.removeEventListener('mousemove', handler);
+    const h = (e: MouseEvent) => setMousePos({ x: e.clientX, y: e.clientY });
+    window.addEventListener('mousemove', h);
+    return () => window.removeEventListener('mousemove', h);
   }, []);
 
   useEffect(() => {
-    if (!showPassword) {
-      setIsCovered(true);
-      setIsPeeking(false);
-    } else {
-      setIsCovered(false);
-      setIsPeeking(false);
-    }
+    if (!showPassword) { setIsCovered(true); setIsPeeking(false); }
+    else { setIsCovered(false); setIsPeeking(false); }
   }, [showPassword]);
 
-  const triggerShake = () => {
-    setShaking(true);
-    setTimeout(() => setShaking(false), 600);
+  const handleTyping = () => {
+    setIsTyping(true);
+    if (typingRef.current) clearTimeout(typingRef.current);
+    typingRef.current = setTimeout(() => setIsTyping(false), 1200);
   };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
-    setSuccess('');
-
-    const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
-
+    setLoading(true); setError(''); setSuccess('');
+    const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
     if (authError) {
-      setError(authError.message);
-      setLoading(false);
-      triggerShake();
+      setError(authError.message); setLoading(false);
+      setShaking(true); setTimeout(() => setShaking(false), 650);
       return;
     }
-
     setSuccess('Login successful! Redirecting...');
     setTimeout(() => router.push('/console'), 1000);
   };
 
   const handleGithubLogin = async () => {
-    setGithubLoading(true);
-    setError('');
-    const { error: authError } = await supabase.auth.signInWithOAuth({
-      provider: 'github',
-      options: { redirectTo: `${window.location.origin}/console` },
-    });
+    setGithubLoading(true); setError('');
+    const { error: authError } = await supabase.auth.signInWithOAuth({ provider: 'github', options: { redirectTo: `${window.location.origin}/console` } });
     if (authError) { setError(authError.message); setGithubLoading(false); }
   };
 
   const handleGoogleLogin = async () => {
-    setGoogleLoading(true);
-    setError('');
-    const { error: authError } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: `${window.location.origin}/console` },
-    });
+    setGoogleLoading(true); setError('');
+    const { error: authError } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: `${window.location.origin}/console` } });
     if (authError) { setError(authError.message); setGoogleLoading(false); }
   };
 
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-          background: #05040f;
-          font-family: 'Outfit', sans-serif;
-        }
-
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-
-        @keyframes shake {
-          0%, 100% { transform: translateX(0); }
-          10% { transform: translateX(-8px); }
-          30% { transform: translateX(8px); }
-          50% { transform: translateX(-6px); }
-          70% { transform: translateX(6px); }
-          90% { transform: translateX(-3px); }
-        }
-
-        @keyframes fadeSlideUp {
-          from { opacity: 0; transform: translateY(24px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
-        }
-
-        @keyframes gradientShift {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-8px); }
-        }
-
-        @keyframes glowPulse {
-          0%, 100% { box-shadow: 0 0 20px rgba(99,102,241,0.3), 0 0 60px rgba(99,102,241,0.1); }
-          50% { box-shadow: 0 0 30px rgba(99,102,241,0.5), 0 0 80px rgba(99,102,241,0.2); }
-        }
-
-        @keyframes borderRotate {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-
-        @keyframes successPop {
-          0% { transform: scale(0.8); opacity: 0; }
-          60% { transform: scale(1.05); opacity: 1; }
-          100% { transform: scale(1); opacity: 1; }
-        }
-
-        .login-card {
-          animation: fadeSlideUp 0.6s cubic-bezier(0.4,0,0.2,1) both;
-        }
-
-        .eye-container {
-          animation: float 4s ease-in-out infinite;
-        }
-
-        .shake {
-          animation: shake 0.6s cubic-bezier(0.36,0.07,0.19,0.97) both;
-        }
-
-        .brand-text {
-          background: linear-gradient(135deg, #6366f1, #a78bfa, #60a5fa);
-          background-size: 200% 200%;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          animation: gradientShift 4s ease infinite;
-        }
-
-        .card-glow {
-          animation: glowPulse 3s ease-in-out infinite;
-        }
-
-        .divider-line::before,
-        .divider-line::after {
-          content: '';
-          flex: 1;
-          height: 1px;
-          background: rgba(255,255,255,0.08);
-        }
-
-        input:-webkit-autofill,
-        input:-webkit-autofill:hover,
-        input:-webkit-autofill:focus {
-          -webkit-text-fill-color: white;
-          -webkit-box-shadow: 0 0 0px 1000px transparent inset;
-          transition: background-color 5000s ease-in-out 0s;
-        }
-
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.4); border-radius: 4px; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+        body{font-family:'Plus Jakarta Sans',sans-serif;}
+        @keyframes spin{to{transform:rotate(360deg);}}
+        @keyframes shake{0%,100%{transform:translateX(0);}15%{transform:translateX(-9px);}30%{transform:translateX(9px);}45%{transform:translateX(-6px);}60%{transform:translateX(6px);}75%{transform:translateX(-3px);}90%{transform:translateX(3px);}}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+        @keyframes charBobAlt{0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
+        @keyframes charBob{0%,100%{transform:translateY(0);}50%{transform:translateY(-9px);}}
+        @keyframes charBobSlow{0%,100%{transform:translateY(0);}50%{transform:translateY(-7px);}}
+        @keyframes gradShift{0%,100%{background-position:0% 50%;}50%{background-position:100% 50%;}}
+        @keyframes popIn{0%{opacity:0;transform:scale(0.85);}60%{transform:scale(1.04);}100%{opacity:1;transform:scale(1);}}
+        @keyframes orbDrift{0%,100%{transform:translate(0,0) scale(1);}33%{transform:translate(8px,-12px) scale(1.04);}66%{transform:translate(-6px,6px) scale(0.97);}}
+        @keyframes dotBounce{from{transform:translateY(0);}to{transform:translateY(-6px);}}
+        @keyframes groundPulse{0%,100%{transform:scaleX(1);opacity:0.18;}50%{transform:scaleX(1.08);opacity:0.26;}}
+        .char-tall{animation:charBobAlt 3.2s ease-in-out infinite;}
+        .char-round{animation:charBob 2.8s ease-in-out 0.4s infinite;}
+        .char-small{animation:charBobSlow 3.6s ease-in-out 0.9s infinite;}
+        .shake{animation:shake 0.65s cubic-bezier(0.36,0.07,0.19,0.97) both;}
+        .pop-in{animation:popIn 0.35s cubic-bezier(0.4,0,0.2,1) both;}
+        .right-panel{animation:fadeUp 0.55s cubic-bezier(0.4,0,0.2,1) 0.08s both;}
+        .brand-gradient{background:linear-gradient(135deg,#6c5ce7,#a29bfe,#fd79a8);background-size:200% 200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:gradShift 5s ease infinite;}
+        input::placeholder{color:#adb5bd;}
+        input:focus{outline:none;}
+        input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus{-webkit-text-fill-color:#1a1a2e;-webkit-box-shadow:0 0 0px 1000px #faf9ff inset;}
       `}</style>
 
-      <div
-        style={{
-          minHeight: '100vh',
-          background: '#05040f',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontFamily: "'Outfit', sans-serif",
-          position: 'relative',
-          overflow: 'hidden',
-          padding: '20px',
-        }}
-      >
-        {mounted && <ParticleCanvas mousePos={mousePos} />}
-
-        <div
-          style={{
-            position: 'fixed',
-            top: '10%',
-            left: '15%',
-            width: 300,
-            height: 300,
-            background: 'radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%)',
-            borderRadius: '50%',
-            pointerEvents: 'none',
-            filter: 'blur(40px)',
-          }}
-        />
-        <div
-          style={{
-            position: 'fixed',
-            bottom: '15%',
-            right: '10%',
-            width: 250,
-            height: 250,
-            background: 'radial-gradient(circle, rgba(139,92,246,0.12) 0%, transparent 70%)',
-            borderRadius: '50%',
-            pointerEvents: 'none',
-            filter: 'blur(50px)',
-          }}
-        />
-
-        <div style={{ position: 'fixed', top: 20, right: 20, zIndex: 50 }}>
+      <div style={{ display: 'flex', minHeight: '100vh', fontFamily: "'Plus Jakarta Sans',sans-serif", background: '#fff' }}>
+        <div style={{ position: 'fixed', top: 18, right: 22, zIndex: 60 }}>
           <ThemeToggle />
         </div>
 
-        <div
-          className={`login-card card-glow ${shaking ? 'shake' : ''}`}
-          style={{
-            position: 'relative',
-            zIndex: 10,
-            width: '100%',
-            maxWidth: 420,
-            background: 'rgba(10,9,25,0.85)',
-            backdropFilter: 'blur(24px)',
-            borderRadius: 24,
-            border: '1px solid rgba(99,102,241,0.2)',
-            padding: '48px 40px',
-            overflow: 'hidden',
-          }}
-        >
-          <div
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: 1,
-              background: 'linear-gradient(90deg, transparent, rgba(99,102,241,0.6), rgba(167,139,250,0.6), transparent)',
-            }}
-          />
+        <div style={{
+          flex: '0 0 52%',
+          background: 'linear-gradient(148deg, #f3f0ff 0%, #ede9fe 45%, #fce4ec 100%)',
+          position: 'relative', overflow: 'hidden',
+          display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center',
+        }}>
+          <div style={{ position: 'absolute', top: 26, left: 30 }}>
+            <span className="brand-gradient" style={{ fontSize: 13, fontWeight: 800, letterSpacing: '0.18em', textTransform: 'uppercase' }}>
+              aichixia.xyz
+            </span>
+          </div>
 
-          <div style={{ textAlign: 'center', marginBottom: 36 }}>
-            <div className="eye-container" style={{ display: 'inline-block', marginBottom: 20 }}>
-              <EyeCharacter
-                isWatching={isWatching}
-                isCovered={isCovered}
-                isPeeking={isPeeking}
-                isError={!!error}
-                isSuccess={!!success}
-                mousePos={mousePos}
-              />
-            </div>
+          {[
+            { s: 200, c: 'rgba(132,94,247,0.22)', x: '4%', y: '6%', d: 0 },
+            { s: 140, c: 'rgba(255,107,53,0.2)', x: '68%', y: '10%', d: 1.2 },
+            { s: 110, c: 'rgba(252,196,25,0.22)', x: '72%', y: '62%', d: 2 },
+            { s: 90, c: 'rgba(81,207,102,0.2)', x: '8%', y: '70%', d: 0.5 },
+            { s: 70, c: 'rgba(240,101,149,0.18)', x: '50%', y: '4%', d: 1.7 },
+          ].map((o, i) => (
+            <div key={i} style={{
+              position: 'absolute', left: o.x, top: o.y,
+              width: o.s, height: o.s, borderRadius: '50%',
+              background: o.c, filter: 'blur(2px)',
+              animation: `orbDrift ${5 + o.d}s ease-in-out ${o.d}s infinite`,
+              pointerEvents: 'none',
+            }} />
+          ))}
 
-            <div style={{ marginBottom: 6 }}>
-              <span
-                className="brand-text"
-                style={{ fontSize: 12, fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase' }}
-              >
-                aichixia.xyz
-              </span>
-            </div>
+          <div style={{ position: 'relative', width: 420, height: 220 }}>
+            <CharTall mousePos={mousePos} isCovered={isCovered} isPeeking={isPeeking} isError={!!error} isSuccess={!!success} isTyping={isTyping} />
+            <CharRound mousePos={mousePos} isCovered={isCovered} isPeeking={isPeeking} isError={!!error} isSuccess={!!success} />
+            <CharSmall mousePos={mousePos} />
+            <div style={{
+              position: 'absolute', bottom: -10, left: '6%', right: '6%', height: 20,
+              background: 'radial-gradient(ellipse, rgba(108,92,231,0.28) 0%, transparent 70%)',
+              animation: 'groundPulse 3s ease-in-out infinite', borderRadius: '50%',
+            }} />
+          </div>
 
-            <h1
-              style={{
-                fontSize: 28,
-                fontWeight: 700,
-                color: 'white',
-                marginBottom: 8,
-                letterSpacing: '-0.02em',
-              }}
-            >
-              Welcome back
-            </h1>
-            <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.01em' }}>
-              Sign in to your account
+          <div style={{ marginTop: 36, textAlign: 'center', padding: '0 48px' }}>
+            <p style={{ fontSize: 16, fontWeight: 600, color: '#6c5ce7', lineHeight: 1.5, letterSpacing: '0.005em' }}>
+              One unified API for 20+ AI models
+            </p>
+            <p style={{ fontSize: 13, color: '#a29bfe', marginTop: 6, letterSpacing: '0.02em', fontWeight: 500 }}>
+              Fast · Open Source · Ready to use
             </p>
           </div>
 
-          {error && (
-            <div
-              style={{
-                marginBottom: 20,
-                padding: '12px 16px',
-                background: 'rgba(248,113,113,0.08)',
-                border: '1px solid rgba(248,113,113,0.25)',
-                borderRadius: 12,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                animation: 'fadeSlideUp 0.3s ease both',
-              }}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="10" stroke="#f87171" strokeWidth="1.5" />
-                <path d="M12 8v4m0 4h.01" stroke="#f87171" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-              <span style={{ fontSize: 13, color: '#fca5a5' }}>{error}</span>
-            </div>
-          )}
-
-          {success && (
-            <div
-              style={{
-                marginBottom: 20,
-                padding: '12px 16px',
-                background: 'rgba(52,211,153,0.08)',
-                border: '1px solid rgba(52,211,153,0.25)',
-                borderRadius: 12,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                animation: 'successPop 0.4s ease both',
-              }}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="10" stroke="#34d399" strokeWidth="1.5" />
-                <path d="M8 12l3 3 5-5" stroke="#34d399" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-              <span style={{ fontSize: 13, color: '#6ee7b7' }}>{success}</span>
-            </div>
-          )}
-
-          <form onSubmit={handleLogin} style={{ marginBottom: 24 }}>
-            <div style={{ marginBottom: 8 }}>
-              <InputField
-                type="email"
-                value={email}
-                onChange={setEmail}
-                onFocus={() => setIsWatching(true)}
-                onBlur={() => setIsWatching(false)}
-                label="Email address"
-                required
-                accentColor={accentColor}
-                isError={!!error}
-              />
-            </div>
-
-            <div style={{ marginBottom: 4 }}>
-              <InputField
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={setPassword}
-                onFocus={() => {
-                  setIsWatching(false);
-                  if (!showPassword) setIsCovered(true);
-                }}
-                onBlur={() => {
-                  if (!showPassword) setIsCovered(false);
-                }}
-                label="Password"
-                required
-                accentColor={accentColor}
-                isError={!!error}
-              >
-                <button
-                  type="button"
-                  onMouseEnter={() => {
-                    if (!showPassword) { setIsCovered(false); setIsPeeking(true); }
-                  }}
-                  onMouseLeave={() => {
-                    if (!showPassword) { setIsPeeking(false); setIsCovered(true); }
-                  }}
-                  onClick={() => setShowPassword(!showPassword)}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    color: 'rgba(255,255,255,0.35)',
-                    padding: 4,
-                    display: 'flex',
-                    alignItems: 'center',
-                    transition: 'color 0.2s ease',
-                  }}
-                  onMouseOver={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.7)')}
-                  onMouseOut={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.35)')}
-                >
-                  {showPassword ? (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
-                      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
-                      <line x1="1" y1="1" x2="23" y2="23" />
-                    </svg>
-                  ) : (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
-                  )}
-                </button>
-              </InputField>
-            </div>
-
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginTop: 20,
-                marginBottom: 28,
-              }}
-            >
-              <label
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  cursor: 'pointer',
-                  fontSize: 13,
-                  color: 'rgba(255,255,255,0.4)',
-                }}
-              >
-                <div
-                  onClick={() => setRemember(!remember)}
-                  style={{
-                    width: 16,
-                    height: 16,
-                    borderRadius: 4,
-                    border: `1.5px solid ${remember ? accentColor : 'rgba(255,255,255,0.2)'}`,
-                    background: remember ? accentColor : 'transparent',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    transition: 'all 0.2s ease',
-                    cursor: 'pointer',
-                    flexShrink: 0,
-                  }}
-                >
-                  {remember && (
-                    <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
-                      <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  )}
-                </div>
-                Remember me
-              </label>
-
-              <a
-                href="#"
-                style={{
-                  fontSize: 13,
-                  color: accentColor,
-                  textDecoration: 'none',
-                  opacity: 0.8,
-                  transition: 'opacity 0.2s ease',
-                }}
-                onMouseOver={(e) => (e.currentTarget.style.opacity = '1')}
-                onMouseOut={(e) => (e.currentTarget.style.opacity = '0.8')}
-              >
-                Forgot password?
-              </a>
-            </div>
-
-            <GlowButton loading={loading} disabled={loading} accentColor={accentColor}>
-              {loading ? 'Signing in...' : 'Sign In'}
-            </GlowButton>
-          </form>
-
-          <div
-            className="divider-line"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 12,
-              marginBottom: 16,
-            }}
-          >
-            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)', letterSpacing: '0.05em' }}>
-              OR
-            </span>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <GlowButton
-              onClick={handleGoogleLogin}
-              loading={googleLoading}
-              disabled={googleLoading}
-              variant="secondary"
-              accentColor={accentColor}
-            >
-              <OAuthIcon type="google" />
-              <span style={{ fontSize: 14 }}>
-                {googleLoading ? 'Redirecting...' : 'Continue with Google'}
+          <div style={{ position: 'absolute', bottom: 20, display: 'flex', gap: 22 }}>
+            {['OpenAI Compatible', 'Supabase', 'Next.js 14'].map(t => (
+              <span key={t} style={{ fontSize: 11, color: '#c5bef8', letterSpacing: '0.07em', textTransform: 'uppercase', fontWeight: 500 }}>
+                {t}
               </span>
-            </GlowButton>
-
-            <GlowButton
-              onClick={handleGithubLogin}
-              loading={githubLoading}
-              disabled={githubLoading}
-              variant="secondary"
-              accentColor={accentColor}
-            >
-              <OAuthIcon type="github" />
-              <span style={{ fontSize: 14 }}>
-                {githubLoading ? 'Redirecting...' : 'Continue with GitHub'}
-              </span>
-            </GlowButton>
+            ))}
           </div>
-
-          <p
-            style={{
-              textAlign: 'center',
-              fontSize: 13,
-              color: 'rgba(255,255,255,0.3)',
-              marginTop: 28,
-            }}
-          >
-            Don't have an account?{' '}
-            <Link
-              href="/auth/register"
-              style={{
-                color: accentColor,
-                fontWeight: 600,
-                textDecoration: 'none',
-                opacity: 0.9,
-                transition: 'opacity 0.2s ease',
-              }}
-              onMouseOver={(e) => ((e.target as HTMLElement).style.opacity = '1')}
-              onMouseOut={(e) => ((e.target as HTMLElement).style.opacity = '0.9')}
-            >
-              Sign Up
-            </Link>
-          </p>
-
-          <div
-            style={{
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              height: 1,
-              background: 'linear-gradient(90deg, transparent, rgba(99,102,241,0.3), transparent)',
-            }}
-          />
         </div>
 
-        <div
-          style={{
-            position: 'fixed',
-            bottom: 24,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            display: 'flex',
-            gap: 20,
-            zIndex: 10,
-          }}
-        >
-          {['OpenAI Compatible', 'Supabase Powered', 'Next.js 14'].map((t) => (
-            <span
-              key={t}
-              style={{
-                fontSize: 11,
-                color: 'rgba(255,255,255,0.15)',
-                letterSpacing: '0.06em',
-                textTransform: 'uppercase',
-              }}
-            >
-              {t}
-            </span>
-          ))}
+        <div className="right-panel" style={{
+          flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          padding: '48px 32px', background: '#fff',
+        }}>
+          <div className={shaking ? 'shake' : ''} style={{ width: '100%', maxWidth: 380 }}>
+            <div style={{ textAlign: 'center', marginBottom: 34 }}>
+              <div style={{
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                width: 50, height: 50, borderRadius: 15, marginBottom: 18,
+                background: 'linear-gradient(135deg,#6c5ce7,#a29bfe)',
+                boxShadow: '0 4px 22px rgba(108,92,231,0.38)',
+              }}>
+                <svg viewBox="0 0 32 32" width="24" height="24" fill="none">
+                  <polygon points="16,3 29,26 3,26" stroke="white" strokeWidth="2.5" fill="none" strokeLinejoin="round" />
+                  <polygon points="16,10 24,24 8,24" fill="white" opacity="0.28" />
+                </svg>
+              </div>
+              <h1 style={{ fontSize: 28, fontWeight: 800, color: '#1a1a2e', letterSpacing: '-0.03em', marginBottom: 8, lineHeight: 1.1 }}>
+                Welcome back!
+              </h1>
+              <p style={{ fontSize: 14, color: '#868e96', fontWeight: 400 }}>
+                Please enter your details
+              </p>
+            </div>
+
+            {error && (
+              <div className="pop-in" style={{
+                marginBottom: 18, padding: '12px 16px',
+                background: '#fff5f5', border: '1.5px solid #ffc9c9', borderRadius: 12,
+                display: 'flex', alignItems: 'flex-start', gap: 10,
+              }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, marginTop: 1 }}>
+                  <circle cx="12" cy="12" r="10" stroke="#ff6b6b" strokeWidth="1.5" />
+                  <path d="M12 8v4m0 4h.01" stroke="#ff6b6b" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+                <span style={{ fontSize: 13, color: '#fa5252', lineHeight: 1.45 }}>{error}</span>
+              </div>
+            )}
+
+            {success && (
+              <div className="pop-in" style={{
+                marginBottom: 18, padding: '12px 16px',
+                background: '#f0fff4', border: '1.5px solid #b2f2bb', borderRadius: 12,
+                display: 'flex', alignItems: 'center', gap: 10,
+              }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" stroke="#51cf66" strokeWidth="1.5" />
+                  <path d="M8 12l3 3 5-5" stroke="#51cf66" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <span style={{ fontSize: 13, color: '#2f9e44' }}>{success}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleLogin}>
+              <InputField type="email" value={email} onChange={v => { setEmail(v); handleTyping(); }}
+                onFocus={() => setIsTyping(true)} onBlur={() => setIsTyping(false)}
+                placeholder="Email" required isError={!!error} />
+
+              <InputField type={showPassword ? 'text' : 'password'} value={password}
+                onChange={v => { setPassword(v); handleTyping(); }}
+                onFocus={() => { if (!showPassword) setIsCovered(true); }}
+                onBlur={() => { if (!showPassword) setIsCovered(false); }}
+                placeholder="Password" required isError={!!error}>
+                <button type="button"
+                  onMouseEnter={() => { if (!showPassword) { setIsCovered(false); setIsPeeking(true); } }}
+                  onMouseLeave={() => { if (!showPassword) { setIsPeeking(false); setIsCovered(true); } }}
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#adb5bd', padding: 4, display: 'flex', alignItems: 'center', transition: 'color 0.18s' }}
+                  onMouseOver={e => (e.currentTarget.style.color = '#6c5ce7')}
+                  onMouseOut={e => (e.currentTarget.style.color = '#adb5bd')}
+                >
+                  {showPassword
+                    ? <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                    : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  }
+                </button>
+              </InputField>
+
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, color: '#495057', userSelect: 'none' }}>
+                  <div onClick={() => setRemember(!remember)} style={{
+                    width: 17, height: 17, borderRadius: 5, flexShrink: 0,
+                    border: `2px solid ${remember ? '#6c5ce7' : '#ced4da'}`,
+                    background: remember ? '#6c5ce7' : 'white',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    transition: 'all 0.18s ease', cursor: 'pointer',
+                  }}>
+                    {remember && <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                  </div>
+                  Remember for 30 days
+                </label>
+                <a href="#" style={{ fontSize: 13, color: '#6c5ce7', fontWeight: 600, textDecoration: 'none' }}
+                  onMouseOver={e => (e.currentTarget.style.opacity = '0.7')}
+                  onMouseOut={e => (e.currentTarget.style.opacity = '1')}>
+                  Forgot password?
+                </a>
+              </div>
+
+              <PrimaryBtn loading={loading}>{loading ? 'Signing in...' : 'Log In'}</PrimaryBtn>
+            </form>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+              <div style={{ flex: 1, height: 1, background: '#e9ecef' }} />
+              <span style={{ fontSize: 12, color: '#adb5bd', fontWeight: 500, letterSpacing: '0.05em' }}>OR</span>
+              <div style={{ flex: 1, height: 1, background: '#e9ecef' }} />
+            </div>
+
+            <OAuthBtn onClick={handleGoogleLogin} loading={googleLoading} icon={<GoogleIcon />} label="Log In with Google" />
+            <OAuthBtn onClick={handleGithubLogin} loading={githubLoading} icon={<GitHubIcon />} label="Log In with GitHub" />
+
+            <p style={{ textAlign: 'center', fontSize: 13, color: '#868e96', marginTop: 18 }}>
+              Don't have an account?{' '}
+              <Link href="/auth/register" style={{ color: '#6c5ce7', fontWeight: 700, textDecoration: 'none' }}
+                onMouseOver={e => ((e.target as HTMLElement).style.textDecoration = 'underline')}
+                onMouseOut={e => ((e.target as HTMLElement).style.textDecoration = 'none')}>
+                Sign Up
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </>
