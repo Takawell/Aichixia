@@ -169,6 +169,7 @@ const AVAILABLE_MODELS = [
     icon: SiDigikeyelectronics,
     color: 'from-blue-600 to-cyan-600',
     category: 'Text Generation',
+    requiresPlan: 'pro',
     description: 'Superior tool calling and complex reasoning',
     speed: 4,
     quality: 5,
@@ -473,7 +474,6 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
     acc[model.category].push(model);
     return acc;
   }, {} as Record<string, typeof AVAILABLE_MODELS>);
-
   const getDisplayValue = (model: any) => model.id;
   const getCopyValue = (model: any) => model.id;
 
