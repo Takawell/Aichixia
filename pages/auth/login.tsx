@@ -233,7 +233,7 @@ function CharTall({ mousePos, isCovered, isPeeking, isError, isSuccess, isTyping
   const anim = reaction !== 'none' ? getClickAnimation(reaction) : undefined;
 
   return (
-    <div ref={ref} className="char-tall" style={{ position: 'absolute', left: 6, bottom: 0, cursor: 'pointer', userSelect: 'none', position: 'relative' } as any}>
+    <div ref={ref} className="char-tall" style={{ position: 'relative', cursor: 'pointer', userSelect: 'none' } as any}>
       <FloatingHearts active={reaction === 'hearts'} />
       <FloatingStars active={isSuccess && successExpr === 4} />
       <div onClick={onCharClick} style={{ animation: anim, display: 'inline-block' }}>
