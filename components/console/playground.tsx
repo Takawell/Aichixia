@@ -1717,7 +1717,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
 
             {activeTab === 'response' && (
               <div className="flex-1 p-3 sm:p-4 overflow-y-auto min-h-[280px] sm:min-h-[360px] space-y-3">
-                {!response && !error && !isLoading && !imageBase64 && !audioUrl && (
+                {!response && !error && !isLoading && !imageBase64 && !audioUrl && !sttResult && (
                   <div className="flex flex-col items-center justify-center h-full text-center py-10 fade-in">
                     <div className="w-10 h-10 rounded-xl bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center mb-3">
                       {selectedModel.type === 'image' ? <FiImage className="w-5 h-5 text-zinc-400" /> : selectedModel.type === 'tts' ? <FiVolume2 className="w-5 h-5 text-zinc-400" /> : selectedModel.type === 'stt' ? <FiMic className="w-5 h-5 text-zinc-400" /> : <FiTerminal className="w-5 h-5 text-zinc-400" />}
