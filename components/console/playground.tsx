@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { FiPlay, FiCopy, FiCheck, FiChevronDown, FiZap, FiCode, FiTerminal, FiSettings, FiClock, FiCpu, FiAlertCircle, FiRotateCcw, FiEye, FiEyeOff, FiImage, FiVolume2, FiDownload, FiPause, FiX, FiUpload, FiMaximize2, FiMinimize2, FiLayout, FiMinus, FiSmile, FiFrown, FiAlertTriangle, FiThumbsDown, FiBell, FiActivity, FiFastForward, FiSliders, FiMonitor, FiLayers, FiTarget, FiHash, FiXCircle } from 'react-icons/fi';
+import { FiPlay, FiCopy, FiCheck, FiChevronDown, FiZap, FiCode, FiTerminal, FiSettings, FiClock, FiCpu, FiAlertCircle, FiRotateCcw, FiEye, FiEyeOff, FiImage, FiVolume2, FiDownload, FiPause, FiX, FiUpload, FiMaximize2, FiMinimize2, FiLayout, FiMinus, FiSmile, FiFrown, FiAlertTriangle, FiThumbsDown, FiBell, FiActivity, FiFastForward, FiSliders, FiMonitor, FiLayers, FiTarget, FiHash, FiXCircle, FiMic, FiGlobe, FiFileText } from 'react-icons/fi';
 import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiAirbrake, SiFlux, SiLapce, SiSecurityscorecard, SiDigikeyelectronics, SiMatternet, SiMaze, SiImagedotsc } from 'react-icons/si';
 import { GiSpermWhale, GiPowerLightning, GiClover, GiCloverSpiked, GiFire } from 'react-icons/gi';
 import { TbSquareLetterZ, TbLetterM } from 'react-icons/tb';
@@ -9,7 +9,7 @@ const base = 'https://www.aichixia.xyz';
 
 const VISION_MODEL_IDS = new Set(['gpt-5.2', 'kimi-k2.5', 'gemini-3-flash', 'aichixia-flash', 'grok-4-fast']);
 
-type ModelType = 'text' | 'image' | 'tts';
+type ModelType = 'text' | 'image' | 'tts' | 'stt';
 
 type AnyModel = {
   id: string;
@@ -61,18 +61,24 @@ const TTS_MODELS: AnyModel[] = [
   { id: 'starling-tts', name: 'Starling TTS', provider: 'Aichiverse', icon: SiSecurityscorecard, color: 'from-violet-500 to-purple-500', pricing: 'Standard', context: '—', type: 'tts', endpoint: `${base}/api/v1/audio/speech` },
 ];
 
+const STT_MODELS: AnyModel[] = [
+  { id: 'whisper-large-v3', name: 'Whisper Large V3', provider: 'Groq', icon: FiMic, color: 'from-teal-500 to-emerald-600', pricing: 'Standard', context: '—', type: 'stt', endpoint: `${base}/api/v1/audio/transcriptions` },
+  { id: 'whisper-large-v3-turbo', name: 'Whisper V3 Turbo', provider: 'Groq', icon: FiMic, color: 'from-emerald-500 to-teal-400', pricing: 'Budget', context: '—', type: 'stt', endpoint: `${base}/api/v1/audio/transcriptions` },
+];
+
 const PRICING_STYLE: Record<string, string> = {
   Premium: 'text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20 border-rose-200 dark:border-rose-800',
   Standard: 'text-blue-400 dark:text-blue-300 bg-blue-50 dark:bg-blue-800/20 border-blue-100 dark:border-blue-700',
   Budget: 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800',
 };
 
-const TYPE_LABEL: Record<ModelType, string> = { text: 'Text', image: 'Image', tts: 'TTS' };
+const TYPE_LABEL: Record<ModelType, string> = { text: 'Text', image: 'Image', tts: 'TTS', stt: 'STT' };
 
 const TYPE_STYLE: Record<ModelType, string> = {
   text: 'text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800',
   image: 'text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/20',
   tts: 'text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/20',
+  stt: 'text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/20',
 };
 
 type Lang = 'typescript' | 'python' | 'curl' | 'ruby' | 'go' | 'php' | 'java' | 'csharp' | 'kotlin' | 'swift' | 'rust' | 'elixir';
@@ -257,6 +263,46 @@ async fn main() {
   ]
 ) |> Map.get(:body) |> IO.puts()`;
     return '';
+  }
+
+  if (model.type === 'stt') {
+    const ep = model.endpoint;
+    if (lang === 'typescript') return `const formData = new FormData();
+formData.append("file", audioFile); // File object
+formData.append("model", "${model.id}");
+formData.append("response_format", "verbose_json");
+// formData.append("language", "en"); // optional
+
+const response = await fetch("${ep}", {
+  method: "POST",
+  headers: { "Authorization": "Bearer ${key}" },
+  body: formData,
+});
+
+const data = await response.json();
+console.log(data.text);`;
+    if (lang === 'python') return `import requests
+
+with open("audio.mp3", "rb") as f:
+    response = requests.post(
+        "${ep}",
+        headers={"Authorization": "Bearer ${key}"},
+        files={"file": f},
+        data={
+            "model": "${model.id}",
+            "response_format": "verbose_json",
+            # "language": "en",  # optional
+        },
+    )
+
+data = response.json()
+print(data["text"])`;
+    if (lang === 'curl') return `curl -X POST ${ep} \\
+  -H "Authorization: Bearer ${key}" \\
+  -F file=@audio.mp3 \\
+  -F model="${model.id}" \\
+  -F response_format=verbose_json`;
+    return \`# \${lang} — use multipart/form-data with file field\`;
   }
 
   if (model.type === 'tts') {
@@ -904,7 +950,7 @@ type PlaygroundProps = { keys?: { key: string; name: string; is_active: boolean 
 export default function Playground({ keys = [] }: PlaygroundProps) {
   const [selectedModel, setSelectedModel] = useState<AnyModel>(TEXT_MODELS[0]);
   const [modelOpen, setModelOpen] = useState(false);
-  const [modelTab, setModelTab] = useState<'text' | 'image' | 'tts'>('text');
+  const [modelTab, setModelTab] = useState<'text' | 'image' | 'tts' | 'stt'>('text');
   const [apiKey, setApiKey] = useState('');
   const [showKey, setShowKey] = useState(false);
   const [message, setMessage] = useState('Explain quantum computing in simple terms.');
@@ -937,6 +983,15 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [artifact, setArtifact] = useState<ArtifactData | null>(null);
   const [renderMode, setRenderMode] = useState<'markdown' | 'raw'>('markdown');
+  const [sttAudioFile, setSttAudioFile] = useState<File | null>(null);
+  const [sttAudioPreview, setSttAudioPreview] = useState<string | null>(null);
+  const [sttTask, setSttTask] = useState<'transcriptions' | 'translations'>('transcriptions');
+  const [sttLanguage, setSttLanguage] = useState('');
+  const [sttPrompt, setSttPrompt] = useState('');
+  const [sttResponseFormat, setSttResponseFormat] = useState<'json' | 'verbose_json' | 'text'>('verbose_json');
+  const [sttTemperature, setSttTemperature] = useState(0);
+  const [sttResult, setSttResult] = useState<any>(null);
+  const sttFileInputRef = useRef<HTMLInputElement>(null);
 
   const modelDropRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -961,7 +1016,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
   }, [selectedModel.id, isVisionModel]);
 
   const modelsForTab = () => {
-    const src = modelTab === 'text' ? TEXT_MODELS : modelTab === 'image' ? IMAGE_MODELS : TTS_MODELS;
+    const src = modelTab === 'text' ? TEXT_MODELS : modelTab === 'image' ? IMAGE_MODELS : modelTab === 'tts' ? TTS_MODELS : STT_MODELS;
     const q = modelSearch.toLowerCase();
     return src.filter(m => m.name.toLowerCase().includes(q) || m.provider.toLowerCase().includes(q));
   };
@@ -998,6 +1053,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
   const clearResult = () => {
     setResponse(null); setImageBase64(null); setAudioUrl(null);
     setError(null); setLatency(null); setIsPlaying(false); setArtifact(null);
+    setSttResult(null);
     if (audioRef.current) { audioRef.current.pause(); audioRef.current.src = ''; }
   };
 
@@ -1033,7 +1089,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
 
   const handleRun = async () => {
     if (!apiKey.trim()) { setError('Please enter your API key'); return; }
-    if (!message.trim() && uploadedImages.length === 0) { setError('Please enter a message'); return; }
+    if (selectedModel.type !== 'stt' && !message.trim() && uploadedImages.length === 0) { setError('Please enter a message'); return; }
     setIsLoading(true); clearResult();
     const t0 = Date.now();
     try {
@@ -1051,6 +1107,29 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
         const data = await res.json(); setLatency(Date.now() - t0);
         if (!res.ok) { setError(data.error?.message || `Error ${res.status}`); return; }
         setImageBase64(data.data?.[0]?.b64_json ?? null); setActiveTab('response'); return;
+      }
+      if (selectedModel.type === 'stt') {
+        if (!sttAudioFile) { setError('Please upload an audio file'); setIsLoading(false); return; }
+        const formData = new FormData();
+        formData.append('file', sttAudioFile);
+        formData.append('model', selectedModel.id);
+        formData.append('response_format', sttResponseFormat);
+        formData.append('temperature', String(sttTemperature));
+        if (sttLanguage.trim() && sttTask === 'transcriptions') formData.append('language', sttLanguage.trim());
+        if (sttPrompt.trim()) formData.append('prompt', sttPrompt.trim());
+        const endpoint = sttTask === 'translations'
+          ? `${base}/api/v1/audio/translations`
+          : `${base}/api/v1/audio/transcriptions`;
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${apiKey}` },
+          body: formData,
+        });
+        const isText = sttResponseFormat === 'text';
+        const data = isText ? { text: await res.text() } : await res.json();
+        setLatency(Date.now() - t0);
+        if (!res.ok) { setError(data?.error?.message || `Error ${res.status}`); return; }
+        setSttResult(data); setActiveTab('response'); return;
       }
       if (selectedModel.type === 'tts') {
         const res = await fetch(selectedModel.endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` }, body: JSON.stringify({
@@ -1159,13 +1238,13 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                 <div className="slide-down absolute top-full left-0 right-0 mt-1.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-2xl z-50 overflow-hidden">
                   <div className="p-2 border-b border-zinc-100 dark:border-zinc-800 space-y-2">
                     <div className="flex gap-1">
-                      {(['text', 'image', 'tts'] as const).map(t => (
+                      {(['text', 'image', 'tts', 'stt'] as const).map(t => (
                         <button
                           key={t}
                           onClick={() => setModelTab(t)}
                           className={`flex-1 py-1 rounded-md text-[9px] font-bold uppercase tracking-wide transition-all ${modelTab === t ? 'bg-blue-400 text-white' : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
                         >
-                          {t === 'tts' ? 'TTS' : t === 'image' ? 'Image' : 'Text'}
+                          {t === 'tts' ? 'TTS' : t === 'stt' ? 'STT' : t === 'image' ? 'Image' : 'Text'}
                         </button>
                       ))}
                     </div>
@@ -1252,15 +1331,16 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
 
             <div>
               <label className="block text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1">
-                {selectedModel.type === 'image' ? 'Image Prompt' : selectedModel.type === 'tts' ? 'Text to Speak' : 'Message'}
+                {selectedModel.type === 'image' ? 'Image Prompt' : selectedModel.type === 'tts' ? 'Text to Speak' : selectedModel.type === 'stt' ? 'Context Hint (optional)' : 'Message'}
               </label>
               <textarea
                 value={message}
                 onChange={e => setMessage(e.target.value)}
-                rows={selectedModel.type === 'image' ? 3 : 4}
+                rows={selectedModel.type === 'image' ? 3 : selectedModel.type === 'stt' ? 2 : 4}
                 placeholder={
                   selectedModel.type === 'image' ? 'A futuristic city at sunset, cyberpunk style...'
                   : selectedModel.type === 'tts' ? 'Enter the text you want converted to speech...'
+                  : selectedModel.type === 'stt' ? 'Optional: guide model style or spelling context...'
                   : isVisionModel ? 'Describe what you want to know about the image...'
                   : 'Enter your prompt...'
                 }
@@ -1464,6 +1544,106 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
               </div>
             )}
 
+            {selectedModel.type === 'stt' && (
+              <div className="space-y-3">
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 flex items-center gap-1"><FiMic className="w-3 h-3" /> Audio File</label>
+                    {sttAudioFile && <button onClick={() => { setSttAudioFile(null); setSttAudioPreview(null); }} className="text-[9px] text-red-400 hover:text-red-500 transition-colors">Remove</button>}
+                  </div>
+                  {!sttAudioFile ? (
+                    <div
+                      onClick={() => sttFileInputRef.current?.click()}
+                      className="w-full rounded-lg border-2 border-dashed border-zinc-300 dark:border-zinc-700 hover:border-teal-300 dark:hover:border-teal-500 transition-all duration-200 cursor-pointer py-5 flex flex-col items-center justify-center gap-1.5 hover:bg-teal-50/50 dark:hover:bg-teal-950/10"
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+                        <FiUpload className="w-4 h-4 text-zinc-400" />
+                      </div>
+                      <p className="text-[10px] font-semibold text-zinc-500 dark:text-zinc-400">Upload audio file</p>
+                      <p className="text-[9px] text-zinc-400">mp3, mp4, m4a, wav, webm, flac · max 25MB</p>
+                    </div>
+                  ) : (
+                    <div className="p-2.5 rounded-lg bg-teal-50 dark:bg-teal-900/20 border border-teal-200 dark:border-teal-800/40 flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-lg bg-teal-100 dark:bg-teal-800/40 flex items-center justify-center flex-shrink-0">
+                        <FiMic className="w-3.5 h-3.5 text-teal-500" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[10px] font-bold text-zinc-700 dark:text-zinc-300 truncate">{sttAudioFile.name}</p>
+                        <p className="text-[9px] text-zinc-400">{(sttAudioFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                      </div>
+                    </div>
+                  )}
+                  <input
+                    ref={sttFileInputRef}
+                    type="file"
+                    accept="audio/*,.flac,.mp3,.mp4,.mpeg,.mpga,.m4a,.ogg,.wav,.webm"
+                    className="hidden"
+                    onChange={e => {
+                      const f = e.target.files?.[0];
+                      if (!f) return;
+                      setSttAudioFile(f);
+                      setSttAudioPreview(URL.createObjectURL(f));
+                      e.target.value = '';
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1.5 flex items-center gap-1"><FiFileText className="w-3 h-3" /> Task</label>
+                  <div className="flex gap-1">
+                    {([
+                      { val: 'transcriptions', label: 'Transcribe', desc: 'Audio → original language' },
+                      { val: 'translations', label: 'Translate', desc: 'Audio → English' },
+                    ] as const).map(({ val, label, desc }) => (
+                      <button
+                        key={val}
+                        onClick={() => setSttTask(val)}
+                        className={`flex-1 py-2 px-2 rounded-lg text-[9px] font-semibold transition-all border text-left ${sttTask === val ? 'bg-teal-400 text-white border-teal-400' : 'text-zinc-500 dark:text-zinc-400 border-zinc-200 dark:border-zinc-800 hover:border-teal-300'}`}
+                      >
+                        <div className="font-bold">{label}</div>
+                        <div className={`text-[8px] mt-0.5 ${sttTask === val ? 'text-white/80' : 'text-zinc-400'}`}>{desc}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2.5">
+                  <div>
+                    <label className="block text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1 flex items-center gap-1"><FiGlobe className="w-3 h-3" /> Language <span className="text-zinc-400 font-normal">(optional)</span></label>
+                    <input
+                      type="text"
+                      value={sttLanguage}
+                      onChange={e => setSttLanguage(e.target.value)}
+                      placeholder="en, id, ja..."
+                      disabled={sttTask === 'translations'}
+                      className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[10px] sm:text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:border-teal-300 dark:focus:border-teal-500 outline-none transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1">Format</label>
+                    <select
+                      value={sttResponseFormat}
+                      onChange={e => setSttResponseFormat(e.target.value as any)}
+                      className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[10px] sm:text-xs text-zinc-900 dark:text-white focus:border-teal-300 dark:focus:border-teal-500 outline-none transition-all cursor-pointer"
+                    >
+                      <option value="json">json</option>
+                      <option value="verbose_json">verbose_json</option>
+                      <option value="text">text</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400">Temperature</label>
+                    <span className="text-[10px] font-bold text-teal-400 tabular-nums">{sttTemperature.toFixed(1)}</span>
+                  </div>
+                  <input type="range" min="0" max="1" step="0.1" value={sttTemperature} onChange={e => setSttTemperature(parseFloat(e.target.value))} className="w-full h-1 rounded-full appearance-none bg-zinc-200 dark:bg-zinc-800 accent-teal-400 cursor-pointer" />
+                  <div className="flex justify-between mt-0.5"><span className="text-[8px] text-zinc-400">Deterministic</span><span className="text-[8px] text-zinc-400">Random</span></div>
+                </div>
+              </div>
+            )}
+
             <div className="flex gap-2 pt-0.5">
               <button
                 onClick={handleRun}
@@ -1541,11 +1721,11 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                 {!response && !error && !isLoading && !imageBase64 && !audioUrl && (
                   <div className="flex flex-col items-center justify-center h-full text-center py-10 fade-in">
                     <div className="w-10 h-10 rounded-xl bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center mb-3">
-                      {selectedModel.type === 'image' ? <FiImage className="w-5 h-5 text-zinc-400" /> : selectedModel.type === 'tts' ? <FiVolume2 className="w-5 h-5 text-zinc-400" /> : <FiTerminal className="w-5 h-5 text-zinc-400" />}
+                      {selectedModel.type === 'image' ? <FiImage className="w-5 h-5 text-zinc-400" /> : selectedModel.type === 'tts' ? <FiVolume2 className="w-5 h-5 text-zinc-400" /> : selectedModel.type === 'stt' ? <FiMic className="w-5 h-5 text-zinc-400" /> : <FiTerminal className="w-5 h-5 text-zinc-400" />}
                     </div>
                     <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Configure and run your request</p>
                     <p className="text-[10px] text-zinc-400 dark:text-zinc-500 mt-1">
-                      {selectedModel.type === 'image' ? 'Generated image will appear here' : selectedModel.type === 'tts' ? 'Audio player will appear here' : isVisionModel ? 'Response will appear here · Vision enabled' : 'Response will appear here'}
+                      {selectedModel.type === 'image' ? 'Generated image will appear here' : selectedModel.type === 'tts' ? 'Audio player will appear here' : selectedModel.type === 'stt' ? 'Transcription will appear here' : isVisionModel ? 'Response will appear here · Vision enabled' : 'Response will appear here'}
                     </p>
                   </div>
                 )}
@@ -1557,7 +1737,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                       <div className="absolute inset-0 rounded-full border-2 border-t-blue-400 border-transparent animate-spin" />
                     </div>
                     <p className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">
-                      {selectedModel.type === 'image' ? 'Generating image...' : selectedModel.type === 'tts' ? 'Vocalizing...' : 'Processing request...'}
+                      {selectedModel.type === 'image' ? 'Generating image...' : selectedModel.type === 'tts' ? 'Vocalizing...' : selectedModel.type === 'stt' ? 'Transcribing...' : 'Processing request...'}
                     </p>
                     <p className="text-[10px] text-zinc-400 mt-1 shimmer">{selectedModel.name}</p>
                   </div>
@@ -1614,6 +1794,70 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                       <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mt-2 italic">"{message}"</p>
                     </div>
                     {latency && <div className="flex items-center gap-1 text-[9px] text-zinc-400"><FiClock className="w-2.5 h-2.5" /> Generated in {latency < 1000 ? `${latency}ms` : `${(latency / 1000).toFixed(1)}s`}</div>}
+                  </div>
+                )}
+
+                {sttResult && (
+                  <div className="space-y-3 fade-in">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <div className={`w-4 h-4 rounded bg-gradient-to-br ${selectedModel.color} flex items-center justify-center`}><ModelIcon className="w-2 h-2 text-white" /></div>
+                        <span className="text-[10px] font-semibold text-zinc-600 dark:text-zinc-400">{selectedModel.name}</span>
+                        <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 font-bold border border-teal-200 dark:border-teal-800/50">
+                          {sttTask === 'translations' ? 'Translation' : 'Transcription'}
+                        </span>
+                      </div>
+                      <button onClick={() => handleCopy(sttResult.text ?? '', 'stt-result')} className="flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-semibold text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors">
+                        {copied === 'stt-result' ? <FiCheck className="w-3 h-3 text-emerald-500" /> : <FiCopy className="w-3 h-3" />}
+                        {copied === 'stt-result' ? 'Copied' : 'Copy'}
+                      </button>
+                    </div>
+
+                    {sttAudioPreview && (
+                      <audio controls src={sttAudioPreview} className="w-full h-8 rounded-lg accent-teal-400" />
+                    )}
+
+                    <div className="rounded-xl bg-teal-50 dark:bg-teal-900/10 border border-teal-200 dark:border-teal-800/40 p-3">
+                      <p className="text-[11px] sm:text-xs text-zinc-700 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap">{sttResult.text}</p>
+                    </div>
+
+                    {sttResult.language && (
+                      <div className="flex flex-wrap gap-2">
+                        <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
+                          <span className="text-[9px] text-zinc-500 dark:text-zinc-400">Language:</span>
+                          <span className="text-[9px] font-bold text-zinc-700 dark:text-zinc-300">{sttResult.language}</span>
+                        </div>
+                        {sttResult.duration && (
+                          <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
+                            <span className="text-[9px] text-zinc-500 dark:text-zinc-400">Duration:</span>
+                            <span className="text-[9px] font-bold text-zinc-700 dark:text-zinc-300">{sttResult.duration.toFixed(1)}s</span>
+                          </div>
+                        )}
+                        {latency && (
+                          <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
+                            <FiClock className="w-2.5 h-2.5 text-zinc-400" />
+                            <span className="text-[9px] font-bold text-zinc-700 dark:text-zinc-300">{latency < 1000 ? `${latency}ms` : `${(latency/1000).toFixed(1)}s`}</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {sttResult.segments && sttResult.segments.length > 0 && (
+                      <details className="group">
+                        <summary className="cursor-pointer text-[10px] font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors flex items-center gap-1 py-1">
+                          <FiChevronDown className="w-3 h-3 group-open:rotate-180 transition-transform duration-200" />
+                          Segments ({sttResult.segments.length})
+                        </summary>
+                        <div className="mt-2 space-y-1.5 max-h-52 overflow-y-auto">
+                          {sttResult.segments.map((seg: any, i: number) => (
+                            <div key={i} className="flex gap-2 p-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800">
+                              <span className="text-[9px] font-mono text-teal-500 flex-shrink-0 tabular-nums mt-0.5">{seg.start.toFixed(1)}s</span>
+                              <p className="text-[10px] text-zinc-700 dark:text-zinc-300 leading-relaxed flex-1">{seg.text}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </details>
+                    )}
                   </div>
                 )}
 
