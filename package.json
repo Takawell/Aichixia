@@ -1,6 +1,6 @@
 {
   "name": "aichixia-api",
-  "version": "1.0.0",
+  "version": "5.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -26,6 +26,7 @@
     "@tavily/core": "^0.5.12",
     "postcss": "^8.4.31",
     "autoprefixer": "^10.4.17",
+    "formidable": "^3.5.4"
     "framer-motion": "^11.0.0",
     "@upstash/redis": "^1.34.3",
     "@upstash/ratelimit": "^2.0.3",
@@ -35,6 +36,7 @@
   "devDependencies": {
     "@types/node": "20.11.30",
     "@types/react": "18.3.3",
+    "@types/formidable": "^3.5.0"
     "@types/react-syntax-highlighter": "^15.5.13",
     "autoprefixer": "^10.4.19",
     "eslint": "8.57.0",
