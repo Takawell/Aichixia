@@ -1127,7 +1127,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
         const isText = sttResponseFormat === 'text';
         const data = isText ? { text: await res.text() } : await res.json();
         setLatency(Date.now() - t0);
-        if (!res.ok) { setError(data?.error?.message || `Error ${res.status}`); return; }
+        if (!res.ok) { setError(data?.error?.message || `Error ${res.status}`); setIsLoading(false); return; }
         setSttResult(data); setActiveTab('response'); return;
       }
       if (selectedModel.type === 'tts') {
@@ -1596,7 +1596,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                     ] as const).map(({ val, label, desc }) => (
                       <button
                         key={val}
-                        onClick={() => setSttTask(val)}
+                        onClick={() => { setSttTask(val); if (val === 'translations' && sttResponseFormat === 'verbose_json') setSttResponseFormat('json'); }}
                         className={`flex-1 py-2 px-2 rounded-lg text-[9px] font-semibold transition-all border text-left ${sttTask === val ? 'bg-teal-400 text-white border-teal-400' : 'text-zinc-500 dark:text-zinc-400 border-zinc-200 dark:border-zinc-800 hover:border-teal-300'}`}
                       >
                         <div className="font-bold">{label}</div>
@@ -1626,7 +1626,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                       className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[10px] sm:text-xs text-zinc-900 dark:text-white focus:border-teal-300 dark:focus:border-teal-500 outline-none transition-all cursor-pointer"
                     >
                       <option value="json">json</option>
-                      <option value="verbose_json">verbose_json</option>
+                      <option value="verbose_json" disabled={sttTask === 'translations'}>verbose_json{sttTask === 'translations' ? ' (transcribe only)' : ''}</option>
                       <option value="text">text</option>
                     </select>
                   </div>
@@ -1717,7 +1717,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
 
             {activeTab === 'response' && (
               <div className="flex-1 p-3 sm:p-4 overflow-y-auto min-h-[280px] sm:min-h-[360px] space-y-3">
-                {!response && !error && !isLoading && !imageBase64 && !audioUrl && !sttResult && (
+                {!response && !error && !isLoading && !imageBase64 && !audioUrl && (
                   <div className="flex flex-col items-center justify-center h-full text-center py-10 fade-in">
                     <div className="w-10 h-10 rounded-xl bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center mb-3">
                       {selectedModel.type === 'image' ? <FiImage className="w-5 h-5 text-zinc-400" /> : selectedModel.type === 'tts' ? <FiVolume2 className="w-5 h-5 text-zinc-400" /> : selectedModel.type === 'stt' ? <FiMic className="w-5 h-5 text-zinc-400" /> : <FiTerminal className="w-5 h-5 text-zinc-400" />}
