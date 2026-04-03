@@ -1,4 +1,5 @@
-import { FiActivity, FiCheck, FiAlertCircle, FiClock, FiZap, FiTrendingUp, FiRefreshCw, FiFilter, FiX, FiHash, FiMic, FiVolume2, FiImage, FiMessageSquare } from 'react-icons/fi';
+import { FiActivity, FiCheck, FiAlertCircle, FiClock, FiZap, FiTrendingUp, FiRefreshCw, FiFilter, FiX, FiMic, FiVolume2, FiImage, FiMessageSquare } from 'react-icons/fi';
+import { DiAtom } from "react-icons/di";
 import { useState } from 'react';
 
 type RequestLog = {
@@ -43,7 +44,7 @@ const STATUS_CONFIG = {
 };
 
 const TYPE_FILTERS: { id: TypeFilter; label: string; icon: any; color: string }[] = [
-  { id: 'all', label: 'All', icon: FiHash, color: 'from-sky-400 to-blue-500' },
+  { id: 'all', label: 'All', icon: DiAtom, color: 'from-sky-400 to-blue-500' },
   { id: 'text', label: 'Text', icon: FiMessageSquare, color: 'from-zinc-500 to-zinc-600' },
   { id: 'image', label: 'Image', icon: FiImage, color: 'from-purple-500 to-pink-500' },
   { id: 'tts', label: 'TTS', icon: FiVolume2, color: 'from-violet-500 to-purple-500' },
@@ -99,7 +100,6 @@ export default function Activity({ logs, loading, onRefresh }: ActivityProps) {
       (filterStatus === 'error' && log.status >= 400);
 
     const typeMatch = filterType === 'all' || getEndpointType(log.endpoint) === filterType;
-
     return statusMatch && typeMatch;
   });
 
