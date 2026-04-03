@@ -302,7 +302,7 @@ print(data["text"])`;
   -F file=@audio.mp3 \\
   -F model="${model.id}" \\
   -F response_format=verbose_json`;
-    return \`# \${lang} — use multipart/form-data with file field\`;
+    return `# ${lang} — use multipart/form-data with file field`;
   }
 
   if (model.type === 'tts') {
