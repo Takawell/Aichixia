@@ -1,4 +1,4 @@
-import { FiActivity, FiCheck, FiAlertCircle, FiClock, FiZap, FiTrendingUp, FiRefreshCw, FiFilter, FiX, FiHash, FiMic, FiVolume2, FiImage, FiMessageSquare } from 'react-icons/fi';
+import { FiActivity, FiCheck, FiAlertCircle, FiClock, FiZap, FiTrendingUp, FiRefreshCw, FiFilter, FiX, FiMic, FiVolume2, FiImage, FiMessageSquare, FiHash } from 'react-icons/fi';
 import { useState } from 'react';
 
 type RequestLog = {
@@ -42,13 +42,20 @@ const STATUS_CONFIG = {
   },
 };
 
-const TYPE_FILTERS: { id: TypeFilter; label: string; icon: any; color: string }[] = [
-  { id: 'all', label: 'All', icon: FiHash, color: 'from-sky-400 to-blue-500' },
-  { id: 'text', label: 'Text', icon: FiMessageSquare, color: 'from-zinc-500 to-zinc-600' },
-  { id: 'image', label: 'Image', icon: FiImage, color: 'from-purple-500 to-pink-500' },
-  { id: 'tts', label: 'TTS', icon: FiVolume2, color: 'from-violet-500 to-purple-500' },
-  { id: 'stt', label: 'STT', icon: FiMic, color: 'from-teal-500 to-emerald-500' },
+const TYPE_FILTERS: { id: TypeFilter; label: string; icon: any; activeClass: string }[] = [
+  { id: 'all',   label: 'All',   icon: FiHash,          activeClass: 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 shadow-lg' },
+  { id: 'text',  label: 'Text',  icon: FiMessageSquare, activeClass: 'bg-blue-500 text-white shadow-lg shadow-blue-500/30' },
+  { id: 'image', label: 'Image', icon: FiImage,         activeClass: 'bg-purple-500 text-white shadow-lg shadow-purple-500/30' },
+  { id: 'tts',   label: 'TTS',   icon: FiVolume2,       activeClass: 'bg-violet-500 text-white shadow-lg shadow-violet-500/30' },
+  { id: 'stt',   label: 'STT',   icon: FiMic,           activeClass: 'bg-teal-500 text-white shadow-lg shadow-teal-500/30' },
 ];
+
+const TYPE_BREAKDOWN_STYLE: Record<string, { dot: string; label: string }> = {
+  text:  { dot: 'bg-blue-400',   label: 'text-blue-500 dark:text-blue-400' },
+  image: { dot: 'bg-purple-400', label: 'text-purple-500 dark:text-purple-400' },
+  tts:   { dot: 'bg-violet-400', label: 'text-violet-500 dark:text-violet-400' },
+  stt:   { dot: 'bg-teal-400',   label: 'text-teal-500 dark:text-teal-400' },
+};
 
 function getEndpointType(endpoint: string): TypeFilter {
   if (endpoint.includes('/audio/speech')) return 'tts';
@@ -97,15 +104,14 @@ export default function Activity({ logs, loading, onRefresh }: ActivityProps) {
       filterStatus === 'all' ||
       (filterStatus === 'success' && log.status >= 200 && log.status < 300) ||
       (filterStatus === 'error' && log.status >= 400);
-
     const typeMatch = filterType === 'all' || getEndpointType(log.endpoint) === filterType;
-
     return statusMatch && typeMatch;
   });
 
   const successCount = logs.filter(l => l.status >= 200 && l.status < 300).length;
   const errorCount = logs.filter(l => l.status >= 400).length;
   const totalRequests = logs.length;
+  const totalTokens = logs.reduce((acc, l) => acc + l.tokens_used, 0);
   const avgLatency = logs.filter(l => l.latency_ms).length > 0
     ? Math.round(logs.filter(l => l.latency_ms).reduce((acc, l) => acc + (l.latency_ms || 0), 0) / logs.filter(l => l.latency_ms).length)
     : 0;
@@ -132,7 +138,7 @@ export default function Activity({ logs, loading, onRefresh }: ActivityProps) {
                     <button
                       key={s}
                       onClick={() => setFilterStatus(s)}
-                      className={`px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-semibold transition-all capitalize ${
+                      className={`px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-semibold transition-all ${
                         filterStatus === s
                           ? s === 'all'
                             ? 'bg-gradient-to-r from-sky-400 to-blue-500 text-white shadow-lg shadow-sky-400/30'
@@ -158,23 +164,26 @@ export default function Activity({ logs, loading, onRefresh }: ActivityProps) {
               </div>
             </div>
 
-            <div className="flex items-center gap-1 overflow-x-auto scrollbar-thin pb-0.5">
+            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-thin pb-0.5">
               {TYPE_FILTERS.map(tf => {
                 const Icon = tf.icon;
                 const count = tf.id === 'all' ? logs.length : logs.filter(l => getEndpointType(l.endpoint) === tf.id).length;
+                const isActive = filterType === tf.id;
                 return (
                   <button
                     key={tf.id}
                     onClick={() => setFilterType(tf.id)}
-                    className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] sm:text-xs font-semibold whitespace-nowrap transition-all flex-shrink-0 border ${
-                      filterType === tf.id
-                        ? `bg-gradient-to-r ${tf.color} text-white border-transparent shadow-sm`
-                        : 'text-zinc-500 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] sm:text-xs font-semibold whitespace-nowrap transition-all duration-200 flex-shrink-0 ${
+                      isActive
+                        ? tf.activeClass
+                        : 'text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-900 hover:bg-zinc-200 dark:hover:bg-zinc-800 hover:text-zinc-700 dark:hover:text-zinc-200'
                     }`}
                   >
-                    <Icon className="w-3 h-3" />
-                    {tf.label}
-                    <span className={`px-1 rounded-full text-[9px] font-bold ${filterType === tf.id ? 'bg-white/20' : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300'}`}>
+                    <Icon className="w-3 h-3 flex-shrink-0" />
+                    <span>{tf.label}</span>
+                    <span className={`inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[9px] font-bold tabular-nums transition-all duration-200 ${
+                      isActive ? 'bg-white/25 text-inherit' : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300'
+                    }`}>
                       {count}
                     </span>
                   </button>
@@ -215,7 +224,7 @@ export default function Activity({ logs, loading, onRefresh }: ActivityProps) {
                     <div className="flex items-start sm:items-center justify-between gap-2">
                       <div className="flex items-start sm:items-center gap-2 sm:gap-3 flex-1 min-w-0">
                         <div className={`w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full ${config.dot} flex-shrink-0 mt-1 sm:mt-0 animate-pulse`} />
-                        
+
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-1.5 sm:gap-2 mb-1 flex-wrap">
                             <span className="font-mono text-xs sm:text-sm font-semibold text-zinc-900 dark:text-white truncate">
@@ -229,7 +238,7 @@ export default function Activity({ logs, loading, onRefresh }: ActivityProps) {
                               {getEndpointType(log.endpoint).toUpperCase()}
                             </span>
                           </div>
-                          
+
                           <p className="text-[10px] sm:text-xs text-zinc-600 dark:text-zinc-400 mb-1 sm:mb-1.5 truncate">
                             {log.endpoint}
                           </p>
@@ -237,21 +246,21 @@ export default function Activity({ logs, loading, onRefresh }: ActivityProps) {
                           <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-[9px] sm:text-[10px] text-zinc-500 dark:text-zinc-400">
                             <div className="flex items-center gap-1">
                               <FiClock className="text-[10px] sm:text-xs flex-shrink-0" />
-                              <span>{new Date(log.created_at).toLocaleString('en-US', { 
-                                month: 'short', 
+                              <span>{new Date(log.created_at).toLocaleString('en-US', {
+                                month: 'short',
                                 day: 'numeric',
-                                hour: '2-digit', 
-                                minute: '2-digit' 
+                                hour: '2-digit',
+                                minute: '2-digit'
                               })}</span>
                             </div>
-                            
+
                             {log.latency_ms && (
                               <div className="flex items-center gap-1">
                                 <FiZap className="text-[10px] sm:text-xs flex-shrink-0" />
                                 <span>{log.latency_ms}ms</span>
                               </div>
                             )}
-                            
+
                             {usageLabel && (
                               <div className="flex items-center gap-1">
                                 <FiTrendingUp className="text-[10px] sm:text-xs flex-shrink-0" />
@@ -266,7 +275,7 @@ export default function Activity({ logs, loading, onRefresh }: ActivityProps) {
                         <div className={`p-1 sm:p-1.5 ${config.bg} rounded-md sm:rounded-lg border ${config.border}`}>
                           <Icon className={`${config.text} text-xs sm:text-sm`} />
                         </div>
-                        
+
                         {(log.error_message || log.ip_address) && (
                           <button
                             onClick={() => setExpandedLog(isExpanded ? null : log.id)}
@@ -323,61 +332,72 @@ export default function Activity({ logs, loading, onRefresh }: ActivityProps) {
         )}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
         <div className="bg-white/80 dark:bg-zinc-950 backdrop-blur-lg rounded-xl border border-zinc-200 dark:border-zinc-800 p-3 sm:p-4">
-          <div className="flex items-center gap-2 sm:gap-3 mb-2">
-            <div className="p-1.5 sm:p-2 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg">
-              <FiCheck className="text-sm sm:text-base text-emerald-600 dark:text-emerald-400" />
+          <div className="flex items-center gap-2 mb-2.5">
+            <div className="p-1.5 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg">
+              <FiCheck className="text-sm text-emerald-600 dark:text-emerald-400" />
             </div>
-            <div className="flex-1">
-              <p className="text-[10px] sm:text-xs font-medium text-zinc-500 dark:text-zinc-400">Success Rate</p>
-              <p className="text-lg sm:text-2xl font-bold text-zinc-900 dark:text-white">
-                {logs.length > 0 ? Math.round((successCount / logs.length) * 100) : 0}%
-              </p>
-            </div>
+            <p className="text-[10px] sm:text-xs font-medium text-zinc-500 dark:text-zinc-400">Success Rate</p>
           </div>
-          <div className="w-full h-1.5 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
+          <p className="text-xl sm:text-2xl font-black text-zinc-900 dark:text-white tabular-nums mb-2">
+            {logs.length > 0 ? Math.round((successCount / logs.length) * 100) : 0}%
+          </p>
+          <div className="w-full h-1 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-emerald-500 to-green-500 rounded-full transition-all duration-500"
+              className="h-full bg-gradient-to-r from-emerald-500 to-green-400 rounded-full transition-all duration-700"
               style={{ width: `${logs.length > 0 ? (successCount / logs.length) * 100 : 0}%` }}
             />
           </div>
         </div>
 
         <div className="bg-white/80 dark:bg-zinc-950 backdrop-blur-lg rounded-xl border border-zinc-200 dark:border-zinc-800 p-3 sm:p-4">
-          <div className="flex items-center gap-2 sm:gap-3 mb-2">
-            <div className="p-1.5 sm:p-2 bg-sky-50 dark:bg-sky-900/20 rounded-lg">
-              <FiZap className="text-sm sm:text-base text-sky-600 dark:text-sky-400" />
+          <div className="flex items-center gap-2 mb-2.5">
+            <div className="p-1.5 bg-sky-50 dark:bg-sky-900/20 rounded-lg">
+              <FiZap className="text-sm text-sky-600 dark:text-sky-400" />
             </div>
-            <div className="flex-1">
-              <p className="text-[10px] sm:text-xs font-medium text-zinc-500 dark:text-zinc-400">Avg Latency</p>
-              <p className="text-lg sm:text-2xl font-bold text-zinc-900 dark:text-white">
-                {avgLatency}ms
-              </p>
-            </div>
+            <p className="text-[10px] sm:text-xs font-medium text-zinc-500 dark:text-zinc-400">Avg Latency</p>
           </div>
+          <p className="text-xl sm:text-2xl font-black text-zinc-900 dark:text-white tabular-nums">
+            {avgLatency}<span className="text-sm font-semibold text-zinc-400 dark:text-zinc-500 ml-0.5">ms</span>
+          </p>
         </div>
 
         <div className="bg-white/80 dark:bg-zinc-950 backdrop-blur-lg rounded-xl border border-zinc-200 dark:border-zinc-800 p-3 sm:p-4">
-          <div className="flex items-center gap-2 sm:gap-3 mb-2">
-            <div className="p-1.5 sm:p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-              <FiTrendingUp className="text-sm sm:text-base text-purple-600 dark:text-purple-400" />
+          <div className="flex items-center gap-2 mb-2.5">
+            <div className="p-1.5 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+              <FiTrendingUp className="text-sm text-purple-600 dark:text-purple-400" />
             </div>
-            <div className="flex-1">
-              <p className="text-[10px] sm:text-xs font-medium text-zinc-500 dark:text-zinc-400">Total Requests</p>
-              <p className="text-lg sm:text-2xl font-bold text-zinc-900 dark:text-white">
-                {totalRequests.toLocaleString()}
-              </p>
-            </div>
+            <p className="text-[10px] sm:text-xs font-medium text-zinc-500 dark:text-zinc-400">Total Tokens</p>
           </div>
-          <div className="flex items-center gap-2 flex-wrap">
+          <p className="text-xl sm:text-2xl font-black text-zinc-900 dark:text-white tabular-nums">
+            {totalTokens.toLocaleString()}
+          </p>
+        </div>
+
+        <div className="bg-white/80 dark:bg-zinc-950 backdrop-blur-lg rounded-xl border border-zinc-200 dark:border-zinc-800 p-3 sm:p-4">
+          <div className="flex items-center gap-2 mb-2.5">
+            <div className="p-1.5 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <FiActivity className="text-sm text-blue-600 dark:text-blue-400" />
+            </div>
+            <p className="text-[10px] sm:text-xs font-medium text-zinc-500 dark:text-zinc-400">Total Requests</p>
+          </div>
+          <p className="text-xl sm:text-2xl font-black text-zinc-900 dark:text-white tabular-nums mb-2.5">
+            {totalRequests.toLocaleString()}
+          </p>
+          <div className="flex flex-col gap-1">
             {(['text', 'image', 'tts', 'stt'] as TypeFilter[]).map(t => {
               const count = logs.filter(l => getEndpointType(l.endpoint) === t).length;
               if (count === 0) return null;
+              const style = TYPE_BREAKDOWN_STYLE[t];
               return (
-                <span key={t} className="text-[9px] font-semibold text-zinc-500 dark:text-zinc-400">
-                  {t.toUpperCase()} <span className="text-zinc-700 dark:text-zinc-200 font-bold">{count}</span>
-                </span>
+                <div key={t} className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <div className={`w-1.5 h-1.5 rounded-full ${style.dot} flex-shrink-0`} />
+                    <span className={`text-[9px] sm:text-[10px] font-bold uppercase tracking-wide ${style.label}`}>{t}</span>
+                  </div>
+                  <span className="text-[9px] sm:text-[10px] font-bold text-zinc-700 dark:text-zinc-200 tabular-nums">{count}</span>
+                </div>
               );
             })}
           </div>
