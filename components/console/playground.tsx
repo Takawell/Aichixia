@@ -62,8 +62,8 @@ const TTS_MODELS: AnyModel[] = [
 ];
 
 const STT_MODELS: AnyModel[] = [
-  { id: 'whisper-large-v3', name: 'Whisper Large V3', provider: 'Groq', icon: FiMic, color: 'from-teal-500 to-emerald-600', pricing: 'Standard', context: '—', type: 'stt', endpoint: `${base}/api/v1/audio/transcriptions` },
-  { id: 'whisper-large-v3-turbo', name: 'Whisper V3 Turbo', provider: 'Groq', icon: FiMic, color: 'from-emerald-500 to-teal-400', pricing: 'Budget', context: '—', type: 'stt', endpoint: `${base}/api/v1/audio/transcriptions` },
+  { id: 'whisper-large-v3', name: 'Whisper Large V3', provider: 'OpenAI', icon: SiOpenai, color: 'from-teal-500 to-emerald-600', pricing: 'Standard', context: '—', type: 'stt', endpoint: `${base}/api/v1/audio/transcriptions` },
+  { id: 'whisper-large-v3-turbo', name: 'Whisper V3 Turbo', provider: 'OpenAI', icon: SiOpenai, color: 'from-emerald-500 to-teal-400', pricing: 'Budget', context: '—', type: 'stt', endpoint: `${base}/api/v1/audio/transcriptions` },
 ];
 
 const PRICING_STYLE: Record<string, string> = {
@@ -82,7 +82,6 @@ const TYPE_STYLE: Record<ModelType, string> = {
 };
 
 type Lang = 'typescript' | 'python' | 'curl' | 'ruby' | 'go' | 'php' | 'java' | 'csharp' | 'kotlin' | 'swift' | 'rust' | 'elixir';
-
 const LANGS: { id: Lang; label: string }[] = [
   { id: 'typescript', label: 'TypeScript' },
   { id: 'python', label: 'Python' },
