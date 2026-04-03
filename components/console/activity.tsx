@@ -1,4 +1,4 @@
-import { FiActivity, FiCheck, FiAlertCircle, FiClock, FiZap, FiTrendingUp, FiRefreshCw, FiFilter, FiX } from 'react-icons/fi';
+import { FiActivity, FiCheck, FiAlertCircle, FiClock, FiZap, FiTrendingUp, FiRefreshCw, FiFilter, FiX, FiHash, FiMic, FiVolume2, FiImage, FiMessageSquare } from 'react-icons/fi';
 import { useState } from 'react';
 
 type RequestLog = {
@@ -22,6 +22,9 @@ type ActivityProps = {
   onRefresh: () => void;
 };
 
+type StatusFilter = 'all' | 'success' | 'error';
+type TypeFilter = 'all' | 'text' | 'image' | 'tts' | 'stt';
+
 const STATUS_CONFIG = {
   success: {
     bg: 'bg-emerald-50 dark:bg-emerald-900/20',
@@ -39,8 +42,50 @@ const STATUS_CONFIG = {
   },
 };
 
+const TYPE_FILTERS: { id: TypeFilter; label: string; icon: any; color: string }[] = [
+  { id: 'all', label: 'All', icon: FiHash, color: 'from-sky-400 to-blue-500' },
+  { id: 'text', label: 'Text', icon: FiMessageSquare, color: 'from-zinc-500 to-zinc-600' },
+  { id: 'image', label: 'Image', icon: FiImage, color: 'from-purple-500 to-pink-500' },
+  { id: 'tts', label: 'TTS', icon: FiVolume2, color: 'from-violet-500 to-purple-500' },
+  { id: 'stt', label: 'STT', icon: FiMic, color: 'from-teal-500 to-emerald-500' },
+];
+
+function getEndpointType(endpoint: string): TypeFilter {
+  if (endpoint.includes('/audio/speech')) return 'tts';
+  if (endpoint.includes('/audio/transcriptions') || endpoint.includes('/audio/translations')) return 'stt';
+  if (endpoint.includes('/images/')) return 'image';
+  if (endpoint.includes('/chat/') || endpoint.includes('/completions')) return 'text';
+  return 'text';
+}
+
+function getUsageLabel(log: RequestLog): string | null {
+  const type = getEndpointType(log.endpoint);
+  if (log.tokens_used > 0) return `${log.tokens_used.toLocaleString()} tokens`;
+  if (type === 'image') return '1 image';
+  if (type === 'tts') return '1 audio';
+  if (type === 'stt') return '1 transcription';
+  return null;
+}
+
+function getTypeIcon(endpoint: string) {
+  const type = getEndpointType(endpoint);
+  if (type === 'tts') return FiVolume2;
+  if (type === 'stt') return FiMic;
+  if (type === 'image') return FiImage;
+  return FiMessageSquare;
+}
+
+function getTypeBadgeStyle(endpoint: string): string {
+  const type = getEndpointType(endpoint);
+  if (type === 'tts') return 'text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/20 border-violet-200 dark:border-violet-800';
+  if (type === 'stt') return 'text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/20 border-teal-200 dark:border-teal-800';
+  if (type === 'image') return 'text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800';
+  return 'text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700';
+}
+
 export default function Activity({ logs, loading, onRefresh }: ActivityProps) {
-  const [filterStatus, setFilterStatus] = useState<'all' | 'success' | 'error'>('all');
+  const [filterStatus, setFilterStatus] = useState<StatusFilter>('all');
+  const [filterType, setFilterType] = useState<TypeFilter>('all');
   const [expandedLog, setExpandedLog] = useState<string | null>(null);
 
   const getStatusConfig = (status: number) => {
@@ -48,72 +93,93 @@ export default function Activity({ logs, loading, onRefresh }: ActivityProps) {
   };
 
   const filteredLogs = logs.filter(log => {
-    if (filterStatus === 'all') return true;
-    if (filterStatus === 'success') return log.status >= 200 && log.status < 300;
-    if (filterStatus === 'error') return log.status >= 400;
-    return true;
+    const statusMatch =
+      filterStatus === 'all' ||
+      (filterStatus === 'success' && log.status >= 200 && log.status < 300) ||
+      (filterStatus === 'error' && log.status >= 400);
+
+    const typeMatch = filterType === 'all' || getEndpointType(log.endpoint) === filterType;
+
+    return statusMatch && typeMatch;
   });
 
   const successCount = logs.filter(l => l.status >= 200 && l.status < 300).length;
   const errorCount = logs.filter(l => l.status >= 400).length;
+  const totalRequests = logs.length;
+  const avgLatency = logs.filter(l => l.latency_ms).length > 0
+    ? Math.round(logs.filter(l => l.latency_ms).reduce((acc, l) => acc + (l.latency_ms || 0), 0) / logs.filter(l => l.latency_ms).length)
+    : 0;
 
   return (
     <div className="space-y-3 sm:space-y-4">
       <div className="bg-white/80 dark:bg-zinc-950 backdrop-blur-lg rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
         <div className="p-3 sm:p-4 border-b border-zinc-200 dark:border-zinc-800">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <h3 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-                <FiActivity className="text-sky-500 dark:text-sky-400" />
-                Recent Requests
-              </h3>
-              <p className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                Last {logs.length} API requests • {successCount} success • {errorCount} errors
-              </p>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-900 rounded-lg p-0.5">
-                <button
-                  onClick={() => setFilterStatus('all')}
-                  className={`px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-semibold transition-all ${
-                    filterStatus === 'all'
-                      ? 'bg-gradient-to-r from-sky-400 to-blue-500 text-white shadow-lg shadow-sky-400/30'
-                      : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800'
-                  }`}
-                >
-                  All
-                </button>
-                <button
-                  onClick={() => setFilterStatus('success')}
-                  className={`px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-semibold transition-all ${
-                    filterStatus === 'success'
-                      ? 'bg-emerald-500 text-white shadow-lg'
-                      : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800'
-                  }`}
-                >
-                  Success
-                </button>
-                <button
-                  onClick={() => setFilterStatus('error')}
-                  className={`px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-semibold transition-all ${
-                    filterStatus === 'error'
-                      ? 'bg-red-500 text-white shadow-lg'
-                      : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800'
-                  }`}
-                >
-                  Errors
-                </button>
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h3 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+                  <FiActivity className="text-sky-500 dark:text-sky-400" />
+                  Recent Requests
+                </h3>
+                <p className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                  Last {logs.length} API requests • {successCount} success • {errorCount} errors
+                </p>
               </div>
 
-              <button
-                onClick={onRefresh}
-                disabled={loading}
-                className="p-1.5 sm:p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors disabled:opacity-50"
-                title="Refresh"
-              >
-                <FiRefreshCw className={`text-sm sm:text-base text-zinc-600 dark:text-zinc-400 ${loading ? 'animate-spin' : ''}`} />
-              </button>
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-900 rounded-lg p-0.5">
+                  {(['all', 'success', 'error'] as StatusFilter[]).map(s => (
+                    <button
+                      key={s}
+                      onClick={() => setFilterStatus(s)}
+                      className={`px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-semibold transition-all capitalize ${
+                        filterStatus === s
+                          ? s === 'all'
+                            ? 'bg-gradient-to-r from-sky-400 to-blue-500 text-white shadow-lg shadow-sky-400/30'
+                            : s === 'success'
+                            ? 'bg-emerald-500 text-white shadow-lg'
+                            : 'bg-red-500 text-white shadow-lg'
+                          : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800'
+                      }`}
+                    >
+                      {s === 'all' ? 'All' : s === 'success' ? 'Success' : 'Errors'}
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  onClick={onRefresh}
+                  disabled={loading}
+                  className="p-1.5 sm:p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors disabled:opacity-50"
+                  title="Refresh"
+                >
+                  <FiRefreshCw className={`text-sm sm:text-base text-zinc-600 dark:text-zinc-400 ${loading ? 'animate-spin' : ''}`} />
+                </button>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1 overflow-x-auto scrollbar-thin pb-0.5">
+              {TYPE_FILTERS.map(tf => {
+                const Icon = tf.icon;
+                const count = tf.id === 'all' ? logs.length : logs.filter(l => getEndpointType(l.endpoint) === tf.id).length;
+                return (
+                  <button
+                    key={tf.id}
+                    onClick={() => setFilterType(tf.id)}
+                    className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] sm:text-xs font-semibold whitespace-nowrap transition-all flex-shrink-0 border ${
+                      filterType === tf.id
+                        ? `bg-gradient-to-r ${tf.color} text-white border-transparent shadow-sm`
+                        : 'text-zinc-500 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                    }`}
+                  >
+                    <Icon className="w-3 h-3" />
+                    {tf.label}
+                    <span className={`px-1 rounded-full text-[9px] font-bold ${filterType === tf.id ? 'bg-white/20' : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300'}`}>
+                      {count}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -125,9 +191,9 @@ export default function Activity({ logs, loading, onRefresh }: ActivityProps) {
             </div>
             <h3 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white mb-1 sm:mb-2">No Activity Yet</h3>
             <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400">
-              {filterStatus === 'all' 
+              {filterStatus === 'all' && filterType === 'all'
                 ? 'Your API requests will appear here'
-                : `No ${filterStatus} requests found`
+                : `No ${filterType !== 'all' ? filterType.toUpperCase() + ' ' : ''}${filterStatus !== 'all' ? filterStatus : ''} requests found`
               }
             </p>
           </div>
@@ -136,7 +202,9 @@ export default function Activity({ logs, loading, onRefresh }: ActivityProps) {
             {filteredLogs.map((log) => {
               const config = getStatusConfig(log.status);
               const Icon = config.icon;
+              const TypeIcon = getTypeIcon(log.endpoint);
               const isExpanded = expandedLog === log.id;
+              const usageLabel = getUsageLabel(log);
 
               return (
                 <div
@@ -155,6 +223,10 @@ export default function Activity({ logs, loading, onRefresh }: ActivityProps) {
                             </span>
                             <span className={`px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] font-bold ${config.bg} ${config.border} ${config.text} border`}>
                               {log.status}
+                            </span>
+                            <span className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] font-bold border ${getTypeBadgeStyle(log.endpoint)}`}>
+                              <TypeIcon className="w-2.5 h-2.5" />
+                              {getEndpointType(log.endpoint).toUpperCase()}
                             </span>
                           </div>
                           
@@ -180,10 +252,10 @@ export default function Activity({ logs, loading, onRefresh }: ActivityProps) {
                               </div>
                             )}
                             
-                            {log.tokens_used > 0 && (
+                            {usageLabel && (
                               <div className="flex items-center gap-1">
                                 <FiTrendingUp className="text-[10px] sm:text-xs flex-shrink-0" />
-                                <span>{log.tokens_used.toLocaleString()} tokens</span>
+                                <span>{usageLabel}</span>
                               </div>
                             )}
                           </div>
@@ -280,9 +352,7 @@ export default function Activity({ logs, loading, onRefresh }: ActivityProps) {
             <div className="flex-1">
               <p className="text-[10px] sm:text-xs font-medium text-zinc-500 dark:text-zinc-400">Avg Latency</p>
               <p className="text-lg sm:text-2xl font-bold text-zinc-900 dark:text-white">
-                {logs.filter(l => l.latency_ms).length > 0
-                  ? Math.round(logs.filter(l => l.latency_ms).reduce((acc, l) => acc + (l.latency_ms || 0), 0) / logs.filter(l => l.latency_ms).length)
-                  : 0}ms
+                {avgLatency}ms
               </p>
             </div>
           </div>
@@ -294,11 +364,22 @@ export default function Activity({ logs, loading, onRefresh }: ActivityProps) {
               <FiTrendingUp className="text-sm sm:text-base text-purple-600 dark:text-purple-400" />
             </div>
             <div className="flex-1">
-              <p className="text-[10px] sm:text-xs font-medium text-zinc-500 dark:text-zinc-400">Total Tokens</p>
+              <p className="text-[10px] sm:text-xs font-medium text-zinc-500 dark:text-zinc-400">Total Requests</p>
               <p className="text-lg sm:text-2xl font-bold text-zinc-900 dark:text-white">
-                {logs.reduce((acc, l) => acc + l.tokens_used, 0).toLocaleString()}
+                {totalRequests.toLocaleString()}
               </p>
             </div>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            {(['text', 'image', 'tts', 'stt'] as TypeFilter[]).map(t => {
+              const count = logs.filter(l => getEndpointType(l.endpoint) === t).length;
+              if (count === 0) return null;
+              return (
+                <span key={t} className="text-[9px] font-semibold text-zinc-500 dark:text-zinc-400">
+                  {t.toUpperCase()} <span className="text-zinc-700 dark:text-zinc-200 font-bold">{count}</span>
+                </span>
+              );
+            })}
           </div>
         </div>
       </div>
