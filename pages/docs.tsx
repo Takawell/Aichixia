@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Head from "next/head";
 import Link from "next/link";
-import { FaCopy, FaCheck, FaChevronRight, FaTerminal, FaBolt, FaBook, FaMoon, FaSun, FaBars, FaTimes, FaKey, FaMicrophone, FaImage, FaCode, FaCheckCircle, FaRocket, FaLayerGroup, FaDatabase, FaPlay, FaInfoCircle } from "react-icons/fa";
+import { FaCopy, FaCheck, FaChevronRight, FaTerminal, FaBolt, FaBook, FaMoon, FaSun, FaBars, FaTimes, FaKey, FaMicrophone, FaImage, FaCode, FaCheckCircle, FaRocket, FaLayerGroup, FaDatabase, FaPlay, FaInfoCircle, FaFileAudio, FaGlobe, FaCloudUploadAlt } from "react-icons/fa";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 
@@ -10,7 +10,7 @@ const base = "https://www.aichixia.xyz";
 export default function Docs() {
   const [isDark, setIsDark] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'chat' | 'image' | 'tts' | 'quickstart' | 'anthropic'>('quickstart');
+  const [activeTab, setActiveTab] = useState<'chat' | 'image' | 'tts' | 'quickstart' | 'anthropic' | 'stt'>('quickstart');
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [expandedSection, setExpandedSection] = useState<string | null>('chat-completions');
 
@@ -305,6 +305,64 @@ console.log(message.content[0].text);`,
       {"role": "user", "content": "Explain quantum computing"}
     ]
   }'`,
+
+    sttTS: `const formData = new FormData();
+formData.append("file", audioFile); // File object from input
+formData.append("model", "whisper-large-v3-turbo");
+formData.append("response_format", "verbose_json");
+// formData.append("language", "en"); // optional ISO-639-1
+
+const response = await fetch("${base}/api/v1/audio/transcriptions", {
+  method: "POST",
+  headers: { "Authorization": "Bearer YOUR_API_KEY" },
+  body: formData,
+});
+
+const data = await response.json();
+console.log(data.text);`,
+
+    sttPython: `import requests
+
+with open("audio.mp3", "rb") as f:
+    response = requests.post(
+        "${base}/api/v1/audio/transcriptions",
+        headers={"Authorization": "Bearer YOUR_API_KEY"},
+        files={"file": ("audio.mp3", f, "audio/mpeg")},
+        data={
+            "model": "whisper-large-v3-turbo",
+            "response_format": "verbose_json",
+            # "language": "en",  # optional
+        },
+    )
+
+data = response.json()
+print(data["text"])`,
+
+    sttCurl: `curl -X POST ${base}/api/v1/audio/transcriptions \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -F file=@audio.mp3 \\
+  -F model=whisper-large-v3-turbo \\
+  -F response_format=verbose_json`,
+
+    sttTranslateTS: `const formData = new FormData();
+formData.append("file", audioFile);
+formData.append("model", "whisper-large-v3");
+formData.append("response_format", "json");
+
+const response = await fetch("${base}/api/v1/audio/translations", {
+  method: "POST",
+  headers: { "Authorization": "Bearer YOUR_API_KEY" },
+  body: formData,
+});
+
+const data = await response.json();
+console.log(data.text);`,
+
+    sttTranslateCurl: `curl -X POST ${base}/api/v1/audio/translations \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -F file=@audio_japanese.mp3 \\
+  -F model=whisper-large-v3 \\
+  -F response_format=json`,
   };
 
   const CopyButton = ({ code, id }: { code: string; id: string }) => (
@@ -433,9 +491,9 @@ console.log(message.content[0].text);`,
                 Complete guide to integrating Aichixia's AI models. Chat, images, voice, and more — all through one unified API.
               </p>
               <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap pt-1">
-                {['OpenAI Compatible', 'Anthropic Compatible', 'Image Generation', 'Text-to-Speech'].map((tag, i) => (
+                {['OpenAI Compatible', 'Anthropic Compatible', 'Image Generation', 'Text-to-Speech', 'Speech-to-Text'].map((tag, i) => (
                   <div key={i} className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm">
-                    <div className={`w-1.5 h-1.5 rounded-full ${i === 0 ? 'bg-emerald-500 animate-pulse' : i === 1 ? 'bg-orange-500' : i === 2 ? 'bg-pink-500' : 'bg-violet-500'}`} />
+                    <div className={`w-1.5 h-1.5 rounded-full ${i === 0 ? 'bg-emerald-500 animate-pulse' : i === 1 ? 'bg-orange-500' : i === 2 ? 'bg-pink-500' : i === 3 ? 'bg-violet-500' : 'bg-teal-500'}`} />
                     <span className="text-[10px] sm:text-xs font-medium text-zinc-500 dark:text-zinc-400">{tag}</span>
                   </div>
                 ))}
@@ -454,6 +512,7 @@ console.log(message.content[0].text);`,
                   { id: 'anthropic', label: 'Anthropic SDK', icon: FaLayerGroup },
                   { id: 'image', label: 'Image Generation', icon: FaImage },
                   { id: 'tts', label: 'Text-to-Speech', icon: FaMicrophone },
+                  { id: 'stt', label: 'Speech-to-Text', icon: FaFileAudio },
                 ] as const).map(({ id, label, icon: Icon }) => (
                   <button
                     key={id}
@@ -532,6 +591,8 @@ console.log(message.content[0].text);`,
                         { label: 'Messages (Anthropic)', url: `${base}/api/v1/messages` },
                         { label: 'Image Generation', url: `${base}/api/v1/images/generations` },
                         { label: 'Text-to-Speech', url: `${base}/api/v1/audio/speech` },
+                        { label: 'Transcriptions (STT)', url: `${base}/api/v1/audio/transcriptions` },
+                        { label: 'Translations (STT)', url: `${base}/api/v1/audio/translations` },
                       ].map(({ label, url }) => (
                         <div key={label} className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
                           <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 min-w-[180px]">{label}</span>
@@ -981,6 +1042,169 @@ console.log(message.content[0].text);`,
                   <CodeBlock code={codeExamples.ttsJS} lang="JavaScript" id="tts-js" />
                   <CodeBlock code={codeExamples.ttsPython} lang="Python" id="tts-python" />
                   <CodeBlock code={codeExamples.ttsCurl} lang="cURL" id="tts-curl" />
+                </div>
+              )}
+
+              {activeTab === 'stt' && (
+                <div className="space-y-6 animate-fade-in-up">
+                  <div>
+                    <h2 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white mb-3">Speech-to-Text API</h2>
+                    <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400">
+                      Transcribe audio files into text or translate spoken audio to English using Whisper Large V3 and Whisper V3 Turbo — powered by Groq for ultra-fast inference.
+                    </p>
+                  </div>
+
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    <div className="p-4 sm:p-5 rounded-xl border-l-4 border-teal-500 bg-teal-50/50 dark:bg-teal-950/10 border border-teal-200 dark:border-teal-900/50">
+                      <div className="flex items-start gap-3">
+                        <FaCloudUploadAlt className="w-4 h-4 text-teal-600 dark:text-teal-400 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <h4 className="text-sm font-bold text-teal-900 dark:text-teal-100 mb-1">Transcriptions</h4>
+                          <code className="text-xs text-teal-700 dark:text-teal-300 bg-teal-100 dark:bg-teal-900/30 px-2 py-1 rounded">POST {base}/api/v1/audio/transcriptions</code>
+                          <p className="text-xs text-teal-700 dark:text-teal-300 mt-1.5">Transcribes audio into the original language of the recording.</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="p-4 sm:p-5 rounded-xl border-l-4 border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/10 border border-emerald-200 dark:border-emerald-900/50">
+                      <div className="flex items-start gap-3">
+                        <FaGlobe className="w-4 h-4 text-emerald-600 dark:text-emerald-400 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <h4 className="text-sm font-bold text-emerald-900 dark:text-emerald-100 mb-1">Translations</h4>
+                          <code className="text-xs text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-900/30 px-2 py-1 rounded">POST {base}/api/v1/audio/translations</code>
+                          <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-1.5">Transcribes and translates audio to English, regardless of source language.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-xl border border-blue-200 dark:border-blue-900/50 bg-blue-50/50 dark:bg-blue-950/10">
+                    <div className="flex items-start gap-2.5">
+                      <FaInfoCircle className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-xs font-bold text-blue-800 dark:text-blue-300 mb-1">Important: multipart/form-data</p>
+                        <p className="text-xs text-blue-700 dark:text-blue-400 leading-relaxed">
+                          Unlike other endpoints, STT uses <code className="bg-blue-100 dark:bg-blue-900/30 px-1 rounded">multipart/form-data</code> — not JSON. Do not set <code className="bg-blue-100 dark:bg-blue-900/30 px-1 rounded">Content-Type: application/json</code>. Let the browser or SDK set it automatically from the FormData object.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    <button onClick={() => toggleSection('stt-request')} className="w-full flex items-center justify-between p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
+                      <h3 className="text-base font-bold text-zinc-900 dark:text-white">Request (Form Fields)</h3>
+                      <FaChevronRight className={`w-4 h-4 text-zinc-400 transition-transform duration-200 ${expandedSection === 'stt-request' ? 'rotate-90' : ''}`} />
+                    </button>
+                    {expandedSection === 'stt-request' && (
+                      <div className="p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+                        <Param name="file" required type="file" desc="Audio file to transcribe. Supported: flac, mp3, mp4, mpeg, mpga, m4a, ogg, wav, webm. Max 25MB." />
+                        <Param name="model" required type="string" desc="Model ID: whisper-large-v3 (max accuracy) or whisper-large-v3-turbo (max speed, 216× real-time)." />
+                        <Param name="response_format" type="string" desc="Output format: json (default), verbose_json (includes segments + timestamps), or text (plain string)." />
+                        <Param name="language" type="string" desc="ISO-639-1 language code of the audio (e.g. en, id, ja). Improves accuracy. Transcriptions only — ignored on translations." />
+                        <Param name="prompt" type="string" desc="Optional context to guide the model style or help with spelling. Max 224 tokens." />
+                        <Param name="temperature" type="number" desc="Sampling temperature 0–1. Default: 0 (deterministic). Higher values add randomness." />
+                      </div>
+                    )}
+
+                    <button onClick={() => toggleSection('stt-response')} className="w-full flex items-center justify-between p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
+                      <h3 className="text-base font-bold text-zinc-900 dark:text-white">Response Format</h3>
+                      <FaChevronRight className={`w-4 h-4 text-zinc-400 transition-transform duration-200 ${expandedSection === 'stt-response' ? 'rotate-90' : ''}`} />
+                    </button>
+                    {expandedSection === 'stt-response' && (
+                      <div className="p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 space-y-3">
+                        <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">json / text</p>
+                        <div className="rounded-lg bg-zinc-100 dark:bg-zinc-900 overflow-hidden">
+                          <SyntaxHighlighter language="json" style={isDark ? oneDark : oneLight} customStyle={{ margin: 0, padding: '12px', background: 'transparent', fontSize: '11px' }}>
+{`{ "text": "Hello, this is the transcribed text." }`}
+                          </SyntaxHighlighter>
+                        </div>
+                        <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">verbose_json — includes segments with timestamps</p>
+                        <div className="rounded-lg bg-zinc-100 dark:bg-zinc-900 overflow-hidden">
+                          <SyntaxHighlighter language="json" style={isDark ? oneDark : oneLight} customStyle={{ margin: 0, padding: '12px', background: 'transparent', fontSize: '11px' }}>
+{`{
+  "text": "Hello, this is the transcribed text.",
+  "task": "transcribe",
+  "language": "english",
+  "duration": 3.5,
+  "segments": [
+    {
+      "id": 0,
+      "start": 0.0,
+      "end": 3.5,
+      "text": "Hello, this is the transcribed text.",
+      "avg_logprob": -0.21,
+      "no_speech_prob": 0.01
+    }
+  ]
+}`}
+                          </SyntaxHighlighter>
+                        </div>
+                      </div>
+                    )}
+
+                    <button onClick={() => toggleSection('stt-models')} className="w-full flex items-center justify-between p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
+                      <h3 className="text-base font-bold text-zinc-900 dark:text-white">Available STT Models</h3>
+                      <FaChevronRight className={`w-4 h-4 text-zinc-400 transition-transform duration-200 ${expandedSection === 'stt-models' ? 'rotate-90' : ''}`} />
+                    </button>
+                    {expandedSection === 'stt-models' && (
+                      <div className="p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+                        <div className="space-y-2">
+                          {[
+                            { id: 'whisper-large-v3', name: 'Whisper Large V3', provider: 'Groq', desc: 'Maximum accuracy. 8.4% WER on short-form. 1550M params. Best for difficult audio, strong accents, noisy environments.' },
+                            { id: 'whisper-large-v3-turbo', name: 'Whisper V3 Turbo', provider: 'Groq', desc: '216× real-time speed. Excellent accuracy with significantly faster inference. Ideal for high-volume and latency-sensitive apps.' },
+                          ].map(({ id, name, provider, desc }) => (
+                            <div key={id} className="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
+                              <div className="flex items-center justify-between mb-1">
+                                <p className="text-xs font-semibold text-zinc-900 dark:text-white">{name}</p>
+                                <span className="text-[9px] text-zinc-400 dark:text-zinc-500">{provider}</span>
+                              </div>
+                              <code className="text-[10px] text-teal-600 dark:text-teal-400 font-mono">{id}</code>
+                              <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mt-0.5">{desc}</p>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="mt-3 p-3 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
+                          <p className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Supported Audio Formats</p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {['flac', 'mp3', 'mp4', 'mpeg', 'mpga', 'm4a', 'ogg', 'wav', 'webm'].map(fmt => (
+                              <code key={fmt} className="text-[10px] px-1.5 py-0.5 rounded bg-teal-50 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400 border border-teal-100 dark:border-teal-800/50">{fmt}</code>
+                            ))}
+                          </div>
+                          <p className="text-[10px] text-zinc-400 mt-2">Max file size: 25MB · Audio is downsampled to 16kHz mono internally.</p>
+                        </div>
+                      </div>
+                    )}
+
+                    <button onClick={() => toggleSection('stt-compare')} className="w-full flex items-center justify-between p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
+                      <h3 className="text-base font-bold text-zinc-900 dark:text-white">Transcribe vs Translate</h3>
+                      <FaChevronRight className={`w-4 h-4 text-zinc-400 transition-transform duration-200 ${expandedSection === 'stt-compare' ? 'rotate-90' : ''}`} />
+                    </button>
+                    {expandedSection === 'stt-compare' && (
+                      <div className="p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+                        <div className="grid grid-cols-3 gap-2 mb-2 text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                          <span></span><span className="text-teal-600 dark:text-teal-400">Transcriptions</span><span className="text-emerald-600 dark:text-emerald-400">Translations</span>
+                        </div>
+                        {[
+                          { label: 'Endpoint', a: '/audio/transcriptions', b: '/audio/translations' },
+                          { label: 'Output language', a: 'Same as audio', b: 'Always English' },
+                          { label: 'language param', a: 'Supported', b: 'Ignored' },
+                          { label: 'Use case', a: 'Meeting notes, podcasts', b: 'Foreign content → EN' },
+                          { label: 'Best model', a: 'whisper-large-v3-turbo', b: 'whisper-large-v3' },
+                        ].map(({ label, a, b }) => (
+                          <div key={label} className="grid grid-cols-3 gap-2 text-xs py-2 border-b border-zinc-100 dark:border-zinc-800/60 last:border-0 items-start">
+                            <span className="font-semibold text-zinc-700 dark:text-zinc-300">{label}</span>
+                            <code className="bg-teal-50 dark:bg-teal-950/20 px-1.5 py-0.5 rounded text-[10px] text-teal-600 dark:text-teal-400 break-all">{a}</code>
+                            <code className="bg-emerald-50 dark:bg-emerald-950/20 px-1.5 py-0.5 rounded text-[10px] text-emerald-600 dark:text-emerald-400 break-all">{b}</code>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <CodeBlock code={codeExamples.sttTS} lang="TypeScript" id="stt-ts" />
+                  <CodeBlock code={codeExamples.sttPython} lang="Python" id="stt-python" />
+                  <CodeBlock code={codeExamples.sttCurl} lang="cURL — Transcription" id="stt-curl" />
+                  <CodeBlock code={codeExamples.sttTranslateTS} lang="TypeScript — Translation" id="stt-translate-ts" />
+                  <CodeBlock code={codeExamples.sttTranslateCurl} lang="cURL — Translation" id="stt-translate-curl" />
                 </div>
               )}
             </div>
