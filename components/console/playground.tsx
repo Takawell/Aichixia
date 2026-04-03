@@ -1596,7 +1596,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                     ] as const).map(({ val, label, desc }) => (
                       <button
                         key={val}
-                        onClick={() => setSttTask(val)}
+                        onClick={() => { setSttTask(val); if (val === 'translations' && sttResponseFormat === 'verbose_json') setSttResponseFormat('json'); }}
                         className={`flex-1 py-2 px-2 rounded-lg text-[9px] font-semibold transition-all border text-left ${sttTask === val ? 'bg-teal-400 text-white border-teal-400' : 'text-zinc-500 dark:text-zinc-400 border-zinc-200 dark:border-zinc-800 hover:border-teal-300'}`}
                       >
                         <div className="font-bold">{label}</div>
@@ -1626,7 +1626,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                       className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[10px] sm:text-xs text-zinc-900 dark:text-white focus:border-teal-300 dark:focus:border-teal-500 outline-none transition-all cursor-pointer"
                     >
                       <option value="json">json</option>
-                      <option value="verbose_json">verbose_json</option>
+                      <option value="verbose_json" disabled={sttTask === 'translations'}>verbose_json{sttTask === 'translations' ? ' (transcribe only)' : ''}</option>
                       <option value="text">text</option>
                     </select>
                   </div>
@@ -1850,7 +1850,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                         <div className="mt-2 space-y-1.5 max-h-52 overflow-y-auto">
                           {sttResult.segments.map((seg: any, i: number) => (
                             <div key={i} className="flex gap-2 p-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800">
-                              <span className="text-[9px] font-mono text-teal-500 flex-shrink-0 tabular-nums mt-0.5">{seg.start.toFixed(1)}s</span>
+                              <span className="text-[9px] font-mono text-teal-500 flex-shrink-0 tabular-nums mt-0.5">{seg.start.toFixed(1)}s → {seg.end.toFixed(1)}s</span>
                               <p className="text-[10px] text-zinc-700 dark:text-zinc-300 leading-relaxed flex-1">{seg.text}</p>
                             </div>
                           ))}
