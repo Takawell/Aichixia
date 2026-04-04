@@ -60,12 +60,13 @@ export async function logRequest(data: {
 }
 
 export async function updateDailyUsage(
-  apiKeyId: string, 
-  userId: string, 
-  tokensUsed: number = 0
+  apiKeyId: string,
+  userId: string,
+  tokensUsed: number = 0,
+  isSuccess: boolean = true
 ) {
   const today = new Date().toISOString().split('T')[0];
-  
+
   const { data: existing } = await supabase
     .from('daily_usage')
     .select('*')
@@ -79,6 +80,8 @@ export async function updateDailyUsage(
       .update({
         requests_count: existing.requests_count + 1,
         tokens_used: existing.tokens_used + tokensUsed,
+        success_count: existing.success_count + (isSuccess ? 1 : 0),
+        error_count: existing.error_count + (isSuccess ? 0 : 1),
       })
       .eq('id', existing.id);
   } else {
@@ -90,8 +93,8 @@ export async function updateDailyUsage(
         date: today,
         requests_count: 1,
         tokens_used: tokensUsed,
-        success_count: 0,
-        error_count: 0,
+        success_count: isSuccess ? 1 : 0,
+        error_count: isSuccess ? 0 : 1,
       });
   }
 }
@@ -243,8 +246,7 @@ export async function getTotalStats(userId: string) {
 }
 
 export async function getAllUsersStats() {
-  const supabaseAdmin = getServiceSupabase();
-  
+  const supabaseAdmin = getServiceSupabase();  
   const { data: keys } = await supabaseAdmin
     .from('api_keys')
     .select('id, requests_used, rate_limit, is_active');
