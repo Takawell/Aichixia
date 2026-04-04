@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FiCopy, FiCheck, FiLock, FiZap, FiCpu, FiTrendingUp, FiDollarSign, FiSearch, FiStar, FiInfo, FiImage, FiX, FiExternalLink } from 'react-icons/fi';
+import { FiCopy, FiCheck, FiLock, FiZap, FiCpu, FiTrendingUp, FiDollarSign, FiSearch, FiStar, FiInfo, FiImage, FiX, FiExternalLink, FiMic } from 'react-icons/fi';
 import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiAirbrake, SiMaze, SiXiaomi, SiFlux, SiImagedotsc, SiSecurityscorecard, SiLapce } from 'react-icons/si';
 import { GiSpermWhale, GiPowerLightning, GiClover, GiFire } from 'react-icons/gi';
 import { TbSquareLetterZ, TbLetterM } from 'react-icons/tb';
@@ -406,6 +406,34 @@ const AVAILABLE_MODELS = [
     features: ['Premium', 'Prosody', 'Enhanced'],
     endpoint: 'https://www.aichixia.xyz/api/v1/audio/speech',
   },
+  {
+    id: 'whisper-large-v3',
+    name: 'Whisper Large V3',
+    icon: FiMic,
+    color: 'from-teal-500 to-emerald-600',
+    category: 'Speech-to-Text',
+    description: 'High-accuracy multilingual transcription and translation powered by Groq. Supports 99+ languages with verbose JSON output including segments and timestamps.',
+    speed: 4,
+    quality: 5,
+    contextWindow: '25MB audio',
+    pricing: 'Standard',
+    features: ['99+ languages', 'Timestamps', 'Segments', 'Translation'],
+    endpoint: 'https://www.aichixia.xyz/api/v1/audio/transcriptions',
+  },
+  {
+    id: 'whisper-large-v3-turbo',
+    name: 'Whisper V3 Turbo',
+    icon: FiMic,
+    color: 'from-emerald-500 to-teal-400',
+    category: 'Speech-to-Text',
+    description: 'Faster variant of Whisper Large V3 with near-identical accuracy. Optimized for low-latency transcription at reduced cost.',
+    speed: 5,
+    quality: 4,
+    contextWindow: '25MB audio',
+    pricing: 'Budget',
+    features: ['Ultra-fast', 'Low latency', 'Cost-efficient', 'Multilingual'],
+    endpoint: 'https://www.aichixia.xyz/api/v1/audio/transcriptions',
+  },
 ];
 
 const SpeedIndicator = ({ level }: { level: number }) => {
@@ -445,6 +473,7 @@ const CATEGORY_ICONS: Record<string, any> = {
   'Text Generation': FiCpu,
   'Image Generation': FiImage,
   'Text-to-Speech': HiSpeakerWave,
+  'Speech-to-Text': FiMic,
 };
 
 export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
