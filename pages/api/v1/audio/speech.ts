@@ -107,6 +107,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (!result.success) {
       const latency = Date.now() - startTime;
+      await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, false);
       await logRequest({
         api_key_id: apiKeyData.id,
         user_id: apiKeyData.user_id,
@@ -125,7 +126,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const latency = Date.now() - startTime;
 
     await incrementUsage(apiKeyData.key);
-    await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0);
+    await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, true);
     await logRequest({
       api_key_id: apiKeyData.id,
       user_id: apiKeyData.user_id,
@@ -155,6 +156,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const isQuota = error instanceof StarlingQuotaError || error instanceof LindsayQuotaError;
     const status = isRateLimit ? 429 : isQuota ? 402 : 500;
 
+    await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, false);
     await logRequest({
       api_key_id: apiKeyData.id,
       user_id: apiKeyData.user_id,
