@@ -116,21 +116,7 @@ function KeyCard({
         }`} />
 
         <div className="p-4 sm:p-5">
-          <div className="flex items-start gap-3 sm:gap-4">
-            <div className="flex-shrink-0 mt-0.5">
-              <div className={`relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center transition-all duration-300 ${
-                apiKey.is_active
-                  ? 'bg-gradient-to-br from-sky-400 to-blue-600 shadow-lg shadow-sky-500/30 group-hover:shadow-sky-500/50 group-hover:scale-110'
-                  : 'bg-zinc-200 dark:bg-zinc-800'
-              }`}>
-                <FiKey className={`text-sm sm:text-base ${apiKey.is_active ? 'text-white' : 'text-zinc-400 dark:text-zinc-600'}`} />
-                {apiKey.is_active && (
-                  <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-white dark:border-zinc-950 animate-pulse" />
-                )}
-              </div>
-            </div>
-
-            <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0">
               {isEditing ? (
                 <div className="flex items-center gap-2 mb-3">
                   <input
@@ -221,7 +207,6 @@ function KeyCard({
                   )}
                 </div>
               </div>
-            </div>
           </div>
 
           <div className="mt-3.5 pt-3 border-t border-zinc-100 dark:border-zinc-800/60 flex items-center justify-between gap-2">
