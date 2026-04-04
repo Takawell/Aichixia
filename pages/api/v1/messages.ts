@@ -118,7 +118,6 @@ async function checkModelAccess(userId: string, model: string): Promise<{ allowe
       error: `Model '${model}' requires Pro or Enterprise plan.`,
     };
   }
-
   return { allowed: true };
 }
 
@@ -229,7 +228,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const totalTokens = inputTokens + outputTokens;
 
     await incrementUsage(apiKeyData.key);
-    await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, totalTokens);
+    await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, totalTokens, true);
     await logRequest({
       api_key_id: apiKeyData.id,
       user_id: apiKeyData.user_id,
@@ -266,6 +265,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const latency = Date.now() - startTime;
 
+    await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, false);
     await logRequest({
       api_key_id: apiKeyData.id,
       user_id: apiKeyData.user_id,
