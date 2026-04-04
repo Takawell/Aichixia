@@ -409,7 +409,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'whisper-large-v3',
     name: 'Whisper Large V3',
-    icon: FiMic,
+    icon: SiOpenai,
     color: 'from-teal-500 to-emerald-600',
     category: 'Speech-to-Text',
     description: 'High-accuracy multilingual transcription and translation powered by Groq. Supports 99+ languages with verbose JSON output including segments and timestamps.',
@@ -423,7 +423,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'whisper-large-v3-turbo',
     name: 'Whisper V3 Turbo',
-    icon: FiMic,
+    icon: SiOpenai,
     color: 'from-emerald-500 to-teal-400',
     category: 'Speech-to-Text',
     description: 'Faster variant of Whisper Large V3 with near-identical accuracy. Optimized for low-latency transcription at reduced cost.',
@@ -750,7 +750,6 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
               </div>
 
               <div className="h-px bg-zinc-100 dark:bg-zinc-800 mb-4" />
-
               <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed mb-5">
                 {activeModal.description}
               </p>
