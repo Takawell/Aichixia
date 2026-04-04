@@ -154,10 +154,9 @@ async function checkModelAccess(userId: string, model: string): Promise<{ allowe
   if (userPlan === 'free' && LOCKED_MODELS_PRO.includes(modelLower)) {
     return {
       allowed: false,
-      error: `Model '${model}' requires Pro or Enterprise plan. Upgrade your plan at https://aichixia.com/console`,
+      error: `Model '${model}' requires Pro or Enterprise plan. Upgrade your plan at https://aichixia.xyz/console`,
     };
   }
-
   return { allowed: true };
 }
 
@@ -370,7 +369,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const totalTokens = promptTokens + completionTokens;
 
     await incrementUsage(apiKeyData.key);
-    await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, totalTokens);
+    await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, totalTokens, true);
     await logRequest({
       api_key_id: apiKeyData.id,
       user_id: apiKeyData.user_id,
@@ -410,7 +409,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.error("OpenAI-compatible API error:", err);
 
     const latency = Date.now() - startTime;
-
+    
+    await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, false);
     await logRequest({
       api_key_id: apiKeyData.id,
       user_id: apiKeyData.user_id,
