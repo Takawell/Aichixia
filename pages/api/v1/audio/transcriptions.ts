@@ -148,7 +148,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         user_agent: userAgent,
       }),
       incrementUsage(apiKeyData.id),
-      updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0),
+      updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, true),
     ]);
 
     if (response_format === 'text') {
@@ -184,7 +184,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         ip_address: ip,
         user_agent: userAgent,
       }),
-      updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0),
+      updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, false),
     ]).catch(() => {});
 
     return res.status(status).json({
