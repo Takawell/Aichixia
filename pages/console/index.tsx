@@ -80,7 +80,7 @@ export default function Console() {
   const [keys, setKeys] = useState<ApiKey[]>([]);
   const [logs, setLogs] = useState<RequestLog[]>([]);
   const [usageData, setUsageData] = useState<DailyUsage[]>([]);
-  const [stats, setStats] = useState({ totalRequests: 0, activeKeys: 0, rateLimitUsage: 0 });
+  const [stats, setStats] = useState({ totalRequests: 0, activeKeys: 0, rateLimitUsage: 0, successCount: 0, errorCount: 0 });
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showRevokeModal, setShowRevokeModal] = useState(false);
   const [selectedKey, setSelectedKey] = useState<ApiKey | null>(null);
@@ -192,10 +192,17 @@ export default function Console() {
       const usageDataRes = await usageRes.json();
       const logsData = await logsRes.json();
 
+      const logsArr: RequestLog[] = logsData.logs || [];
+      const statsBase = statsData.stats || { totalRequests: 0, activeKeys: 0, rateLimitUsage: 0 };
+
       setKeys(keysData.keys || []);
-      setStats(statsData.stats || { totalRequests: 0, activeKeys: 0, rateLimitUsage: 0 });
+      setStats({
+        ...statsBase,
+        successCount: logsArr.filter((l) => l.status >= 200 && l.status < 300).length,
+        errorCount: logsArr.filter((l) => l.status >= 400).length,
+      });
       setUsageData(usageDataRes.usage || []);
-      setLogs(logsData.logs || []);
+      setLogs(logsArr);
       setLastFetch(now);
     } catch (error) {
       console.error('Failed to fetch data:', error);
