@@ -19,23 +19,47 @@ type OverviewProps = {
     totalRequests: number;
     activeKeys: number;
     rateLimitUsage: number;
+    successCount: number;
+    errorCount: number;
   };
   usageData: DailyUsage[];
   onNavigate: (tab: 'keys' | 'activity' | 'models') => void;
 };
 
+type TooltipPayloadItem = {
+  value: number;
+  name: string;
+  color: string;
+};
+
+type CustomTooltipProps = {
+  active?: boolean;
+  payload?: TooltipPayloadItem[];
+  label?: string;
+};
+
+function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
+  if (!active || !payload || !payload.length) return null;
+  return (
+    <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg px-3 py-2 shadow-lg">
+      <p className="text-[10px] font-semibold text-zinc-500 dark:text-zinc-400 mb-1">{label}</p>
+      {payload.map((entry) => (
+        <p key={entry.name} className="text-xs font-bold" style={{ color: entry.color }}>
+          {entry.name.charAt(0).toUpperCase() + entry.name.slice(1)}: {entry.value.toLocaleString()}
+        </p>
+      ))}
+    </div>
+  );
+}
+
 export default function Overview({ stats, usageData, onNavigate }: OverviewProps) {
   const [activeChartLine, setActiveChartLine] = useState<'requests' | 'success' | 'errors'>('requests');
-
   const chartData = usageData.map(d => ({
     date: new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
     requests: d.requests_count,
     success: d.success_count,
     errors: d.error_count,
   }));
-
-  const totalSuccess = usageData.reduce((a, d) => a + d.success_count, 0);
-  const totalErrors = usageData.reduce((a, d) => a + d.error_count, 0);
 
   const chartLines = [
     { key: 'requests' as const, label: 'Total', color: '#0ea5e9', gradId: 'ov-grad-req' },
@@ -57,7 +81,7 @@ export default function Overview({ stats, usageData, onNavigate }: OverviewProps
             </span>
           </div>
           <h3 className="text-[10px] sm:text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1">Total Requests</h3>
-          <p className="text-xl sm:text-2xl lg:text-3xl font-black text-zinc-900 dark:text-white">
+          <p className="text-lg sm:text-xl font-black text-zinc-900 dark:text-white">
             {stats.totalRequests.toLocaleString()}
           </p>
           <div className="mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-zinc-200 dark:border-zinc-800">
@@ -78,7 +102,7 @@ export default function Overview({ stats, usageData, onNavigate }: OverviewProps
             </div>
           </div>
           <h3 className="text-[10px] sm:text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1">Active Keys</h3>
-          <p className="text-xl sm:text-2xl lg:text-3xl font-black text-zinc-900 dark:text-white">
+          <p className="text-lg sm:text-xl font-black text-zinc-900 dark:text-white">
             {stats.activeKeys}
           </p>
           <div className="mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-zinc-200 dark:border-zinc-800">
@@ -99,11 +123,9 @@ export default function Overview({ stats, usageData, onNavigate }: OverviewProps
             </div>
           </div>
           <h3 className="text-[10px] sm:text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1">Rate Limit</h3>
-          <div className="flex items-baseline gap-1.5 sm:gap-2">
-            <p className="text-xl sm:text-2xl lg:text-3xl font-black text-zinc-900 dark:text-white">
-              {stats.rateLimitUsage}%
-            </p>
-          </div>
+          <p className="text-lg sm:text-xl font-black text-zinc-900 dark:text-white">
+            {stats.rateLimitUsage}%
+          </p>
           <div className="mt-2 sm:mt-3">
             <div className="relative h-1.5 sm:h-2 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
               <div
@@ -154,12 +176,12 @@ export default function Overview({ stats, usageData, onNavigate }: OverviewProps
         <div className="grid grid-cols-3 gap-2 mb-4">
           {[
             { label: 'Total', value: stats.totalRequests, color: 'text-sky-600 dark:text-sky-400' },
-            { label: 'Success', value: totalSuccess, color: 'text-emerald-600 dark:text-emerald-400' },
-            { label: 'Errors', value: totalErrors, color: 'text-red-500 dark:text-red-400' },
+            { label: 'Success', value: stats.successCount, color: 'text-emerald-600 dark:text-emerald-400' },
+            { label: 'Errors', value: stats.errorCount, color: 'text-red-500 dark:text-red-400' },
           ].map(item => (
-            <div key={item.label} className="bg-zinc-50 dark:bg-zinc-900/60 rounded-xl p-2.5 sm:p-3 border border-zinc-100 dark:border-zinc-800">
-              <p className="text-[9px] sm:text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wide mb-1">{item.label}</p>
-              <p className={`text-base sm:text-lg font-black tabular-nums ${item.color}`}>{item.value.toLocaleString()}</p>
+            <div key={item.label} className="bg-zinc-50 dark:bg-zinc-900/60 rounded-xl p-2 sm:p-2.5 border border-zinc-100 dark:border-zinc-800">
+              <p className="text-[9px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wide mb-0.5">{item.label}</p>
+              <p className={`text-sm sm:text-base font-black tabular-nums ${item.color}`}>{item.value.toLocaleString()}</p>
             </div>
           ))}
         </div>
@@ -172,28 +194,20 @@ export default function Overview({ stats, usageData, onNavigate }: OverviewProps
             <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400">No usage data available yet</p>
           </div>
         ) : (
-          <ResponsiveContainer width="100%" height={200}>
+          <ResponsiveContainer width="100%" height={180}>
             <AreaChart data={chartData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
               <defs>
                 {chartLines.map(line => (
                   <linearGradient key={line.gradId} id={line.gradId} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={line.color} stopOpacity={0.3} />
+                    <stop offset="5%" stopColor={line.color} stopOpacity={0.25} />
                     <stop offset="95%" stopColor={line.color} stopOpacity={0} />
                   </linearGradient>
                 ))}
               </defs>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-zinc-200 dark:stroke-zinc-800" />
-              <XAxis dataKey="date" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
-              <YAxis tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                  border: '1px solid #e4e4e7',
-                  borderRadius: '8px',
-                  fontSize: '12px',
-                }}
-                wrapperClassName="dark:bg-zinc-900 dark:border-zinc-800"
-              />
+              <CartesianGrid strokeDasharray="3 3" stroke="currentColor" className="text-zinc-200 dark:text-zinc-800" />
+              <XAxis dataKey="date" tick={{ fontSize: 10, fill: 'currentColor' }} tickLine={false} axisLine={false} className="text-zinc-500 dark:text-zinc-400" />
+              <YAxis tick={{ fontSize: 10, fill: 'currentColor' }} tickLine={false} axisLine={false} className="text-zinc-500 dark:text-zinc-400" />
+              <Tooltip content={<CustomTooltip />} cursor={{ stroke: activeLine.color, strokeWidth: 1, strokeDasharray: '4 4' }} />
               <Area
                 type="monotone"
                 dataKey={activeChartLine}
