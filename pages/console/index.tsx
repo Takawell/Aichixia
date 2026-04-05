@@ -192,17 +192,17 @@ export default function Console() {
       const usageDataRes = await usageRes.json();
       const logsData = await logsRes.json();
 
-      const logsArr: RequestLog[] = logsData.logs || [];
+      const usageArr: DailyUsage[] = usageDataRes.usage || [];
       const statsBase = statsData.stats || { totalRequests: 0, activeKeys: 0, rateLimitUsage: 0 };
 
       setKeys(keysData.keys || []);
       setStats({
         ...statsBase,
-        successCount: logsArr.filter((l) => l.status >= 200 && l.status < 300).length,
-        errorCount: logsArr.filter((l) => l.status >= 400).length,
+        successCount: usageArr.reduce((a, d) => a + d.success_count, 0),
+        errorCount: usageArr.reduce((a, d) => a + d.error_count, 0),
       });
-      setUsageData(usageDataRes.usage || []);
-      setLogs(logsArr);
+      setUsageData(usageArr);
+      setLogs(logsData.logs || []);
       setLastFetch(now);
     } catch (error) {
       console.error('Failed to fetch data:', error);
@@ -409,7 +409,7 @@ export default function Console() {
     return (
       <div className="fixed inset-0 bg-gradient-to-br from-white via-zinc-50 to-white dark:from-black dark:via-zinc-950 dark:to-black flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(14,165,233,0.05),transparent_70%)] dark:bg-[radial-gradient(circle_at_50%_50%,rgba(14,165,233,0.15),transparent_70%)]" />
-        
+
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-0 left-1/4 w-96 h-96 bg-sky-200/20 dark:bg-sky-500/10 rounded-full blur-3xl animate-float" />
           <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-200/20 dark:bg-blue-500/10 rounded-full blur-3xl animate-float-delayed" />
@@ -427,7 +427,7 @@ export default function Console() {
         <div className="relative z-10 flex flex-col items-center gap-8 sm:gap-10 px-4 w-full max-w-lg">
           <div className="relative group">
             <div className="absolute -inset-8 bg-gradient-to-r from-sky-400/20 via-blue-500/20 to-cyan-400/20 dark:from-sky-400/30 dark:via-blue-500/30 dark:to-cyan-400/30 rounded-full blur-3xl animate-pulse-slow" />
-            
+
             <div className="relative w-24 h-24 sm:w-28 sm:h-28 lg:w-32 lg:h-32 flex items-center justify-center">
               <div className="absolute inset-0">
                 {[...Array(3)].map((_, i) => (
@@ -441,14 +441,14 @@ export default function Console() {
                   />
                 ))}
               </div>
-              
+
               <div className="absolute inset-3 rounded-full border border-dashed border-sky-400/30 dark:border-sky-400/40 animate-spin-slow" />
-              
+
               <div className="relative z-10 transform hover:scale-110 transition-transform duration-500">
-                <Image 
-                  src="/logo.png" 
-                  alt="Aichixia" 
-                  width={80} 
+                <Image
+                  src="/logo.png"
+                  alt="Aichixia"
+                  width={80}
                   height={80}
                   className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 drop-shadow-2xl"
                   priority
@@ -476,7 +476,7 @@ export default function Console() {
           <div className="w-full space-y-6 sm:space-y-7">
             <div className="relative">
               <div className="h-2.5 sm:h-3 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden shadow-inner">
-                <div 
+                <div
                   className={`h-full bg-gradient-to-r ${loadingSteps[loadingStep].color} rounded-full transition-all duration-500 ease-out relative overflow-hidden`}
                   style={{ width: `${loadingProgress}%` }}
                 >
@@ -484,7 +484,7 @@ export default function Console() {
                   <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent_0%,rgba(255,255,255,0.3)_50%,transparent_100%)] animate-slide" />
                 </div>
               </div>
-              
+
               <div className="absolute -top-8 sm:-top-9 left-0 right-0 flex items-center justify-between px-1">
                 <div className="text-xs sm:text-sm font-bold text-transparent bg-gradient-to-r from-sky-600 to-blue-600 dark:from-sky-400 dark:to-blue-400 bg-clip-text">
                   {Math.round(loadingProgress)}%
@@ -509,24 +509,21 @@ export default function Console() {
                 const StepIcon = step.icon;
                 const isActive = idx === loadingStep;
                 const isComplete = idx < loadingStep;
-                
+
                 return (
-                  <div
-                    key={idx}
-                    className="relative flex flex-col items-center gap-2"
-                  >
+                  <div key={idx} className="relative flex flex-col items-center gap-2">
                     <div className={`relative transition-all duration-500 ${isActive ? 'scale-110' : 'scale-100'}`}>
                       <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center transition-all duration-500 ${
-                        isActive 
-                          ? `bg-gradient-to-br ${step.color} shadow-lg shadow-sky-500/30 dark:shadow-sky-500/50` 
+                        isActive
+                          ? `bg-gradient-to-br ${step.color} shadow-lg shadow-sky-500/30 dark:shadow-sky-500/50`
                           : isComplete
                           ? 'bg-emerald-500/10 dark:bg-emerald-500/20 border border-emerald-500/20 dark:border-emerald-500/30'
                           : 'bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800'
                       }`}>
                         <StepIcon className={`w-4 h-4 sm:w-5 sm:h-5 transition-colors duration-500 ${
-                          isActive 
-                            ? 'text-white' 
-                            : isComplete 
+                          isActive
+                            ? 'text-white'
+                            : isComplete
                             ? 'text-emerald-600 dark:text-emerald-400'
                             : 'text-zinc-400 dark:text-zinc-600'
                         }`} />
@@ -544,8 +541,8 @@ export default function Console() {
                       )}
                     </div>
                     <div className={`w-full h-1 rounded-full transition-all duration-500 ${
-                      isComplete 
-                        ? 'bg-emerald-500/30 dark:bg-emerald-500/40' 
+                      isComplete
+                        ? 'bg-emerald-500/30 dark:bg-emerald-500/40'
                         : isActive
                         ? `bg-gradient-to-r ${step.color} opacity-50`
                         : 'bg-zinc-200 dark:bg-zinc-800'
@@ -565,8 +562,8 @@ export default function Console() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className={`text-sm sm:text-base font-bold mb-1 ${
-                  loadingStep === 5 
-                    ? 'text-emerald-600 dark:text-emerald-400' 
+                  loadingStep === 5
+                    ? 'text-emerald-600 dark:text-emerald-400'
                     : 'text-zinc-800 dark:text-zinc-200'
                 }`}>
                   {loadingSteps[loadingStep].text}
@@ -633,34 +630,15 @@ export default function Console() {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
           }
-          .animate-shimmer {
-            animation: shimmer 2s ease-in-out infinite;
-          }
-          .animate-slide {
-            animation: slide 2s ease-in-out infinite;
-          }
-          .animate-float {
-            animation: float 8s ease-in-out infinite;
-          }
-          .animate-float-delayed {
-            animation: float-delayed 10s ease-in-out infinite;
-          }
-          .animate-twinkle {
-            animation: twinkle 3s ease-in-out infinite;
-          }
-          .animate-twinkle-delayed {
-            animation: twinkle-delayed 3s ease-in-out infinite;
-          }
-          .animate-gradient {
-            background-size: 200% 200%;
-            animation: gradient 3s ease infinite;
-          }
-          .animate-pulse-slow {
-            animation: pulse-slow 3s ease-in-out infinite;
-          }
-          .animate-spin-slow {
-            animation: spin-slow 8s linear infinite;
-          }
+          .animate-shimmer { animation: shimmer 2s ease-in-out infinite; }
+          .animate-slide { animation: slide 2s ease-in-out infinite; }
+          .animate-float { animation: float 8s ease-in-out infinite; }
+          .animate-float-delayed { animation: float-delayed 10s ease-in-out infinite; }
+          .animate-twinkle { animation: twinkle 3s ease-in-out infinite; }
+          .animate-twinkle-delayed { animation: twinkle-delayed 3s ease-in-out infinite; }
+          .animate-gradient { background-size: 200% 200%; animation: gradient 3s ease infinite; }
+          .animate-pulse-slow { animation: pulse-slow 3s ease-in-out infinite; }
+          .animate-spin-slow { animation: spin-slow 8s linear infinite; }
         `}</style>
       </div>
     );
@@ -830,10 +808,10 @@ export default function Console() {
 
           <main className="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-6">
             {activeTab === 'overview' && (
-              <Overview 
-                stats={stats} 
-                usageData={usageData} 
-                onNavigate={handleTabChange} 
+              <Overview
+                stats={stats}
+                usageData={usageData}
+                onNavigate={handleTabChange}
               />
             )}
 
@@ -853,10 +831,10 @@ export default function Console() {
             )}
 
             {activeTab === 'activity' && (
-              <Activity 
-                logs={logs} 
-                loading={loading} 
-                onRefresh={handleRefresh} 
+              <Activity
+                logs={logs}
+                loading={loading}
+                onRefresh={handleRefresh}
               />
             )}
 
@@ -895,7 +873,7 @@ export default function Console() {
                 </div>
                 <h3 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-white text-center mb-1 sm:mb-2">API Key Created!</h3>
                 <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 text-center mb-4 sm:mb-5">Save this key securely. You won't be able to see it again.</p>
-                
+
                 <div className="p-3 sm:p-4 bg-zinc-100 dark:bg-zinc-900 rounded-lg mb-4 sm:mb-5">
                   <p className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 mb-1.5 sm:mb-2">Your API Key</p>
                   <div className="flex items-center gap-2">
