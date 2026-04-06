@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { FiTrendingUp, FiActivity, FiZap, FiAlertCircle, FiCpu, FiCheckCircle } from 'react-icons/fi';
 
 type DailyUsage = {
@@ -79,7 +79,6 @@ type StatCardProps = {
   icon: React.ElementType;
   label: string;
   value: number;
-  suffix?: string;
   color: string;
   glow: string;
   bg: string;
@@ -98,21 +97,20 @@ function StatCard({ icon: Icon, label, value, color, glow, bg, border, delay, fo
 
   return (
     <div
-      className={`relative overflow-hidden rounded-2xl border ${border} ${bg} p-4 sm:p-5 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'} hover:-translate-y-1 hover:shadow-xl group`}
-      style={{ transitionDelay: `${delay}ms` }}
+      className={`relative overflow-hidden rounded-xl border ${border} ${bg} p-3 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'} hover:-translate-y-0.5 hover:shadow-lg group cursor-default`}
     >
-      <div className={`absolute -top-6 -right-6 w-24 h-24 rounded-full blur-2xl opacity-20 group-hover:opacity-40 transition-opacity duration-500 ${glow}`} />
-      <div className="relative z-10">
-        <div className="flex items-center justify-between mb-3">
-          <div className={`p-2 rounded-xl ${bg} border ${border}`}>
-            <Icon className={`text-sm ${color}`} />
-          </div>
-          <div className={`w-1.5 h-1.5 rounded-full ${glow} animate-pulse`} />
+      <div className={`absolute -top-4 -right-4 w-16 h-16 rounded-full blur-xl opacity-20 group-hover:opacity-35 transition-opacity duration-500 ${glow}`} />
+      <div className="relative z-10 flex items-center gap-3">
+        <div className={`p-1.5 rounded-lg ${bg} border ${border} flex-shrink-0`}>
+          <Icon className={`text-xs ${color}`} />
         </div>
-        <p className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest mb-1">{label}</p>
-        <p className={`text-2xl sm:text-3xl font-black tabular-nums ${color}`}>
-          {format ? format(animated) : animated.toLocaleString()}
-        </p>
+        <div className="min-w-0">
+          <p className="text-[9px] font-semibold text-zinc-500 uppercase tracking-widest truncate">{label}</p>
+          <p className={`text-base sm:text-lg font-black tabular-nums leading-tight ${color}`}>
+            {format ? format(animated) : animated.toLocaleString()}
+          </p>
+        </div>
+        <div className={`ml-auto w-1.5 h-1.5 rounded-full flex-shrink-0 ${glow} animate-pulse`} />
       </div>
     </div>
   );
@@ -183,23 +181,27 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
   if (loading) {
     return (
       <div className="space-y-4">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="rounded-2xl border border-zinc-800 bg-zinc-950 p-5 animate-pulse">
-              <div className="w-8 h-8 rounded-xl bg-zinc-800 mb-4" />
-              <div className="h-2 w-16 bg-zinc-800 rounded mb-3" />
-              <div className="h-8 w-24 bg-zinc-800 rounded" />
+            <div key={i} className="rounded-xl border border-zinc-800 bg-zinc-950 p-3 animate-pulse">
+              <div className="flex items-center gap-3">
+                <div className="w-7 h-7 rounded-lg bg-zinc-800 flex-shrink-0" />
+                <div className="flex-1">
+                  <div className="h-2 w-12 bg-zinc-800 rounded mb-2" />
+                  <div className="h-5 w-16 bg-zinc-800 rounded" />
+                </div>
+              </div>
             </div>
           ))}
         </div>
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6 animate-pulse h-80" />
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-5 animate-pulse h-72" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-4 sm:space-y-5">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+    <div className="space-y-3 sm:space-y-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
         <StatCard
           icon={FiActivity}
           label="Total Requests"
@@ -247,7 +249,7 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
 
       <div className={`transition-all duration-700 delay-300 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
         <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 sm:p-5">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
             <div className="flex items-center gap-2.5">
               <div className="p-1.5 bg-sky-950/50 border border-sky-900/50 rounded-lg">
                 <FiTrendingUp className="text-sky-400 text-sm" />
@@ -263,10 +265,8 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
                   <button
                     key={r}
                     onClick={() => setTimeRange(r)}
-                    className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all duration-200 ${
-                      timeRange === r
-                        ? 'bg-sky-500 text-white shadow-lg shadow-sky-500/30'
-                        : 'text-zinc-500 hover:text-zinc-300'
+                    className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all duration-200 ${
+                      timeRange === r ? 'bg-sky-500 text-white shadow-lg shadow-sky-500/30' : 'text-zinc-500 hover:text-zinc-300'
                     }`}
                   >
                     {r === '7d' ? '7D' : '30D'}
@@ -278,10 +278,8 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
                   <button
                     key={t}
                     onClick={() => setChartType(t)}
-                    className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all duration-200 capitalize ${
-                      chartType === t
-                        ? 'bg-violet-500 text-white shadow-lg shadow-violet-500/30'
-                        : 'text-zinc-500 hover:text-zinc-300'
+                    className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all duration-200 ${
+                      chartType === t ? 'bg-violet-500 text-white shadow-lg shadow-violet-500/30' : 'text-zinc-500 hover:text-zinc-300'
                     }`}
                   >
                     {t === 'tokens' ? 'Tokens' : 'Reqs'}
@@ -291,7 +289,7 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
             </div>
           </div>
 
-          <ResponsiveContainer width="100%" height={240}>
+          <ResponsiveContainer width="100%" height={200}>
             <AreaChart data={chartData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
               <defs>
                 <linearGradient id="ag-main" x1="0" y1="0" x2="0" y2="1">
@@ -316,9 +314,9 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
         </div>
       </div>
 
-      <div className={`grid grid-cols-1 lg:grid-cols-2 gap-4 transition-all duration-700 delay-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+      <div className={`grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 transition-all duration-700 delay-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
         <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 sm:p-5">
-          <div className="flex items-center gap-2.5 mb-5">
+          <div className="flex items-center gap-2.5 mb-4">
             <div className="p-1.5 bg-violet-950/50 border border-violet-900/50 rounded-lg">
               <FiCpu className="text-violet-400 text-sm" />
             </div>
@@ -329,30 +327,30 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
           </div>
 
           {modelData.length === 0 ? (
-            <div className="flex items-center justify-center h-40 text-zinc-600 text-sm">No data</div>
+            <div className="flex items-center justify-center h-32 text-zinc-600 text-sm">No data</div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {modelData.map((m, i) => {
                 const max = modelData[0].count;
                 const pct = max > 0 ? (m.count / max) * 100 : 0;
                 return (
-                  <div key={m.model} className="group">
-                    <div className="flex items-center justify-between mb-1.5">
+                  <div key={m.model}>
+                    <div className="flex items-center justify-between mb-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-[9px] font-bold text-zinc-600 w-4 tabular-nums">{i + 1}</span>
-                        <span className="text-xs font-semibold text-zinc-300 truncate max-w-[160px]">{m.model}</span>
+                        <span className="text-[9px] font-bold text-zinc-600 w-3 tabular-nums">{i + 1}</span>
+                        <span className="text-xs font-semibold text-zinc-300 truncate max-w-[140px] sm:max-w-[180px]">{m.model}</span>
                       </div>
                       <span className="text-xs font-black tabular-nums" style={{ color: MODEL_COLORS[i % MODEL_COLORS.length] }}>
                         {m.count.toLocaleString()}
                       </span>
                     </div>
-                    <div className="h-1.5 bg-zinc-900 rounded-full overflow-hidden">
+                    <div className="h-1 bg-zinc-900 rounded-full overflow-hidden">
                       <div
                         className="h-full rounded-full transition-all duration-1000 ease-out"
                         style={{
                           width: `${pct}%`,
                           background: MODEL_COLORS[i % MODEL_COLORS.length],
-                          boxShadow: `0 0 8px ${MODEL_COLORS[i % MODEL_COLORS.length]}60`,
+                          boxShadow: `0 0 6px ${MODEL_COLORS[i % MODEL_COLORS.length]}50`,
                           transitionDelay: `${i * 80 + 600}ms`,
                         }}
                       />
@@ -365,7 +363,7 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
         </div>
 
         <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 sm:p-5">
-          <div className="flex items-center gap-2.5 mb-5">
+          <div className="flex items-center gap-2.5 mb-4">
             <div className="p-1.5 bg-emerald-950/50 border border-emerald-900/50 rounded-lg">
               <FiActivity className="text-emerald-400 text-sm" />
             </div>
@@ -376,17 +374,17 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
           </div>
 
           {statusDistribution.length === 0 ? (
-            <div className="flex items-center justify-center h-40 text-zinc-600 text-sm">No data</div>
+            <div className="flex items-center justify-center h-32 text-zinc-600 text-sm">No data</div>
           ) : (
             <div className="flex flex-col sm:flex-row items-center gap-4">
-              <ResponsiveContainer width={160} height={160}>
+              <ResponsiveContainer width={140} height={140}>
                 <PieChart>
                   <Pie
                     data={statusDistribution}
                     cx="50%"
                     cy="50%"
-                    innerRadius={45}
-                    outerRadius={70}
+                    innerRadius={38}
+                    outerRadius={60}
                     paddingAngle={3}
                     dataKey="value"
                     strokeWidth={0}
@@ -398,15 +396,15 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
                   <Tooltip content={<ChartTooltip />} />
                 </PieChart>
               </ResponsiveContainer>
-              <div className="flex-1 space-y-3 w-full">
+              <div className="flex-1 space-y-2.5 w-full">
                 {statusDistribution.map((item) => {
                   const total = statusDistribution.reduce((s, i) => s + i.value, 0);
                   const pct = total > 0 ? Math.round((item.value / total) * 100) : 0;
                   return (
                     <div key={item.name}>
                       <div className="flex items-center justify-between mb-1">
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: item.color, boxShadow: `0 0 6px ${item.color}` }} />
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: item.color }} />
                           <span className="text-xs font-semibold text-zinc-400">{item.name}</span>
                         </div>
                         <span className="text-xs font-black text-zinc-300 tabular-nums">{item.value.toLocaleString()}</span>
@@ -429,7 +427,7 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
       {errorData.length > 0 && (
         <div className={`transition-all duration-700 delay-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
           <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 sm:p-5">
-            <div className="flex items-center gap-2.5 mb-5">
+            <div className="flex items-center gap-2.5 mb-4">
               <div className="p-1.5 bg-red-950/50 border border-red-900/50 rounded-lg">
                 <FiAlertCircle className="text-red-400 text-sm" />
               </div>
@@ -443,16 +441,15 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
               {errorData.map((error, i) => (
                 <div
                   key={i}
-                  className="flex items-center gap-3 p-3 bg-red-950/20 border border-red-900/30 rounded-xl hover:border-red-700/50 transition-colors duration-200 group"
-                  style={{ animationDelay: `${i * 60}ms` }}
+                  className="flex items-center gap-3 p-2.5 bg-red-950/20 border border-red-900/30 rounded-xl hover:border-red-700/50 transition-colors duration-200 group"
                 >
-                  <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center shadow-lg shadow-red-500/20">
-                    <span className="text-[10px] font-black text-white">{i + 1}</span>
+                  <div className="flex-shrink-0 w-6 h-6 rounded-lg bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center shadow-lg shadow-red-500/20">
+                    <span className="text-[9px] font-black text-white">{i + 1}</span>
                   </div>
                   <p className="flex-1 text-xs font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors truncate">
                     {error.error}
                   </p>
-                  <div className="flex-shrink-0 px-2.5 py-1 bg-red-950/50 border border-red-900/50 rounded-lg">
+                  <div className="flex-shrink-0 px-2 py-0.5 bg-red-950/50 border border-red-900/50 rounded-lg">
                     <span className="text-xs font-black text-red-400 tabular-nums">{error.count}</span>
                   </div>
                 </div>
@@ -461,13 +458,6 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
           </div>
         </div>
       )}
-
-      <style jsx>{`
-        @keyframes shimmer {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(100%); }
-        }
-      `}</style>
     </div>
   );
 }
