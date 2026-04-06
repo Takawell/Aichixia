@@ -64,8 +64,8 @@ type CustomTooltipProps = {
 function ChartTooltip({ active, payload, label }: CustomTooltipProps) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 shadow-2xl shadow-black/50">
-      <p className="text-[10px] font-semibold text-zinc-500 mb-1">{label}</p>
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 shadow-xl">
+      <p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 mb-1">{label}</p>
       {payload.map((entry) => (
         <p key={entry.name} className="text-xs font-bold" style={{ color: entry.color }}>
           {entry.value.toLocaleString()}
@@ -80,14 +80,18 @@ type StatCardProps = {
   label: string;
   value: number;
   color: string;
-  glow: string;
-  bg: string;
-  border: string;
+  lightBg: string;
+  darkBg: string;
+  lightBorder: string;
+  darkBorder: string;
+  lightIcon: string;
+  darkIcon: string;
+  glowClass: string;
   delay: number;
   format?: (v: number) => string;
 };
 
-function StatCard({ icon: Icon, label, value, color, glow, bg, border, delay, format }: StatCardProps) {
+function StatCard({ icon: Icon, label, value, color, lightBg, darkBg, lightBorder, darkBorder, lightIcon, darkIcon, glowClass, delay, format }: StatCardProps) {
   const animated = useCountUp(value);
   const [visible, setVisible] = useState(false);
   useEffect(() => {
@@ -97,20 +101,20 @@ function StatCard({ icon: Icon, label, value, color, glow, bg, border, delay, fo
 
   return (
     <div
-      className={`relative overflow-hidden rounded-xl border ${border} ${bg} p-3 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'} hover:-translate-y-0.5 hover:shadow-lg group cursor-default`}
+      className={`relative overflow-hidden rounded-xl border ${lightBorder} ${darkBorder} ${lightBg} ${darkBg} p-3 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'} hover:-translate-y-0.5 hover:shadow-lg group cursor-default`}
     >
-      <div className={`absolute -top-4 -right-4 w-16 h-16 rounded-full blur-xl opacity-20 group-hover:opacity-35 transition-opacity duration-500 ${glow}`} />
+      <div className={`absolute -top-4 -right-4 w-16 h-16 rounded-full blur-xl opacity-10 dark:opacity-20 group-hover:opacity-25 dark:group-hover:opacity-35 transition-opacity duration-500 ${glowClass}`} />
       <div className="relative z-10 flex items-center gap-3">
-        <div className={`p-1.5 rounded-lg ${bg} border ${border} flex-shrink-0`}>
-          <Icon className={`text-xs ${color}`} />
+        <div className={`p-1.5 rounded-lg border ${lightBorder} ${darkBorder} ${lightBg} ${darkBg} flex-shrink-0`}>
+          <Icon className={`text-xs ${lightIcon} ${darkIcon}`} />
         </div>
         <div className="min-w-0">
-          <p className="text-[9px] font-semibold text-zinc-500 uppercase tracking-widest truncate">{label}</p>
+          <p className="text-[9px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest truncate">{label}</p>
           <p className={`text-base sm:text-lg font-black tabular-nums leading-tight ${color}`}>
             {format ? format(animated) : animated.toLocaleString()}
           </p>
         </div>
-        <div className={`ml-auto w-1.5 h-1.5 rounded-full flex-shrink-0 ${glow} animate-pulse`} />
+        <div className={`ml-auto w-1.5 h-1.5 rounded-full flex-shrink-0 ${glowClass} animate-pulse`} />
       </div>
     </div>
   );
@@ -160,9 +164,9 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
     .slice(0, 5);
 
   const statusDistribution = [
-    { name: 'Success', value: requestLogs.filter(l => l.status >= 200 && l.status < 300).length, color: '#34d399' },
-    { name: 'Client Err', value: requestLogs.filter(l => l.status >= 400 && l.status < 500).length, color: '#fbbf24' },
-    { name: 'Server Err', value: requestLogs.filter(l => l.status >= 500).length, color: '#f87171' },
+    { name: 'Success', value: requestLogs.filter(l => l.status >= 200 && l.status < 300).length, color: '#10b981' },
+    { name: 'Client Err', value: requestLogs.filter(l => l.status >= 400 && l.status < 500).length, color: '#f59e0b' },
+    { name: 'Server Err', value: requestLogs.filter(l => l.status >= 500).length, color: '#ef4444' },
   ].filter(i => i.value > 0);
 
   const stats = {
@@ -176,25 +180,25 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
       : 0,
   };
 
-  const MODEL_COLORS = ['#38bdf8', '#818cf8', '#f472b6', '#fb923c', '#34d399', '#a78bfa'];
+  const MODEL_COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#06b6d4'];
 
   if (loading) {
     return (
       <div className="space-y-4">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="rounded-xl border border-zinc-800 bg-zinc-950 p-3 animate-pulse">
+            <div key={i} className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-3 animate-pulse">
               <div className="flex items-center gap-3">
-                <div className="w-7 h-7 rounded-lg bg-zinc-800 flex-shrink-0" />
+                <div className="w-7 h-7 rounded-lg bg-slate-200 dark:bg-slate-700 flex-shrink-0" />
                 <div className="flex-1">
-                  <div className="h-2 w-12 bg-zinc-800 rounded mb-2" />
-                  <div className="h-5 w-16 bg-zinc-800 rounded" />
+                  <div className="h-2 w-12 bg-slate-200 dark:bg-slate-700 rounded mb-2" />
+                  <div className="h-5 w-16 bg-slate-200 dark:bg-slate-700 rounded" />
                 </div>
               </div>
             </div>
           ))}
         </div>
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-5 animate-pulse h-72" />
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 animate-pulse h-72" />
       </div>
     );
   }
@@ -205,81 +209,101 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
         <StatCard
           icon={FiActivity}
           label="Total Requests"
+          color="text-sky-600 dark:text-sky-400"
+          lightIcon="text-sky-600"
+          darkIcon="dark:text-sky-400"
+          lightBg="bg-sky-50"
+          darkBg="dark:bg-sky-900/20"
+          lightBorder="border-sky-200"
+          darkBorder="dark:border-sky-800"
+          glowClass="bg-sky-500"
           value={stats.totalRequests}
-          color="text-sky-400"
-          glow="bg-sky-400"
-          bg="bg-sky-950/30"
-          border="border-sky-900/50"
           delay={0}
         />
         <StatCard
           icon={FiCpu}
           label="Total Tokens"
+          color="text-violet-600 dark:text-violet-400"
+          lightIcon="text-violet-600"
+          darkIcon="dark:text-violet-400"
+          lightBg="bg-violet-50"
+          darkBg="dark:bg-violet-900/20"
+          lightBorder="border-violet-200"
+          darkBorder="dark:border-violet-800"
+          glowClass="bg-violet-500"
           value={Math.round(stats.totalTokens / 1000)}
-          color="text-violet-400"
-          glow="bg-violet-400"
-          bg="bg-violet-950/30"
-          border="border-violet-900/50"
           delay={80}
           format={(v) => `${v.toLocaleString()}K`}
         />
         <StatCard
           icon={FiZap}
           label="Avg Latency"
+          color="text-amber-600 dark:text-amber-400"
+          lightIcon="text-amber-600"
+          darkIcon="dark:text-amber-400"
+          lightBg="bg-amber-50"
+          darkBg="dark:bg-amber-900/20"
+          lightBorder="border-amber-200"
+          darkBorder="dark:border-amber-800"
+          glowClass="bg-amber-500"
           value={stats.avgLatency}
-          color="text-amber-400"
-          glow="bg-amber-400"
-          bg="bg-amber-950/30"
-          border="border-amber-900/50"
           delay={160}
           format={(v) => `${v}ms`}
         />
         <StatCard
           icon={FiCheckCircle}
           label="Success Rate"
+          color="text-emerald-600 dark:text-emerald-400"
+          lightIcon="text-emerald-600"
+          darkIcon="dark:text-emerald-400"
+          lightBg="bg-emerald-50"
+          darkBg="dark:bg-emerald-900/20"
+          lightBorder="border-emerald-200"
+          darkBorder="dark:border-emerald-800"
+          glowClass="bg-emerald-500"
           value={stats.successRate}
-          color="text-emerald-400"
-          glow="bg-emerald-400"
-          bg="bg-emerald-950/30"
-          border="border-emerald-900/50"
           delay={240}
           format={(v) => `${v}%`}
         />
       </div>
 
       <div className={`transition-all duration-700 delay-300 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-        <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 sm:p-5">
+        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 sm:p-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
             <div className="flex items-center gap-2.5">
-              <div className="p-1.5 bg-sky-950/50 border border-sky-900/50 rounded-lg">
-                <FiTrendingUp className="text-sky-400 text-sm" />
+              <div className="p-1.5 bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800 rounded-lg">
+                <FiTrendingUp className="text-sky-600 dark:text-sky-400 text-sm" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-white">Usage Trends</h3>
-                <p className="text-[10px] text-zinc-500">{chartType === 'requests' ? 'Requests over time' : 'Tokens (K) over time'}</p>
+                <h3 className="text-sm font-bold text-slate-800 dark:text-white">Usage Trends</h3>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400">{chartType === 'requests' ? 'Requests over time' : 'Tokens (K) over time'}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <div className="flex items-center bg-zinc-900 border border-zinc-800 rounded-xl p-1 gap-1">
+              <div className="flex items-center bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl p-1 gap-1">
                 {(['7d', '30d'] as const).map(r => (
                   <button
                     key={r}
                     onClick={() => setTimeRange(r)}
                     className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all duration-200 ${
-                      timeRange === r ? 'bg-sky-500 text-white shadow-lg shadow-sky-500/30' : 'text-zinc-500 hover:text-zinc-300'
+                      timeRange === r
+                        ? 'bg-sky-500 text-white shadow-lg shadow-sky-500/30'
+                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
                     }`}
                   >
                     {r === '7d' ? '7D' : '30D'}
                   </button>
                 ))}
               </div>
-              <div className="flex items-center bg-zinc-900 border border-zinc-800 rounded-xl p-1 gap-1">
+              <div className="flex items-center bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl p-1 gap-1">
                 {(['requests', 'tokens'] as const).map(t => (
                   <button
                     key={t}
                     onClick={() => setChartType(t)}
                     className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all duration-200 ${
-                      chartType === t ? 'bg-violet-500 text-white shadow-lg shadow-violet-500/30' : 'text-zinc-500 hover:text-zinc-300'
+                      chartType === t
+                        ? 'bg-violet-500 text-white shadow-lg shadow-violet-500/30'
+                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
                     }`}
                   >
                     {t === 'tokens' ? 'Tokens' : 'Reqs'}
@@ -293,21 +317,21 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
             <AreaChart data={chartData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
               <defs>
                 <linearGradient id="ag-main" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#38bdf8" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#38bdf8" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#0ea5e9" stopOpacity={0.25} />
+                  <stop offset="95%" stopColor="#0ea5e9" stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="ag-suc" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#34d399" stopOpacity={0.2} />
-                  <stop offset="95%" stopColor="#34d399" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.15} />
+                  <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
-              <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#71717a' }} tickLine={false} axisLine={false} />
-              <YAxis tick={{ fontSize: 10, fill: '#71717a' }} tickLine={false} axisLine={false} />
-              <Tooltip content={<ChartTooltip />} cursor={{ stroke: '#38bdf8', strokeWidth: 1, strokeDasharray: '4 4' }} />
-              <Area type="monotone" dataKey={chartType} stroke="#38bdf8" fill="url(#ag-main)" strokeWidth={2} dot={false} activeDot={{ r: 4, fill: '#38bdf8', strokeWidth: 2, stroke: '#000' }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="currentColor" className="text-slate-200 dark:text-slate-700" />
+              <XAxis dataKey="date" tick={{ fontSize: 10, fill: 'currentColor' }} tickLine={false} axisLine={false} className="text-slate-500 dark:text-slate-400" />
+              <YAxis tick={{ fontSize: 10, fill: 'currentColor' }} tickLine={false} axisLine={false} className="text-slate-500 dark:text-slate-400" />
+              <Tooltip content={<ChartTooltip />} cursor={{ stroke: '#0ea5e9', strokeWidth: 1, strokeDasharray: '4 4' }} />
+              <Area type="monotone" dataKey={chartType} stroke="#0ea5e9" fill="url(#ag-main)" strokeWidth={2} dot={false} activeDot={{ r: 4, fill: '#0ea5e9', strokeWidth: 2, stroke: '#fff' }} />
               {chartType === 'requests' && (
-                <Area type="monotone" dataKey="success" stroke="#34d399" fill="url(#ag-suc)" strokeWidth={1.5} dot={false} strokeDasharray="4 2" activeDot={{ r: 3, fill: '#34d399' }} />
+                <Area type="monotone" dataKey="success" stroke="#10b981" fill="url(#ag-suc)" strokeWidth={1.5} dot={false} strokeDasharray="4 2" activeDot={{ r: 3, fill: '#10b981' }} />
               )}
             </AreaChart>
           </ResponsiveContainer>
@@ -315,19 +339,19 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
       </div>
 
       <div className={`grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 transition-all duration-700 delay-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-        <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 sm:p-5">
+        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 sm:p-5">
           <div className="flex items-center gap-2.5 mb-4">
-            <div className="p-1.5 bg-violet-950/50 border border-violet-900/50 rounded-lg">
-              <FiCpu className="text-violet-400 text-sm" />
+            <div className="p-1.5 bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-800 rounded-lg">
+              <FiCpu className="text-violet-600 dark:text-violet-400 text-sm" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-white">Popular Models</h3>
-              <p className="text-[10px] text-zinc-500">By request count</p>
+              <h3 className="text-sm font-bold text-slate-800 dark:text-white">Popular Models</h3>
+              <p className="text-[10px] text-slate-500 dark:text-slate-400">By request count</p>
             </div>
           </div>
 
           {modelData.length === 0 ? (
-            <div className="flex items-center justify-center h-32 text-zinc-600 text-sm">No data</div>
+            <div className="flex items-center justify-center h-32 text-slate-400 dark:text-slate-500 text-sm">No data</div>
           ) : (
             <div className="space-y-2.5">
               {modelData.map((m, i) => {
@@ -337,20 +361,19 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
                   <div key={m.model}>
                     <div className="flex items-center justify-between mb-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-[9px] font-bold text-zinc-600 w-3 tabular-nums">{i + 1}</span>
-                        <span className="text-xs font-semibold text-zinc-300 truncate max-w-[140px] sm:max-w-[180px]">{m.model}</span>
+                        <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 w-3 tabular-nums">{i + 1}</span>
+                        <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 truncate max-w-[140px] sm:max-w-[180px]">{m.model}</span>
                       </div>
                       <span className="text-xs font-black tabular-nums" style={{ color: MODEL_COLORS[i % MODEL_COLORS.length] }}>
                         {m.count.toLocaleString()}
                       </span>
                     </div>
-                    <div className="h-1 bg-zinc-900 rounded-full overflow-hidden">
+                    <div className="h-1 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
                       <div
                         className="h-full rounded-full transition-all duration-1000 ease-out"
                         style={{
                           width: `${pct}%`,
                           background: MODEL_COLORS[i % MODEL_COLORS.length],
-                          boxShadow: `0 0 6px ${MODEL_COLORS[i % MODEL_COLORS.length]}50`,
                           transitionDelay: `${i * 80 + 600}ms`,
                         }}
                       />
@@ -362,19 +385,19 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
           )}
         </div>
 
-        <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 sm:p-5">
+        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 sm:p-5">
           <div className="flex items-center gap-2.5 mb-4">
-            <div className="p-1.5 bg-emerald-950/50 border border-emerald-900/50 rounded-lg">
-              <FiActivity className="text-emerald-400 text-sm" />
+            <div className="p-1.5 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg">
+              <FiActivity className="text-emerald-600 dark:text-emerald-400 text-sm" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-white">Status Distribution</h3>
-              <p className="text-[10px] text-zinc-500">Request outcomes</p>
+              <h3 className="text-sm font-bold text-slate-800 dark:text-white">Status Distribution</h3>
+              <p className="text-[10px] text-slate-500 dark:text-slate-400">Request outcomes</p>
             </div>
           </div>
 
           {statusDistribution.length === 0 ? (
-            <div className="flex items-center justify-center h-32 text-zinc-600 text-sm">No data</div>
+            <div className="flex items-center justify-center h-32 text-slate-400 dark:text-slate-500 text-sm">No data</div>
           ) : (
             <div className="flex flex-col sm:flex-row items-center gap-4">
               <ResponsiveContainer width={140} height={140}>
@@ -405,11 +428,11 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
                       <div className="flex items-center justify-between mb-1">
                         <div className="flex items-center gap-1.5">
                           <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: item.color }} />
-                          <span className="text-xs font-semibold text-zinc-400">{item.name}</span>
+                          <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">{item.name}</span>
                         </div>
-                        <span className="text-xs font-black text-zinc-300 tabular-nums">{item.value.toLocaleString()}</span>
+                        <span className="text-xs font-black text-slate-700 dark:text-slate-300 tabular-nums">{item.value.toLocaleString()}</span>
                       </div>
-                      <div className="h-1 bg-zinc-900 rounded-full overflow-hidden">
+                      <div className="h-1 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
                         <div
                           className="h-full rounded-full transition-all duration-1000 ease-out"
                           style={{ width: `${pct}%`, background: item.color }}
@@ -426,14 +449,14 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
 
       {errorData.length > 0 && (
         <div className={`transition-all duration-700 delay-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-          <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 sm:p-5">
+          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 sm:p-5">
             <div className="flex items-center gap-2.5 mb-4">
-              <div className="p-1.5 bg-red-950/50 border border-red-900/50 rounded-lg">
-                <FiAlertCircle className="text-red-400 text-sm" />
+              <div className="p-1.5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                <FiAlertCircle className="text-red-600 dark:text-red-400 text-sm" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-white">Top Errors</h3>
-                <p className="text-[10px] text-zinc-500">{errorData.length} error type{errorData.length > 1 ? 's' : ''} detected</p>
+                <h3 className="text-sm font-bold text-slate-800 dark:text-white">Top Errors</h3>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400">{errorData.length} error type{errorData.length > 1 ? 's' : ''} detected</p>
               </div>
             </div>
 
@@ -441,16 +464,16 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
               {errorData.map((error, i) => (
                 <div
                   key={i}
-                  className="flex items-center gap-3 p-2.5 bg-red-950/20 border border-red-900/30 rounded-xl hover:border-red-700/50 transition-colors duration-200 group"
+                  className="flex items-center gap-3 p-2.5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl hover:border-red-400 dark:hover:border-red-600 transition-colors duration-200 group"
                 >
-                  <div className="flex-shrink-0 w-6 h-6 rounded-lg bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center shadow-lg shadow-red-500/20">
+                  <div className="flex-shrink-0 w-6 h-6 rounded-lg bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center shadow-sm">
                     <span className="text-[9px] font-black text-white">{i + 1}</span>
                   </div>
-                  <p className="flex-1 text-xs font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors truncate">
+                  <p className="flex-1 text-xs font-medium text-slate-600 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-200 transition-colors truncate">
                     {error.error}
                   </p>
-                  <div className="flex-shrink-0 px-2 py-0.5 bg-red-950/50 border border-red-900/50 rounded-lg">
-                    <span className="text-xs font-black text-red-400 tabular-nums">{error.count}</span>
+                  <div className="flex-shrink-0 px-2 py-0.5 bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg">
+                    <span className="text-xs font-black text-red-600 dark:text-red-400 tabular-nums">{error.count}</span>
                   </div>
                 </div>
               ))}
