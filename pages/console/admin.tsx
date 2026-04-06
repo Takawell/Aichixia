@@ -271,92 +271,150 @@ export default function AdminDashboard() {
         </div>
 
         <div className="relative z-10 flex flex-col items-center gap-6 sm:gap-8 px-4 w-full max-w-md">
-          <div className="relative">
+          <div className="relative group">
             <div className="absolute -inset-6 bg-gradient-to-r from-sky-400/20 via-blue-500/20 to-cyan-400/20 dark:from-sky-400/30 dark:via-blue-500/30 dark:to-cyan-400/30 rounded-full blur-2xl animate-pulse-slow" />
             <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center">
               <div className="absolute inset-0">
                 {[...Array(3)].map((_, i) => (
-                  <div key={i} className="absolute inset-0 rounded-full border border-sky-400/20 dark:border-sky-400/30"
-                    style={{ animation: `ping ${2 + i * 0.5}s cubic-bezier(0,0,0.2,1) infinite`, animationDelay: `${i * 0.3}s` }} />
+                  <div
+                    key={i}
+                    className="absolute inset-0 rounded-full border border-sky-400/20 dark:border-sky-400/30"
+                    style={{ animation: `ping ${2 + i * 0.5}s cubic-bezier(0, 0, 0.2, 1) infinite`, animationDelay: `${i * 0.3}s` }}
+                  />
                 ))}
               </div>
               <div className="absolute inset-2 rounded-full border border-dashed border-sky-400/30 dark:border-sky-400/40 animate-spin-slow" />
-              <div className="relative z-10">
-                <Image src="/logo.png" alt="Aichixia" width={40} height={40} className="w-14 h-14 sm:w-16 sm:h-16 drop-shadow-2xl" priority />
+              <div className="relative z-10 transform hover:scale-110 transition-transform duration-500">
+                <Image
+                  src="/logo.png"
+                  alt="Aichixia"
+                  width={40}
+                  height={40}
+                  className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 drop-shadow-2xl"
+                  priority
+                />
               </div>
             </div>
           </div>
 
-          <div className="text-center space-y-2">
-            <h1 className="text-xl sm:text-2xl font-black bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 dark:from-white dark:via-slate-200 dark:to-white bg-clip-text text-transparent animate-gradient">
-              {loadingStep === 5 ? 'Welcome, Admin' : 'Admin Portal'}
-            </h1>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              {loadingStep === 5 ? 'Your workspace is ready' : 'Establishing secure admin connection'}
+          <div className="text-center space-y-2 sm:space-y-3">
+            <div className="space-y-1.5">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-black bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 dark:from-white dark:via-slate-200 dark:to-white bg-clip-text text-transparent animate-gradient">
+                {loadingStep === 5 ? 'Admin Ready' : 'Admin Dashboard'}
+              </h1>
+              <div className="flex items-center justify-center gap-2">
+                <div className="h-px w-6 sm:w-10 bg-gradient-to-r from-transparent via-sky-500 to-transparent" />
+                <div className="w-1 h-1 rounded-full bg-sky-500 animate-pulse" />
+                <div className="h-px w-6 sm:w-10 bg-gradient-to-r from-transparent via-sky-500 to-transparent" />
+              </div>
+            </div>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium max-w-xs">
+              {loadingStep === 5 ? 'System initialized successfully' : 'Establishing secure admin connection'}
             </p>
           </div>
 
-          <div className="w-full space-y-5">
+          <div className="w-full space-y-5 sm:space-y-6">
             <div className="relative">
-              <div className="h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden shadow-inner">
-                <div className={`h-full bg-gradient-to-r ${loadingSteps[loadingStep].color} rounded-full transition-all duration-500 ease-out relative overflow-hidden`}
-                  style={{ width: `${loadingProgress}%` }}>
+              <div className="h-2 sm:h-2.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden shadow-inner">
+                <div
+                  className={`h-full bg-gradient-to-r ${loadingSteps[loadingStep].color} rounded-full transition-all duration-500 ease-out relative overflow-hidden`}
+                  style={{ width: `${loadingProgress}%` }}
+                >
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
                 </div>
               </div>
-              <div className="absolute -top-7 left-0 right-0 flex items-center justify-between px-1">
-                <span className="text-[10px] font-bold text-sky-600 dark:text-sky-400">{Math.round(loadingProgress)}%</span>
+              <div className="absolute -top-7 sm:-top-8 left-0 right-0 flex items-center justify-between px-1">
+                <div className="text-xs sm:text-sm font-bold text-transparent bg-gradient-to-r from-sky-600 to-blue-600 dark:from-sky-400 dark:to-blue-400 bg-clip-text">
+                  {Math.round(loadingProgress)}%
+                </div>
                 <div className="flex gap-1">
                   {[...Array(3)].map((_, i) => (
-                    <div key={i} className={`w-1 h-1 rounded-full bg-gradient-to-r ${loadingSteps[loadingStep].color}`}
-                      style={{ animation: 'bounce 1s ease-in-out infinite', animationDelay: `${i * 0.15}s` }} />
+                    <div
+                      key={i}
+                      className={`w-1 h-1 rounded-full bg-gradient-to-r ${loadingSteps[loadingStep].color}`}
+                      style={{ animation: `bounce 1s ease-in-out infinite`, animationDelay: `${i * 0.15}s` }}
+                    />
                   ))}
                 </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-6 gap-1.5">
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
               {loadingSteps.map((step, idx) => {
                 const StepIcon = step.icon;
                 const isActive = idx === loadingStep;
                 const isComplete = idx < loadingStep;
                 return (
-                  <div key={idx} className="flex flex-col items-center gap-1.5">
+                  <div key={idx} className="relative flex flex-col items-center gap-1.5">
                     <div className={`relative transition-all duration-500 ${isActive ? 'scale-110' : 'scale-100'}`}>
-                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-500 ${
-                        isActive ? `bg-gradient-to-br ${step.color} shadow-lg shadow-sky-500/30` :
-                        isComplete ? 'bg-emerald-500/10 dark:bg-emerald-500/20 border border-emerald-500/20' :
-                        'bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700'}`}>
-                        <StepIcon className={`w-3.5 h-3.5 ${isActive ? 'text-white' : isComplete ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-600'}`} />
+                      <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center transition-all duration-500 ${
+                        isActive
+                          ? `bg-gradient-to-br ${step.color} shadow-lg shadow-sky-500/30`
+                          : isComplete
+                          ? 'bg-emerald-500/10 dark:bg-emerald-500/20 border border-emerald-500/20'
+                          : 'bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800'
+                      }`}>
+                        <StepIcon className={`w-4 h-4 transition-colors duration-500 ${
+                          isActive ? 'text-white' : isComplete ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-600'
+                        }`} />
                       </div>
-                      {isActive && <div className="absolute -inset-1 bg-sky-500/20 rounded-xl animate-ping" />}
+                      {isActive && (
+                        <>
+                          <div className="absolute -inset-1 bg-sky-500/20 rounded-lg animate-ping" />
+                          <div className={`absolute -inset-1.5 bg-gradient-to-br ${step.color} opacity-20 rounded-lg blur animate-pulse`} />
+                        </>
+                      )}
                       {isComplete && (
-                        <div className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full flex items-center justify-center shadow">
+                        <div className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 rounded-full flex items-center justify-center shadow-lg">
                           <FiCheck className="w-2 h-2 text-white" />
                         </div>
                       )}
                     </div>
                     <div className={`w-full h-0.5 rounded-full transition-all duration-500 ${
-                      isComplete ? 'bg-emerald-500/40' : isActive ? `bg-gradient-to-r ${step.color} opacity-50` : 'bg-slate-200 dark:bg-slate-700'}`} />
+                      isComplete ? 'bg-emerald-500/30' : isActive ? `bg-gradient-to-r ${step.color} opacity-50` : 'bg-slate-200 dark:bg-slate-800'
+                    }`} />
                   </div>
                 );
               })}
             </div>
 
-            <div className="flex items-center gap-3 p-3.5 rounded-xl bg-slate-100/50 dark:bg-slate-900/50 border border-slate-200/50 dark:border-slate-700/50">
-              <div className={`w-6 h-6 rounded-lg flex items-center justify-center bg-gradient-to-br ${loadingSteps[loadingStep].color} shadow flex-shrink-0`}>
-                {loadingStep === 5 ? <FiCheck className="w-3 h-3 text-white" /> : <div className="w-2 h-2 bg-white rounded-full animate-pulse" />}
+            <div className="flex items-start gap-2.5 p-3 sm:p-4 rounded-xl bg-gradient-to-br from-slate-100/50 to-slate-50/50 dark:from-slate-900/50 dark:to-slate-950/50 border border-slate-200/50 dark:border-slate-800/50 backdrop-blur-sm">
+              <div className={`flex-shrink-0 w-6 h-6 rounded-lg flex items-center justify-center bg-gradient-to-br ${loadingSteps[loadingStep].color} shadow-lg`}>
+                {loadingStep === 5 ? (
+                  <FiCheck className="w-3.5 h-3.5 text-white" />
+                ) : (
+                  <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                )}
               </div>
-              <div>
-                <p className={`text-xs font-bold ${loadingStep === 5 ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-700 dark:text-slate-200'}`}>
+              <div className="flex-1 min-w-0">
+                <p className={`text-sm font-bold mb-0.5 ${
+                  loadingStep === 5 ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-800 dark:text-slate-200'
+                }`}>
                   {loadingSteps[loadingStep].text}
                 </p>
-                <p className="text-[10px] text-slate-400">{loadingStep === 5 ? 'Completed' : 'Processing...'}</p>
+                <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-500">
+                  {loadingStep !== 5 && (
+                    <div className="flex gap-0.5">
+                      {[...Array(3)].map((_, i) => (
+                        <div
+                          key={i}
+                          className="w-0.5 h-0.5 bg-slate-400 dark:bg-slate-600 rounded-full animate-bounce"
+                          style={{ animationDelay: `${i * 0.2}s` }}
+                        />
+                      ))}
+                    </div>
+                  )}
+                  <span className="font-medium">
+                    {loadingStep === 5 ? 'Ready to use' : 'Processing...'}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
 
-          <p className="text-[10px] text-slate-400 dark:text-slate-600">Aichixia Admin Portal</p>
+          <div className="text-[10px] sm:text-xs text-slate-400 dark:text-slate-600 font-medium">
+            Aichixia Admin Portal
+          </div>
         </div>
 
         <style jsx>{`
