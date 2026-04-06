@@ -136,7 +136,7 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
     .map(day => ({
       date: new Date(day.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
       requests: day.requests_count,
-      tokens: Math.round(day.tokens_used / 1000),
+      tokens: Math.round(day.tokens_used / 2000),
       success: day.success_count,
       errors: day.error_count,
     }));
