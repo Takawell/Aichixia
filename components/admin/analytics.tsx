@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { FiTrendingUp, FiActivity, FiZap, FiAlertCircle, FiLayers, FiCpu, FiUsers, FiBarChart2 } from 'react-icons/fi';
+import { useState, useEffect, useRef } from 'react';
+import { AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { FiTrendingUp, FiActivity, FiZap, FiAlertCircle, FiCpu, FiCheckCircle } from 'react-icons/fi';
 
 type DailyUsage = {
   id: string;
@@ -35,12 +35,102 @@ type AnalyticsProps = {
   loading?: boolean;
 };
 
+function useCountUp(target: number, duration = 1200) {
+  const [value, setValue] = useState(0);
+  const ref = useRef<number>(0);
+  useEffect(() => {
+    ref.current = 0;
+    setValue(0);
+    if (target === 0) return;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 4);
+      setValue(Math.round(eased * target));
+      if (progress < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }, [target, duration]);
+  return value;
+}
+
+type CustomTooltipProps = {
+  active?: boolean;
+  payload?: { value: number; name: string; color: string }[];
+  label?: string;
+};
+
+function ChartTooltip({ active, payload, label }: CustomTooltipProps) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 shadow-2xl shadow-black/50">
+      <p className="text-[10px] font-semibold text-zinc-500 mb-1">{label}</p>
+      {payload.map((entry) => (
+        <p key={entry.name} className="text-xs font-bold" style={{ color: entry.color }}>
+          {entry.value.toLocaleString()}
+        </p>
+      ))}
+    </div>
+  );
+}
+
+type StatCardProps = {
+  icon: React.ElementType;
+  label: string;
+  value: number;
+  suffix?: string;
+  color: string;
+  glow: string;
+  bg: string;
+  border: string;
+  delay: number;
+  format?: (v: number) => string;
+};
+
+function StatCard({ icon: Icon, label, value, color, glow, bg, border, delay, format }: StatCardProps) {
+  const animated = useCountUp(value);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setVisible(true), delay);
+    return () => clearTimeout(t);
+  }, [delay]);
+
+  return (
+    <div
+      className={`relative overflow-hidden rounded-2xl border ${border} ${bg} p-4 sm:p-5 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'} hover:-translate-y-1 hover:shadow-xl group`}
+      style={{ transitionDelay: `${delay}ms` }}
+    >
+      <div className={`absolute -top-6 -right-6 w-24 h-24 rounded-full blur-2xl opacity-20 group-hover:opacity-40 transition-opacity duration-500 ${glow}`} />
+      <div className="relative z-10">
+        <div className="flex items-center justify-between mb-3">
+          <div className={`p-2 rounded-xl ${bg} border ${border}`}>
+            <Icon className={`text-sm ${color}`} />
+          </div>
+          <div className={`w-1.5 h-1.5 rounded-full ${glow} animate-pulse`} />
+        </div>
+        <p className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest mb-1">{label}</p>
+        <p className={`text-2xl sm:text-3xl font-black tabular-nums ${color}`}>
+          {format ? format(animated) : animated.toLocaleString()}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export default function Analytics({ dailyUsage, requestLogs, loading }: AnalyticsProps) {
   const [timeRange, setTimeRange] = useState<'7d' | '30d'>('7d');
   const [chartType, setChartType] = useState<'requests' | 'tokens'>('requests');
+  const [mounted, setMounted] = useState(false);
 
+  useEffect(() => {
+    const t = setTimeout(() => setMounted(true), 100);
+    return () => clearTimeout(t);
+  }, []);
+
+  const days = timeRange === '7d' ? 7 : 30;
   const chartData = dailyUsage
-    .slice(-parseInt(timeRange))
+    .slice(-days)
     .map(day => ({
       date: new Date(day.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
       requests: day.requests_count,
@@ -49,294 +139,335 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
       errors: day.error_count,
     }));
 
-  const modelUsage = requestLogs
-    .reduce((acc, log) => {
-      const model = log.model;
-      if (!acc[model]) {
-        acc[model] = { model, count: 0, tokens: 0 };
-      }
-      acc[model].count += 1;
-      acc[model].tokens += log.tokens_used || 0;
-      return acc;
-    }, {} as Record<string, { model: string; count: number; tokens: number }>);
+  const modelUsage = requestLogs.reduce((acc, log) => {
+    if (!acc[log.model]) acc[log.model] = { model: log.model, count: 0, tokens: 0 };
+    acc[log.model].count += 1;
+    acc[log.model].tokens += log.tokens_used || 0;
+    return acc;
+  }, {} as Record<string, { model: string; count: number; tokens: number }>);
 
-  const modelData = Object.values(modelUsage)
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 8);
+  const modelData = Object.values(modelUsage).sort((a, b) => b.count - a.count).slice(0, 6);
 
   const errorAnalysis = requestLogs
     .filter(log => log.status >= 400)
     .reduce((acc, log) => {
-      const error = log.error_message || 'Unknown Error';
-      acc[error] = (acc[error] || 0) + 1;
+      const e = log.error_message || 'Unknown Error';
+      acc[e] = (acc[e] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
 
   const errorData = Object.entries(errorAnalysis)
-    .map(([error, count]) => ({ error: error.substring(0, 30), count }))
+    .map(([error, count]) => ({ error: error.substring(0, 40), count }))
     .sort((a, b) => b.count - a.count)
     .slice(0, 5);
 
   const statusDistribution = [
-    { name: 'Success', value: requestLogs.filter(l => l.status >= 200 && l.status < 300).length, color: '#10b981' },
-    { name: 'Client Error', value: requestLogs.filter(l => l.status >= 400 && l.status < 500).length, color: '#f59e0b' },
-    { name: 'Server Error', value: requestLogs.filter(l => l.status >= 500).length, color: '#ef4444' },
-  ].filter(item => item.value > 0);
+    { name: 'Success', value: requestLogs.filter(l => l.status >= 200 && l.status < 300).length, color: '#34d399' },
+    { name: 'Client Err', value: requestLogs.filter(l => l.status >= 400 && l.status < 500).length, color: '#fbbf24' },
+    { name: 'Server Err', value: requestLogs.filter(l => l.status >= 500).length, color: '#f87171' },
+  ].filter(i => i.value > 0);
 
   const stats = {
     totalRequests: requestLogs.length,
-    totalTokens: requestLogs.reduce((sum, log) => sum + (log.tokens_used || 0), 0),
+    totalTokens: requestLogs.reduce((sum, l) => sum + (l.tokens_used || 0), 0),
     avgLatency: requestLogs.filter(l => l.latency_ms).length > 0
-      ? Math.round(requestLogs.filter(l => l.latency_ms).reduce((sum, l) => sum + (l.latency_ms || 0), 0) / requestLogs.filter(l => l.latency_ms).length)
+      ? Math.round(requestLogs.filter(l => l.latency_ms).reduce((s, l) => s + (l.latency_ms || 0), 0) / requestLogs.filter(l => l.latency_ms).length)
       : 0,
     successRate: requestLogs.length > 0
       ? Math.round((requestLogs.filter(l => l.status >= 200 && l.status < 300).length / requestLogs.length) * 100)
       : 0,
   };
 
-  const COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#06b6d4', '#6366f1', '#a855f7'];
+  const MODEL_COLORS = ['#38bdf8', '#818cf8', '#f472b6', '#fb923c', '#34d399', '#a78bfa'];
+
   if (loading) {
     return (
-      <div className="space-y-3 sm:space-y-4">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl border border-slate-200 dark:border-slate-700 p-4 animate-pulse">
-              <div className="h-8 bg-slate-200 dark:bg-slate-700 rounded w-1/2 mb-2" />
-              <div className="h-6 bg-slate-200 dark:bg-slate-700 rounded w-2/3" />
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="rounded-2xl border border-zinc-800 bg-zinc-950 p-5 animate-pulse">
+              <div className="w-8 h-8 rounded-xl bg-zinc-800 mb-4" />
+              <div className="h-2 w-16 bg-zinc-800 rounded mb-3" />
+              <div className="h-8 w-24 bg-zinc-800 rounded" />
             </div>
           ))}
         </div>
-        <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl border border-slate-200 dark:border-slate-700 p-6 animate-pulse">
-          <div className="h-64 bg-slate-200 dark:bg-slate-700 rounded" />
-        </div>
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6 animate-pulse h-80" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-3 sm:space-y-4">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
-        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg sm:rounded-xl border border-blue-200 dark:border-blue-800 p-3 sm:p-4">
-          <div className="flex items-center gap-2 mb-1 sm:mb-2">
-            <FiActivity className="text-blue-600 dark:text-blue-400 text-sm sm:text-base" />
-            <p className="text-[10px] sm:text-xs font-medium text-blue-600 dark:text-blue-400">Total Requests</p>
-          </div>
-          <p className="text-xl sm:text-2xl font-bold text-blue-800 dark:text-blue-300">{stats.totalRequests.toLocaleString()}</p>
-        </div>
-
-        <div className="bg-gradient-to-br from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20 rounded-lg sm:rounded-xl border border-purple-200 dark:border-purple-800 p-3 sm:p-4">
-          <div className="flex items-center gap-2 mb-1 sm:mb-2">
-            <FiLayers className="text-purple-600 dark:text-purple-400 text-sm sm:text-base" />
-            <p className="text-[10px] sm:text-xs font-medium text-purple-600 dark:text-purple-400">Total Tokens</p>
-          </div>
-          <p className="text-xl sm:text-2xl font-bold text-purple-800 dark:text-purple-300">{(stats.totalTokens / 1000).toFixed(1)}K</p>
-        </div>
-
-        <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg sm:rounded-xl border border-green-200 dark:border-green-800 p-3 sm:p-4">
-          <div className="flex items-center gap-2 mb-1 sm:mb-2">
-            <FiZap className="text-green-600 dark:text-green-400 text-sm sm:text-base" />
-            <p className="text-[10px] sm:text-xs font-medium text-green-600 dark:text-green-400">Avg Latency</p>
-          </div>
-          <p className="text-xl sm:text-2xl font-bold text-green-800 dark:text-green-300">{stats.avgLatency}ms</p>
-        </div>
-
-        <div className="bg-gradient-to-br from-cyan-50 to-sky-50 dark:from-cyan-900/20 dark:to-sky-900/20 rounded-lg sm:rounded-xl border border-cyan-200 dark:border-cyan-800 p-3 sm:p-4">
-          <div className="flex items-center gap-2 mb-1 sm:mb-2">
-            <FiTrendingUp className="text-cyan-600 dark:text-cyan-400 text-sm sm:text-base" />
-            <p className="text-[10px] sm:text-xs font-medium text-cyan-600 dark:text-cyan-400">Success Rate</p>
-          </div>
-          <p className="text-xl sm:text-2xl font-bold text-cyan-800 dark:text-cyan-300">{stats.successRate}%</p>
-        </div>
+    <div className="space-y-4 sm:space-y-5">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <StatCard
+          icon={FiActivity}
+          label="Total Requests"
+          value={stats.totalRequests}
+          color="text-sky-400"
+          glow="bg-sky-400"
+          bg="bg-sky-950/30"
+          border="border-sky-900/50"
+          delay={0}
+        />
+        <StatCard
+          icon={FiCpu}
+          label="Total Tokens"
+          value={Math.round(stats.totalTokens / 1000)}
+          color="text-violet-400"
+          glow="bg-violet-400"
+          bg="bg-violet-950/30"
+          border="border-violet-900/50"
+          delay={80}
+          format={(v) => `${v.toLocaleString()}K`}
+        />
+        <StatCard
+          icon={FiZap}
+          label="Avg Latency"
+          value={stats.avgLatency}
+          color="text-amber-400"
+          glow="bg-amber-400"
+          bg="bg-amber-950/30"
+          border="border-amber-900/50"
+          delay={160}
+          format={(v) => `${v}ms`}
+        />
+        <StatCard
+          icon={FiCheckCircle}
+          label="Success Rate"
+          value={stats.successRate}
+          color="text-emerald-400"
+          glow="bg-emerald-400"
+          bg="bg-emerald-950/30"
+          border="border-emerald-900/50"
+          delay={240}
+          format={(v) => `${v}%`}
+        />
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        <button
-          onClick={() => setTimeRange('7d')}
-          className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium transition-all ${
-            timeRange === '7d'
-              ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-lg'
-              : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:border-sky-500'
-          }`}
-        >
-          Last 7 Days
-        </button>
-        <button
-          onClick={() => setTimeRange('30d')}
-          className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium transition-all ${
-            timeRange === '30d'
-              ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-lg'
-              : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:border-sky-500'
-          }`}
-        >
-          Last 30 Days
-        </button>
-
-        <div className="w-px bg-slate-200 dark:bg-slate-700 mx-1" />
-
-        <button
-          onClick={() => setChartType('requests')}
-          className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium transition-all ${
-            chartType === 'requests'
-              ? 'bg-gradient-to-r from-purple-500 to-violet-600 text-white shadow-lg'
-              : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:border-purple-500'
-          }`}
-        >
-          Requests
-        </button>
-        <button
-          onClick={() => setChartType('tokens')}
-          className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium transition-all ${
-            chartType === 'tokens'
-              ? 'bg-gradient-to-r from-purple-500 to-violet-600 text-white shadow-lg'
-              : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:border-purple-500'
-          }`}
-        >
-          Tokens (K)
-        </button>
-      </div>
-
-      <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
-        <div className="flex items-center gap-2 mb-4 sm:mb-6">
-          <FiBarChart2 className="text-sky-600 dark:text-sky-400 text-lg sm:text-xl" />
-          <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">
-            Usage Trends ({chartType === 'requests' ? 'Requests' : 'Tokens'})
-          </h3>
-        </div>
-        
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" className="dark:stroke-slate-700" />
-            <XAxis 
-              dataKey="date" 
-              stroke="#64748b"
-              tick={{ fontSize: 12 }}
-            />
-            <YAxis 
-              stroke="#64748b"
-              tick={{ fontSize: 12 }}
-            />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                border: '1px solid #e2e8f0',
-                borderRadius: '12px',
-                padding: '12px',
-              }}
-            />
-            <Legend wrapperStyle={{ fontSize: '12px' }} />
-            <Line 
-              type="monotone" 
-              dataKey={chartType} 
-              stroke="#3b82f6" 
-              strokeWidth={3}
-              dot={{ fill: '#3b82f6', r: 4 }}
-              activeDot={{ r: 6 }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
-        <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
-          <div className="flex items-center gap-2 mb-4 sm:mb-6">
-            <FiCpu className="text-violet-600 dark:text-violet-400 text-lg sm:text-xl" />
-            <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">Popular Models</h3>
-          </div>
-
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={modelData} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" className="dark:stroke-slate-700" />
-              <XAxis type="number" stroke="#64748b" tick={{ fontSize: 12 }} />
-              <YAxis 
-                dataKey="model" 
-                type="category" 
-                stroke="#64748b"
-                tick={{ fontSize: 10 }}
-                width={100}
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '12px',
-                  padding: '12px',
-                }}
-              />
-              <Bar dataKey="count" radius={[0, 8, 8, 0]}>
-                {modelData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+      <div className={`transition-all duration-700 delay-300 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+        <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 sm:p-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+            <div className="flex items-center gap-2.5">
+              <div className="p-1.5 bg-sky-950/50 border border-sky-900/50 rounded-lg">
+                <FiTrendingUp className="text-sky-400 text-sm" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-white">Usage Trends</h3>
+                <p className="text-[10px] text-zinc-500">{chartType === 'requests' ? 'Requests over time' : 'Tokens (K) over time'}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center bg-zinc-900 border border-zinc-800 rounded-xl p-1 gap-1">
+                {(['7d', '30d'] as const).map(r => (
+                  <button
+                    key={r}
+                    onClick={() => setTimeRange(r)}
+                    className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all duration-200 ${
+                      timeRange === r
+                        ? 'bg-sky-500 text-white shadow-lg shadow-sky-500/30'
+                        : 'text-zinc-500 hover:text-zinc-300'
+                    }`}
+                  >
+                    {r === '7d' ? '7D' : '30D'}
+                  </button>
                 ))}
-              </Bar>
-            </BarChart>
+              </div>
+              <div className="flex items-center bg-zinc-900 border border-zinc-800 rounded-xl p-1 gap-1">
+                {(['requests', 'tokens'] as const).map(t => (
+                  <button
+                    key={t}
+                    onClick={() => setChartType(t)}
+                    className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all duration-200 capitalize ${
+                      chartType === t
+                        ? 'bg-violet-500 text-white shadow-lg shadow-violet-500/30'
+                        : 'text-zinc-500 hover:text-zinc-300'
+                    }`}
+                  >
+                    {t === 'tokens' ? 'Tokens' : 'Reqs'}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <ResponsiveContainer width="100%" height={240}>
+            <AreaChart data={chartData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
+              <defs>
+                <linearGradient id="ag-main" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#38bdf8" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#38bdf8" stopOpacity={0} />
+                </linearGradient>
+                <linearGradient id="ag-suc" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#34d399" stopOpacity={0.2} />
+                  <stop offset="95%" stopColor="#34d399" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
+              <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#71717a' }} tickLine={false} axisLine={false} />
+              <YAxis tick={{ fontSize: 10, fill: '#71717a' }} tickLine={false} axisLine={false} />
+              <Tooltip content={<ChartTooltip />} cursor={{ stroke: '#38bdf8', strokeWidth: 1, strokeDasharray: '4 4' }} />
+              <Area type="monotone" dataKey={chartType} stroke="#38bdf8" fill="url(#ag-main)" strokeWidth={2} dot={false} activeDot={{ r: 4, fill: '#38bdf8', strokeWidth: 2, stroke: '#000' }} />
+              {chartType === 'requests' && (
+                <Area type="monotone" dataKey="success" stroke="#34d399" fill="url(#ag-suc)" strokeWidth={1.5} dot={false} strokeDasharray="4 2" activeDot={{ r: 3, fill: '#34d399' }} />
+              )}
+            </AreaChart>
           </ResponsiveContainer>
         </div>
+      </div>
 
-        <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
-          <div className="flex items-center gap-2 mb-4 sm:mb-6">
-            <FiUsers className="text-green-600 dark:text-green-400 text-lg sm:text-xl" />
-            <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">Status Distribution</h3>
+      <div className={`grid grid-cols-1 lg:grid-cols-2 gap-4 transition-all duration-700 delay-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+        <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 sm:p-5">
+          <div className="flex items-center gap-2.5 mb-5">
+            <div className="p-1.5 bg-violet-950/50 border border-violet-900/50 rounded-lg">
+              <FiCpu className="text-violet-400 text-sm" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-white">Popular Models</h3>
+              <p className="text-[10px] text-zinc-500">By request count</p>
+            </div>
           </div>
 
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={statusDistribution}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                outerRadius={100}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {statusDistribution.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '12px',
-                  padding: '12px',
-                }}
-              />
-            </PieChart>
-          </ResponsiveContainer>
+          {modelData.length === 0 ? (
+            <div className="flex items-center justify-center h-40 text-zinc-600 text-sm">No data</div>
+          ) : (
+            <div className="space-y-3">
+              {modelData.map((m, i) => {
+                const max = modelData[0].count;
+                const pct = max > 0 ? (m.count / max) * 100 : 0;
+                return (
+                  <div key={m.model} className="group">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[9px] font-bold text-zinc-600 w-4 tabular-nums">{i + 1}</span>
+                        <span className="text-xs font-semibold text-zinc-300 truncate max-w-[160px]">{m.model}</span>
+                      </div>
+                      <span className="text-xs font-black tabular-nums" style={{ color: MODEL_COLORS[i % MODEL_COLORS.length] }}>
+                        {m.count.toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="h-1.5 bg-zinc-900 rounded-full overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all duration-1000 ease-out"
+                        style={{
+                          width: `${pct}%`,
+                          background: MODEL_COLORS[i % MODEL_COLORS.length],
+                          boxShadow: `0 0 8px ${MODEL_COLORS[i % MODEL_COLORS.length]}60`,
+                          transitionDelay: `${i * 80 + 600}ms`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 sm:p-5">
+          <div className="flex items-center gap-2.5 mb-5">
+            <div className="p-1.5 bg-emerald-950/50 border border-emerald-900/50 rounded-lg">
+              <FiActivity className="text-emerald-400 text-sm" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-white">Status Distribution</h3>
+              <p className="text-[10px] text-zinc-500">Request outcomes</p>
+            </div>
+          </div>
+
+          {statusDistribution.length === 0 ? (
+            <div className="flex items-center justify-center h-40 text-zinc-600 text-sm">No data</div>
+          ) : (
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <ResponsiveContainer width={160} height={160}>
+                <PieChart>
+                  <Pie
+                    data={statusDistribution}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={45}
+                    outerRadius={70}
+                    paddingAngle={3}
+                    dataKey="value"
+                    strokeWidth={0}
+                  >
+                    {statusDistribution.map((entry, index) => (
+                      <Cell key={index} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip content={<ChartTooltip />} />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="flex-1 space-y-3 w-full">
+                {statusDistribution.map((item) => {
+                  const total = statusDistribution.reduce((s, i) => s + i.value, 0);
+                  const pct = total > 0 ? Math.round((item.value / total) * 100) : 0;
+                  return (
+                    <div key={item.name}>
+                      <div className="flex items-center justify-between mb-1">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: item.color, boxShadow: `0 0 6px ${item.color}` }} />
+                          <span className="text-xs font-semibold text-zinc-400">{item.name}</span>
+                        </div>
+                        <span className="text-xs font-black text-zinc-300 tabular-nums">{item.value.toLocaleString()}</span>
+                      </div>
+                      <div className="h-1 bg-zinc-900 rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all duration-1000 ease-out"
+                          style={{ width: `${pct}%`, background: item.color }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
       {errorData.length > 0 && (
-        <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <FiAlertCircle className="text-red-600 dark:text-red-400 text-lg sm:text-xl" />
-            <h3 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white">Top Errors</h3>
-          </div>
+        <div className={`transition-all duration-700 delay-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+          <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 sm:p-5">
+            <div className="flex items-center gap-2.5 mb-5">
+              <div className="p-1.5 bg-red-950/50 border border-red-900/50 rounded-lg">
+                <FiAlertCircle className="text-red-400 text-sm" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-white">Top Errors</h3>
+                <p className="text-[10px] text-zinc-500">{errorData.length} error type{errorData.length > 1 ? 's' : ''} detected</p>
+              </div>
+            </div>
 
-          <div className="space-y-2 sm:space-y-3">
-            {errorData.map((error, index) => (
-              <div
-                key={index}
-                className="flex items-center gap-3 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg sm:rounded-xl border border-red-200 dark:border-red-800"
-              >
-                <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-red-500 to-rose-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">
-                  {index + 1}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs sm:text-sm font-medium text-slate-800 dark:text-white truncate">
+            <div className="space-y-2">
+              {errorData.map((error, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-3 p-3 bg-red-950/20 border border-red-900/30 rounded-xl hover:border-red-700/50 transition-colors duration-200 group"
+                  style={{ animationDelay: `${i * 60}ms` }}
+                >
+                  <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center shadow-lg shadow-red-500/20">
+                    <span className="text-[10px] font-black text-white">{i + 1}</span>
+                  </div>
+                  <p className="flex-1 text-xs font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors truncate">
                     {error.error}
                   </p>
+                  <div className="flex-shrink-0 px-2.5 py-1 bg-red-950/50 border border-red-900/50 rounded-lg">
+                    <span className="text-xs font-black text-red-400 tabular-nums">{error.count}</span>
+                  </div>
                 </div>
-                <div className="flex-shrink-0 px-2.5 py-1 bg-red-100 dark:bg-red-900/30 rounded-lg">
-                  <p className="text-xs sm:text-sm font-bold text-red-700 dark:text-red-400">
-                    {error.count}
-                  </p>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       )}
+
+      <style jsx>{`
+        @keyframes shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+      `}</style>
     </div>
   );
 }
