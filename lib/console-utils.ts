@@ -24,7 +24,7 @@ export async function verifyApiKey(apiKey: string) {
     .single();
 
   if (error || !data) return null;
-  
+
   if (data.requests_used >= data.rate_limit) {
     return { error: 'Rate limit exceeded', key: data };
   }
@@ -36,7 +36,7 @@ export async function incrementUsage(apiKeyId: string) {
   const { error } = await supabase.rpc('increment_request_count', {
     api_key_text: apiKeyId
   });
-  
+
   if (error) console.error('Failed to increment usage:', error);
 }
 
@@ -138,7 +138,7 @@ export async function getRecentLogs(userId: string, limit: number = 20, forAdmin
 
 export async function getUserKeys(userId: string) {
   const supabaseAdmin = getServiceSupabase();
-  
+
   const { data, error } = await supabaseAdmin
     .from('api_keys')
     .select('*')
@@ -154,19 +154,19 @@ export async function createApiKey(userId: string, name: string) {
 
   const existingKeys = await getUserKeys(userId);
   const activeKeys = existingKeys.filter(k => k.is_active);
-  
+
   if (activeKeys.length >= 2) {
     throw new Error('MAX_KEYS_REACHED');
   }
 
-  const allKeysSorted = existingKeys.sort((a, b) => 
+  const allKeysSorted = existingKeys.sort((a, b) =>
     new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   );
 
   if (allKeysSorted.length > 0) {
     const lastCreatedKey = allKeysSorted[0];
     const hoursSince = (Date.now() - new Date(lastCreatedKey.created_at).getTime()) / (1000 * 60 * 60);
-    
+
     if (hoursSince < 24) {
       const hoursRemaining = Math.ceil(24 - hoursSince);
       throw new Error(`COOLDOWN_ACTIVE:${hoursRemaining}`);
@@ -203,7 +203,7 @@ export async function createApiKey(userId: string, name: string) {
 
 export async function revokeApiKey(userId: string, keyId: string) {
   const supabaseAdmin = getServiceSupabase();
-  
+
   const { error } = await supabaseAdmin
     .from('api_keys')
     .update({ is_active: false })
@@ -215,7 +215,7 @@ export async function revokeApiKey(userId: string, keyId: string) {
 
 export async function updateApiKeyName(userId: string, keyId: string, newName: string) {
   const supabaseAdmin = getServiceSupabase();
-  
+
   const { error } = await supabaseAdmin
     .from('api_keys')
     .update({ name: newName })
@@ -231,36 +231,56 @@ export async function getTotalStats(userId: string) {
     .select('id, requests_used, rate_limit, is_active')
     .eq('user_id', userId);
 
-  if (!keys) return { totalRequests: 0, activeKeys: 0, rateLimitUsage: 0 };
+  if (!keys) return { totalRequests: 0, activeKeys: 0, rateLimitUsage: 0, successCount: 0, errorCount: 0 };
 
   const totalRequests = keys.reduce((sum, k) => sum + k.requests_used, 0);
   const activeKeys = keys.filter(k => k.is_active).length;
   const totalLimit = keys.reduce((sum, k) => sum + k.rate_limit, 0);
   const rateLimitUsage = totalLimit > 0 ? (totalRequests / totalLimit) * 100 : 0;
 
+  const { data: usage } = await supabase
+    .from('daily_usage')
+    .select('success_count, error_count')
+    .eq('user_id', userId);
+
+  const successCount = (usage || []).reduce((sum, d) => sum + d.success_count, 0);
+  const errorCount = (usage || []).reduce((sum, d) => sum + d.error_count, 0);
+
   return {
     totalRequests,
     activeKeys,
     rateLimitUsage: Math.round(rateLimitUsage),
+    successCount,
+    errorCount,
   };
 }
 
 export async function getAllUsersStats() {
-  const supabaseAdmin = getServiceSupabase();  
+  const supabaseAdmin = getServiceSupabase();
+
   const { data: keys } = await supabaseAdmin
     .from('api_keys')
     .select('id, requests_used, rate_limit, is_active');
 
-  if (!keys) return { totalRequests: 0, activeKeys: 0, rateLimitUsage: 0 };
+  if (!keys) return { totalRequests: 0, activeKeys: 0, rateLimitUsage: 0, successCount: 0, errorCount: 0 };
 
   const totalRequests = keys.reduce((sum, k) => sum + k.requests_used, 0);
   const activeKeys = keys.filter(k => k.is_active).length;
   const totalLimit = keys.reduce((sum, k) => sum + k.rate_limit, 0);
   const rateLimitUsage = totalLimit > 0 ? (totalRequests / totalLimit) * 100 : 0;
 
+  const { data: usage } = await supabaseAdmin
+    .from('daily_usage')
+    .select('success_count, error_count');
+
+  const successCount = (usage || []).reduce((sum, d) => sum + d.success_count, 0);
+  const errorCount = (usage || []).reduce((sum, d) => sum + d.error_count, 0);
+
   return {
     totalRequests,
     activeKeys,
     rateLimitUsage: Math.round(rateLimitUsage),
+    successCount,
+    errorCount,
   };
 }
