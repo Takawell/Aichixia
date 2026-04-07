@@ -43,7 +43,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   if (type === 'logs') {
-    const logsLimit = limit ? parseInt(limit as string) : 20;
+    const logsLimit = limit ? parseInt(limit as string) : 100;
     const logs = await getRecentLogs(user.id, logsLimit, isAdminRequest);
     return res.status(200).json({ logs });
   }
