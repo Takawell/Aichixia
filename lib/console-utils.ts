@@ -228,23 +228,23 @@ export async function updateApiKeyName(userId: string, keyId: string, newName: s
 export async function getTotalStats(userId: string) {
   const { data: keys } = await supabase
     .from('api_keys')
-    .select('id, requests_used, rate_limit, is_active')
+    .select('id, rate_limit, is_active')
     .eq('user_id', userId);
 
   if (!keys) return { totalRequests: 0, activeKeys: 0, rateLimitUsage: 0, successCount: 0, errorCount: 0 };
 
-  const totalRequests = keys.reduce((sum, k) => sum + k.requests_used, 0);
   const activeKeys = keys.filter(k => k.is_active).length;
   const totalLimit = keys.reduce((sum, k) => sum + k.rate_limit, 0);
-  const rateLimitUsage = totalLimit > 0 ? (totalRequests / totalLimit) * 100 : 0;
 
   const { data: usage } = await supabase
     .from('daily_usage')
-    .select('success_count, error_count')
+    .select('requests_count, success_count, error_count')
     .eq('user_id', userId);
 
+  const totalRequests = (usage || []).reduce((sum, d) => sum + d.requests_count, 0);
   const successCount = (usage || []).reduce((sum, d) => sum + d.success_count, 0);
   const errorCount = (usage || []).reduce((sum, d) => sum + d.error_count, 0);
+  const rateLimitUsage = totalLimit > 0 ? (totalRequests / totalLimit) * 100 : 0;
 
   return {
     totalRequests,
@@ -260,21 +260,21 @@ export async function getAllUsersStats() {
 
   const { data: keys } = await supabaseAdmin
     .from('api_keys')
-    .select('id, requests_used, rate_limit, is_active');
+    .select('id, rate_limit, is_active');
 
   if (!keys) return { totalRequests: 0, activeKeys: 0, rateLimitUsage: 0, successCount: 0, errorCount: 0 };
 
-  const totalRequests = keys.reduce((sum, k) => sum + k.requests_used, 0);
   const activeKeys = keys.filter(k => k.is_active).length;
   const totalLimit = keys.reduce((sum, k) => sum + k.rate_limit, 0);
-  const rateLimitUsage = totalLimit > 0 ? (totalRequests / totalLimit) * 100 : 0;
 
   const { data: usage } = await supabaseAdmin
     .from('daily_usage')
-    .select('success_count, error_count');
+    .select('requests_count, success_count, error_count');
 
+  const totalRequests = (usage || []).reduce((sum, d) => sum + d.requests_count, 0);
   const successCount = (usage || []).reduce((sum, d) => sum + d.success_count, 0);
   const errorCount = (usage || []).reduce((sum, d) => sum + d.error_count, 0);
+  const rateLimitUsage = totalLimit > 0 ? (totalRequests / totalLimit) * 100 : 0;
 
   return {
     totalRequests,
