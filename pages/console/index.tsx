@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { supabase } from '@/lib/supabase';
-import { FiKey, FiActivity, FiSettings, FiLogOut, FiMenu, FiRefreshCw, FiTrendingUp, FiZap, FiLayers, FiAlertCircle, FiShield, FiLock, FiCheck, FiCpu, FiDatabase, FiCode, FiX, FiMail, FiUser, FiChevronRight } from 'react-icons/fi';
+import { FiKey, FiActivity, FiSettings, FiLogOut, FiMenu, FiRefreshCw, FiTrendingUp, FiZap, FiLayers, FiAlertCircle, FiShield, FiLock, FiCheck, FiCpu, FiDatabase, FiCode, FiX, FiMail, FiUser, FiChevronRight, FiEye, FiEyeOff } from 'react-icons/fi';
 import ThemeToggle from '@/components/ThemeToggle';
 import Overview from '@/components/console/overview';
 import ApiKeys from '@/components/console/apikeys';
@@ -85,6 +85,7 @@ export default function Console() {
   const [showRevokeModal, setShowRevokeModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [profileModalVisible, setProfileModalVisible] = useState(false);
+  const [showEmail, setShowEmail] = useState(false);
   const [selectedKey, setSelectedKey] = useState<ApiKey | null>(null);
   const [newKeyName, setNewKeyName] = useState('');
   const [createdKey, setCreatedKey] = useState<string | null>(null);
@@ -97,6 +98,7 @@ export default function Console() {
   const profileModalRef = useRef<HTMLDivElement>(null);
 
   const openProfileModal = () => {
+    setShowEmail(false);
     setShowProfileModal(true);
     requestAnimationFrame(() => {
       requestAnimationFrame(() => setProfileModalVisible(true));
@@ -106,6 +108,12 @@ export default function Console() {
   const closeProfileModal = () => {
     setProfileModalVisible(false);
     setTimeout(() => setShowProfileModal(false), 320);
+  };
+
+  const maskEmail = (email: string) => {
+    const [local, domain] = email.split('@');
+    const masked = local[0] + '•'.repeat(Math.max(local.length - 2, 2)) + local[local.length - 1];
+    return `${masked}@${domain}`;
   };
 
   useEffect(() => {
@@ -712,10 +720,6 @@ export default function Console() {
               from { opacity: 0; }
               to   { opacity: 1; }
             }
-            @keyframes profileBgOut {
-              from { opacity: 1; }
-              to   { opacity: 0; }
-            }
             @keyframes avatarRing {
               0%, 100% { box-shadow: 0 0 0 0 rgba(56,189,248,0.4); }
               50% { box-shadow: 0 0 0 6px rgba(56,189,248,0); }
@@ -724,13 +728,18 @@ export default function Console() {
               0% { transform: translateX(-100%) skewX(-15deg); }
               100% { transform: translateX(250%) skewX(-15deg); }
             }
-            .animate-shimmer-pass { animation: shimmerPass 2.5s ease-in-out infinite; }
-            .avatar-ring { animation: avatarRing 2.5s ease-in-out infinite; }
+            @keyframes emailReveal {
+              from { opacity: 0; filter: blur(4px); transform: translateY(-2px); }
+              to   { opacity: 1; filter: blur(0px); transform: translateY(0); }
+            }
             @keyframes adminPulse {
               0%, 100% { opacity: 0; transform: scale(1); }
               50% { opacity: 0.5; transform: scale(1.6); }
             }
+            .animate-shimmer-pass { animation: shimmerPass 2.5s ease-in-out infinite; }
+            .avatar-ring { animation: avatarRing 2.5s ease-in-out infinite; }
             .animate-admin-pulse { animation: adminPulse 2s ease-in-out infinite; }
+            .animate-email-reveal { animation: emailReveal 0.25s cubic-bezier(0.22,1,0.36,1) both; }
           `}</style>
 
           <div className="px-4 py-4 border-b border-zinc-100 dark:border-zinc-800/60">
@@ -1131,7 +1140,7 @@ export default function Console() {
               </div>
 
               <div className="space-y-2 mb-4">
-                <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-100 dark:border-zinc-800/60 group">
+                <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-100 dark:border-zinc-800/60">
                   <div className="w-6 h-6 rounded-lg bg-sky-100 dark:bg-sky-500/15 flex items-center justify-center flex-shrink-0">
                     <FiUser className="text-sky-600 dark:text-sky-400" style={{ fontSize: 11 }} />
                   </div>
@@ -1149,10 +1158,24 @@ export default function Console() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-[9px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider leading-none mb-0.5">Email</p>
-                    <p className="text-xs font-semibold text-zinc-900 dark:text-white truncate">
-                      {profile?.email || user?.email}
+                    <p
+                      key={showEmail ? 'shown' : 'hidden'}
+                      className="text-xs font-semibold text-zinc-900 dark:text-white truncate animate-email-reveal"
+                    >
+                      {showEmail
+                        ? (profile?.email || user?.email)
+                        : maskEmail(profile?.email || user?.email || 'u@example.com')}
                     </p>
                   </div>
+                  <button
+                    onClick={() => setShowEmail((v) => !v)}
+                    title={showEmail ? 'Hide email' : 'Show email'}
+                    className="flex-shrink-0 w-6 h-6 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-90 bg-zinc-100 dark:bg-zinc-800 hover:bg-blue-100 dark:hover:bg-blue-500/20 text-zinc-400 dark:text-zinc-500 hover:text-blue-600 dark:hover:text-blue-400"
+                  >
+                    {showEmail
+                      ? <FiEyeOff style={{ fontSize: 11 }} />
+                      : <FiEye style={{ fontSize: 11 }} />}
+                  </button>
                 </div>
               </div>
 
