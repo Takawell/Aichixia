@@ -726,6 +726,11 @@ export default function Console() {
             }
             .animate-shimmer-pass { animation: shimmerPass 2.5s ease-in-out infinite; }
             .avatar-ring { animation: avatarRing 2.5s ease-in-out infinite; }
+            @keyframes adminPulse {
+              0%, 100% { opacity: 0; transform: scale(1); }
+              50% { opacity: 0.5; transform: scale(1.6); }
+            }
+            .animate-admin-pulse { animation: adminPulse 2s ease-in-out infinite; }
           `}</style>
 
           <div className="px-4 py-4 border-b border-zinc-100 dark:border-zinc-800/60">
@@ -801,8 +806,11 @@ export default function Console() {
                     {profile?.display_name || user?.email}
                   </p>
                   {settings?.is_admin && (
-                    <span className="flex-shrink-0 w-3.5 h-3.5 rounded-full bg-sky-500 flex items-center justify-center" style={{ boxShadow: '0 0 6px rgba(14,165,233,0.7)' }}>
-                      <FiCheck className="text-white" style={{ fontSize: 8, strokeWidth: 3 }} />
+                    <span className="admin-badge-sidebar flex-shrink-0 relative flex items-center justify-center w-4 h-4">
+                      <span className="absolute inset-0 rounded-full bg-gradient-to-br from-sky-400 to-blue-600 animate-admin-pulse" />
+                      <span className="relative w-3.5 h-3.5 rounded-full bg-gradient-to-br from-sky-400 via-sky-500 to-blue-600 flex items-center justify-center" style={{ boxShadow: '0 0 8px rgba(14,165,233,0.9), 0 0 16px rgba(14,165,233,0.4)' }}>
+                        <FiCheck className="text-white" style={{ fontSize: 7.5, strokeWidth: 3.5 }} />
+                      </span>
                     </span>
                   )}
                 </div>
@@ -1077,11 +1085,14 @@ export default function Console() {
                       </div>
                     )}
                     {settings?.is_admin && (
-                      <div
-                        className="absolute -bottom-1.5 -right-1.5 w-5 h-5 rounded-full bg-sky-500 flex items-center justify-center border-2 border-white dark:border-zinc-950"
-                        style={{ boxShadow: '0 0 10px rgba(14,165,233,0.7)' }}
-                      >
-                        <FiCheck className="text-white" style={{ fontSize: 9, strokeWidth: 3.5 }} />
+                      <div className="absolute -bottom-1.5 -right-1.5 flex items-center justify-center">
+                        <span className="absolute w-5 h-5 rounded-full bg-sky-400/40 animate-ping" style={{ animationDuration: '2s' }} />
+                        <div
+                          className="relative w-5 h-5 rounded-full bg-gradient-to-br from-sky-400 via-sky-500 to-blue-600 flex items-center justify-center border-[2.5px] border-white dark:border-zinc-950"
+                          style={{ boxShadow: '0 0 0 1px rgba(14,165,233,0.3), 0 0 12px rgba(14,165,233,0.8), 0 2px 6px rgba(0,0,0,0.3)' }}
+                        >
+                          <FiCheck className="text-white" style={{ fontSize: 8.5, strokeWidth: 3.5 }} />
+                        </div>
                       </div>
                     )}
                   </div>
@@ -1092,14 +1103,12 @@ export default function Console() {
                         {profile?.display_name || 'User'}
                       </h3>
                       {settings?.is_admin && (
-                        <span className="flex-shrink-0 flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-sky-100 dark:bg-sky-500/15 border border-sky-200 dark:border-sky-500/30">
-                          <span
-                            className="w-3 h-3 rounded-full bg-sky-500 flex items-center justify-center flex-shrink-0"
-                            style={{ boxShadow: '0 0 6px rgba(14,165,233,0.8)' }}
-                          >
+                        <span className="flex-shrink-0 relative flex items-center gap-1 pl-1 pr-2 py-0.5 rounded-full overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(14,165,233,0.15) 0%, rgba(59,130,246,0.15) 100%)', border: '1px solid rgba(14,165,233,0.35)', boxShadow: '0 0 12px rgba(14,165,233,0.2), inset 0 1px 0 rgba(255,255,255,0.1)' }}>
+                          <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer-pass pointer-events-none" />
+                          <span className="relative w-3.5 h-3.5 rounded-full bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center flex-shrink-0" style={{ boxShadow: '0 0 8px rgba(14,165,233,0.8)' }}>
                             <FiCheck className="text-white" style={{ fontSize: 7, strokeWidth: 3.5 }} />
                           </span>
-                          <span className="text-[9px] font-bold text-sky-600 dark:text-sky-400 leading-none">Admin</span>
+                          <span className="text-[9px] font-black tracking-wide leading-none bg-gradient-to-r from-sky-500 to-blue-500 bg-clip-text text-transparent">ADMIN</span>
                         </span>
                       )}
                     </div>
