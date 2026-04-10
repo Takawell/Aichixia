@@ -202,7 +202,7 @@ export default function Settings({
               <label className="block text-[10px] sm:text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-1.5">
                 Display Name
               </label>
-              <div className="flex items-center gap-2.5 px-3 sm:px-3.5 py-2.5 sm:py-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 focus-within:border-sky-400 dark:focus-within:border-sky-500 focus-within:bg-white dark:focus-within:bg-zinc-900 transition-all duration-200" style={{ focusWithin: { boxShadow: '0 0 0 3px rgba(14,165,233,0.12)' } }}>
+              <div className="flex items-center gap-2.5 px-3 sm:px-3.5 py-2.5 sm:py-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 focus-within:border-sky-400 dark:focus-within:border-sky-500 focus-within:bg-white dark:focus-within:bg-zinc-900 transition-all duration-200">
                 <div className="w-6 h-6 rounded-lg bg-sky-100 dark:bg-sky-500/15 flex items-center justify-center flex-shrink-0 group-focus-within:bg-sky-500 transition-colors duration-200">
                   <FiUser className="text-sky-600 dark:text-sky-400 group-focus-within:text-white transition-colors duration-200" style={{ fontSize: 11 }} />
                 </div>
