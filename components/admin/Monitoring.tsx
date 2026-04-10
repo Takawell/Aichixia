@@ -514,7 +514,6 @@ export default function Monitoring({ recentLogs, users, onRefresh, loading, refr
             }
           </Panel>
         </div>
-
       </div>
     </>
   );
