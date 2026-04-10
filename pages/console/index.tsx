@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { supabase } from '@/lib/supabase';
-import { FiKey, FiActivity, FiSettings, FiLogOut, FiMenu, FiRefreshCw, FiTrendingUp, FiZap, FiLayers, FiAlertCircle, FiShield, FiLock, FiCheck, FiCpu, FiDatabase, FiCode } from 'react-icons/fi';
+import { FiKey, FiActivity, FiSettings, FiLogOut, FiMenu, FiRefreshCw, FiTrendingUp, FiZap, FiLayers, FiAlertCircle, FiShield, FiLock, FiCheck, FiCpu, FiDatabase, FiCode, FiX, FiMail, FiUser, FiChevronRight } from 'react-icons/fi';
 import ThemeToggle from '@/components/ThemeToggle';
 import Overview from '@/components/console/overview';
 import ApiKeys from '@/components/console/apikeys';
@@ -83,6 +83,8 @@ export default function Console() {
   const [stats, setStats] = useState({ totalRequests: 0, activeKeys: 0, rateLimitUsage: 0, successCount: 0, errorCount: 0 });
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showRevokeModal, setShowRevokeModal] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [profileModalVisible, setProfileModalVisible] = useState(false);
   const [selectedKey, setSelectedKey] = useState<ApiKey | null>(null);
   const [newKeyName, setNewKeyName] = useState('');
   const [createdKey, setCreatedKey] = useState<string | null>(null);
@@ -92,6 +94,30 @@ export default function Console() {
   const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [actionLoading, setActionLoading] = useState(false);
   const [lastFetch, setLastFetch] = useState<number>(0);
+  const profileModalRef = useRef<HTMLDivElement>(null);
+
+  const openProfileModal = () => {
+    setShowProfileModal(true);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => setProfileModalVisible(true));
+    });
+  };
+
+  const closeProfileModal = () => {
+    setProfileModalVisible(false);
+    setTimeout(() => setShowProfileModal(false), 320);
+  };
+
+  useEffect(() => {
+    if (!showProfileModal) return;
+    const handler = (e: MouseEvent) => {
+      if (profileModalRef.current && !profileModalRef.current.contains(e.target as Node)) {
+        closeProfileModal();
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [showProfileModal]);
 
   useEffect(() => {
     const tab = router.query.tab as TabType;
@@ -674,6 +700,32 @@ export default function Console() {
               background: linear-gradient(180deg, #38bdf8, #3b82f6);
               transition: all 250ms cubic-bezier(0.34,1.56,0.64,1);
             }
+            @keyframes profileModalIn {
+              from { opacity: 0; transform: scale(0.92) translateY(12px); }
+              to   { opacity: 1; transform: scale(1) translateY(0); }
+            }
+            @keyframes profileModalOut {
+              from { opacity: 1; transform: scale(1) translateY(0); }
+              to   { opacity: 0; transform: scale(0.92) translateY(12px); }
+            }
+            @keyframes profileBgIn {
+              from { opacity: 0; }
+              to   { opacity: 1; }
+            }
+            @keyframes profileBgOut {
+              from { opacity: 1; }
+              to   { opacity: 0; }
+            }
+            @keyframes avatarRing {
+              0%, 100% { box-shadow: 0 0 0 0 rgba(56,189,248,0.4); }
+              50% { box-shadow: 0 0 0 6px rgba(56,189,248,0); }
+            }
+            @keyframes shimmerPass {
+              0% { transform: translateX(-100%) skewX(-15deg); }
+              100% { transform: translateX(250%) skewX(-15deg); }
+            }
+            .animate-shimmer-pass { animation: shimmerPass 2.5s ease-in-out infinite; }
+            .avatar-ring { animation: avatarRing 2.5s ease-in-out infinite; }
           `}</style>
 
           <div className="px-4 py-4 border-b border-zinc-100 dark:border-zinc-800/60">
@@ -732,18 +784,28 @@ export default function Console() {
           </nav>
 
           <div className="px-2.5 py-3 border-t border-zinc-100 dark:border-zinc-800/60 space-y-1">
-            <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-100 dark:border-zinc-800/60">
+            <button
+              onClick={openProfileModal}
+              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-100 dark:border-zinc-800/60 hover:border-sky-300 dark:hover:border-sky-700/60 hover:bg-sky-50/50 dark:hover:bg-sky-500/5 transition-all duration-200 group text-left"
+            >
               {profile?.avatar_url ? (
-                <img src={profile.avatar_url} alt="Avatar" className="w-7 h-7 rounded-full object-cover flex-shrink-0 ring-1 ring-zinc-200 dark:ring-zinc-700" />
+                <img src={profile.avatar_url} alt="Avatar" className="w-7 h-7 rounded-full object-cover flex-shrink-0 ring-1 ring-zinc-200 dark:ring-zinc-700 group-hover:ring-sky-300 dark:group-hover:ring-sky-700 transition-all duration-200" />
               ) : (
-                <div className="w-7 h-7 rounded-full flex-shrink-0 bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center text-white font-bold text-[10px] ring-1 ring-sky-300/50">
+                <div className="w-7 h-7 rounded-full flex-shrink-0 bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center text-white font-bold text-[10px] ring-1 ring-sky-300/50 group-hover:ring-sky-400/80 transition-all duration-200" style={{ filter: 'drop-shadow(0 0 4px rgba(56,189,248,0.3))' }}>
                   {profile?.display_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase()}
                 </div>
               )}
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-zinc-900 dark:text-white truncate leading-tight">
-                  {profile?.display_name || user?.email}
-                </p>
+                <div className="flex items-center gap-1">
+                  <p className="text-xs font-semibold text-zinc-900 dark:text-white truncate leading-tight">
+                    {profile?.display_name || user?.email}
+                  </p>
+                  {settings?.is_admin && (
+                    <span className="flex-shrink-0 w-3.5 h-3.5 rounded-full bg-sky-500 flex items-center justify-center" style={{ boxShadow: '0 0 6px rgba(14,165,233,0.7)' }}>
+                      <FiCheck className="text-white" style={{ fontSize: 8, strokeWidth: 3 }} />
+                    </span>
+                  )}
+                </div>
                 <span className={`inline-block text-[9px] font-bold px-1.5 py-0.5 rounded mt-0.5 ${
                   planInfo.color === 'sky' ? 'bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400' :
                   planInfo.color === 'purple' ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400' :
@@ -752,7 +814,7 @@ export default function Console() {
                   {planInfo.name}
                 </span>
               </div>
-            </div>
+            </button>
 
             <button
               onClick={handleSignOut}
@@ -970,6 +1032,134 @@ export default function Console() {
                 ) : (
                   'Revoke Key'
                 )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showProfileModal && (
+        <div
+          className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-0 sm:p-4"
+          style={{ animation: `profileBgIn 0.25s ease both` }}
+        >
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={closeProfileModal} />
+
+          <div
+            ref={profileModalRef}
+            className="relative w-full sm:max-w-sm bg-white dark:bg-zinc-950 rounded-t-3xl sm:rounded-2xl border border-zinc-200/80 dark:border-zinc-800/80 shadow-2xl overflow-hidden"
+            style={{
+              animation: profileModalVisible
+                ? 'profileModalIn 0.32s cubic-bezier(0.22,1,0.36,1) both'
+                : 'profileModalOut 0.28s cubic-bezier(0.4,0,1,1) both',
+            }}
+          >
+            <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-sky-500/10 via-blue-500/5 to-transparent pointer-events-none" />
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-32 bg-sky-400/10 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="relative px-5 pt-5 pb-4">
+              <div className="flex items-start justify-between mb-5">
+                <div className="flex items-center gap-3.5">
+                  <div className="relative flex-shrink-0">
+                    {profile?.avatar_url ? (
+                      <img
+                        src={profile.avatar_url}
+                        alt="Avatar"
+                        className="w-14 h-14 rounded-2xl object-cover ring-2 ring-sky-400/40 avatar-ring"
+                        style={{ boxShadow: '0 0 0 0 rgba(56,189,248,0.4)' }}
+                      />
+                    ) : (
+                      <div
+                        className="w-14 h-14 rounded-2xl bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center text-white font-black text-xl avatar-ring"
+                        style={{ boxShadow: '0 4px 20px rgba(56,189,248,0.35)' }}
+                      >
+                        {profile?.display_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase()}
+                      </div>
+                    )}
+                    {settings?.is_admin && (
+                      <div
+                        className="absolute -bottom-1.5 -right-1.5 w-5 h-5 rounded-full bg-sky-500 flex items-center justify-center border-2 border-white dark:border-zinc-950"
+                        style={{ boxShadow: '0 0 10px rgba(14,165,233,0.7)' }}
+                      >
+                        <FiCheck className="text-white" style={{ fontSize: 9, strokeWidth: 3.5 }} />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <h3 className="text-base font-black text-zinc-900 dark:text-white truncate leading-tight">
+                        {profile?.display_name || 'User'}
+                      </h3>
+                      {settings?.is_admin && (
+                        <span className="flex-shrink-0 flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-sky-100 dark:bg-sky-500/15 border border-sky-200 dark:border-sky-500/30">
+                          <span
+                            className="w-3 h-3 rounded-full bg-sky-500 flex items-center justify-center flex-shrink-0"
+                            style={{ boxShadow: '0 0 6px rgba(14,165,233,0.8)' }}
+                          >
+                            <FiCheck className="text-white" style={{ fontSize: 7, strokeWidth: 3.5 }} />
+                          </span>
+                          <span className="text-[9px] font-bold text-sky-600 dark:text-sky-400 leading-none">Admin</span>
+                        </span>
+                      )}
+                    </div>
+                    <span className={`inline-block text-[9px] font-bold px-2 py-0.5 rounded-full mt-1 ${
+                      planInfo.color === 'sky' ? 'bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400 border border-sky-200 dark:border-sky-800/50' :
+                      planInfo.color === 'purple' ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 border border-purple-200 dark:border-purple-800/50' :
+                      'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-800/50'
+                    }`}>
+                      {planInfo.name} Plan
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={closeProfileModal}
+                  className="flex-shrink-0 w-7 h-7 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 flex items-center justify-center transition-all duration-150 hover:scale-110 active:scale-95"
+                >
+                  <FiX className="text-zinc-500 dark:text-zinc-400" style={{ fontSize: 13 }} />
+                </button>
+              </div>
+
+              <div className="space-y-2 mb-4">
+                <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-100 dark:border-zinc-800/60 group">
+                  <div className="w-6 h-6 rounded-lg bg-sky-100 dark:bg-sky-500/15 flex items-center justify-center flex-shrink-0">
+                    <FiUser className="text-sky-600 dark:text-sky-400" style={{ fontSize: 11 }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[9px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider leading-none mb-0.5">Display Name</p>
+                    <p className="text-xs font-semibold text-zinc-900 dark:text-white truncate">
+                      {profile?.display_name || <span className="text-zinc-400 dark:text-zinc-500 italic">Not set</span>}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-100 dark:border-zinc-800/60">
+                  <div className="w-6 h-6 rounded-lg bg-blue-100 dark:bg-blue-500/15 flex items-center justify-center flex-shrink-0">
+                    <FiMail className="text-blue-600 dark:text-blue-400" style={{ fontSize: 11 }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[9px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider leading-none mb-0.5">Email</p>
+                    <p className="text-xs font-semibold text-zinc-900 dark:text-white truncate">
+                      {profile?.email || user?.email}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => { closeProfileModal(); setTimeout(() => handleTabChange('settings'), 320); }}
+                className="relative w-full flex items-center justify-between px-4 py-3 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-semibold text-xs shadow-lg overflow-hidden transition-all duration-200 hover:shadow-sky-500/30 hover:shadow-xl active:scale-[0.98] group"
+                style={{ boxShadow: '0 4px 16px rgba(14,165,233,0.35)' }}
+              >
+                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                  <div className="absolute inset-y-0 w-1/3 bg-white/20 skew-x-[-15deg] animate-shimmer-pass" />
+                </div>
+                <div className="flex items-center gap-2">
+                  <FiSettings style={{ fontSize: 13 }} />
+                  <span>Go to Settings</span>
+                </div>
+                <FiChevronRight className="transition-transform duration-200 group-hover:translate-x-0.5" style={{ fontSize: 13 }} />
               </button>
             </div>
           </div>
