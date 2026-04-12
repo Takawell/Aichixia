@@ -370,6 +370,7 @@ const AVAILABLE_MODELS = [
     icon: SiGooglegemini,
     color: 'from-yellow-400 to-orange-400',
     category: 'Image Generation',
+    requiresPlan: 'pro',
     description: 'Compact image model',
     speed: 4,
     quality: 4,
