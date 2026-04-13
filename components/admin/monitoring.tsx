@@ -220,7 +220,7 @@ function UserRow({ user, index }: {
     <div onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
       className="border border-zinc-100 dark:border-zinc-800/60"
       style={{
-        display:'flex', alignItems:'center', gap:10, padding:'10px 12px', borderRadius:13,
+        display:'flex', alignItems:'center', gap:8, padding:'9px 10px', borderRadius:13,
         background: hov
           ? (dark ? 'rgba(255,255,255,0.042)' : 'rgba(0,0,0,0.025)')
           : (dark ? 'rgba(255,255,255,0.018)' : 'rgba(255,255,255,0.7)'),
@@ -228,45 +228,46 @@ function UserRow({ user, index }: {
         transition:'all 0.22s ease', cursor:'default',
         boxShadow: hov ? (dark ? '0 8px 24px rgba(0,0,0,0.3)' : '0 6px 18px rgba(0,0,0,0.07)') : 'none',
         animation:'mn-rowIn 0.4s both ease-out', animationDelay:`${index*50}ms`,
+        minWidth:0,
       }}>
-      <div style={{ width:28, height:28, borderRadius:8, background: rankGrads[index] ?? rankGrads[4], display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, fontWeight:800, color:'#fff', flexShrink:0 }}>
+      <div style={{ width:24, height:24, borderRadius:7, background: rankGrads[index] ?? rankGrads[4], display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, fontWeight:800, color:'#fff', flexShrink:0 }}>
         {index + 1}
       </div>
       {user.avatar_url && !imgErr
-        ? <img src={user.avatar_url} alt="" onError={() => setImgErr(true)} className="border border-zinc-200 dark:border-zinc-700" style={{ width:34, height:34, borderRadius:10, objectFit:'cover', flexShrink:0 }} />
-        : <div style={{ width:34, height:34, borderRadius:10, background: grad, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:800, fontSize:13, flexShrink:0, boxShadow:`0 4px 12px ${soft}` }}>
+        ? <img src={user.avatar_url} alt="" onError={() => setImgErr(true)} className="border border-zinc-200 dark:border-zinc-700" style={{ width:30, height:30, borderRadius:9, objectFit:'cover', flexShrink:0 }} />
+        : <div style={{ width:30, height:30, borderRadius:9, background: grad, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:800, fontSize:12, flexShrink:0, boxShadow:`0 4px 12px ${soft}` }}>
             {(user.display_name?.[0] || user.email[0]).toUpperCase()}
           </div>
       }
-      <div style={{ flex:1, minWidth:0 }}>
-        <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:3 }}>
-          <p className="text-zinc-800 dark:text-white" style={{ fontSize:12, fontWeight:700, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
+      <div style={{ flex:1, minWidth:0, overflow:'hidden' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:5, marginBottom:3, minWidth:0 }}>
+          <p className="text-zinc-800 dark:text-white" style={{ fontSize:11, fontWeight:700, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis', minWidth:0, flex:1 }}>
             {user.display_name || user.email}
           </p>
-          <span style={{ fontSize:9, fontWeight:700, letterSpacing:'0.07em', textTransform:'uppercase', padding:'2px 7px', borderRadius:99, background: soft, color: text, border:`1px solid ${border}`, flexShrink:0 }}>
+          <span style={{ fontSize:9, fontWeight:700, letterSpacing:'0.07em', textTransform:'uppercase', padding:'2px 6px', borderRadius:99, background: soft, color: text, border:`1px solid ${border}`, flexShrink:0 }}>
             {cfg.label}
           </span>
         </div>
-        <div style={{ display:'flex', flexWrap:'wrap', alignItems:'center', gap:10 }}>
-          <div style={{ display:'flex', alignItems:'center', gap:4 }}>
-            <FiActivity style={{ fontSize:10, color: dark ? '#60a5fa' : '#2563eb', flexShrink:0 }} />
+        <div style={{ display:'flex', alignItems:'center', gap:8, flexWrap:'wrap' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:3 }}>
+            <FiActivity style={{ fontSize:9, color: dark ? '#60a5fa' : '#2563eb', flexShrink:0 }} />
             <span className="text-zinc-800 dark:text-white" style={{ fontSize:10, fontWeight:700 }}>{user.requestCount}</span>
             <span className="text-zinc-400 dark:text-zinc-500" style={{ fontSize:10 }}>req</span>
           </div>
-          <div style={{ display:'flex', alignItems:'center', gap:4 }}>
-            <FiTrendingUp style={{ fontSize:10, color: dark ? '#34d399' : '#059669', flexShrink:0 }} />
+          <div style={{ display:'flex', alignItems:'center', gap:3 }}>
+            <FiTrendingUp style={{ fontSize:9, color: dark ? '#34d399' : '#059669', flexShrink:0 }} />
             <span className="text-zinc-800 dark:text-white" style={{ fontSize:10, fontWeight:700 }}>{user.totalTokens.toLocaleString()}</span>
             <span className="text-zinc-400 dark:text-zinc-500" style={{ fontSize:10 }}>tok</span>
           </div>
-          <div style={{ display:'flex', alignItems:'center', gap:4 }}>
-            <FiCpu style={{ fontSize:10, color: dark ? '#a78bfa' : '#7c3aed', flexShrink:0 }} />
-            <span className="text-zinc-500 dark:text-zinc-400" style={{ fontSize:10, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', maxWidth:90 }}>{user.mostUsedModel}</span>
+          <div style={{ display:'flex', alignItems:'center', gap:3, minWidth:0, overflow:'hidden' }}>
+            <FiCpu style={{ fontSize:9, color: dark ? '#a78bfa' : '#7c3aed', flexShrink:0 }} />
+            <span className="text-zinc-500 dark:text-zinc-400" style={{ fontSize:10, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{user.mostUsedModel}</span>
           </div>
         </div>
       </div>
-      <div style={{ flexShrink:0, display:'flex', alignItems:'center', gap:5, padding:'4px 8px', borderRadius:8, background: dark ? 'rgba(16,185,129,0.12)' : 'rgba(16,185,129,0.08)', border:`1px solid ${dark ? 'rgba(16,185,129,0.2)' : 'rgba(16,185,129,0.15)'}` }}>
-        <FiClock style={{ fontSize:10, color: dark ? '#34d399' : '#059669', flexShrink:0 }} />
-        <span style={{ fontSize:10, fontWeight:600, color: dark ? '#34d399' : '#059669', fontFamily:'monospace' }}>{getTimeSince(user.lastActive)}</span>
+      <div style={{ flexShrink:0, display:'flex', alignItems:'center', gap:4, padding:'3px 7px', borderRadius:7, background: dark ? 'rgba(16,185,129,0.12)' : 'rgba(16,185,129,0.08)', border:`1px solid ${dark ? 'rgba(16,185,129,0.2)' : 'rgba(16,185,129,0.15)'}` }}>
+        <FiClock style={{ fontSize:9, color: dark ? '#34d399' : '#059669', flexShrink:0 }} />
+        <span style={{ fontSize:10, fontWeight:600, color: dark ? '#34d399' : '#059669', fontFamily:'monospace', whiteSpace:'nowrap' }}>{getTimeSince(user.lastActive)}</span>
       </div>
     </div>
   );
@@ -289,32 +290,33 @@ function LogRow({ log, index }: { log: RequestLog; index: number }) {
   return (
     <div onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
       style={{
-        display:'flex', alignItems:'center', gap:10, padding:'8px 12px', borderRadius:11,
+        display:'flex', alignItems:'center', gap:8, padding:'7px 10px', borderRadius:11,
         background: dark ? bgDark : bgLight, border:`1px solid ${dark ? bdDark : bdLight}`,
         transition:'all 0.2s ease',
         boxShadow: hov ? (dark ? '0 6px 18px rgba(0,0,0,0.28)' : '0 4px 12px rgba(0,0,0,0.07)') : 'none',
         animation:'mn-rowIn 0.4s both ease-out', animationDelay:`${index*35}ms`,
+        minWidth:0,
       }}>
       <div style={{ width:7, height:7, borderRadius:'50%', background: dotColor, flexShrink:0, boxShadow:`0 0 6px ${dotColor}80` }} />
-      <div style={{ flex:1, minWidth:0, display:'flex', flexWrap:'wrap', alignItems:'center', gap:6 }}>
-        <code className="text-zinc-800 dark:text-white" style={{ fontSize:11, fontWeight:600, fontFamily:'monospace', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', maxWidth:160 }}>
+      <div style={{ flex:1, minWidth:0, display:'flex', alignItems:'center', gap:5, overflow:'hidden' }}>
+        <code className="text-zinc-800 dark:text-white" style={{ fontSize:11, fontWeight:600, fontFamily:'monospace', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', maxWidth:'35vw', flexShrink:1 }}>
           {log.model}
         </code>
-        <span className="text-zinc-300 dark:text-zinc-600" style={{ fontSize:10 }}>•</span>
-        <span style={{ fontSize:11, fontWeight:700, color: statusCol }}>{log.status}</span>
+        <span className="text-zinc-300 dark:text-zinc-600" style={{ fontSize:10, flexShrink:0 }}>•</span>
+        <span style={{ fontSize:11, fontWeight:700, color: statusCol, flexShrink:0 }}>{log.status}</span>
         {log.latency_ms && <>
-          <span className="text-zinc-300 dark:text-zinc-600" style={{ fontSize:10 }}>•</span>
-          <span className="text-zinc-500 dark:text-zinc-400" style={{ fontSize:11, fontFamily:'monospace' }}>{log.latency_ms}ms</span>
+          <span className="text-zinc-300 dark:text-zinc-600" style={{ fontSize:10, flexShrink:0 }}>•</span>
+          <span className="text-zinc-500 dark:text-zinc-400" style={{ fontSize:11, fontFamily:'monospace', flexShrink:0 }}>{log.latency_ms}ms</span>
         </>}
         {log.tokens_used > 0 && <>
-          <span className="text-zinc-300 dark:text-zinc-600 hidden sm:inline" style={{ fontSize:10 }}>•</span>
-          <span className="text-zinc-500 dark:text-zinc-400 hidden sm:inline" style={{ fontSize:11 }}>{log.tokens_used.toLocaleString()} tok</span>
+          <span className="text-zinc-300 dark:text-zinc-600 hidden sm:inline" style={{ fontSize:10, flexShrink:0 }}>•</span>
+          <span className="text-zinc-500 dark:text-zinc-400 hidden sm:inline" style={{ fontSize:11, flexShrink:0 }}>{log.tokens_used.toLocaleString()} tok</span>
         </>}
         {log.error_message && (
-          <span className="text-zinc-400 dark:text-zinc-500 hidden sm:inline" style={{ fontSize:10, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', maxWidth:200 }}>{log.error_message}</span>
+          <span className="text-zinc-400 dark:text-zinc-500 hidden sm:inline" style={{ fontSize:10, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', maxWidth:160 }}>{log.error_message}</span>
         )}
       </div>
-      <span className="text-zinc-400 dark:text-zinc-500" style={{ fontSize:10, fontFamily:'monospace', flexShrink:0 }}>
+      <span className="text-zinc-400 dark:text-zinc-500" style={{ fontSize:10, fontFamily:'monospace', flexShrink:0, whiteSpace:'nowrap' }}>
         {getTimeSince(new Date(log.created_at))}
       </span>
     </div>
