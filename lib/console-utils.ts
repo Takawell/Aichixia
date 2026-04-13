@@ -238,16 +238,22 @@ export async function getTotalStats(userId: string) {
   const activeKeys = keys.filter(k => k.is_active).length;
   const totalLimit = keys.reduce((sum, k) => sum + k.rate_limit, 0);
 
-  const { data: usage } = await supabase
+  const { data: allUsage } = await supabase
     .from('daily_usage')
     .select('requests_count, success_count, error_count')
+    .eq('user_id', userId);
+
+  const { data: todayUsage } = await supabase
+    .from('daily_usage')
+    .select('requests_count')
     .eq('user_id', userId)
     .eq('date', today);
 
-  const totalRequests = (usage || []).reduce((sum, d) => sum + d.requests_count, 0);
-  const successCount = (usage || []).reduce((sum, d) => sum + d.success_count, 0);
-  const errorCount = (usage || []).reduce((sum, d) => sum + d.error_count, 0);
-  const rateLimitUsage = totalLimit > 0 ? (totalRequests / totalLimit) * 100 : 0;
+  const totalRequests = (allUsage || []).reduce((sum, d) => sum + d.requests_count, 0);
+  const successCount = (allUsage || []).reduce((sum, d) => sum + d.success_count, 0);
+  const errorCount = (allUsage || []).reduce((sum, d) => sum + d.error_count, 0);
+  const todayRequests = (todayUsage || []).reduce((sum, d) => sum + d.requests_count, 0);
+  const rateLimitUsage = totalLimit > 0 ? (todayRequests / totalLimit) * 100 : 0;
 
   return {
     totalRequests,
@@ -270,16 +276,21 @@ export async function getAllUsersStats() {
 
   const activeKeys = keys.filter(k => k.is_active).length;
   const totalLimit = keys.reduce((sum, k) => sum + k.rate_limit, 0);
-  
-  const { data: usage } = await supabaseAdmin
+
+  const { data: allUsage } = await supabaseAdmin
     .from('daily_usage')
-    .select('requests_count, success_count, error_count')
+    .select('requests_count, success_count, error_count');
+
+  const { data: todayUsage } = await supabaseAdmin
+    .from('daily_usage')
+    .select('requests_count')
     .eq('date', today);
 
-  const totalRequests = (usage || []).reduce((sum, d) => sum + d.requests_count, 0);
-  const successCount = (usage || []).reduce((sum, d) => sum + d.success_count, 0);
-  const errorCount = (usage || []).reduce((sum, d) => sum + d.error_count, 0);
-  const rateLimitUsage = totalLimit > 0 ? (totalRequests / totalLimit) * 100 : 0;
+  const totalRequests = (allUsage || []).reduce((sum, d) => sum + d.requests_count, 0);
+  const successCount = (allUsage || []).reduce((sum, d) => sum + d.success_count, 0);
+  const errorCount = (allUsage || []).reduce((sum, d) => sum + d.error_count, 0);
+  const todayRequests = (todayUsage || []).reduce((sum, d) => sum + d.requests_count, 0);
+  const rateLimitUsage = totalLimit > 0 ? (todayRequests / totalLimit) * 100 : 0;
 
   return {
     totalRequests,
