@@ -226,6 +226,8 @@ export async function updateApiKeyName(userId: string, keyId: string, newName: s
 }
 
 export async function getTotalStats(userId: string) {
+  const today = new Date().toISOString().split('T')[0];
+
   const { data: keys } = await supabase
     .from('api_keys')
     .select('id, rate_limit, is_active')
@@ -239,7 +241,8 @@ export async function getTotalStats(userId: string) {
   const { data: usage } = await supabase
     .from('daily_usage')
     .select('requests_count, success_count, error_count')
-    .eq('user_id', userId);
+    .eq('user_id', userId)
+    .eq('date', today);
 
   const totalRequests = (usage || []).reduce((sum, d) => sum + d.requests_count, 0);
   const successCount = (usage || []).reduce((sum, d) => sum + d.success_count, 0);
@@ -257,6 +260,7 @@ export async function getTotalStats(userId: string) {
 
 export async function getAllUsersStats() {
   const supabaseAdmin = getServiceSupabase();
+  const today = new Date().toISOString().split('T')[0];
 
   const { data: keys } = await supabaseAdmin
     .from('api_keys')
@@ -266,10 +270,11 @@ export async function getAllUsersStats() {
 
   const activeKeys = keys.filter(k => k.is_active).length;
   const totalLimit = keys.reduce((sum, k) => sum + k.rate_limit, 0);
-
+  
   const { data: usage } = await supabaseAdmin
     .from('daily_usage')
-    .select('requests_count, success_count, error_count');
+    .select('requests_count, success_count, error_count')
+    .eq('date', today);
 
   const totalRequests = (usage || []).reduce((sum, d) => sum + d.requests_count, 0);
   const successCount = (usage || []).reduce((sum, d) => sum + d.success_count, 0);
