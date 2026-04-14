@@ -25,17 +25,7 @@ export async function verifyApiKey(apiKey: string) {
 
   if (error || !data) return null;
 
-  const today = new Date().toISOString().split('T')[0];
-  const { data: todayUsage } = await supabase
-    .from('daily_usage')
-    .select('requests_count')
-    .eq('api_key_id', data.id)
-    .eq('date', today)
-    .single();
-
-  const todayCount = todayUsage?.requests_count ?? 0;
-
-  if (todayCount >= data.rate_limit) {
+  if (data.requests_used >= data.rate_limit) {
     return { error: 'Rate limit exceeded', key: data };
   }
 
