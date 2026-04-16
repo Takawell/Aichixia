@@ -25,17 +25,7 @@ export async function verifyApiKey(apiKey: string) {
 
   if (error || !data) return null;
 
-  const today = new Date().toISOString().split('T')[0];
-  const { data: todayUsage } = await supabase
-    .from('daily_usage')
-    .select('requests_count')
-    .eq('api_key_id', data.id)
-    .eq('date', today)
-    .single();
-
-  const todayCount = todayUsage?.requests_count ?? 0;
-
-  if (todayCount >= data.rate_limit) {
+  if (data.requests_used >= data.rate_limit) {
     return { error: 'Rate limit exceeded', key: data };
   }
 
@@ -43,23 +33,9 @@ export async function verifyApiKey(apiKey: string) {
 }
 
 export async function incrementUsage(apiKeyId: string) {
-  const supabaseAdmin = getServiceSupabase();
-
-  const { data: key, error: fetchError } = await supabaseAdmin
-    .from('api_keys')
-    .select('requests_used')
-    .eq('id', apiKeyId)
-    .single();
-
-  if (fetchError || !key) {
-    console.error('Failed to fetch key for increment:', fetchError);
-    return;
-  }
-
-  const { error } = await supabaseAdmin
-    .from('api_keys')
-    .update({ requests_used: key.requests_used + 1 })
-    .eq('id', apiKeyId);
+  const { error } = await supabase.rpc('increment_request_count', {
+    api_key_text: apiKeyId
+  });
 
   if (error) console.error('Failed to increment usage:', error);
 }
@@ -262,22 +238,16 @@ export async function getTotalStats(userId: string) {
   const activeKeys = keys.filter(k => k.is_active).length;
   const totalLimit = keys.reduce((sum, k) => sum + k.rate_limit, 0);
 
-  const { data: allUsage } = await supabase
+  const { data: usage } = await supabase
     .from('daily_usage')
     .select('requests_count, success_count, error_count')
-    .eq('user_id', userId);
-
-  const { data: todayUsage } = await supabase
-    .from('daily_usage')
-    .select('requests_count')
     .eq('user_id', userId)
     .eq('date', today);
 
-  const totalRequests = (allUsage || []).reduce((sum, d) => sum + d.requests_count, 0);
-  const successCount = (allUsage || []).reduce((sum, d) => sum + d.success_count, 0);
-  const errorCount = (allUsage || []).reduce((sum, d) => sum + d.error_count, 0);
-  const todayRequests = (todayUsage || []).reduce((sum, d) => sum + d.requests_count, 0);
-  const rateLimitUsage = totalLimit > 0 ? (todayRequests / totalLimit) * 100 : 0;
+  const totalRequests = (usage || []).reduce((sum, d) => sum + d.requests_count, 0);
+  const successCount = (usage || []).reduce((sum, d) => sum + d.success_count, 0);
+  const errorCount = (usage || []).reduce((sum, d) => sum + d.error_count, 0);
+  const rateLimitUsage = totalLimit > 0 ? (totalRequests / totalLimit) * 100 : 0;
 
   return {
     totalRequests,
@@ -300,21 +270,16 @@ export async function getAllUsersStats() {
 
   const activeKeys = keys.filter(k => k.is_active).length;
   const totalLimit = keys.reduce((sum, k) => sum + k.rate_limit, 0);
-
-  const { data: allUsage } = await supabaseAdmin
+  
+  const { data: usage } = await supabaseAdmin
     .from('daily_usage')
-    .select('requests_count, success_count, error_count');
-
-  const { data: todayUsage } = await supabaseAdmin
-    .from('daily_usage')
-    .select('requests_count')
+    .select('requests_count, success_count, error_count')
     .eq('date', today);
 
-  const totalRequests = (allUsage || []).reduce((sum, d) => sum + d.requests_count, 0);
-  const successCount = (allUsage || []).reduce((sum, d) => sum + d.success_count, 0);
-  const errorCount = (allUsage || []).reduce((sum, d) => sum + d.error_count, 0);
-  const todayRequests = (todayUsage || []).reduce((sum, d) => sum + d.requests_count, 0);
-  const rateLimitUsage = totalLimit > 0 ? (todayRequests / totalLimit) * 100 : 0;
+  const totalRequests = (usage || []).reduce((sum, d) => sum + d.requests_count, 0);
+  const successCount = (usage || []).reduce((sum, d) => sum + d.success_count, 0);
+  const errorCount = (usage || []).reduce((sum, d) => sum + d.error_count, 0);
+  const rateLimitUsage = totalLimit > 0 ? (totalRequests / totalLimit) * 100 : 0;
 
   return {
     totalRequests,
