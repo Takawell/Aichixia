@@ -25,28 +25,7 @@ export async function verifyApiKey(apiKey: string) {
 
   if (error || !data) return null;
 
-  const today = new Date().toISOString().split('T')[0];
-  const lastReset = data.last_reset_at?.split('T')[0];
-
-  if (lastReset !== today) {
-    const supabaseAdmin = getServiceSupabase();
-    await supabaseAdmin
-      .from('api_keys')
-      .update({ requests_used: 0, last_reset_at: new Date().toISOString() })
-      .eq('id', data.id);
-    data.requests_used = 0;
-  }
-
-  const { data: todayUsage } = await supabase
-    .from('daily_usage')
-    .select('requests_count')
-    .eq('api_key_id', data.id)
-    .eq('date', today)
-    .single();
-
-  const todayCount = todayUsage?.requests_count ?? 0;
-
-  if (todayCount >= data.rate_limit) {
+  if (data.requests_used >= data.rate_limit) {
     return { error: 'Rate limit exceeded', key: data };
   }
 
@@ -54,23 +33,9 @@ export async function verifyApiKey(apiKey: string) {
 }
 
 export async function incrementUsage(apiKeyId: string) {
-  const supabaseAdmin = getServiceSupabase();
-
-  const { data: key, error: fetchError } = await supabaseAdmin
-    .from('api_keys')
-    .select('requests_used')
-    .eq('id', apiKeyId)
-    .single();
-
-  if (fetchError || !key) {
-    console.error('Failed to fetch key for increment:', fetchError);
-    return;
-  }
-
-  const { error } = await supabaseAdmin
-    .from('api_keys')
-    .update({ requests_used: key.requests_used + 1 })
-    .eq('id', apiKeyId);
+  const { error } = await supabase.rpc('increment_request_count', {
+    api_key_text: apiKeyId
+  });
 
   if (error) console.error('Failed to increment usage:', error);
 }
