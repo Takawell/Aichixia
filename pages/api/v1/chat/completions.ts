@@ -368,7 +368,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const completionTokens = calculateTokens(result.reply);
     const totalTokens = promptTokens + completionTokens;
 
-    await incrementUsage(apiKeyData.id);
+    await incrementUsage(apiKeyData.key);
     await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, totalTokens, true);
     await logRequest({
       api_key_id: apiKeyData.id,
@@ -409,7 +409,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.error("OpenAI-compatible API error:", err);
 
     const latency = Date.now() - startTime;
-
+    
     await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, false);
     await logRequest({
       api_key_id: apiKeyData.id,
