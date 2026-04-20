@@ -210,8 +210,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (typeof msg.content === "string") {
         content = msg.content;
       } else if (Array.isArray(msg.content)) {
-        const textBlocks = msg.content.filter((b: any) => b.type === "text").map((b: any) => b.text).join(" ");
-        content = textBlocks;
+        content = msg.content.filter((b: any) => b.type === "text").map((b: any) => b.text).join(" ");
       } else {
         content = String(msg.content);
       }
@@ -227,7 +226,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const outputTokens = calculateTokens(result.reply);
     const totalTokens = inputTokens + outputTokens;
 
-    await incrementUsage(apiKeyData.key);
+    await incrementUsage(apiKeyData.id);
     await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, totalTokens, true);
     await logRequest({
       api_key_id: apiKeyData.id,
@@ -245,12 +244,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       id: `msg_${Date.now()}`,
       type: "message",
       role: "assistant",
-      content: [
-        {
-          type: "text",
-          text: result.reply,
-        },
-      ],
+      content: [{ type: "text", text: result.reply }],
       model,
       stop_reason: "end_turn",
       stop_sequence: null,
