@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { supabase } from '@/lib/supabase';
 import { FiKey, FiActivity, FiSettings, FiLogOut, FiMenu, FiRefreshCw, FiTrendingUp, FiZap, FiLayers, FiAlertCircle, FiShield, FiLock, FiCheck, FiCpu, FiDatabase, FiCode, FiX, FiMail, FiUser, FiChevronRight, FiEye, FiEyeOff } from 'react-icons/fi';
+import { FaKeybase } from 'react-icons/fa';
 import ThemeToggle from '@/components/ThemeToggle';
 import Overview from '@/components/console/overview';
 import ApiKeys from '@/components/console/apikeys';
@@ -1182,7 +1183,7 @@ export default function Console() {
               <div className="flex gap-2">
                 <button
                   onClick={() => { closeProfileModal(); setTimeout(() => handleTabChange('settings'), 320); }}
-                  className="relative flex-1 flex items-center justify-between px-4 py-3 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-semibold text-xs shadow-lg overflow-hidden transition-all duration-200 hover:shadow-sky-500/30 hover:shadow-xl active:scale-[0.98] group"
+                  className="relative w-1/2 flex items-center justify-between px-4 py-3 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-semibold text-xs shadow-lg overflow-hidden transition-all duration-200 hover:shadow-sky-500/30 hover:shadow-xl active:scale-[0.98] group"
                   style={{ boxShadow: '0 4px 16px rgba(14,165,233,0.35)' }}
                 >
                   <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -1198,17 +1199,15 @@ export default function Console() {
                 {settings?.is_admin && (
                   <button
                     onClick={() => { closeProfileModal(); setTimeout(() => router.push('/console/admin'), 320); }}
-                    className="relative flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-xs overflow-hidden transition-all duration-200 hover:shadow-xl active:scale-[0.98] group flex-shrink-0"
+                    className="relative w-1/2 flex items-center justify-between px-4 py-3 rounded-xl font-semibold text-xs overflow-hidden transition-all duration-200 hover:shadow-xl active:scale-[0.98] group"
                     style={{ background: 'linear-gradient(135deg, rgba(14,165,233,0.12) 0%, rgba(59,130,246,0.12) 100%)', border: '1px solid rgba(14,165,233,0.4)', boxShadow: '0 4px 16px rgba(14,165,233,0.15), inset 0 1px 0 rgba(255,255,255,0.08)' }}
                   >
                     <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer-pass pointer-events-none" />
-                    <span
-                      className="relative w-6 h-6 rounded-lg bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center flex-shrink-0"
-                      style={{ boxShadow: '0 0 10px rgba(14,165,233,0.7)' }}
-                    >
-                      <FiShield className="text-white" style={{ fontSize: 11 }} />
-                    </span>
-                    <span className="relative text-[11px] font-black tracking-tight bg-gradient-to-r from-sky-400 to-blue-400 bg-clip-text text-transparent whitespace-nowrap">Admin</span>
+                    <div className="relative flex items-center gap-2">
+                      <FaKeybase className="flex-shrink-0 bg-gradient-to-br from-sky-400 to-blue-400 bg-clip-text" style={{ fontSize: 13, color: '#38bdf8' }} />
+                      <span className="text-[11px] font-black tracking-tight bg-gradient-to-r from-sky-400 to-blue-400 bg-clip-text text-transparent whitespace-nowrap">Dashboard</span>
+                    </div>
+                    <FiChevronRight className="relative transition-transform duration-200 group-hover:translate-x-0.5 text-sky-400" style={{ fontSize: 13 }} />
                   </button>
                 )}
               </div>
