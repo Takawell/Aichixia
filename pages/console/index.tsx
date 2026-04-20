@@ -1179,20 +1179,39 @@ export default function Console() {
                 </div>
               </div>
 
-              <button
-                onClick={() => { closeProfileModal(); setTimeout(() => handleTabChange('settings'), 320); }}
-                className="relative w-full flex items-center justify-between px-4 py-3 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-semibold text-xs shadow-lg overflow-hidden transition-all duration-200 hover:shadow-sky-500/30 hover:shadow-xl active:scale-[0.98] group"
-                style={{ boxShadow: '0 4px 16px rgba(14,165,233,0.35)' }}
-              >
-                <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                  <div className="absolute inset-y-0 w-1/3 bg-white/20 skew-x-[-15deg] animate-shimmer-pass" />
-                </div>
-                <div className="flex items-center gap-2">
-                  <FiSettings style={{ fontSize: 13 }} />
-                  <span>Go to Settings</span>
-                </div>
-                <FiChevronRight className="transition-transform duration-200 group-hover:translate-x-0.5" style={{ fontSize: 13 }} />
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => { closeProfileModal(); setTimeout(() => handleTabChange('settings'), 320); }}
+                  className="relative flex-1 flex items-center justify-between px-4 py-3 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-semibold text-xs shadow-lg overflow-hidden transition-all duration-200 hover:shadow-sky-500/30 hover:shadow-xl active:scale-[0.98] group"
+                  style={{ boxShadow: '0 4px 16px rgba(14,165,233,0.35)' }}
+                >
+                  <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                    <div className="absolute inset-y-0 w-1/3 bg-white/20 skew-x-[-15deg] animate-shimmer-pass" />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <FiSettings style={{ fontSize: 13 }} />
+                    <span>Settings</span>
+                  </div>
+                  <FiChevronRight className="transition-transform duration-200 group-hover:translate-x-0.5" style={{ fontSize: 13 }} />
+                </button>
+
+                {settings?.is_admin && (
+                  <button
+                    onClick={() => { closeProfileModal(); setTimeout(() => router.push('/console/admin'), 320); }}
+                    className="relative flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-xs overflow-hidden transition-all duration-200 hover:shadow-xl active:scale-[0.98] group flex-shrink-0"
+                    style={{ background: 'linear-gradient(135deg, rgba(14,165,233,0.12) 0%, rgba(59,130,246,0.12) 100%)', border: '1px solid rgba(14,165,233,0.4)', boxShadow: '0 4px 16px rgba(14,165,233,0.15), inset 0 1px 0 rgba(255,255,255,0.08)' }}
+                  >
+                    <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer-pass pointer-events-none" />
+                    <span
+                      className="relative w-6 h-6 rounded-lg bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center flex-shrink-0"
+                      style={{ boxShadow: '0 0 10px rgba(14,165,233,0.7)' }}
+                    >
+                      <FiShield className="text-white" style={{ fontSize: 11 }} />
+                    </span>
+                    <span className="relative text-[11px] font-black tracking-tight bg-gradient-to-r from-sky-400 to-blue-400 bg-clip-text text-transparent whitespace-nowrap">Admin</span>
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
