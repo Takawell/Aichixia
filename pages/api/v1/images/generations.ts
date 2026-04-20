@@ -133,7 +133,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const latency = Date.now() - startTime;
 
-    await incrementUsage(apiKeyData.key);
+    await incrementUsage(apiKeyData.id);
     await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, true);
     await logRequest({
       api_key_id: apiKeyData.id,
