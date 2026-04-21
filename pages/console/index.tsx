@@ -1183,7 +1183,7 @@ export default function Console() {
               <div className="flex gap-2">
                 <button
                   onClick={() => { closeProfileModal(); setTimeout(() => handleTabChange('settings'), 320); }}
-                  className="relative w-1/2 flex items-center justify-between px-4 py-3 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-semibold text-xs shadow-lg overflow-hidden transition-all duration-200 hover:shadow-sky-500/30 hover:shadow-xl active:scale-[0.98] group"
+                  className={`relative flex items-center justify-between px-4 py-3 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-semibold text-xs shadow-lg overflow-hidden transition-all duration-200 hover:shadow-sky-500/30 hover:shadow-xl active:scale-[0.98] group ${settings?.is_admin ? 'w-1/2' : 'w-full'}`}
                   style={{ boxShadow: '0 4px 16px rgba(14,165,233,0.35)' }}
                 >
                   <div className="absolute inset-0 overflow-hidden pointer-events-none">
