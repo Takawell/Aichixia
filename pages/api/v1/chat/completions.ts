@@ -61,7 +61,7 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "aichixia-flash": { fn: chatAichixia, provider: "aichixia" },
 };
 
-const LOCKED_MODELS_PRO = ['deepseek-v3.2', 'qwen3-235b', 'claude-opus-4.5', 'glm-4.7', 'aichixia-flash', 'grok-4-fast', 'kimi-k2.5'];
+const LOCKED_MODELS_PRO = ['deepseek-v3.2', 'qwen3-235b', 'minimax-m2.7', 'claude-opus-4.5', 'glm-4.7', 'aichixia-flash', 'grok-4-fast', 'kimi-k2.5'];
 
 const RATE_LIMIT_ERRORS = [
   OpenAIRateLimitError,
