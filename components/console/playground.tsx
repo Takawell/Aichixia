@@ -431,9 +431,8 @@ var response = client.send(request, HttpResponse.BodyHandlers.ofString());
 System.out.println(response.body());`;
     if (lang === 'csharp') return `using var client = new HttpClient();
 client.DefaultRequestHeaders.Add("Authorization", "Bearer ${key}");
-var payload = new { text = "${msg}", emotion = "normal", volume = 100, pitch = 0, tempo = 1 };
 var body = new StringContent(
-    System.Text.Json.JsonSerializer.Serialize(payload),
+    "{\\"text\\": \\"${msg}\\", \\"emotion\\": \\"normal\\", \\"volume\\": 100, \\"pitch\\": 0, \\"tempo\\": 1}",
     System.Text.Encoding.UTF8, "application/json");
 var response = await client.PostAsync("${ep}", body);
 Console.WriteLine(await response.Content.ReadAsStringAsync());`;
@@ -448,7 +447,8 @@ val request = HttpRequest.newBuilder()
     .header("Authorization", "Bearer ${key}")
     .POST(BodyPublishers.ofString("""{"text": "${msg}", "emotion": "normal", "volume": 100, "pitch": 0, "tempo": 1}"""))
     .build()
-println(client.send(request, HttpResponse.BodyHandlers.ofString()).body())`;
+val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+println(response.body())`;
     if (lang === 'swift') return `import Foundation
 
 let url = URL(string: "${ep}")!
@@ -485,6 +485,7 @@ async fn main() {
     return '';
   }
 
+  const ep = model.endpoint;
   if (lang === 'typescript') return `import OpenAI from "openai";
 
 const client = new OpenAI({
@@ -515,7 +516,7 @@ response = client.chat.completions.create(
 )
 
 print(response.choices[0].message.content)`;
-  if (lang === 'curl') return `curl -X POST ${base}/api/v1/chat/completions \\
+  if (lang === 'curl') return `curl -X POST ${ep} \\
   -H "Authorization: Bearer ${key}" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -528,7 +529,7 @@ print(response.choices[0].message.content)`;
 
 client = OpenAI::Client.new(
   access_token: "${key}",
-  uri_base: "${base}/api/v1",
+  uri_base: "${base}/api/v1"
 )
 
 response = client.chat(
@@ -544,158 +545,163 @@ puts response.dig("choices", 0, "message", "content")`;
   if (lang === 'go') return `package main
 
 import (
-  "context"
+  "bytes"
+  "encoding/json"
   "fmt"
-  openai "github.com/sashabaranov/go-openai"
+  "io"
+  "net/http"
 )
 
 func main() {
-  config := openai.DefaultConfig("${key}")
-  config.BaseURL = "${base}/api/v1"
-  client := openai.NewClientWithConfig(config)
+  body, _ := json.Marshal(map[string]any{
+    "model":       "${model.id}",
+    "messages":    []map[string]string{{"role": "user", "content": "${msg}"}},
+    "temperature": ${temperature},
+    "max_tokens":  ${maxTokens},
+  })
 
-  resp, _ := client.CreateChatCompletion(
-    context.Background(),
-    openai.ChatCompletionRequest{
-      Model: "${model.id}",
-      Messages: []openai.ChatCompletionMessage{
-        {Role: openai.ChatMessageRoleUser, Content: "${msg}"},
-      },
-      Temperature: ${temperature},
-      MaxTokens:   ${maxTokens},
-    },
-  )
+  req, _ := http.NewRequest("POST", "${ep}", bytes.NewBuffer(body))
+  req.Header.Set("Content-Type", "application/json")
+  req.Header.Set("Authorization", "Bearer ${key}")
 
-  fmt.Println(resp.Choices[0].Message.Content)
+  resp, _ := http.DefaultClient.Do(req)
+  defer resp.Body.Close()
+  b, _ := io.ReadAll(resp.Body)
+  fmt.Println(string(b))
 }`;
   if (lang === 'php') return `<?php
-require_once 'vendor/autoload.php';
-
-$client = OpenAI::factory()
-    ->withApiKey('${key}')
-    ->withBaseUri('${base}/api/v1')
-    ->make();
-
-$response = $client->chat()->create([
-    'model' => '${model.id}',
-    'messages' => [
-        ['role' => 'user', 'content' => '${msg}'],
+$ch = curl_init("${ep}");
+curl_setopt_array($ch, [
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_POST => true,
+    CURLOPT_HTTPHEADER => [
+        "Content-Type: application/json",
+        "Authorization: Bearer ${key}",
     ],
-    'temperature' => ${temperature},
-    'max_tokens' => ${maxTokens},
+    CURLOPT_POSTFIELDS => json_encode([
+        "model" => "${model.id}",
+        "messages" => [["role" => "user", "content" => "${msg}"]],
+        "temperature" => ${temperature},
+        "max_tokens" => ${maxTokens},
+    ]),
 ]);
+$data = json_decode(curl_exec($ch), true);
+echo $data["choices"][0]["message"]["content"];`;
+  if (lang === 'java') return `import java.net.URI;
+import java.net.http.*;
+import java.net.http.HttpRequest.BodyPublishers;
 
-echo $response->choices[0]->message->content;`;
-  if (lang === 'java') return `import com.theokanning.openai.completion.chat.*;
-import com.theokanning.openai.service.OpenAiService;
-import java.util.List;
-
-var service = new OpenAiService("${key}", "${base}/api/v1");
-var request = ChatCompletionRequest.builder()
-    .model("${model.id}")
-    .messages(List.of(new ChatMessage("user", "${msg}")))
-    .temperature(${temperature})
-    .maxTokens(${maxTokens})
+var client = HttpClient.newHttpClient();
+var body = """
+    {
+      "model": "${model.id}",
+      "messages": [{"role": "user", "content": "${msg}"}],
+      "temperature": ${temperature},
+      "max_tokens": ${maxTokens}
+    }
+    """;
+var request = HttpRequest.newBuilder()
+    .uri(URI.create("${ep}"))
+    .header("Content-Type", "application/json")
+    .header("Authorization", "Bearer ${key}")
+    .POST(BodyPublishers.ofString(body))
     .build();
-System.out.println(service.createChatCompletion(request)
-    .getChoices().get(0).getMessage().getContent());`;
-  if (lang === 'csharp') return `using OpenAI.Chat;
-using OpenAI;
+var response = client.send(request, HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());`;
+  if (lang === 'csharp') return `using var client = new HttpClient();
+client.DefaultRequestHeaders.Add("Authorization", "Bearer ${key}");
+var body = new StringContent(
+    "{\\"model\\": \\"${model.id}\\", \\"messages\\": [{\\"role\\": \\"user\\", \\"content\\": \\"${msg}\\"}], \\"temperature\\": ${temperature}, \\"max_tokens\\": ${maxTokens}}",
+    System.Text.Encoding.UTF8, "application/json");
+var response = await client.PostAsync("${ep}", body);
+Console.WriteLine(await response.Content.ReadAsStringAsync());`;
+  if (lang === 'kotlin') return `import java.net.URI
+import java.net.http.*
+import java.net.http.HttpRequest.BodyPublishers
 
-var client = new ChatClient(
-    model: "${model.id}",
-    apiKey: "${key}",
-    options: new OpenAIClientOptions { Endpoint = new Uri("${base}/api/v1") });
+val client = HttpClient.newHttpClient()
+val request = HttpRequest.newBuilder()
+    .uri(URI.create("${ep}"))
+    .header("Content-Type", "application/json")
+    .header("Authorization", "Bearer ${key}")
+    .POST(BodyPublishers.ofString("""
+        {"model": "${model.id}", "messages": [{"role": "user", "content": "${msg}"}], "temperature": ${temperature}, "max_tokens": ${maxTokens}}
+    """.trimIndent()))
+    .build()
+val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+println(response.body())`;
+  if (lang === 'swift') return `import Foundation
 
-var completion = await client.CompleteChatAsync(new UserChatMessage("${msg}"));
-Console.WriteLine(completion.Value.Content[0].Text);`;
-  if (lang === 'kotlin') return `import com.aallam.openai.api.chat.*
-import com.aallam.openai.api.model.ModelId
-import com.aallam.openai.client.OpenAI
-import com.aallam.openai.client.OpenAIHost
-
-val openAI = OpenAI(
-    token = "${key}",
-    host = OpenAIHost("${base}/api/v1")
-)
-val request = chatCompletionRequest {
-    model = ModelId("${model.id}")
-    messages { user { content = "${msg}" } }
-    temperature = ${temperature}
-    maxTokens = ${maxTokens}
-}
-val response = openAI.chatCompletion(request)
-println(response.choices.first().message.content)`;
-  if (lang === 'swift') return `import OpenAI
-
-let openAI = OpenAI(configuration: .init(
-    token: "${key}",
-    host: "${base}"
-))
-let query = ChatQuery(
-    messages: [.user(.init(content: .string("${msg}")))],
-    model: "${model.id}",
-    maxTokens: ${maxTokens},
-    temperature: ${temperature}
-)
-let result = try await openAI.chats(query: query)
-print(result.choices.first?.message.content?.string ?? "")`;
-  if (lang === 'rust') return `use async_openai::{Client, config::OpenAIConfig, types::*};
+let url = URL(string: "${ep}")!
+var request = URLRequest(url: url)
+request.httpMethod = "POST"
+request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+request.setValue("Bearer ${key}", forHTTPHeaderField: "Authorization")
+request.httpBody = try! JSONSerialization.data(withJSONObject: [
+    "model": "${model.id}",
+    "messages": [["role": "user", "content": "${msg}"]],
+    "temperature": ${temperature},
+    "max_tokens": ${maxTokens}
+])
+let (data, _) = try! await URLSession.shared.data(for: request)
+print(String(data: data, encoding: .utf8)!)`;
+  if (lang === 'rust') return `use reqwest::header::{AUTHORIZATION, CONTENT_TYPE};
+use serde_json::json;
 
 #[tokio::main]
 async fn main() {
-    let config = OpenAIConfig::new()
-        .with_api_key("${key}")
-        .with_api_base("${base}/api/v1");
-    let client = Client::with_config(config);
-    let request = CreateChatCompletionRequestArgs::default()
-        .model("${model.id}")
-        .messages([ChatCompletionRequestUserMessageArgs::default()
-            .content("${msg}").build().unwrap().into()])
-        .temperature(${temperature}_f32)
-        .max_tokens(${maxTokens}_u16)
-        .build().unwrap();
-    let response = client.chat().create(request).await.unwrap();
-    println!("{}", response.choices[0].message.content.as_deref().unwrap_or(""));
+    let client = reqwest::Client::new();
+    let res = client.post("${ep}")
+        .header(CONTENT_TYPE, "application/json")
+        .header(AUTHORIZATION, "Bearer ${key}")
+        .json(&json!({
+            "model": "${model.id}",
+            "messages": [{"role": "user", "content": "${msg}"}],
+            "temperature": ${temperature},
+            "max_tokens": ${maxTokens}
+        }))
+        .send().await.unwrap();
+    println!("{}", res.text().await.unwrap());
 }`;
-  if (lang === 'elixir') return `{:ok, response} = OpenAI.chat_completion(
-  model: "${model.id}",
-  messages: [%{role: "user", content: "${msg}"}],
-  temperature: ${temperature},
-  max_tokens: ${maxTokens},
-  config: %OpenAI.Config{
-    api_key: "${key}",
-    api_url: "${base}/api/v1"
-  }
-)
-response |> get_in(["choices", Access.at(0), "message", "content"]) |> IO.puts()`;
+  if (lang === 'elixir') return `HTTPoison.post!(
+  "${ep}",
+  Jason.encode!(%{
+    model: "${model.id}",
+    messages: [%{role: "user", content: "${msg}"}],
+    temperature: ${temperature},
+    max_tokens: ${maxTokens}
+  }),
+  [
+    {"Content-Type", "application/json"},
+    {"Authorization", "Bearer ${key}"}
+  ]
+) |> Map.get(:body) |> IO.puts()`;
   return '';
 }
 
-type TokenType = 'keyword' | 'string' | 'number' | 'comment' | 'function' | 'operator' | 'plain';
-type Token = { type: TokenType; value: string };
+type Token = { type: 'keyword' | 'string' | 'number' | 'comment' | 'function' | 'operator' | 'plain'; value: string };
 
-const KEYWORDS: Record<Lang, string[]> = {
-  typescript: ['import','from','const','let','var','async','await','new','return','function','export','default','true','false','null','undefined','typeof'],
-  python: ['import','from','def','class','return','with','as','await','async','True','False','None','print','if','else','elif','for','while','in'],
-  curl: ['curl','POST','GET','PUT','DELETE','PATCH'],
-  ruby: ['require','def','end','puts','do','class','module','return','true','false','nil','if','else'],
-  go: ['package','import','func','return','var','const','type','struct','true','false','nil','if','else','for','map'],
-  php: ['echo','require_once','true','false','null','new','return','function','class','if','else','foreach'],
-  java: ['import','class','public','private','static','void','var','new','return','true','false','null','if','else','for','while'],
-  csharp: ['using','var','new','await','async','return','true','false','null','class','public','private','static','void','string','int'],
-  kotlin: ['import','val','var','fun','return','true','false','null','class','object','if','else','for','while','when','is','in'],
-  swift: ['import','let','var','func','return','true','false','nil','class','struct','if','else','for','while','try','await','async'],
-  rust: ['use','fn','let','mut','pub','struct','impl','return','true','false','None','Some','if','else','for','while','async','await','mod'],
-  elixir: ['def','defmodule','do','end','true','false','nil','if','else','case','when','in','fn','import','alias','use','require'],
+const KEYWORDS: Record<string, string[]> = {
+  typescript: ['const', 'let', 'var', 'function', 'async', 'await', 'return', 'import', 'from', 'export', 'default', 'if', 'else', 'for', 'while', 'class', 'new', 'try', 'catch', 'throw', 'type', 'interface'],
+  python: ['def', 'class', 'import', 'from', 'return', 'if', 'else', 'elif', 'for', 'while', 'with', 'as', 'try', 'except', 'raise', 'async', 'await', 'print', 'True', 'False', 'None'],
+  curl: ['curl', '-X', '-H', '-d', '-F', '--data', '--header', '--request'],
+  ruby: ['def', 'class', 'module', 'require', 'return', 'if', 'else', 'elsif', 'end', 'do', 'puts', 'begin', 'rescue'],
+  go: ['func', 'package', 'import', 'var', 'const', 'type', 'struct', 'interface', 'return', 'if', 'else', 'for', 'range', 'defer', 'go', 'chan', 'map', 'make', 'new'],
+  php: ['function', 'class', 'return', 'if', 'else', 'foreach', 'while', 'echo', 'require', 'include', 'new', 'public', 'private', 'protected', 'static', 'array'],
+  java: ['public', 'private', 'class', 'interface', 'import', 'return', 'if', 'else', 'for', 'while', 'new', 'static', 'void', 'var', 'try', 'catch'],
+  csharp: ['var', 'using', 'class', 'public', 'private', 'return', 'if', 'else', 'for', 'while', 'new', 'async', 'await', 'string', 'int', 'bool', 'void'],
+  kotlin: ['val', 'var', 'fun', 'class', 'import', 'return', 'if', 'else', 'for', 'while', 'when', 'object', 'companion', 'override', 'suspend'],
+  swift: ['let', 'var', 'func', 'class', 'struct', 'import', 'return', 'if', 'else', 'for', 'while', 'guard', 'try', 'catch', 'async', 'await'],
+  rust: ['fn', 'let', 'mut', 'use', 'struct', 'impl', 'pub', 'return', 'if', 'else', 'for', 'while', 'match', 'async', 'await', 'mod'],
+  elixir: ['def', 'defmodule', 'do', 'end', 'if', 'else', 'case', 'when', 'fn', 'import', 'require', 'use', 'alias'],
 };
 
-const TOKEN_COLORS: Record<TokenType, string> = {
+const TOKEN_COLORS: Record<Token['type'], string> = {
   keyword: 'text-blue-400 dark:text-blue-300',
   string: 'text-emerald-600 dark:text-emerald-400',
-  number: 'text-amber-500 dark:text-amber-400',
+  number: 'text-amber-600 dark:text-amber-400',
   comment: 'text-zinc-400 dark:text-zinc-500 italic',
-  function: 'text-sky-500 dark:text-sky-400',
+  function: 'text-violet-600 dark:text-violet-400',
   operator: 'text-zinc-500 dark:text-zinc-400',
   plain: 'text-zinc-700 dark:text-zinc-300',
 };
@@ -943,6 +949,21 @@ function MarkdownRenderer({ text, onCopy, copied, onArtifact }: MDProps) {
   return <div className="space-y-0.5 break-words">{elements}</div>;
 }
 
+async function safeParseJson(res: Response): Promise<{ data: any; error: string | null }> {
+  const contentType = res.headers.get('content-type') ?? '';
+  if (!contentType.includes('application/json')) {
+    const text = await res.text();
+    const preview = text.slice(0, 150).trim();
+    return { data: null, error: `Server returned non-JSON response (${res.status}): ${preview}` };
+  }
+  try {
+    const data = await res.json();
+    return { data, error: null };
+  } catch {
+    return { data: null, error: `Failed to parse server response (${res.status})` };
+  }
+}
+
 type UploadedImage = { file: File; base64: string; preview: string; mimeType: string };
 type PlaygroundProps = { keys?: { key: string; name: string; is_active: boolean }[] };
 
@@ -1093,20 +1114,27 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
     const t0 = Date.now();
     try {
       if (selectedModel.type === 'image') {
-        const res = await fetch(selectedModel.endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` }, body: JSON.stringify({
-          model: selectedModel.id,
-          prompt: message,
-          steps: imageSteps,
-          size: imageSize,
-          guidance: imageGuidance,
-          ...(imageNegativePrompt.trim() ? { negative_prompt: imageNegativePrompt } : {}),
-          ...(imageSeed.trim() ? { seed: parseInt(imageSeed) } : {}),
-          response_format: 'b64_json',
-        }) });
-        const data = await res.json(); setLatency(Date.now() - t0);
-        if (!res.ok) { setError(data.error?.message || `Error ${res.status}`); return; }
+        const res = await fetch(selectedModel.endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+          body: JSON.stringify({
+            model: selectedModel.id,
+            prompt: message,
+            steps: imageSteps,
+            size: imageSize,
+            guidance: imageGuidance,
+            ...(imageNegativePrompt.trim() ? { negative_prompt: imageNegativePrompt } : {}),
+            ...(imageSeed.trim() ? { seed: parseInt(imageSeed) } : {}),
+            response_format: 'b64_json',
+          }),
+        });
+        const { data, error: parseError } = await safeParseJson(res);
+        setLatency(Date.now() - t0);
+        if (parseError) { setError(parseError); return; }
+        if (!res.ok) { setError(data?.error?.message || `Error ${res.status}`); return; }
         setImageBase64(data.data?.[0]?.b64_json ?? null); setActiveTab('response'); return;
       }
+
       if (selectedModel.type === 'stt') {
         if (!sttAudioFile) { setError('Please upload an audio file'); setIsLoading(false); return; }
         const formData = new FormData();
@@ -1125,29 +1153,44 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
           body: formData,
         });
         const isText = sttResponseFormat === 'text';
-        const data = isText ? { text: await res.text() } : await res.json();
+        if (isText) {
+          const text = await res.text();
+          setLatency(Date.now() - t0);
+          if (!res.ok) { setError(`Error ${res.status}`); return; }
+          setSttResult({ text }); setActiveTab('response'); return;
+        }
+        const { data, error: parseError } = await safeParseJson(res);
         setLatency(Date.now() - t0);
+        if (parseError) { setError(parseError); return; }
         if (!res.ok) { setError(data?.error?.message || `Error ${res.status}`); return; }
         setSttResult(data); setActiveTab('response'); return;
       }
+
       if (selectedModel.type === 'tts') {
-        const res = await fetch(selectedModel.endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` }, body: JSON.stringify({
-          model: selectedModel.id,
-          input: message,
-          emotion: ttsEmotion,
-          emotion_intensity: ttsEmotionIntensity,
-          volume: ttsVolume,
-          pitch: ttsPitch,
-          tempo: ttsTempo,
-          response_format: 'mp3',
-        }) });
-        const data = await res.json(); setLatency(Date.now() - t0);
-        if (!res.ok) { setError(data.error?.message || `Error ${res.status}`); return; }
+        const res = await fetch(selectedModel.endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+          body: JSON.stringify({
+            model: selectedModel.id,
+            input: message,
+            emotion: ttsEmotion,
+            emotion_intensity: ttsEmotionIntensity,
+            volume: ttsVolume,
+            pitch: ttsPitch,
+            tempo: ttsTempo,
+            response_format: 'mp3',
+          }),
+        });
+        const { data, error: parseError } = await safeParseJson(res);
+        setLatency(Date.now() - t0);
+        if (parseError) { setError(parseError); return; }
+        if (!res.ok) { setError(data?.error?.message || `Error ${res.status}`); return; }
         const ttsAudio = data.audio_url ?? data.audio ?? null;
         setAudioUrl(ttsAudio); setActiveTab('response');
         if (ttsAudio) { const a = new Audio(ttsAudio); a.onended = () => setIsPlaying(false); a.play().catch(() => {}); audioRef.current = a; setIsPlaying(true); }
         return;
       }
+
       const msgs: any[] = [];
       if (systemPrompt.trim()) msgs.push({ role: 'system', content: systemPrompt });
       if (isVisionModel && uploadedImages.length > 0) {
@@ -1158,9 +1201,15 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
       } else {
         msgs.push({ role: 'user', content: message });
       }
-      const res = await fetch(selectedModel.endpoint, { method: 'POST', headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ model: selectedModel.id, messages: msgs, temperature, max_tokens: maxTokens }) });
-      const data = await res.json(); setLatency(Date.now() - t0);
-      if (!res.ok) { setError(data.error?.message || `Error ${res.status}`); return; }
+      const res = await fetch(selectedModel.endpoint, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: selectedModel.id, messages: msgs, temperature, max_tokens: maxTokens }),
+      });
+      const { data, error: parseError } = await safeParseJson(res);
+      setLatency(Date.now() - t0);
+      if (parseError) { setError(parseError); return; }
+      if (!res.ok) { setError(data?.error?.message || `Error ${res.status}`); return; }
       setResponse(data); setActiveTab('response');
       const txt = data?.choices?.[0]?.message?.content ?? '';
       const detected = detectArtifact(txt);
