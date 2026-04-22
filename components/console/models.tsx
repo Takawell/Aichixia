@@ -208,8 +208,8 @@ const AVAILABLE_MODELS = [
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
-    id: 'minimax-m2.1',
-    name: 'MiniMax M2.1',
+    id: 'minimax-m2.7',
+    name: 'MiniMax M2.7',
     icon: SiMaze,
     color: 'from-cyan-600 to-blue-600',
     category: 'Text Generation',
@@ -217,9 +217,9 @@ const AVAILABLE_MODELS = [
     description: 'Multilingual coding specialist with agent workflows',
     speed: 4,
     quality: 5,
-    contextWindow: '200K tokens',
+    contextWindow: '204K tokens',
     pricing: 'Premium',
-    features: ['Creative', 'Chinese focus', 'Analytical'],
+    features: ['Creative', 'Coding', 'Analytical'],
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
