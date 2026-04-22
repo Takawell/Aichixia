@@ -10,7 +10,6 @@ const base = 'https://www.aichixia.xyz';
 const VISION_MODEL_IDS = new Set(['gpt-5.2', 'kimi-k2.5', 'gemini-3-flash', 'aichixia-flash', 'grok-4-fast']);
 
 type ModelType = 'text' | 'image' | 'tts' | 'stt';
-
 type AnyModel = {
   id: string;
   name: string;
@@ -39,7 +38,7 @@ const TEXT_MODELS: AnyModel[] = [
   { id: 'glm-4.7-flash', name: 'GLM 4.7 Flash', provider: 'Zhipu', icon: TbSquareLetterZ, color: 'from-blue-700 to-indigo-800', pricing: 'Standard', context: '131K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
   { id: 'qwen3-235b', name: 'Qwen3 235B', provider: 'Alibaba', icon: SiMatternet, color: 'from-purple-500 to-pink-500', pricing: 'Premium', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
   { id: 'qwen3-coder-480b', name: 'Qwen3 Coder 480B', provider: 'Alibaba', icon: SiMatternet, color: 'from-purple-600 to-fuchsia-600', pricing: 'Premium', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'minimax-m2.7', name: 'MiniMax M2.7', provider: 'MiniMax', icon: SiMaze, color: 'from-cyan-600 to-blue-600', pricing: 'Premium', context: '204K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'minimax-m2.7', name: 'MiniMax M2.7', provider: 'MiniMax', icon: SiMaze, color: 'from-cyan-600 to-blue-600', pricing: 'Premium', context: '204K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
   { id: 'llama-3.3-70b', name: 'Llama 3.3 70B', provider: 'Meta', icon: SiMeta, color: 'from-blue-600 to-indigo-700', pricing: 'Standard', context: '130K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'gpt-oss-120b', name: 'GPT-OSS 120B', provider: 'OpenAI', icon: SiOpenai, color: 'from-pink-600 to-rose-600', pricing: 'Budget', context: '128K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'mimo-v2-flash', name: 'MiMo V2 Flash', provider: 'Xiaomi', icon: FiZap, color: 'from-blue-600 to-purple-600', pricing: 'Budget', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
