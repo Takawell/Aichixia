@@ -46,7 +46,7 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "kimi-k2.5": { fn: chatKimi, provider: "kimi" },
   "glm-4.7": { fn: chatGlm, provider: "glm" },
   "gpt-5.2": { fn: chatGPT, provider: "gpt" },
-  "mistral-3.1": { fn: chatMistral, provider: "mistral" },
+  "mistral-large-3-675b-instruct": { fn: chatMistral, provider: "mistral" },
   "qwen3-235b": { fn: chatQwenV2, provider: "qwen3" },
   "qwen3-coder-480b": { fn: chatQwen, provider: "qwen" },
   "minimax-m2.7": { fn: chatMinimax, provider: "minimax" },
