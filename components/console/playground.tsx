@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { FiPlay, FiCopy, FiCheck, FiChevronDown, FiZap, FiCode, FiTerminal, FiSettings, FiClock, FiCpu, FiAlertCircle, FiRotateCcw, FiEye, FiEyeOff, FiImage, FiVolume2, FiDownload, FiPause, FiX, FiUpload, FiMaximize2, FiMinimize2, FiLayout, FiMinus, FiSmile, FiFrown, FiAlertTriangle, FiThumbsDown, FiBell, FiActivity, FiFastForward, FiSliders, FiMonitor, FiLayers, FiTarget, FiHash, FiXCircle, FiMic, FiGlobe, FiFileText } from 'react-icons/fi';
+import { FiPlay, FiCopy, FiCheck, FiChevronDown, FiZap, FiCode, FiTerminal, FiSettings, FiClock, FiCpu, FiAlertCircle, FiRotateCcw, FiEye, FiEyeOff, FiImage, FiVolume2, FiDownload, FiPause, FiX, FiUpload, FiMaximize2, FiMinimize2, FiLayout, FiMinus, FiSmile, FiFrown, FiAlertTriangle, FiThumbsDown, FiBell, FiActivity, FiFastForward, FiSliders, FiMonitor, FiLayers, FiTarget, FiHash, FiXCircle, FiMic, FiGlobe, FiFileText, FiDatabase, FiTrash2, FiMessageSquare } from 'react-icons/fi';
 import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiAirbrake, SiFlux, SiLapce, SiSecurityscorecard, SiDigikeyelectronics, SiMatternet, SiMaze, SiImagedotsc } from 'react-icons/si';
 import { GiSpermWhale, GiPowerLightning, GiClover, GiCloverSpiked, GiFire } from 'react-icons/gi';
 import { TbSquareLetterZ, TbLetterM } from 'react-icons/tb';
@@ -22,6 +22,13 @@ type AnyModel = {
   endpoint: string;
   requiresPro?: boolean;
   limited?: boolean;
+};
+
+type MemoryMessage = {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: number;
 };
 
 const TEXT_MODELS: AnyModel[] = [
@@ -963,6 +970,75 @@ async function safeParseJson(res: Response): Promise<{ data: any; error: string 
   }
 }
 
+function MemoryPanel({ memories, onClear, onRemove }: { memories: MemoryMessage[]; onClear: () => void; onRemove: (id: string) => void }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="rounded-xl border border-violet-200 dark:border-violet-800/50 overflow-hidden">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between px-3 py-2.5 bg-violet-50 dark:bg-violet-950/40 hover:bg-violet-100 dark:hover:bg-violet-950/60 transition-colors duration-150"
+      >
+        <div className="flex items-center gap-2">
+          <div className="w-5 h-5 rounded-md bg-violet-500/20 dark:bg-violet-400/20 flex items-center justify-center">
+            <FiDatabase className="w-2.5 h-2.5 text-violet-500 dark:text-violet-400" />
+          </div>
+          <span className="text-[10px] font-bold text-violet-700 dark:text-violet-300">Memory</span>
+          <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-violet-100 dark:bg-violet-900/50 text-violet-500 dark:text-violet-400 border border-violet-200 dark:border-violet-700 font-bold tabular-nums">
+            {memories.length} msg
+          </span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          {memories.length > 0 && (
+            <button
+              onClick={e => { e.stopPropagation(); onClear(); }}
+              className="flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-semibold text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+            >
+              <FiTrash2 className="w-2.5 h-2.5" /> Clear
+            </button>
+          )}
+          <FiChevronDown className={`w-3 h-3 text-violet-400 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+        </div>
+      </button>
+
+      {open && (
+        <div className="bg-white dark:bg-zinc-950 border-t border-violet-100 dark:border-violet-800/30">
+          {memories.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-6 gap-1.5">
+              <FiMessageSquare className="w-5 h-5 text-zinc-300 dark:text-zinc-700" />
+              <p className="text-[10px] text-zinc-400 dark:text-zinc-500">No messages in memory yet</p>
+            </div>
+          ) : (
+            <div className="max-h-52 overflow-y-auto p-2 space-y-1.5">
+              {memories.map((msg, idx) => (
+                <div
+                  key={msg.id}
+                  className={`group flex gap-2 p-2 rounded-lg border transition-colors ${msg.role === 'user' ? 'bg-blue-50/60 dark:bg-blue-950/20 border-blue-100 dark:border-blue-900/30' : 'bg-zinc-50 dark:bg-zinc-900/60 border-zinc-100 dark:border-zinc-800/60'}`}
+                >
+                  <div className="flex-shrink-0 mt-0.5">
+                    <div className={`w-4 h-4 rounded-full flex items-center justify-center text-[7px] font-black ${msg.role === 'user' ? 'bg-blue-400 text-white' : 'bg-zinc-300 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300'}`}>
+                      {msg.role === 'user' ? 'U' : 'A'}
+                    </div>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[9px] text-zinc-600 dark:text-zinc-400 leading-relaxed line-clamp-2 break-words">{msg.content}</p>
+                  </div>
+                  <button
+                    onClick={() => onRemove(msg.id)}
+                    className="flex-shrink-0 w-4 h-4 flex items-center justify-center rounded text-zinc-300 dark:text-zinc-700 hover:text-red-400 dark:hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
+                  >
+                    <FiX className="w-2.5 h-2.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 type UploadedImage = { file: File; base64: string; preview: string; mimeType: string };
 type PlaygroundProps = { keys?: { key: string; name: string; is_active: boolean }[] };
 
@@ -1010,8 +1086,12 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
   const [sttResponseFormat, setSttResponseFormat] = useState<'json' | 'verbose_json' | 'text'>('verbose_json');
   const [sttTemperature, setSttTemperature] = useState(0);
   const [sttResult, setSttResult] = useState<any>(null);
-  const sttFileInputRef = useRef<HTMLInputElement>(null);
 
+  const [memoryEnabled, setMemoryEnabled] = useState(false);
+  const [memories, setMemories] = useState<MemoryMessage[]>([]);
+  const [showMemoryPanel, setShowMemoryPanel] = useState(false);
+
+  const sttFileInputRef = useRef<HTMLInputElement>(null);
   const modelDropRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -1106,6 +1186,15 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
   const handleDragLeave = (e: React.DragEvent) => { if (!dropZoneRef.current?.contains(e.relatedTarget as Node)) setIsDragging(false); };
   const handleDrop = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(false); if (e.dataTransfer.files) handleImageUpload(e.dataTransfer.files); };
 
+  const addToMemory = (userMsg: string, assistantMsg: string) => {
+    const now = Date.now();
+    setMemories(prev => [
+      ...prev,
+      { id: `u-${now}`, role: 'user', content: userMsg, timestamp: now },
+      { id: `a-${now}`, role: 'assistant', content: assistantMsg, timestamp: now + 1 },
+    ]);
+  };
+
   const handleRun = async () => {
     if (!apiKey.trim()) { setError('Please enter your API key'); return; }
     if (selectedModel.type !== 'stt' && !message.trim() && uploadedImages.length === 0) { setError('Please enter a message'); return; }
@@ -1192,6 +1281,11 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
 
       const msgs: any[] = [];
       if (systemPrompt.trim()) msgs.push({ role: 'system', content: systemPrompt });
+
+      if (memoryEnabled && memories.length > 0) {
+        memories.forEach(m => msgs.push({ role: m.role, content: m.content }));
+      }
+
       if (isVisionModel && uploadedImages.length > 0) {
         const blocks: any[] = [];
         if (message.trim()) blocks.push({ type: 'text', text: message });
@@ -1213,6 +1307,10 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
       const txt = data?.choices?.[0]?.message?.content ?? '';
       const detected = detectArtifact(txt);
       if (detected) setArtifact(detected);
+
+      if (memoryEnabled && txt) {
+        addToMemory(message, txt);
+      }
     } catch (err: any) {
       setError(err.message || 'Network error');
     } finally {
@@ -1231,9 +1329,11 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
         @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes slideDown { from { opacity: 0; transform: translateY(-6px) scaleY(0.97); } to { opacity: 1; transform: translateY(0) scaleY(1); } }
         @keyframes shimmer { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
+        @keyframes memoryPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(139,92,246,0.3); } 50% { box-shadow: 0 0 0 4px rgba(139,92,246,0); } }
         .fade-in { animation: fadeIn 0.2s ease-out; }
         .slide-down { animation: slideDown 0.18s ease-out; transform-origin: top; }
         .shimmer { animation: shimmer 1.5s ease-in-out infinite; }
+        .memory-active { animation: memoryPulse 2s ease-in-out infinite; }
       `}</style>
 
       <div className="flex items-center justify-between">
@@ -1691,16 +1791,93 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
               </div>
             )}
 
+            {selectedModel.type === 'text' && (
+              <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+                <div className="flex items-center justify-between px-3 py-2.5 bg-zinc-50 dark:bg-zinc-900/60">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-5 h-5 rounded-md flex items-center justify-center transition-all duration-300 ${memoryEnabled ? 'bg-violet-500/20 dark:bg-violet-400/20' : 'bg-zinc-200 dark:bg-zinc-800'}`}>
+                      <FiDatabase className={`w-2.5 h-2.5 transition-colors duration-300 ${memoryEnabled ? 'text-violet-500 dark:text-violet-400' : 'text-zinc-400'}`} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold text-zinc-700 dark:text-zinc-300">Memory</p>
+                      <p className="text-[8px] text-zinc-400">{memoryEnabled ? `${memories.length} messages stored` : 'Off — single turn only'}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {memoryEnabled && memories.length > 0 && (
+                      <button
+                        onClick={() => setShowMemoryPanel(!showMemoryPanel)}
+                        className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-md transition-colors ${showMemoryPanel ? 'text-violet-500 bg-violet-50 dark:bg-violet-950/30' : 'text-zinc-400 hover:text-violet-500 hover:bg-violet-50 dark:hover:bg-violet-950/20'}`}
+                      >
+                        {showMemoryPanel ? 'Hide' : 'View'}
+                      </button>
+                    )}
+                    <button
+                      onClick={() => {
+                        setMemoryEnabled(!memoryEnabled);
+                        if (memoryEnabled) { setMemories([]); setShowMemoryPanel(false); }
+                      }}
+                      className={`relative w-8 h-4.5 rounded-full transition-all duration-300 flex items-center px-0.5 ${memoryEnabled ? 'bg-violet-500' : 'bg-zinc-300 dark:bg-zinc-700'}`}
+                      style={{ height: '18px', width: '32px' }}
+                    >
+                      <div className={`w-3.5 h-3.5 rounded-full bg-white shadow-sm transition-all duration-300 ${memoryEnabled ? 'translate-x-3.5' : 'translate-x-0'}`} />
+                    </button>
+                  </div>
+                </div>
+
+                {memoryEnabled && showMemoryPanel && memories.length > 0 && (
+                  <div className="border-t border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+                    <div className="flex items-center justify-between px-3 py-1.5 border-b border-zinc-100 dark:border-zinc-800/60">
+                      <span className="text-[9px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Conversation History</span>
+                      <button
+                        onClick={() => { setMemories([]); setShowMemoryPanel(false); }}
+                        className="flex items-center gap-1 text-[9px] font-semibold text-red-400 hover:text-red-500 transition-colors"
+                      >
+                        <FiTrash2 className="w-2.5 h-2.5" /> Clear all
+                      </button>
+                    </div>
+                    <div className="max-h-44 overflow-y-auto p-2 space-y-1.5">
+                      {memories.map((msg) => (
+                        <div
+                          key={msg.id}
+                          className={`group flex gap-2 p-2 rounded-lg border transition-colors ${msg.role === 'user' ? 'bg-blue-50/60 dark:bg-blue-950/20 border-blue-100 dark:border-blue-900/30' : 'bg-violet-50/40 dark:bg-violet-950/20 border-violet-100 dark:border-violet-900/30'}`}
+                        >
+                          <div className="flex-shrink-0 mt-0.5">
+                            <div className={`w-3.5 h-3.5 rounded-full flex items-center justify-center text-[6px] font-black ${msg.role === 'user' ? 'bg-blue-400 text-white' : 'bg-violet-400 text-white'}`}>
+                              {msg.role === 'user' ? 'U' : 'A'}
+                            </div>
+                          </div>
+                          <p className="flex-1 text-[9px] text-zinc-600 dark:text-zinc-400 leading-relaxed line-clamp-2 break-words min-w-0">{msg.content}</p>
+                          <button
+                            onClick={() => setMemories(prev => prev.filter(m => m.id !== msg.id))}
+                            className="flex-shrink-0 w-3.5 h-3.5 flex items-center justify-center rounded text-zinc-300 dark:text-zinc-700 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
+                          >
+                            <FiX className="w-2.5 h-2.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {memoryEnabled && memories.length === 0 && (
+                  <div className="border-t border-zinc-100 dark:border-zinc-800 px-3 py-2 bg-violet-50/30 dark:bg-violet-950/10">
+                    <p className="text-[9px] text-violet-500/70 dark:text-violet-400/60 leading-relaxed">Memory is on — conversation history will be sent with each request so the model remembers previous turns.</p>
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="flex gap-2 pt-0.5">
               <button
                 onClick={handleRun}
                 disabled={isLoading}
-                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 sm:py-2.5 rounded-lg bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white font-bold text-[10px] sm:text-xs shadow-lg hover:shadow-blue-400/25 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:hover:scale-100"
+                className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 sm:py-2.5 rounded-lg text-white font-bold text-[10px] sm:text-xs shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:hover:scale-100 ${memoryEnabled ? 'bg-gradient-to-r from-violet-500 to-blue-500 hover:from-violet-600 hover:to-blue-600 hover:shadow-violet-400/25 memory-active' : 'bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600 hover:shadow-blue-400/25'}`}
               >
                 {isLoading ? (
                   <><div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" /><span>Running...</span></>
                 ) : (
-                  <><FiPlay className="w-3 h-3" /><span>Run</span></>
+                  <><FiPlay className="w-3 h-3" /><span>Run{memoryEnabled && memories.length > 0 ? ` (+${memories.length / 2 | 0} turns)` : ''}</span></>
                 )}
               </button>
               <button
@@ -1732,6 +1909,12 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                 </button>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0 ml-2 overflow-hidden">
+                {memoryEnabled && selectedModel.type === 'text' && (
+                  <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-violet-50 dark:bg-violet-950/30 border border-violet-200 dark:border-violet-800/50">
+                    <div className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
+                    <span className="text-[8px] font-bold text-violet-500 dark:text-violet-400">Memory On</span>
+                  </div>
+                )}
                 {activeTab === 'response' && responseText && (
                   <div className="flex items-center gap-0.5 p-0.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700">
                     <button
@@ -1774,14 +1957,20 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                     <p className="text-[10px] text-zinc-400 dark:text-zinc-500 mt-1">
                       {selectedModel.type === 'image' ? 'Generated image will appear here' : selectedModel.type === 'tts' ? 'Audio player will appear here' : selectedModel.type === 'stt' ? 'Transcription will appear here' : isVisionModel ? 'Response will appear here · Vision enabled' : 'Response will appear here'}
                     </p>
+                    {memoryEnabled && selectedModel.type === 'text' && (
+                      <div className="mt-3 flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-violet-50 dark:bg-violet-950/30 border border-violet-200 dark:border-violet-800/50">
+                        <FiDatabase className="w-2.5 h-2.5 text-violet-400" />
+                        <span className="text-[9px] font-semibold text-violet-500 dark:text-violet-400">Memory enabled · {memories.length} messages</span>
+                      </div>
+                    )}
                   </div>
                 )}
 
                 {isLoading && (
                   <div className="flex flex-col items-center justify-center h-full py-10">
                     <div className="relative w-10 h-10 mb-3">
-                      <div className="absolute inset-0 rounded-full border-2 border-blue-200 dark:border-blue-800" />
-                      <div className="absolute inset-0 rounded-full border-2 border-t-blue-400 border-transparent animate-spin" />
+                      <div className={`absolute inset-0 rounded-full border-2 ${memoryEnabled ? 'border-violet-200 dark:border-violet-800' : 'border-blue-200 dark:border-blue-800'}`} />
+                      <div className={`absolute inset-0 rounded-full border-2 border-t-transparent animate-spin ${memoryEnabled ? 'border-violet-400' : 'border-blue-400'}`} />
                     </div>
                     <p className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">
                       {selectedModel.type === 'image' ? 'Generating image...' : selectedModel.type === 'tts' ? 'Vocalizing...' : selectedModel.type === 'stt' ? 'Transcribing...' : 'Processing request...'}
@@ -1917,6 +2106,11 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                         {uploadedImages.length > 0 && (
                           <span className="text-[8px] font-bold px-1 py-0.5 rounded-full bg-blue-100 dark:bg-blue-800/30 text-blue-400 dark:text-blue-300 border border-blue-100 dark:border-blue-700">
                             {uploadedImages.length} image{uploadedImages.length > 1 ? 's' : ''} analyzed
+                          </span>
+                        )}
+                        {memoryEnabled && memories.length >= 2 && (
+                          <span className="text-[8px] font-bold px-1 py-0.5 rounded-full bg-violet-100 dark:bg-violet-900/30 text-violet-500 dark:text-violet-400 border border-violet-200 dark:border-violet-800/50 flex items-center gap-0.5">
+                            <FiDatabase className="w-2 h-2" /> {memories.length / 2 | 0} turns
                           </span>
                         )}
                       </div>
