@@ -21,6 +21,7 @@ import { chatMinimax, MinimaxRateLimitError, MinimaxQuotaError } from "@/lib/min
 import { chatGrokFast, GrokFastRateLimitError, GrokFastQuotaError } from "@/lib/grok-fast";
 import { chatGrok, GrokRateLimitError, GrokQuotaError } from "@/lib/grok";
 import { chatZhipu, ZhipuRateLimitError, ZhipuQuotaError } from "@/lib/zhipu";
+import { chatPhi, PhiRateLimitError, PhiQuotaError } from "@/lib/phi";
 import { verifyApiKey, incrementUsage, logRequest, updateDailyUsage } from "@/lib/console-utils";
 import { getServiceSupabase } from "@/lib/supabase";
 
@@ -53,6 +54,7 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "llama-3.3-70b": { fn: chatLlama, provider: "llama" },
   "gpt-oss-120b": { fn: chatGptOss, provider: "gptoss" },
   "mimo-v2-flash": { fn: chatMimo, provider: "mimo" },
+  "phi-4-multimodal-instruct": { fn: chatPhi, provider: "phi" },
   "groq-compound": { fn: chatCompound, provider: "compound" },
   "cohere-command-a": { fn: chatCohere, provider: "cohere" },
   "grok-3": { fn: chatGrok, provider: "grok" },
@@ -79,6 +81,7 @@ const RATE_LIMIT_ERRORS = [
   LlamaRateLimitError,
   MistralRateLimitError,
   MimoRateLimitError,
+  PhiRateLimitError,
   MinimaxRateLimitError,
   GrokRateLimitError,
   GrokFastRateLimitError,
@@ -102,6 +105,7 @@ const QUOTA_ERRORS = [
   LlamaQuotaError,
   MistralQuotaError,
   MimoQuotaError,
+  PhiQuotaError,
   MinimaxQuotaError,
   GrokQuotaError,
   GrokFastQuotaError,
