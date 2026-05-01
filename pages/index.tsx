@@ -20,6 +20,25 @@ const allModelTicker = [
   "GPT-OSS 120B", "Cohere Command A", "Groq Compound", "Qwen3 Coder 480B", "GLM 4.7 Flash",
 ];
 
+const providerLogos = [
+  { name: "Nvidia", slug: "nvidia", light: true },
+  { name: "OpenAI", slug: "openai", light: true },
+  { name: "DeepSeek", slug: "deepseek", light: true },
+  { name: "Mistral AI", slug: "mistral", light: true },
+  { name: "Anthropic", slug: "anthropic", light: true },
+  { name: "Groq", slug: "groq", light: true },
+  { name: "Kimi", slug: "kimi", light: true },
+  { name: "Google", slug: "gemini", light: true },
+  { name: "Meta", slug: "meta", light: true },
+  { name: "xAI", slug: "xai", light: true },
+  { name: "Cohere", slug: "cohere", light: true },
+  { name: "Moonshot", slug: "moonshot", light: true },
+  { name: "MiniMax", slug: "minimax", light: true },
+  { name: "Zhipu", slug: "zhipu", light: true },
+  { name: "Alibaba", slug: "qwen", light: true },
+  { name: "Xiaomi", slug: "xiaomi", light: true },
+];
+
 const sdkBadges = [
   { name: "OpenAI SDK", color: "from-emerald-500 to-green-600" },
   { name: "Anthropic SDK", color: "from-orange-500 to-amber-600" },
@@ -226,7 +245,7 @@ const testimonials = [
     name: "Reinaa",
     role: "Co-Founder of Aichiverse",
     avatar: "https://avatars.githubusercontent.com/u/227315981?v=4",
-    content: "Our engineering focus is obsessed with reliability. We’ve architected Aichixia to stay lightning-fast even during peak traffic, using native multi-model support to intelligently route tasks without compromising on high-reasoning power.",
+    content: "Our engineering focus is obsessed with reliability. We've architected Aichixia to stay lightning-fast even during peak traffic, using native multi-model support to intelligently route tasks without compromising on high-reasoning power.",
     rating: 5
   },
   {
@@ -616,6 +635,19 @@ func main() {
           to { opacity: 1; transform: translateY(0); }
         }
         .count-up { animation: countUp 0.5s ease-out forwards; }
+        .provider-logo-item img {
+          filter: grayscale(100%) opacity(0.5);
+          transition: filter 0.3s ease;
+        }
+        .dark .provider-logo-item img {
+          filter: grayscale(100%) opacity(0.35) invert(1);
+        }
+        .provider-logo-item:hover img {
+          filter: grayscale(0%) opacity(1);
+        }
+        .dark .provider-logo-item:hover img {
+          filter: grayscale(0%) opacity(1) invert(0);
+        }
       `}} />
       
       <Head>
@@ -894,11 +926,35 @@ func main() {
           </div>
         </div>
         <div className="mt-5 sm:mt-6 relative flex overflow-hidden">
-          <div className="flex animate-marquee-slow gap-2 whitespace-nowrap" style={{animationDirection: 'reverse'}}>
-            {[...sdkBadges, ...sdkBadges].map((sdk, i) => (
-              <span key={i} className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r ${sdk.color} text-white text-[10px] sm:text-xs font-bold shadow-sm flex-shrink-0`}>
-                {sdk.name}
-              </span>
+          <div className="flex animate-marquee-slow gap-6 whitespace-nowrap items-center" style={{animationDirection: 'reverse'}}>
+            {[...providerLogos, ...providerLogos].map((provider, i) => (
+              <div
+                key={i}
+                className="provider-logo-item inline-flex flex-col items-center gap-1.5 flex-shrink-0 cursor-default"
+              >
+                <img
+                  src={`https://unpkg.com/@lobehub/icons-static-svg@latest/icons/${provider.slug}.svg`}
+                  alt={provider.name}
+                  className="h-6 w-auto object-contain"
+                  loading="lazy"
+                  onError={(e) => {
+                    const target = e.currentTarget as HTMLImageElement;
+                    target.style.display = 'none';
+                    const parent = target.parentElement;
+                    if (parent) {
+                      const fallback = parent.querySelector('.provider-fallback') as HTMLElement;
+                      if (fallback) fallback.style.display = 'flex';
+                    }
+                  }}
+                />
+                <span
+                  className="provider-fallback hidden items-center justify-center h-6 px-2 text-[9px] font-bold text-zinc-400 dark:text-zinc-600 bg-zinc-100 dark:bg-zinc-900 rounded"
+                  style={{ display: 'none' }}
+                >
+                  {provider.name}
+                </span>
+                <span className="text-[9px] font-medium text-zinc-400 dark:text-zinc-600">{provider.name}</span>
+              </div>
             ))}
           </div>
         </div>
