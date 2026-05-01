@@ -36,7 +36,6 @@ const providerLogos = [
   { name: "MiniMax", slug: "minimax", light: true },
   { name: "Zhipu", slug: "zhipu", light: true },
   { name: "Alibaba", slug: "qwen", light: true },
-  { name: "Xiaomi", slug: "xiaomi", light: true },
 ];
 
 const sdkBadges = [
