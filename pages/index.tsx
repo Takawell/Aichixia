@@ -14,10 +14,11 @@ import { oneDark, oneLight } from 'react-syntax-highlighter/dist/cjs/styles/pris
 const base = "https://www.aichixia.xyz";
 
 const allModelTicker = [
-  "DeepSeek V3.2", "Claude Opus 4.5", "Gemini 3 Flash", "GPT-5 Mini", "Kimi K2",
-  "Qwen3 235B", "Llama 3.3 70B", "Mistral 3.1", "Grok 3", "Grok 4 Fast",
-  "GLM 4.7", "DeepSeek V3.1", "MiniMax M2.1", "Aichixia 114B", "MiMo V2 Flash",
+  "DeepSeek V3.2", "Claude Opus 4.5", "Gemini 3 Flash", "GPT-5 Mini", "Kimi K2.5",
+  "Qwen3 235B", "Llama 3.3 70B", "Mistral Large 3 675B", "Grok 3", "Grok 4 Fast",
+  "GLM 4.7", "DeepSeek V3.1", "MiniMax M2.7", "Aichixia 114B", "MiMo V2 Flash",
   "GPT-OSS 120B", "Cohere Command A", "Groq Compound", "Qwen3 Coder 480B", "GLM 4.7 Flash",
+  "Phi 4 Multimodal", "GPT-5.2",
 ];
 
 const providerLogos = [
@@ -38,6 +39,10 @@ const providerLogos = [
   { name: "Alibaba", slug: "qwen", light: true },
   { name: "Microsoft", slug: "microsoft" },
   { name: "Black Forest Labs", slug: "flux" },
+  { name: "Cerebras", slug: "cerebras" },
+  { name: "SiliconFlow", slug: "siliconcloud" },
+  { name: "Novita AI", slug: "novita" },
+  { name: "Hugging Face", slug: "huggingface" },	
 ];
 
 const sdkBadges = [
@@ -542,7 +547,6 @@ func main() {
   };
 
   const generateCurl = () => generateCode('openai', 'curl');
-
   const copyToClipboard = (text: string, type: 'request' | 'response') => {
     navigator.clipboard.writeText(text);
     if (type === 'request') {
@@ -1953,7 +1957,7 @@ func main() {
             <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 text-center">
               © {new Date().getFullYear()} Aichixia. All rights reserved.
             </p>
-
+			  
             <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-center">
               <a 
                 href="mailto:contact@aichixia.xyz"
