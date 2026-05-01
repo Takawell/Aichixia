@@ -3,8 +3,9 @@ import { FiCopy, FiCheck, FiLock, FiZap, FiCpu, FiTrendingUp, FiDollarSign, FiSe
 import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiAirbrake, SiMaze, SiXiaomi, SiFlux, SiImagedotsc, SiSecurityscorecard, SiLapce } from 'react-icons/si';
 import { GiSpermWhale, GiPowerLightning, GiClover, GiFire } from 'react-icons/gi';
 import { TbSquareLetterZ, TbLetterM } from 'react-icons/tb';
-import { FaXTwitter } from 'react-icons/fa6';
+import { TiVendorMicrosoft } from "react-icons/ti";
 import { HiSpeakerWave } from 'react-icons/hi2';
+import { FaXTwitter } from 'react-icons/fa6';
 
 type UserSettings = {
   plan: 'free' | 'pro' | 'enterprise';
@@ -597,7 +598,6 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
                       const Icon = model.icon;
                       const pricingConfig = PRICING_CONFIG[model.pricing as keyof typeof PRICING_CONFIG];
                       const displayValue = getDisplayValue(model);
-
                       return (
                         <div
                           key={model.id}
