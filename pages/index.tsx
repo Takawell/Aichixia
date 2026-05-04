@@ -43,6 +43,8 @@ const providerLogos = [
   { name: "SiliconFlow", slug: "siliconcloud" },
   { name: "Novita AI", slug: "novita" },
   { name: "Hugging Face", slug: "huggingface" },	
+  { name: "Cloudflare", slug: "cloudflare" },
+  { name: "OpenRouter", slug: "openrouter" },
 ];
 
 const sdkBadges = [
