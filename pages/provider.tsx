@@ -502,7 +502,7 @@ export default function Provider() {
 
               <div style={{ padding:'0 32px 32px' }}>
                 <div style={{ borderTop:'1px solid rgba(56,189,248,0.08)', paddingTop:24, display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:12 }}>
-                  <div style={{ display:'flex', items:'center', gap:16, flexWrap:'wrap' }}>
+                  <div style={{ display:'flex', alignItems:'center', gap:16, flexWrap:'wrap' }}>
                     {['CLI Tool', 'Multi-model', 'Agentic', 'Open Source'].map(t => (
                       <span key={t} className="mono" style={{ fontSize:10, color:'#334155', letterSpacing:'0.06em', display:'flex', alignItems:'center', gap:6 }}>
                         <span style={{ width:5, height:5, borderRadius:'50%', background:'rgba(56,189,248,0.4)', display:'inline-block' }} />
