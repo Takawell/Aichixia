@@ -6,13 +6,11 @@ import {
   FaHome,
   FaBook,
   FaTerminal,
-  FaMoon,
-  FaSun,
   FaArrowRight,
   FaGithub,
-  FaTwitter,
-  FaDiscord,
+  FaTelegram,
 } from "react-icons/fa";
+import ThemeToggle from "@/components/ThemeToggle";
 
 function useMousePosition() {
   const [pos, setPos] = useState({ x: -999, y: -999 });
@@ -24,11 +22,29 @@ function useMousePosition() {
   return pos;
 }
 
+function useDarkMode() {
+  const [isDark, setIsDark] = useState(true);
+  useEffect(() => {
+    const check = () =>
+      setIsDark(document.documentElement.classList.contains("dark"));
+    check();
+    const obs = new MutationObserver(check);
+    obs.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+    return () => obs.disconnect();
+  }, []);
+  return isDark;
+}
+
 function SpotlightCanvas({ isDark }: { isDark: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mouse = useMousePosition();
   const animRef = useRef<number>(0);
-  const dotsRef = useRef<{ x: number; y: number; ox: number; oy: number; vx: number; vy: number }[]>([]);
+  const dotsRef = useRef<
+    { x: number; y: number; ox: number; oy: number; vx: number; vy: number }[]
+  >([]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -45,7 +61,14 @@ function SpotlightCanvas({ isDark }: { isDark: boolean }) {
       const rows = Math.ceil(canvas.height / gap) + 1;
       for (let i = 0; i < cols; i++) {
         for (let j = 0; j < rows; j++) {
-          dotsRef.current.push({ x: i * gap, y: j * gap, ox: i * gap, oy: j * gap, vx: 0, vy: 0 });
+          dotsRef.current.push({
+            x: i * gap,
+            y: j * gap,
+            ox: i * gap,
+            oy: j * gap,
+            vx: 0,
+            vy: 0,
+          });
         }
       }
     };
@@ -221,20 +244,12 @@ function TypewriterPath() {
 }
 
 export default function Custom404() {
-  const [isDark, setIsDark] = useState(true);
   const [mounted, setMounted] = useState(false);
+  const isDark = useDarkMode();
 
   useEffect(() => {
-    const saved = localStorage.getItem("theme");
-    setIsDark(saved ? saved === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches);
     setMounted(true);
   }, []);
-
-  useEffect(() => {
-    if (!mounted) return;
-    document.documentElement.classList.toggle("dark", isDark);
-    localStorage.setItem("theme", isDark ? "dark" : "light");
-  }, [isDark, mounted]);
 
   if (!mounted) return null;
 
@@ -268,7 +283,6 @@ export default function Custom404() {
         .a4{animation:u2 0.65s cubic-bezier(0.16,1,0.3,1) 0.24s both}
         .a5{animation:u2 0.65s cubic-bezier(0.16,1,0.3,1) 0.34s both}
         .a6{animation:si  0.55s cubic-bezier(0.16,1,0.3,1) 0.44s both}
-        .a7{animation:si  0.55s cubic-bezier(0.16,1,0.3,1) 0.52s both}
         *{box-sizing:border-box;margin:0;padding:0}
       `}</style>
 
@@ -313,7 +327,10 @@ export default function Custom404() {
             WebkitBackdropFilter: "blur(20px)",
           }}
         >
-          <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 8 }}>
+          <Link
+            href="/"
+            style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 8 }}
+          >
             <div
               style={{
                 width: 27,
@@ -327,11 +344,11 @@ export default function Custom404() {
                 boxShadow: "0 2px 12px rgba(14,165,233,0.35)",
               }}
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#fff" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
+              <FaTerminal size={12} color="#fff" />
             </div>
-            <span style={{ fontSize: 15, fontWeight: 600, color: tp, letterSpacing: "-0.015em" }}>
+            <span
+              style={{ fontSize: 15, fontWeight: 600, color: tp, letterSpacing: "-0.015em" }}
+            >
               Aichixia
             </span>
           </Link>
@@ -351,25 +368,7 @@ export default function Custom404() {
             >
               ERROR 404
             </span>
-            <button
-              onClick={() => setIsDark(!isDark)}
-              style={{
-                width: 32,
-                height: 32,
-                borderRadius: 8,
-                border: `1px solid ${border}`,
-                background: surface,
-                backdropFilter: "blur(8px)",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: ts,
-                transition: "all 0.2s",
-              }}
-            >
-              {isDark ? <FaSun size={12} /> : <FaMoon size={12} />}
-            </button>
+            <ThemeToggle />
           </div>
         </header>
 
@@ -455,24 +454,9 @@ export default function Custom404() {
               }}
             >
               {[
-                {
-                  href: "/",
-                  label: "Back to Home",
-                  icon: <FaHome size={12} />,
-                  primary: true,
-                },
-                {
-                  href: "/docs",
-                  label: "Documentation",
-                  icon: <FaBook size={12} />,
-                  primary: false,
-                },
-                {
-                  href: "/console",
-                  label: "Console",
-                  icon: <FaTerminal size={12} />,
-                  primary: false,
-                },
+                { href: "/", label: "Back to Home", icon: <FaHome size={12} />, primary: true },
+                { href: "/docs", label: "Documentation", icon: <FaBook size={12} />, primary: false },
+                { href: "/console", label: "Console", icon: <FaTerminal size={12} />, primary: false },
               ].map((btn) => (
                 <Link
                   key={btn.href}
@@ -508,7 +492,9 @@ export default function Custom404() {
                       el.style.boxShadow = "0 8px 28px rgba(14,165,233,0.48)";
                     } else {
                       el.style.color = tp;
-                      el.style.borderColor = isDark ? "rgba(100,116,139,0.7)" : "rgba(148,163,184,0.9)";
+                      el.style.borderColor = isDark
+                        ? "rgba(100,116,139,0.7)"
+                        : "rgba(148,163,184,0.9)";
                     }
                   }}
                   onMouseLeave={(e) => {
@@ -525,10 +511,7 @@ export default function Custom404() {
                   {btn.icon}
                   {btn.label}
                   {!btn.primary && (
-                    <FaArrowRight
-                      size={10}
-                      style={{ opacity: 0.4, marginLeft: 1 }}
-                    />
+                    <FaArrowRight size={10} style={{ opacity: 0.4, marginLeft: 1 }} />
                   )}
                 </Link>
               ))}
@@ -560,7 +543,13 @@ export default function Custom404() {
                   {["#ff5f57", "#febc2e", "#28c840"].map((c, i) => (
                     <div
                       key={i}
-                      style={{ width: 9, height: 9, borderRadius: "50%", background: c, opacity: 0.85 }}
+                      style={{
+                        width: 9,
+                        height: 9,
+                        borderRadius: "50%",
+                        background: c,
+                        opacity: 0.85,
+                      }}
                     />
                   ))}
                 </div>
@@ -578,21 +567,13 @@ export default function Custom404() {
               <div style={{ padding: "12px 14px" }}>
                 {[
                   { k: "status", v: "404", vc: "#f43f5e" },
-                  {
-                    k: "error",
-                    v: '"route_not_found"',
-                    vc: isDark ? "#fda4af" : "#e11d48",
-                  },
+                  { k: "error", v: '"route_not_found"', vc: isDark ? "#fda4af" : "#e11d48" },
                   {
                     k: "message",
                     v: '"This endpoint does not exist"',
                     vc: isDark ? "#86efac" : "#16a34a",
                   },
-                  {
-                    k: "docs",
-                    v: '"aichixia.xyz/docs"',
-                    vc: isDark ? "#7dd3fc" : "#0369a1",
-                  },
+                  { k: "docs", v: '"aichixia.xyz/docs"', vc: isDark ? "#7dd3fc" : "#0369a1" },
                 ].map((row, i, arr) => (
                   <div
                     key={row.k}
@@ -634,7 +615,6 @@ export default function Custom404() {
                 gridTemplateColumns: "1fr 1fr",
                 gap: 7,
                 width: "100%",
-                marginBottom: 0,
               }}
             >
               {[
@@ -711,8 +691,7 @@ export default function Custom404() {
           <div style={{ display: "flex", gap: 6 }}>
             {[
               { href: "https://github.com/aichixia", icon: <FaGithub size={12} /> },
-              { href: "https://twitter.com/aichixia", icon: <FaTwitter size={12} /> },
-              { href: "https://discord.gg/aichixia", icon: <FaDiscord size={12} /> },
+              { href: "https://t.me/aichixia", icon: <FaTelegram size={12} /> },
             ].map((s, i) => (
               <a
                 key={i}
