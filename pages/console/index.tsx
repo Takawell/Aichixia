@@ -684,7 +684,7 @@ export default function Console() {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black text-zinc-900 dark:text-white transition-colors duration-300">
       <div className="flex h-screen overflow-hidden">
-        <aside className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 fixed lg:static inset-y-0 left-0 z-50 w-60 flex flex-col bg-white dark:bg-zinc-950 border-r border-zinc-100 dark:border-zinc-800/60 transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]`}>
+        <aside className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 fixed lg:relative inset-y-0 left-0 z-50 w-60 flex-shrink-0 flex flex-col bg-white dark:bg-zinc-950 border-r border-zinc-100 dark:border-zinc-800/60 transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]`}>
 
           <style>{`
             @keyframes sidebarFadeIn {
