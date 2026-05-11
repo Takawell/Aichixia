@@ -1,4 +1,3 @@
-"use client";
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 
@@ -7,6 +6,7 @@ const SECRET = process.env.NEXT_PUBLIC_SECRET_CODE ?? "";
 const GLYPHS = "アイウエオカキクケコサシスセソタチツテトナニヌネノ0123456789ABCDEF<>[]{}";
 
 function useRain(canvasRef: React.RefObject<HTMLCanvasElement>) {
+  
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
