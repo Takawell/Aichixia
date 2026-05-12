@@ -419,7 +419,7 @@ const NotFound: NextPage = () => {
   useEffect(() => {
     if (!ready) return;
     const lines = [
-      "> AICHIXIA KERNEL v3.14.1",
+      "> AICHIXIA KERNEL v5.14.1",
       "> Booting system modules...",
       "> [OK] Neural network initialized",
       "> [OK] Route resolver loaded",
@@ -692,24 +692,24 @@ const NotFound: NextPage = () => {
                         ALL 10 LAYERS DECRYPTED
                       </div>
                       <p style={{ fontSize: 12, color: "rgba(148,163,184,0.55)", lineHeight: 1.8 }}>
-                        Selamat. Kamu berhasil menembus semua lapisan enkripsi.<br />
-                        Tapi perjalanan belum selesai — satu teka-teki terakhir menantimu.
+                        Congratulations. You have successfully penetrated all layers of encryption..<br />
+                        But the journey isn't over yet — one final puzzle awaits you.
                       </p>
                     </div>
 
                     <div className="p404-navajo-box">
                       <div className="p404-navajo-tag">&#9650; CLASSIFIED TRANSMISSION — NAVAJO CODE</div>
                       <div className="p404-navajo-title">
-                        Pesan ini dienkripsi menggunakan <strong style={{ color: "#c4b5fd" }}>Navajo Code Talkers Cipher</strong> — sistem sandi yang digunakan semasa Perang Dunia II dan tidak pernah berhasil dipecahkan musuh.<br />
-                        Decode setiap kata untuk menemukan access code rahasiamu.
+                        This message is encrypted using <strong style={{ color: "#c4b5fd" }}>Navajo Code Talkers Cipher</strong> — sistem sandi yang digunakan semasa Perang Dunia II dan tidak pernah berhasil dipecahkan musuh.<br />
+                        Decode each word to find your secret access code..
                       </div>
                       <div className="p404-navajo-code">
                         {navajo || "[ SET SECRET_CODE_NAVAJO IN .env.local ]"}
                       </div>
                       <div className="p404-navajo-note">
-                        &#128218; Referensi: setiap kata Navajo mewakili satu huruf dalam alfabet.<br />
-                        Contoh: WOL-LA-CHEE = A &nbsp;|&nbsp; SHUSH = B &nbsp;|&nbsp; MOASI = C<br />
-                        Gunakan referensi lengkap Navajo Code Talkers untuk mendekode pesan di atas.
+                        &#128218; Reference: each Navajo word represents one letter in the alphabet.<br />
+                        Example: WOL-LA-CHEE = A &nbsp;|&nbsp; SHUSH = B &nbsp;|&nbsp; MOASI = C<br />
+                        Use the complete Navajo Code Talkers reference to decode the above message..
                       </div>
                     </div>
 
