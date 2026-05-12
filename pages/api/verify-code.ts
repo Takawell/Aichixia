@@ -6,15 +6,15 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 
   const { answer } = req.body;
-  const code = process.env.SECRET_CODE ?? "";
+  const secretCode = process.env.SECRET_CODE ?? "";
+  const navajoCode = process.env.SECRET_CODE_NAVAJO ?? "";
 
-  if (!code) {
+  if (!secretCode) {
     return res.status(500).json({ message: "Server misconfigured" });
   }
 
-  if (typeof answer !== "string" || answer.trim().toLowerCase() !== code.toLowerCase()) {
+  if (typeof answer !== "string" || answer.trim().toLowerCase() !== secretCode.toLowerCase()) {
     return res.status(200).json({ correct: false });
   }
-
-  return res.status(200).json({ correct: true, code });
+  return res.status(200).json({ correct: true, navajo: navajoCode });
 }
