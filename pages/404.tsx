@@ -384,8 +384,13 @@ const NotFound: NextPage = () => {
     ];
     let i = 0;
     const id = setInterval(() => {
-      if (i < lines.length) { setTermLines(p => [...p, lines[i]]); i++; }
-      else clearInterval(id);
+      if (i < lines.length) {
+        const line = lines[i];
+        if (line) setTermLines(p => [...p, line]);
+        i++;
+      } else {
+        clearInterval(id);
+      }
     }, 420);
     return () => clearInterval(id);
   }, [ready]);
@@ -449,12 +454,14 @@ const NotFound: NextPage = () => {
 
   const closeModal = () => { setPuzzleOpen(false); setInput(""); setErr(""); setHint(false); };
 
-  const lineColor = (l: string) =>
-    l.includes("[ERR]") ? "#ef4444"
-    : l.includes("[SUCCESS]") || l.includes("[ACCESS]") ? "#22c55e"
-    : l.includes("[SECRET]") ? "#f59e0b"
-    : l.includes("[OK]") ? "#3b82f6"
-    : "rgba(148,163,184,0.6)";
+  const lineColor = (l: string) => {
+    if (!l || typeof l !== "string") return "rgba(148,163,184,0.6)";
+    if (l.includes("[ERR]")) return "#ef4444";
+    if (l.includes("[SUCCESS]") || l.includes("[ACCESS]")) return "#22c55e";
+    if (l.includes("[SECRET]")) return "#f59e0b";
+    if (l.includes("[OK]")) return "#3b82f6";
+    return "rgba(148,163,184,0.6)";
+  };
 
   if (!ready) return null;
 
@@ -501,7 +508,7 @@ const NotFound: NextPage = () => {
               </span>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              {termLines.map((l, i) => (
+              {termLines.filter(Boolean).map((l, i) => (
                 <div key={i} className="p404-tline" style={{ color: lineColor(l) }}>{l}</div>
               ))}
               {!done && (
