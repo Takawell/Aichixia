@@ -6,28 +6,64 @@ const GLYPHS = "アイウエオカキクケコ0123456789ABCDEF<>[]{}";
 
 const STATIC_STEPS: { q: string; a: string | null; hint: string; reward: string }[] = [
   {
-    q: "What 4-letter acronym describes AI trained with human feedback? (Reinforcement Learning from Human ___)",
-    a: "rlhf",
-    hint: "R - L - H - F",
-    reward: "LAYER 1 UNLOCKED",
+    q: "SHA-256 hash of the string 'hello' — what are the first 6 hex characters? (lowercase)",
+    a: "2cf24d",
+    hint: "Run: echo -n 'hello' | sha256sum — copy first 6 chars",
+    reward: "LAYER 1 DECRYPTED",
   },
   {
-    q: "How many bits are in a byte? Answer in binary (4 digits).",
-    a: "1000",
-    hint: "8 in decimal equals ? in binary",
-    reward: "LAYER 2 UNLOCKED",
+    q: "In IPv4, what is the broadcast address of the subnet 192.168.10.0/28?",
+    a: "192.168.10.15",
+    hint: "/28 = 4 host bits → 16 addresses. Last address = broadcast.",
+    reward: "LAYER 2 DECRYPTED",
   },
   {
-    q: "In what year was the 'Attention Is All You Need' (Transformer) paper published?",
-    a: "2017",
-    hint: "Google Brain. Mid-decade. Changed everything.",
-    reward: "LAYER 3 UNLOCKED",
+    q: "What is the decimal value of the two's complement 8-bit number 11110110?",
+    a: "-10",
+    hint: "Flip all bits → 00001001, add 1 → 00001010 = 10. It's negative.",
+    reward: "LAYER 3 DECRYPTED",
   },
   {
-    q: "Format: [3-letter word]-[7-letter word]-[4-digit year]. First word means 'in favor of'. Second word is what you say when someone arrives. The year is the current one. All lowercase, hyphens only.",
-    a: null,
-    hint: "advocate + greeting + this year",
-    reward: "ACCESS GRANTED",
+    q: "A classic programmer's first output. Two words, lowercase, separated by a hyphen. No spaces.",
+    a: "hello-world",
+    hint: "Every language's first program. Two words. Hyphen between them.",
+    reward: "LAYER 4 DECRYPTED",
+  },
+  {
+    q: "In Big-O notation, what is the average time complexity of QuickSort? (format: o(n log n))",
+    a: "o(n log n)",
+    hint: "Not worst case O(n²). The average. Include O( ) with lowercase o.",
+    reward: "LAYER 5 DECRYPTED",
+  },
+  {
+    q: "Convert hexadecimal 0xDEAD to decimal.",
+    a: "57005",
+    hint: "D=13 E=14 A=10 D=13. Expand: 13×16³ + 14×16² + 10×16¹ + 13×16⁰",
+    reward: "LAYER 6 DECRYPTED",
+  },
+  {
+    q: "What CPU vulnerability disclosed in January 2018 exploits speculative execution to leak data across process boundaries? (one word, lowercase)",
+    a: "spectre",
+    hint: "Disclosed alongside Meltdown. Named after something that haunts you.",
+    reward: "LAYER 7 DECRYPTED",
+  },
+  {
+    q: "In asymmetric cryptography, Alice wants to send Bob an encrypted message only Bob can read. Which key does Alice use to encrypt?",
+    a: "bob's public key",
+    hint: "Only Bob can decrypt it. So Alice needs Bob's ___ key. Include 'Bob's'.",
+    reward: "LAYER 8 DECRYPTED",
+  },
+  {
+    q: "What HTTP status code is defined in RFC 2324 as 'I'm a teapot'?",
+    a: "418",
+    hint: "An April Fools' RFC from 1998. Still an official IANA status code.",
+    reward: "LAYER 9 DECRYPTED",
+  },
+  {
+    q: "What is the port number used by DNS over HTTPS (DoH) as standardized in RFC 8484?",
+    a: "443",
+    hint: "DoH runs over HTTPS. What port does HTTPS always use?",
+    reward: "LAYER 10 DECRYPTED — ALL SYSTEMS BREACHED",
   },
 ];
 
@@ -48,18 +84,9 @@ html, body { background: #000; margin: 0; padding: 0; }
   50%{clip-path:inset(40% 0 40% 0);transform:translate(2px,0);color:#8b5cf6}
   75%{clip-path:inset(80% 0 5% 0);transform:translate(-2px,0);color:#ef4444}
 }
-@keyframes scan {
-  0%{top:-4px} 100%{top:100vh}
-}
-@keyframes up0 { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
-@keyframes up1 { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
-@keyframes up2 { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
-@keyframes up3 { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
-@keyframes up4 { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
-@keyframes up5 { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
-@keyframes float {
-  0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)}
-}
+@keyframes scan { 0%{top:-4px} 100%{top:100vh} }
+@keyframes fadeup { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
 @keyframes shake {
   0%,100%{transform:translateX(0)}
   20%{transform:translateX(-8px)}
@@ -70,9 +97,7 @@ html, body { background: #000; margin: 0; padding: 0; }
 @keyframes bflow {
   0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%}
 }
-@keyframes tin {
-  from{opacity:0;transform:translateX(-5px)} to{opacity:1;transform:translateX(0)}
-}
+@keyframes tin { from{opacity:0;transform:translateX(-5px)} to{opacity:1;transform:translateX(0)} }
 @keyframes pulse {
   0%{box-shadow:0 0 0 0 rgba(239,68,68,.5)}
   70%{box-shadow:0 0 0 7px rgba(239,68,68,0)}
@@ -82,15 +107,24 @@ html, body { background: #000; margin: 0; padding: 0; }
   0%,19%,21%,23%,25%,54%,56%,100%{opacity:1}
   20%,24%,55%{opacity:.4}
 }
+@keyframes progpulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+@keyframes spinreact {
+  from{transform:rotate(0deg)} to{transform:rotate(360deg)}
+}
+@keyframes reactglow {
+  0%,100%{filter:drop-shadow(0 0 8px rgba(97,218,251,.6))}
+  50%{filter:drop-shadow(0 0 20px rgba(97,218,251,1))}
+}
+@keyframes navajofade {
+  from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)}
+}
 
 .p404-root {
   min-height:100vh; background:#000; color:#e2e8f0;
   font-family:'Courier New',Courier,monospace;
   overflow-x:hidden; position:relative;
 }
-.p404-canvas {
-  position:fixed; inset:0; opacity:.15; z-index:0; pointer-events:none;
-}
+.p404-canvas { position:fixed; inset:0; opacity:.15; z-index:0; pointer-events:none; }
 .p404-grid {
   position:fixed; inset:0;
   background-image:
@@ -119,12 +153,11 @@ html, body { background: #000; margin: 0; padding: 0; }
   padding:32px 16px;
 }
 .p404-badge {
-  display:inline-flex; align-items:center; gap:8px;
-  padding:5px 14px;
+  display:inline-flex; align-items:center; gap:8px; padding:5px 14px;
   background:rgba(59,130,246,.08); border:1px solid rgba(59,130,246,.2);
   border-radius:100px; font-size:10px; letter-spacing:.14em;
   color:#3b82f6; font-weight:700; margin-bottom:12px;
-  animation:up0 .6s ease both;
+  animation:fadeup .6s ease both;
 }
 .p404-dot-red {
   width:7px; height:7px; border-radius:50%; background:#ef4444;
@@ -132,7 +165,7 @@ html, body { background: #000; margin: 0; padding: 0; }
 }
 .p404-glitch-wrap {
   position:relative; display:inline-block; margin-bottom:4px;
-  animation:up1 .6s .1s ease both;
+  animation:fadeup .6s .1s ease both;
 }
 .p404-num {
   font-size:clamp(88px,17vw,188px); font-weight:900;
@@ -153,24 +186,22 @@ html, body { background: #000; margin: 0; padding: 0; }
   -webkit-text-fill-color:#ef4444;
   animation:glitch1 .18s steps(1) forwards;
 }
-.p404-glitch-on .p404-num::after {
-  animation:glitch2 .18s steps(1) forwards;
-}
+.p404-glitch-on .p404-num::after { animation:glitch2 .18s steps(1) forwards; }
 .p404-typed {
   font-size:clamp(12px,2.2vw,15px); font-weight:700; color:#3b82f6;
   letter-spacing:.18em; margin-bottom:8px; min-height:22px;
-  animation:up2 .6s .2s ease both, flicker 4s 1s infinite;
+  animation:fadeup .6s .2s ease both, flicker 4s 1s infinite;
 }
 .p404-desc {
   font-size:13px; color:rgba(148,163,184,.75); text-align:center;
   max-width:360px; line-height:1.8; letter-spacing:.03em; margin-bottom:24px;
-  animation:up3 .6s .3s ease both;
+  animation:fadeup .6s .3s ease both;
 }
 .p404-term {
   width:100%; max-width:500px;
   background:rgba(0,0,0,.82); border:1px solid rgba(59,130,246,.2);
   border-radius:10px; padding:14px 16px; min-height:116px; margin-bottom:22px;
-  animation:up4 .6s .4s ease both;
+  animation:fadeup .6s .4s ease both;
 }
 .p404-term-head {
   display:flex; align-items:center; gap:6px; margin-bottom:10px;
@@ -180,7 +211,7 @@ html, body { background: #000; margin: 0; padding: 0; }
 .p404-tline { font-size:11px; line-height:1.65; letter-spacing:.04em; animation:tin .3s ease both; }
 .p404-btns {
   display:flex; flex-wrap:wrap; gap:10px; justify-content:center;
-  margin-bottom:26px; animation:up5 .6s .5s ease both;
+  margin-bottom:26px; animation:fadeup .6s .5s ease both;
 }
 .p404-btn {
   display:inline-flex; align-items:center; gap:8px; padding:10px 20px;
@@ -190,6 +221,7 @@ html, body { background: #000; margin: 0; padding: 0; }
 }
 .p404-btn:hover { transform:translateY(-2px); }
 .p404-btn:active { transform:translateY(0); }
+.p404-btn:disabled { opacity:.5; cursor:not-allowed; transform:none; }
 .p404-btn-blue {
   background:linear-gradient(135deg,#3b82f6,#06b6d4); color:#fff !important;
   box-shadow:0 4px 18px rgba(59,130,246,.3);
@@ -203,6 +235,7 @@ html, body { background: #000; margin: 0; padding: 0; }
 }
 .p404-stats {
   display:flex; gap:28px; align-items:center; justify-content:center; flex-wrap:wrap;
+  animation:fadeup .6s .6s ease both;
 }
 .p404-stat-v {
   font-size:16px; font-weight:900;
@@ -212,14 +245,14 @@ html, body { background: #000; margin: 0; padding: 0; }
 }
 .p404-stat-l { font-size:9px; color:rgba(148,163,184,.35); letter-spacing:.16em; text-align:center; }
 .p404-backdrop {
-  position:fixed; inset:0; background:rgba(0,0,0,.9);
+  position:fixed; inset:0; background:rgba(0,0,0,.92);
   z-index:50; display:flex; align-items:center; justify-content:center;
-  padding:16px; animation:up0 .2s ease both;
+  padding:16px; animation:fadeup .2s ease both;
 }
 .p404-modal {
   background:#07080c; border:1px solid rgba(59,130,246,.28);
-  border-radius:16px; width:100%; max-width:500px;
-  max-height:88vh; overflow-y:auto; position:relative;
+  border-radius:16px; width:100%; max-width:560px;
+  max-height:90vh; overflow-y:auto; position:relative;
 }
 .p404-modal.p404-shake { animation:shake .4s ease; }
 .p404-mglow {
@@ -228,17 +261,18 @@ html, body { background: #000; margin: 0; padding: 0; }
   background-size:300% 300%; animation:bflow 5s ease infinite;
   z-index:-1; pointer-events:none;
 }
-.p404-mhead {
-  padding:20px 22px 0; display:flex; align-items:center; justify-content:space-between;
-}
-.p404-prog-track {
-  margin:14px 22px 0; height:3px; background:rgba(255,255,255,.06);
-  border-radius:2px; overflow:hidden;
-}
+.p404-mhead { padding:20px 22px 0; display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+.p404-prog-wrap { padding:14px 22px 0; }
+.p404-prog-track { height:3px; background:rgba(255,255,255,.06); border-radius:2px; overflow:hidden; }
 .p404-prog-fill {
   height:100%; background:linear-gradient(90deg,#3b82f6,#06b6d4);
   border-radius:2px; transition:width .5s cubic-bezier(.16,1,.3,1);
 }
+.p404-layer-dots { display:flex; gap:4px; margin-top:8px; flex-wrap:wrap; }
+.p404-ldot { width:6px; height:6px; border-radius:50%; transition:background .3s,box-shadow .3s; }
+.p404-ldot-done { background:#3b82f6; box-shadow:0 0 6px rgba(59,130,246,.6); }
+.p404-ldot-active { background:#06b6d4; animation:progpulse 1s ease infinite; }
+.p404-ldot-pending { background:rgba(255,255,255,.1); }
 .p404-mbody { padding:18px 22px 22px; }
 .p404-challenge {
   background:rgba(59,130,246,.06); border:1px solid rgba(59,130,246,.16);
@@ -255,35 +289,38 @@ html, body { background: #000; margin: 0; padding: 0; }
 .p404-inp {
   flex:1; background:rgba(255,255,255,.04); border:1px solid rgba(59,130,246,.22);
   border-radius:8px; padding:10px 14px; font-family:inherit; font-size:13px;
-  color:#e2e8f0; outline:none; transition:border-color .18s,box-shadow .18s;
-  letter-spacing:.05em;
+  color:#e2e8f0; outline:none; transition:border-color .18s,box-shadow .18s; letter-spacing:.05em;
 }
 .p404-inp:focus { border-color:rgba(59,130,246,.55); box-shadow:0 0 0 3px rgba(59,130,246,.1); }
 .p404-err { font-size:11px; color:#ef4444; letter-spacing:.08em; margin-bottom:12px; }
 .p404-act { display:flex; gap:8px; }
 .p404-close {
-  width:34px; height:34px; background:rgba(255,255,255,.04);
+  width:34px; height:34px; min-width:34px; background:rgba(255,255,255,.04);
   border:1px solid rgba(255,255,255,.08); border-radius:8px;
   display:flex; align-items:center; justify-content:center;
   cursor:pointer; color:rgba(148,163,184,.5); font-size:20px;
   font-family:inherit; transition:background .18s; line-height:1;
 }
 .p404-close:hover { background:rgba(255,255,255,.08); }
-.p404-success {
-  display:flex; flex-direction:column; align-items:center; gap:16px; text-align:center;
-}
-.p404-float { animation:float 3.5s ease-in-out infinite; font-size:48px; }
-.p404-secret-box {
+.p404-success { display:flex; flex-direction:column; align-items:center; gap:18px; text-align:center; }
+.p404-react-icon { animation:reactglow 2s ease infinite; }
+.p404-react-orbit { animation:spinreact 6s linear infinite; transform-origin:center; }
+.p404-navajo-box {
   width:100%;
-  background:linear-gradient(135deg,rgba(59,130,246,.08),rgba(6,182,212,.06));
-  border:1px solid rgba(59,130,246,.35); border-radius:10px; padding:16px 18px; text-align:left;
+  background:linear-gradient(135deg,rgba(139,92,246,.08),rgba(59,130,246,.06));
+  border:1px solid rgba(139,92,246,.35); border-radius:12px; padding:18px;
+  text-align:left; animation:navajofade .5s ease both;
 }
-.p404-secret-tag { font-size:9px; letter-spacing:.18em; color:#22c55e; font-weight:700; margin-bottom:10px; }
-.p404-secret-code {
-  font-size:clamp(14px,4vw,20px); font-weight:900; letter-spacing:.1em;
-  color:#f1f5f9; word-break:break-all;
+.p404-navajo-tag { font-size:9px; letter-spacing:.2em; color:#a78bfa; font-weight:700; margin-bottom:6px; }
+.p404-navajo-title { font-size:12px; color:rgba(148,163,184,.6); margin-bottom:14px; line-height:1.6; }
+.p404-navajo-code {
+  font-size:11px; color:#c4b5fd; line-height:2; letter-spacing:.06em;
+  word-break:break-word; border-top:1px solid rgba(139,92,246,.2); padding-top:12px;
 }
-.p404-secret-note { font-size:10px; color:rgba(148,163,184,.35); margin-top:8px; letter-spacing:.06em; }
+.p404-navajo-note {
+  font-size:10px; color:rgba(148,163,184,.35); margin-top:12px;
+  border-top:1px solid rgba(255,255,255,.05); padding-top:10px; letter-spacing:.04em; line-height:1.6;
+}
 
 @media(max-width:480px){
   .p404-btns { gap:8px; }
@@ -291,9 +328,21 @@ html, body { background: #000; margin: 0; padding: 0; }
   .p404-stats { gap:18px; }
   .p404-modal { border-radius:12px; }
   .p404-mhead, .p404-mbody { padding-left:16px; padding-right:16px; }
-  .p404-prog-track { margin-left:16px; margin-right:16px; }
+  .p404-prog-wrap { padding-left:16px; padding-right:16px; }
+  .p404-navajo-code { font-size:10px; }
 }
 `;
+
+const ReactIcon = () => (
+  <svg width="72" height="72" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="p404-react-icon">
+    <ellipse cx="50" cy="50" rx="10" ry="10" fill="#61DAFB" />
+    <g className="p404-react-orbit">
+      <ellipse cx="50" cy="50" rx="46" ry="18" stroke="#61DAFB" strokeWidth="3" fill="none" />
+    </g>
+    <ellipse cx="50" cy="50" rx="46" ry="18" stroke="#61DAFB" strokeWidth="3" fill="none" transform="rotate(60 50 50)" />
+    <ellipse cx="50" cy="50" rx="46" ry="18" stroke="#61DAFB" strokeWidth="3" fill="none" transform="rotate(120 50 50)" />
+  </svg>
+);
 
 const NotFound: NextPage = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -311,9 +360,8 @@ const NotFound: NextPage = () => {
   const [err, setErr] = useState("");
   const [hint, setHint] = useState(false);
   const [done, setDone] = useState(false);
-  const [revealed, setRevealed] = useState(false);
+  const [navajo, setNavajo] = useState("");
   const [shake, setShake] = useState(false);
-  const [secret, setSecret] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => { setReady(true); }, []);
@@ -325,7 +373,6 @@ const NotFound: NextPage = () => {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     const fs = 13;
-
     const resize = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
@@ -333,7 +380,6 @@ const NotFound: NextPage = () => {
     };
     resize();
     window.addEventListener("resize", resize);
-
     const draw = () => {
       ctx.fillStyle = "rgba(0,0,0,0.05)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -350,7 +396,6 @@ const NotFound: NextPage = () => {
       animIdRef.current = requestAnimationFrame(draw);
     };
     draw();
-
     return () => {
       cancelAnimationFrame(animIdRef.current);
       window.removeEventListener("resize", resize);
@@ -414,13 +459,14 @@ const NotFound: NextPage = () => {
   const handleSubmit = useCallback(async () => {
     if (loading) return;
     const s = STATIC_STEPS[step];
+    if (!s) return;
     const isLast = step === STATIC_STEPS.length - 1;
 
     if (!isLast) {
-      if (input.trim().toLowerCase() === s.a) {
+      if (input.trim().toLowerCase() === (s.a ?? "")) {
         setErr(""); setInput(""); setHint(false);
         setStep(n => n + 1);
-        setTermLines(p => [...p, "> [OK] " + s.reward]);
+        setTermLines(p => [...p, "> [OK] " + (s.reward || "")]);
       } else {
         setErr("INCORRECT — try again");
         triggerShake();
@@ -438,9 +484,14 @@ const NotFound: NextPage = () => {
       const data = await res.json();
       if (data.correct) {
         setErr(""); setInput(""); setHint(false);
-        setSecret(data.code);
+        setNavajo(data.navajo || "");
         setDone(true);
-        setTermLines(p => [...p, "> [OK] " + s.reward, "> [SUCCESS] All layers decrypted.", "> [ACCESS] Welcome, Operator."]);
+        setTermLines(p => [
+          ...p,
+          "> [OK] " + (s.reward || ""),
+          "> [SUCCESS] All 10 layers decrypted.",
+          "> [ACCESS] Navajo cipher transmitted. Decode to claim your key.",
+        ]);
       } else {
         setErr("INCORRECT — try again");
         triggerShake();
@@ -465,7 +516,8 @@ const NotFound: NextPage = () => {
 
   if (!ready) return null;
 
-  const progress = done ? 100 : (step / STATIC_STEPS.length) * 100;
+  const total = STATIC_STEPS.length;
+  const progress = done ? 100 : (step / total) * 100;
 
   return (
     <>
@@ -503,9 +555,7 @@ const NotFound: NextPage = () => {
               <span className="p404-dot" style={{ background: "#ef4444" }} />
               <span className="p404-dot" style={{ background: "#f59e0b" }} />
               <span className="p404-dot" style={{ background: "#22c55e" }} />
-              <span style={{ fontSize: 10, color: "rgba(148,163,184,0.35)", marginLeft: 8, letterSpacing: "0.1em" }}>
-                system.log
-              </span>
+              <span style={{ fontSize: 10, color: "rgba(148,163,184,0.35)", marginLeft: 8, letterSpacing: "0.1em" }}>system.log</span>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
               {termLines.filter(Boolean).map((l, i) => (
@@ -562,12 +612,12 @@ const NotFound: NextPage = () => {
               <div className="p404-mglow" />
 
               <div className="p404-mhead">
-                <div>
+                <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 10, letterSpacing: "0.16em", color: "#3b82f6", fontWeight: 700, marginBottom: 3 }}>
                     DECRYPT PROTOCOL
                   </div>
                   <div style={{ fontSize: 15, fontWeight: 900, color: "#f1f5f9" }}>
-                    {done ? "ACCESS GRANTED" : `LAYER ${step + 1} OF ${STATIC_STEPS.length}`}
+                    {done ? "ACCESS GRANTED" : `LAYER ${step + 1} OF ${total}`}
                   </div>
                 </div>
                 {!done && (
@@ -575,20 +625,30 @@ const NotFound: NextPage = () => {
                 )}
               </div>
 
-              <div className="p404-prog-track">
-                <div className="p404-prog-fill" style={{ width: `${progress}%` }} />
+              <div className="p404-prog-wrap">
+                <div className="p404-prog-track">
+                  <div className="p404-prog-fill" style={{ width: `${progress}%` }} />
+                </div>
+                <div className="p404-layer-dots">
+                  {Array.from({ length: total }).map((_, i) => (
+                    <span
+                      key={i}
+                      className={`p404-ldot ${done || i < step ? "p404-ldot-done" : i === step ? "p404-ldot-active" : "p404-ldot-pending"}`}
+                    />
+                  ))}
+                </div>
               </div>
 
               <div className="p404-mbody">
                 {!done ? (
                   <>
                     <div className="p404-challenge">
-                      <div className="p404-ch-tag">CHALLENGE_{step + 1}</div>
-                      <p className="p404-ch-q">{STATIC_STEPS[step].q}</p>
+                      <div className="p404-ch-tag">CHALLENGE_{step + 1} / {total}</div>
+                      <p className="p404-ch-q">{STATIC_STEPS[step]?.q ?? ""}</p>
                     </div>
 
                     {hint && (
-                      <div className="p404-hint">HINT: {STATIC_STEPS[step].hint}</div>
+                      <div className="p404-hint">HINT: {STATIC_STEPS[step]?.hint ?? ""}</div>
                     )}
 
                     <div className="p404-inp-row">
@@ -625,37 +685,33 @@ const NotFound: NextPage = () => {
                   </>
                 ) : (
                   <div className="p404-success">
-                    <div className="p404-float">&#128275;</div>
+                    <ReactIcon />
+
                     <div>
-                      <div style={{ fontSize: 17, fontWeight: 900, background: "linear-gradient(135deg,#22c55e,#06b6d4)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", marginBottom: 6 }}>
-                        ALL LAYERS DECRYPTED
+                      <div style={{ fontSize: 18, fontWeight: 900, background: "linear-gradient(135deg,#22c55e,#06b6d4)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", marginBottom: 8 }}>
+                        ALL 10 LAYERS DECRYPTED
                       </div>
                       <p style={{ fontSize: 12, color: "rgba(148,163,184,0.55)", lineHeight: 1.8 }}>
-                        You&apos;ve proven worthy of access.<br />Reveal your classified code below.
+                        Selamat. Kamu berhasil menembus semua lapisan enkripsi.<br />
+                        Tapi perjalanan belum selesai — satu teka-teki terakhir menantimu.
                       </p>
                     </div>
 
-                    {!revealed ? (
-                      <button
-                        className="p404-btn p404-btn-blue"
-                        style={{ background: "linear-gradient(135deg,#22c55e,#06b6d4)", boxShadow: "0 4px 20px rgba(34,197,94,0.25)", justifyContent: "center", width: "100%" }}
-                        onClick={() => setRevealed(true)}
-                      >
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                          <circle cx="12" cy="12" r="3" />
-                        </svg>
-                        REVEAL SECRET CODE
-                      </button>
-                    ) : (
-                      <div className="p404-secret-box">
-                        <div className="p404-secret-tag">CLASSIFIED ACCESS CODE</div>
-                        <div className="p404-secret-code">
-                          {secret || "[ SET SECRET_CODE IN .env.local ]"}
-                        </div>
-                        <div className="p404-secret-note">Use this at checkout or activation page</div>
+                    <div className="p404-navajo-box">
+                      <div className="p404-navajo-tag">&#9650; CLASSIFIED TRANSMISSION — NAVAJO CODE</div>
+                      <div className="p404-navajo-title">
+                        Pesan ini dienkripsi menggunakan <strong style={{ color: "#c4b5fd" }}>Navajo Code Talkers Cipher</strong> — sistem sandi yang digunakan semasa Perang Dunia II dan tidak pernah berhasil dipecahkan musuh.<br />
+                        Decode setiap kata untuk menemukan access code rahasiamu.
                       </div>
-                    )}
+                      <div className="p404-navajo-code">
+                        {navajo || "[ SET SECRET_CODE_NAVAJO IN .env.local ]"}
+                      </div>
+                      <div className="p404-navajo-note">
+                        &#128218; Referensi: setiap kata Navajo mewakili satu huruf dalam alfabet.<br />
+                        Contoh: WOL-LA-CHEE = A &nbsp;|&nbsp; SHUSH = B &nbsp;|&nbsp; MOASI = C<br />
+                        Gunakan referensi lengkap Navajo Code Talkers untuk mendekode pesan di atas.
+                      </div>
+                    </div>
 
                     <button
                       className="p404-btn p404-btn-ghost"
