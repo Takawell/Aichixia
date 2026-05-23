@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FiUsers, FiSearch, FiFilter, FiEdit2, FiCheckCircle, FiX } from 'react-icons/fi';
+import { FiUsers, FiSearch, FiFilter, FiCheckCircle, FiX, FiChevronRight } from 'react-icons/fi';
 import { RiVipDiamondLine, RiVipCrownLine } from 'react-icons/ri';
 
 type User = {
@@ -16,11 +16,11 @@ type User = {
 
 type UsersProps = {
   users: User[];
-  onEditUser: (user: User) => void;
+  onViewUser: (user: User) => void;
   loading?: boolean;
 };
 
-export default function Users({ users, onEditUser, loading }: UsersProps) {
+export default function Users({ users, onViewUser, loading }: UsersProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterPlan, setFilterPlan] = useState<'all' | 'free' | 'pro' | 'enterprise'>('all');
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'most_active'>('newest');
@@ -180,7 +180,7 @@ export default function Users({ users, onEditUser, loading }: UsersProps) {
           {filteredUsers.map((user) => {
             const PlanIcon = getPlanIcon(user.plan);
             const isExpired = user.plan_expires_at && new Date(user.plan_expires_at) < new Date();
-            
+
             return (
               <div
                 key={user.user_id}
@@ -200,7 +200,7 @@ export default function Users({ users, onEditUser, loading }: UsersProps) {
                         }}
                       />
                     ) : null}
-                    <div 
+                    <div
                       className={`w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br ${getPlanColor(user.plan)} rounded-xl flex items-center justify-center text-white font-bold text-sm sm:text-base shadow-lg flex-shrink-0`}
                       style={{ display: user.avatar_url ? 'none' : 'flex' }}
                     >
@@ -212,7 +212,7 @@ export default function Users({ users, onEditUser, loading }: UsersProps) {
                         <p className="font-semibold text-slate-800 dark:text-white text-sm sm:text-base truncate">
                           {user.display_name || user.email}
                         </p>
-                        
+
                         {user.is_admin && (
                           <span className="px-2 py-0.5 bg-gradient-to-r from-sky-500 to-blue-600 text-white rounded text-[9px] sm:text-[10px] font-bold shadow-lg">
                             ADMIN
@@ -254,11 +254,11 @@ export default function Users({ users, onEditUser, loading }: UsersProps) {
                   </div>
 
                   <button
-                    onClick={() => onEditUser(user)}
-                    className="px-3 sm:px-4 py-2 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white rounded-lg sm:rounded-xl font-medium transition-all text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 shadow-lg hover:shadow-xl group-hover:scale-105 w-full lg:w-auto"
+                    onClick={() => onViewUser(user)}
+                    className="px-3 sm:px-4 py-2 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600 rounded-lg sm:rounded-xl font-medium transition-all text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 hover:shadow-md group-hover:border-slate-300 dark:group-hover:border-slate-500 w-full lg:w-auto"
                   >
-                    <FiEdit2 className="text-xs sm:text-sm" />
-                    <span>Edit Plan</span>
+                    <span>Detail</span>
+                    <FiChevronRight className="text-xs sm:text-sm text-slate-400 group-hover:translate-x-0.5 transition-transform" />
                   </button>
                 </div>
               </div>
