@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { supabase } from '@/lib/supabase';
 import { FaServer } from 'react-icons/fa';
-import { FiActivity, FiGift, FiCalendar, FiUsers, FiRefreshCw, FiX, FiCheckCircle, FiAlertCircle, FiLock, FiBarChart2, FiEye, FiShield, FiDatabase, FiKey, FiCpu, FiCheck, FiMail, FiUser, FiTrendingUp, FiEdit2, FiSave } from 'react-icons/fi';
+import { FiActivity, FiGift, FiCalendar, FiUsers, FiRefreshCw, FiX, FiCheckCircle, FiAlertCircle, FiLock, FiBarChart2, FiEye, FiShield, FiDatabase, FiKey, FiCheck, FiTrendingUp, FiEdit2, FiSave, FiCpu } from 'react-icons/fi';
 import { RiVipDiamondLine, RiVipCrownLine } from 'react-icons/ri';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -73,7 +73,6 @@ type RequestLog = {
 };
 
 type TabType = 'overview' | 'monitoring' | 'analytics' | 'promos' | 'redemptions' | 'users';
-
 type ChartLine = 'requests' | 'success' | 'errors';
 
 type TooltipPayloadItem = {
@@ -91,9 +90,9 @@ type CustomTooltipProps = {
 function UserDetailTooltip({ active, payload, label }: CustomTooltipProps) {
   if (!active || !payload || !payload.length) return null;
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 shadow-lg">
-      <p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 mb-1">{label}</p>
-      {payload.map((entry) => (
+    <div className="bg-white dark:bg-slate-900 border border-sky-100 dark:border-sky-800/50 rounded-xl px-3 py-2 shadow-lg shadow-sky-500/10">
+      <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 mb-1">{label}</p>
+      {payload.map(entry => (
         <p key={entry.name} className="text-xs font-bold" style={{ color: entry.color }}>
           {entry.name.charAt(0).toUpperCase() + entry.name.slice(1)}: {entry.value.toLocaleString()}
         </p>
@@ -109,6 +108,12 @@ const TABS: { id: TabType; label: string; icon: React.ElementType }[] = [
   { id: 'promos',      label: 'Promos',       icon: FiGift       },
   { id: 'redemptions', label: 'Redemptions',  icon: FiCalendar   },
   { id: 'users',       label: 'Users',        icon: FiUsers      },
+];
+
+const chartLines: { key: ChartLine; label: string; color: string; gradId: string }[] = [
+  { key: 'requests', label: 'Total',   color: '#0ea5e9', gradId: 'ud-grad-req' },
+  { key: 'success',  label: 'Success', color: '#34d399', gradId: 'ud-grad-suc' },
+  { key: 'errors',   label: 'Errors',  color: '#f87171', gradId: 'ud-grad-err' },
 ];
 
 export default function AdminDashboard() {
@@ -127,6 +132,7 @@ export default function AdminDashboard() {
   const [requestLogs, setRequestLogs] = useState<RequestLog[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showUserDetailModal, setShowUserDetailModal] = useState(false);
+  const [userDetailVisible, setUserDetailVisible] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
@@ -141,6 +147,29 @@ export default function AdminDashboard() {
   const [newPromo, setNewPromo] = useState({ code: '', plan_type: 'pro', duration_days: 30, max_uses: 100 });
   const [editUser, setEditUser] = useState({ plan: 'free', plan_expires_at: '' });
   const [activeChartLine, setActiveChartLine] = useState<ChartLine>('requests');
+  const userDetailRef = useRef<HTMLDivElement>(null);
+
+  const openUserDetail = (user: User) => {
+    setSelectedUser(user);
+    setEditUser({ plan: user.plan, plan_expires_at: user.plan_expires_at ? new Date(user.plan_expires_at).toISOString().slice(0, 16) : '' });
+    setActiveChartLine('requests');
+    setShowUserDetailModal(true);
+    requestAnimationFrame(() => requestAnimationFrame(() => setUserDetailVisible(true)));
+  };
+
+  const closeUserDetail = () => {
+    setUserDetailVisible(false);
+    setTimeout(() => { setShowUserDetailModal(false); setSelectedUser(null); }, 300);
+  };
+
+  useEffect(() => {
+    if (!showUserDetailModal) return;
+    const handler = (e: MouseEvent) => {
+      if (userDetailRef.current && !userDetailRef.current.contains(e.target as Node)) closeUserDetail();
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [showUserDetailModal]);
 
   useEffect(() => {
     const tab = router.query.tab as TabType;
@@ -261,7 +290,7 @@ export default function AdminDashboard() {
       body: JSON.stringify({ action: 'update-user-plan', user_id: selectedUser.user_id, plan: editUser.plan, plan_expires_at: editUser.plan_expires_at || null }),
     });
     setActionLoading(false);
-    if (res.ok) { setShowUserDetailModal(false); setSelectedUser(null); fetchAllData(true); showToast('User plan updated successfully', 'success'); }
+    if (res.ok) { closeUserDetail(); fetchAllData(true); showToast('User plan updated successfully', 'success'); }
     else showToast('Failed to update user plan', 'error');
   };
 
@@ -277,22 +306,42 @@ export default function AdminDashboard() {
     setTimeout(() => setToast(null), 3000);
   };
 
-  const getPlanColor = (plan: string) => {
+  const getPlanGradient = (plan: string) => {
     if (plan === 'enterprise') return 'from-violet-500 to-purple-600';
-    if (plan === 'pro') return 'from-blue-500 to-indigo-600';
-    return 'from-slate-400 to-slate-500';
+    if (plan === 'pro') return 'from-sky-500 to-blue-600';
+    return 'from-sky-400 to-cyan-500';
   };
 
-  const getPlanBadgeStyle = (plan: string) => {
-    if (plan === 'enterprise') return 'bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400 border-violet-200 dark:border-violet-800';
-    if (plan === 'pro') return 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800';
-    return 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600';
+  const getPlanBadge = (plan: string) => {
+    if (plan === 'enterprise') return 'bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400 border-violet-200 dark:border-violet-800/60';
+    if (plan === 'pro') return 'bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400 border-sky-200 dark:border-sky-800/60';
+    return 'bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-500 border-sky-100 dark:border-sky-800/40';
   };
 
   const getPlanIcon = (plan: string) => {
     if (plan === 'enterprise') return RiVipCrownLine;
     if (plan === 'pro') return RiVipDiamondLine;
     return FiUsers;
+  };
+
+  const getUserChartData = (userId: string) =>
+    dailyUsage
+      .filter(d => d.user_id === userId)
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+      .map(d => ({
+        date: new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        requests: d.requests_count,
+        success: d.success_count,
+        errors: d.error_count,
+      }));
+
+  const getUserTotalStats = (userId: string) => {
+    const userUsage = dailyUsage.filter(d => d.user_id === userId);
+    return {
+      totalRequests: userUsage.reduce((s, d) => s + d.requests_count, 0),
+      successCount:  userUsage.reduce((s, d) => s + d.success_count, 0),
+      errorCount:    userUsage.reduce((s, d) => s + d.error_count, 0),
+    };
   };
 
   const loadingSteps = [
@@ -303,33 +352,6 @@ export default function AdminDashboard() {
     { icon: FiBarChart2, text: 'Preparing analytics',         color: 'from-pink-400 to-rose-500'     },
     { icon: FiCheck,     text: 'Admin panel ready',           color: 'from-emerald-400 to-green-500' },
   ];
-
-  const chartLines: { key: ChartLine; label: string; color: string; gradId: string }[] = [
-    { key: 'requests', label: 'Total',   color: '#0ea5e9', gradId: 'ud-grad-req' },
-    { key: 'success',  label: 'Success', color: '#34d399', gradId: 'ud-grad-suc' },
-    { key: 'errors',   label: 'Errors',  color: '#f87171', gradId: 'ud-grad-err' },
-  ];
-
-  const getUserChartData = (userId: string) => {
-    return dailyUsage
-      .filter(d => d.user_id === userId)
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-      .map(d => ({
-        date: new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        requests: d.requests_count,
-        success: d.success_count,
-        errors: d.error_count,
-      }));
-  };
-
-  const getUserTotalStats = (userId: string) => {
-    const userUsage = dailyUsage.filter(d => d.user_id === userId);
-    return {
-      totalRequests: userUsage.reduce((s, d) => s + d.requests_count, 0),
-      successCount:  userUsage.reduce((s, d) => s + d.success_count, 0),
-      errorCount:    userUsage.reduce((s, d) => s + d.error_count, 0),
-    };
-  };
 
   if (initialLoading) {
     return (
@@ -352,23 +374,12 @@ export default function AdminDashboard() {
             <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center">
               <div className="absolute inset-0">
                 {[...Array(3)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="absolute inset-0 rounded-full border border-sky-400/20 dark:border-sky-400/30"
-                    style={{ animation: `ping ${2 + i * 0.5}s cubic-bezier(0, 0, 0.2, 1) infinite`, animationDelay: `${i * 0.3}s` }}
-                  />
+                  <div key={i} className="absolute inset-0 rounded-full border border-sky-400/20 dark:border-sky-400/30" style={{ animation: `ping ${2 + i * 0.5}s cubic-bezier(0, 0, 0.2, 1) infinite`, animationDelay: `${i * 0.3}s` }} />
                 ))}
               </div>
               <div className="absolute inset-2 rounded-full border border-dashed border-sky-400/30 dark:border-sky-400/40 animate-spin-slow" />
               <div className="relative z-10 transform hover:scale-110 transition-transform duration-500">
-                <Image
-                  src="/logo.png"
-                  alt="Aichixia"
-                  width={40}
-                  height={40}
-                  className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 drop-shadow-2xl"
-                  priority
-                />
+                <Image src="/logo.png" alt="Aichixia" width={40} height={40} className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 drop-shadow-2xl" priority />
               </div>
             </div>
           </div>
@@ -392,24 +403,15 @@ export default function AdminDashboard() {
           <div className="w-full space-y-5 sm:space-y-6">
             <div className="relative">
               <div className="h-2 sm:h-2.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden shadow-inner">
-                <div
-                  className={`h-full bg-gradient-to-r ${loadingSteps[loadingStep].color} rounded-full transition-all duration-500 ease-out relative overflow-hidden`}
-                  style={{ width: `${loadingProgress}%` }}
-                >
+                <div className={`h-full bg-gradient-to-r ${loadingSteps[loadingStep].color} rounded-full transition-all duration-500 ease-out relative overflow-hidden`} style={{ width: `${loadingProgress}%` }}>
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
                 </div>
               </div>
               <div className="absolute -top-7 sm:-top-8 left-0 right-0 flex items-center justify-between px-1">
-                <div className="text-xs sm:text-sm font-bold text-transparent bg-gradient-to-r from-sky-600 to-blue-600 dark:from-sky-400 dark:to-blue-400 bg-clip-text">
-                  {Math.round(loadingProgress)}%
-                </div>
+                <div className="text-xs sm:text-sm font-bold text-transparent bg-gradient-to-r from-sky-600 to-blue-600 dark:from-sky-400 dark:to-blue-400 bg-clip-text">{Math.round(loadingProgress)}%</div>
                 <div className="flex gap-1">
                   {[...Array(3)].map((_, i) => (
-                    <div
-                      key={i}
-                      className={`w-1 h-1 rounded-full bg-gradient-to-r ${loadingSteps[loadingStep].color}`}
-                      style={{ animation: `bounce 1s ease-in-out infinite`, animationDelay: `${i * 0.15}s` }}
-                    />
+                    <div key={i} className={`w-1 h-1 rounded-full bg-gradient-to-r ${loadingSteps[loadingStep].color}`} style={{ animation: `bounce 1s ease-in-out infinite`, animationDelay: `${i * 0.15}s` }} />
                   ))}
                 </div>
               </div>
@@ -423,16 +425,8 @@ export default function AdminDashboard() {
                 return (
                   <div key={idx} className="relative flex flex-col items-center gap-1.5">
                     <div className={`relative transition-all duration-500 ${isActive ? 'scale-110' : 'scale-100'}`}>
-                      <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center transition-all duration-500 ${
-                        isActive
-                          ? `bg-gradient-to-br ${step.color} shadow-lg shadow-sky-500/30`
-                          : isComplete
-                          ? 'bg-emerald-500/10 dark:bg-emerald-500/20 border border-emerald-500/20'
-                          : 'bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800'
-                      }`}>
-                        <StepIcon className={`w-4 h-4 transition-colors duration-500 ${
-                          isActive ? 'text-white' : isComplete ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-600'
-                        }`} />
+                      <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center transition-all duration-500 ${isActive ? `bg-gradient-to-br ${step.color} shadow-lg shadow-sky-500/30` : isComplete ? 'bg-emerald-500/10 dark:bg-emerald-500/20 border border-emerald-500/20' : 'bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800'}`}>
+                        <StepIcon className={`w-4 h-4 transition-colors duration-500 ${isActive ? 'text-white' : isComplete ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-600'}`} />
                       </div>
                       {isActive && (
                         <>
@@ -446,9 +440,7 @@ export default function AdminDashboard() {
                         </div>
                       )}
                     </div>
-                    <div className={`w-full h-0.5 rounded-full transition-all duration-500 ${
-                      isComplete ? 'bg-emerald-500/30' : isActive ? `bg-gradient-to-r ${step.color} opacity-50` : 'bg-slate-200 dark:bg-slate-800'
-                    }`} />
+                    <div className={`w-full h-0.5 rounded-full transition-all duration-500 ${isComplete ? 'bg-emerald-500/30' : isActive ? `bg-gradient-to-r ${step.color} opacity-50` : 'bg-slate-200 dark:bg-slate-800'}`} />
                   </div>
                 );
               })}
@@ -456,41 +448,25 @@ export default function AdminDashboard() {
 
             <div className="flex items-start gap-2.5 p-3 sm:p-4 rounded-xl bg-gradient-to-br from-slate-100/50 to-slate-50/50 dark:from-slate-900/50 dark:to-slate-950/50 border border-slate-200/50 dark:border-slate-800/50 backdrop-blur-sm">
               <div className={`flex-shrink-0 w-6 h-6 rounded-lg flex items-center justify-center bg-gradient-to-br ${loadingSteps[loadingStep].color} shadow-lg`}>
-                {loadingStep === 5 ? (
-                  <FiCheck className="w-3.5 h-3.5 text-white" />
-                ) : (
-                  <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
-                )}
+                {loadingStep === 5 ? <FiCheck className="w-3.5 h-3.5 text-white" /> : <div className="w-2 h-2 bg-white rounded-full animate-pulse" />}
               </div>
               <div className="flex-1 min-w-0">
-                <p className={`text-sm font-bold mb-0.5 ${
-                  loadingStep === 5 ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-800 dark:text-slate-200'
-                }`}>
-                  {loadingSteps[loadingStep].text}
-                </p>
+                <p className={`text-sm font-bold mb-0.5 ${loadingStep === 5 ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-800 dark:text-slate-200'}`}>{loadingSteps[loadingStep].text}</p>
                 <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-500">
                   {loadingStep !== 5 && (
                     <div className="flex gap-0.5">
                       {[...Array(3)].map((_, i) => (
-                        <div
-                          key={i}
-                          className="w-0.5 h-0.5 bg-slate-400 dark:bg-slate-600 rounded-full animate-bounce"
-                          style={{ animationDelay: `${i * 0.2}s` }}
-                        />
+                        <div key={i} className="w-0.5 h-0.5 bg-slate-400 dark:bg-slate-600 rounded-full animate-bounce" style={{ animationDelay: `${i * 0.2}s` }} />
                       ))}
                     </div>
                   )}
-                  <span className="font-medium">
-                    {loadingStep === 5 ? 'Ready to use' : 'Processing...'}
-                  </span>
+                  <span className="font-medium">{loadingStep === 5 ? 'Ready to use' : 'Processing...'}</span>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="text-[10px] sm:text-xs text-slate-400 dark:text-slate-600 font-medium">
-            Aichixia Admin Portal
-          </div>
+          <div className="text-[10px] sm:text-xs text-slate-400 dark:text-slate-600 font-medium">Aichixia Admin Portal</div>
         </div>
 
         <style jsx>{`
@@ -517,10 +493,7 @@ export default function AdminDashboard() {
 
   if (accessDenied) {
     return (
-      <div style={{
-        position:'fixed', inset:0, display:'flex', alignItems:'center', justifyContent:'center',
-        padding:16, background:'radial-gradient(ellipse at 50% 40%,rgba(239,68,68,0.07) 0%,transparent 70%),#09090b',
-      }}>
+      <div style={{ position:'fixed', inset:0, display:'flex', alignItems:'center', justifyContent:'center', padding:16, background:'radial-gradient(ellipse at 50% 40%,rgba(239,68,68,0.07) 0%,transparent 70%),#09090b' }}>
         <style>{`
           @keyframes adFadeUp{from{opacity:0;transform:translateY(20px) scale(0.97);}to{opacity:1;transform:translateY(0) scale(1);}}
           @keyframes adPulse{0%,100%{opacity:.5;transform:scale(1);}50%{opacity:1;transform:scale(1.08);}}
@@ -637,11 +610,7 @@ export default function AdminDashboard() {
               <div className="pin-orbit-a" style={{ position:'absolute',inset:-8,borderRadius:'50%',border:`1px dashed ${pinSuccess?'rgba(52,211,153,0.25)':'rgba(56,189,248,0.2)'}`,transition:'border-color 400ms' }} />
               <div className="pin-orbit-b" style={{ position:'absolute',inset:-16,borderRadius:'50%',border:`1px solid ${pinSuccess?'rgba(52,211,153,0.1)':'rgba(56,189,248,0.08)'}`,transition:'border-color 400ms' }} />
               <div style={{ position:'absolute',inset:0,borderRadius:'50%',background:pinSuccess?'rgba(52,211,153,0.1)':pinError?'rgba(248,113,113,0.1)':'rgba(56,189,248,0.08)',border:`1.5px solid ${pinSuccess?'rgba(52,211,153,0.3)':pinError?'rgba(248,113,113,0.3)':'rgba(56,189,248,0.2)'}`,display:'flex',alignItems:'center',justifyContent:'center',transition:'all 400ms' }}>
-                {pinSuccess ? (
-                  <FiCheckCircle className="pin-success-icon" style={{ fontSize:30,color:'#34d399' }} />
-                ) : (
-                  <FiShield style={{ fontSize:28,color:pinError?'#f87171':'#38bdf8',transition:'color 300ms' }} />
-                )}
+                {pinSuccess ? <FiCheckCircle className="pin-success-icon" style={{ fontSize:30,color:'#34d399' }} /> : <FiShield style={{ fontSize:28,color:pinError?'#f87171':'#38bdf8',transition:'color 300ms' }} />}
               </div>
             </div>
           </div>
@@ -660,16 +629,14 @@ export default function AdminDashboard() {
               <input key={i} id={`pin-${i}`} type="password" inputMode="numeric" maxLength={1} value={d}
                 disabled={pinVerifying || pinSuccess}
                 className={['pin-cell', d?'filled':'', pinError?'err':'', pinSuccess?'success-cell':''].filter(Boolean).join(' ')}
-                onChange={(e) => handlePinInput(i, e.target.value)}
-                onKeyDown={(e) => handlePinKey(i, e)}
+                onChange={e => handlePinInput(i, e.target.value)}
+                onKeyDown={e => handlePinKey(i, e)}
                 autoFocus={i === 0} autoComplete="off" />
             ))}
           </div>
 
           <div style={{ minHeight:22,marginBottom:16,textAlign:'center' }}>
-            {pinError && !pinVerifying && (
-              <p className="pin-err-msg" style={{ fontSize:12,color:'#f87171',margin:0 }}>Incorrect PIN. Please try again.</p>
-            )}
+            {pinError && !pinVerifying && <p className="pin-err-msg" style={{ fontSize:12,color:'#f87171',margin:0 }}>Incorrect PIN. Please try again.</p>}
           </div>
 
           <button className="pin-btn" disabled={pinDigits.join('').length < 6 || pinVerifying || pinSuccess}
@@ -691,8 +658,6 @@ export default function AdminDashboard() {
     );
   }
 
-  const activeLine = chartLines.find(l => l.key === activeChartLine)!;
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-sky-50/20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
       <header className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg border-b border-slate-200 dark:border-slate-700 px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 sticky top-0 z-40">
@@ -707,11 +672,7 @@ export default function AdminDashboard() {
             </div>
           </div>
           <div className="flex items-center gap-1.5">
-            <button
-              onClick={() => fetchAllData(true)}
-              disabled={refreshing}
-              className="p-1.5 sm:p-2 hover:bg-slate-100 dark:hover:bg-slate-700/50 rounded-lg transition-colors disabled:opacity-50"
-            >
+            <button onClick={() => fetchAllData(true)} disabled={refreshing} className="p-1.5 sm:p-2 hover:bg-slate-100 dark:hover:bg-slate-700/50 rounded-lg transition-colors disabled:opacity-50">
               <FiRefreshCw className={`text-sm sm:text-base text-slate-600 dark:text-slate-400 ${refreshing ? 'animate-spin' : ''}`} />
             </button>
             <ThemeToggle />
@@ -721,18 +682,14 @@ export default function AdminDashboard() {
 
       <div className="border-b border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg sticky top-[52px] sm:top-[60px] z-30">
         <div className="flex w-full">
-          {TABS.map((tab) => {
+          {TABS.map(tab => {
             const Icon = tab.icon;
             const active = activeTab === tab.id;
             return (
               <button
                 key={tab.id}
                 onClick={() => handleTabChange(tab.id)}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 sm:py-3 font-semibold transition-all duration-200 whitespace-nowrap text-[10px] sm:text-xs border-b-2 relative group ${
-                  active
-                    ? 'text-sky-600 dark:text-sky-400 border-sky-500'
-                    : 'text-slate-500 dark:text-slate-400 border-transparent hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/30'
-                }`}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 sm:py-3 font-semibold transition-all duration-200 whitespace-nowrap text-[10px] sm:text-xs border-b-2 relative group ${active ? 'text-sky-600 dark:text-sky-400 border-sky-500' : 'text-slate-500 dark:text-slate-400 border-transparent hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/30'}`}
               >
                 <Icon className={`text-xs sm:text-sm flex-shrink-0 transition-transform duration-200 ${active ? 'scale-110' : 'group-hover:scale-105'}`} />
                 <span className="hidden sm:inline">{tab.label}</span>
@@ -761,16 +718,7 @@ export default function AdminDashboard() {
             <Redemptions redemptions={redemptions} loading={false} />
           )}
           {activeTab === 'users' && (
-            <Users
-              users={users}
-              onViewUser={(user) => {
-                setSelectedUser(user);
-                setEditUser({ plan: user.plan, plan_expires_at: user.plan_expires_at ? new Date(user.plan_expires_at).toISOString().slice(0, 16) : '' });
-                setActiveChartLine('requests');
-                setShowUserDetailModal(true);
-              }}
-              loading={false}
-            />
+            <Users users={users} onViewUser={openUserDetail} loading={false} />
           )}
         </div>
       </main>
@@ -787,12 +735,12 @@ export default function AdminDashboard() {
             <div className="space-y-3">
               <div>
                 <label className="block text-[10px] sm:text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Promo Code</label>
-                <input type="text" value={newPromo.code} onChange={(e) => setNewPromo({ ...newPromo, code: e.target.value.toUpperCase() })} placeholder="SUMMER2025"
+                <input type="text" value={newPromo.code} onChange={e => setNewPromo({ ...newPromo, code: e.target.value.toUpperCase() })} placeholder="SUMMER2025"
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-xs sm:text-sm text-slate-800 dark:text-white outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 font-mono transition-all" autoFocus />
               </div>
               <div>
                 <label className="block text-[10px] sm:text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Plan Type</label>
-                <select value={newPromo.plan_type} onChange={(e) => setNewPromo({ ...newPromo, plan_type: e.target.value })}
+                <select value={newPromo.plan_type} onChange={e => setNewPromo({ ...newPromo, plan_type: e.target.value })}
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-xs sm:text-sm text-slate-800 dark:text-white outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all">
                   <option value="pro">Pro (400 req/day)</option>
                   <option value="enterprise">Enterprise (800 req/day)</option>
@@ -801,23 +749,21 @@ export default function AdminDashboard() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[10px] sm:text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Duration (days)</label>
-                  <input type="number" value={newPromo.duration_days} onChange={(e) => setNewPromo({ ...newPromo, duration_days: parseInt(e.target.value) })}
+                  <input type="number" value={newPromo.duration_days} onChange={e => setNewPromo({ ...newPromo, duration_days: parseInt(e.target.value) })}
                     className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-white outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all" />
                 </div>
                 <div>
                   <label className="block text-[10px] sm:text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Max Uses</label>
-                  <input type="number" value={newPromo.max_uses} onChange={(e) => setNewPromo({ ...newPromo, max_uses: parseInt(e.target.value) })}
+                  <input type="number" value={newPromo.max_uses} onChange={e => setNewPromo({ ...newPromo, max_uses: parseInt(e.target.value) })}
                     className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-white outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all" />
                 </div>
               </div>
             </div>
             <div className="flex gap-2 sm:gap-3 mt-4">
-              <button onClick={() => setShowCreateModal(false)} disabled={actionLoading}
-                className="flex-1 px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-white rounded-lg font-semibold transition-colors text-xs disabled:opacity-50">
+              <button onClick={() => setShowCreateModal(false)} disabled={actionLoading} className="flex-1 px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-white rounded-lg font-semibold transition-colors text-xs disabled:opacity-50">
                 Cancel
               </button>
-              <button onClick={handleCreatePromo} disabled={actionLoading}
-                className="flex-1 px-4 py-2 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white rounded-lg font-semibold transition-all text-xs disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg">
+              <button onClick={handleCreatePromo} disabled={actionLoading} className="flex-1 px-4 py-2 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white rounded-lg font-semibold transition-all text-xs disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-sky-500/20">
                 {actionLoading ? <><div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />Creating...</> : 'Create Promo'}
               </button>
             </div>
@@ -830,98 +776,160 @@ export default function AdminDashboard() {
         const isExpired = selectedUser.plan_expires_at && new Date(selectedUser.plan_expires_at) < new Date();
         const userChartData = getUserChartData(selectedUser.user_id);
         const userStats = getUserTotalStats(selectedUser.user_id);
+        const activeLine = chartLines.find(l => l.key === activeChartLine)!;
 
         return (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 z-50 animate-in fade-in duration-200">
-            <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in-95 duration-200">
+          <div
+            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
+            style={{ animation: 'udBgIn 0.25s ease both' }}
+          >
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={closeUserDetail} />
 
-              <div className={`relative p-5 sm:p-6 bg-gradient-to-br ${getPlanColor(selectedUser.plan)} rounded-t-2xl overflow-hidden`}>
-                <div className="absolute inset-0 opacity-20">
-                  <div className="absolute top-0 right-0 w-40 h-40 bg-white rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
-                  <div className="absolute bottom-0 left-0 w-32 h-32 bg-white rounded-full translate-y-1/2 -translate-x-1/2 blur-2xl" />
-                </div>
-                <div className="relative flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-                    {selectedUser.avatar_url ? (
-                      <img
-                        src={selectedUser.avatar_url}
-                        alt={selectedUser.display_name || selectedUser.email}
-                        className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-cover border-2 border-white/30 shadow-xl flex-shrink-0"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                          const fallback = e.currentTarget.nextElementSibling as HTMLElement;
-                          if (fallback) fallback.style.display = 'flex';
-                        }}
-                      />
-                    ) : null}
-                    <div
-                      className="w-14 h-14 sm:w-16 sm:h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center text-white font-black text-xl sm:text-2xl border border-white/30 shadow-xl flex-shrink-0"
-                      style={{ display: selectedUser.avatar_url ? 'none' : 'flex' }}
-                    >
-                      {selectedUser.display_name?.[0]?.toUpperCase() || selectedUser.email[0].toUpperCase()}
+            <div
+              ref={userDetailRef}
+              className="relative w-full sm:max-w-sm bg-white dark:bg-slate-900 rounded-t-3xl sm:rounded-2xl border border-sky-100/80 dark:border-sky-900/40 shadow-2xl shadow-sky-500/10 overflow-hidden"
+              style={{
+                animation: userDetailVisible
+                  ? 'udModalIn 0.32s cubic-bezier(0.22,1,0.36,1) both'
+                  : 'udModalOut 0.28s cubic-bezier(0.4,0,1,1) both',
+                maxHeight: '92vh',
+                overflowY: 'auto',
+              }}
+            >
+              <div className="absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-sky-500/10 via-blue-500/5 to-transparent pointer-events-none" />
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-40 bg-sky-400/10 rounded-full blur-3xl pointer-events-none" />
+
+              <div className="relative px-4 sm:px-5 pt-4 sm:pt-5 pb-4">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="relative flex-shrink-0">
+                      {selectedUser.avatar_url ? (
+                        <img
+                          src={selectedUser.avatar_url}
+                          alt={selectedUser.display_name || selectedUser.email}
+                          className="w-14 h-14 rounded-2xl object-cover ring-2 ring-sky-400/40"
+                          style={{ boxShadow: '0 4px 20px rgba(56,189,248,0.25)' }}
+                          onError={e => {
+                            e.currentTarget.style.display = 'none';
+                            const fb = e.currentTarget.nextElementSibling as HTMLElement;
+                            if (fb) fb.style.display = 'flex';
+                          }}
+                        />
+                      ) : null}
+                      <div
+                        className={`w-14 h-14 bg-gradient-to-br ${getPlanGradient(selectedUser.plan)} rounded-2xl flex items-center justify-center text-white font-black text-xl`}
+                        style={{ display: selectedUser.avatar_url ? 'none' : 'flex', boxShadow: '0 4px 20px rgba(56,189,248,0.35)' }}
+                      >
+                        {selectedUser.display_name?.[0]?.toUpperCase() || selectedUser.email[0].toUpperCase()}
+                      </div>
+                      {selectedUser.is_admin && (
+                        <div className="absolute -bottom-1.5 -right-1.5 flex items-center justify-center">
+                          <span className="absolute w-5 h-5 rounded-full bg-sky-400/40 animate-ping" style={{ animationDuration: '2s' }} />
+                          <div
+                            className="relative w-5 h-5 rounded-full bg-gradient-to-br from-sky-400 via-sky-500 to-blue-600 flex items-center justify-center border-[2.5px] border-white dark:border-slate-900"
+                            style={{ boxShadow: '0 0 0 1px rgba(14,165,233,0.3), 0 0 12px rgba(14,165,233,0.8), 0 2px 6px rgba(0,0,0,0.3)' }}
+                          >
+                            <FiCheck className="text-white" style={{ fontSize: 8.5, strokeWidth: 3.5 }} />
+                          </div>
+                        </div>
+                      )}
                     </div>
+
                     <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-2 mb-1">
-                        <h3 className="text-base sm:text-lg font-black text-white truncate">
+                      <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
+                        <h3 className="text-sm font-black text-slate-900 dark:text-white truncate leading-tight">
                           {selectedUser.display_name || selectedUser.email}
                         </h3>
                         {selectedUser.is_admin && (
-                          <span className="px-2 py-0.5 bg-white/20 backdrop-blur-sm text-white rounded-full text-[9px] font-black border border-white/30 flex-shrink-0">
-                            ADMIN
+                          <span className="flex-shrink-0 relative flex items-center gap-1 pl-1 pr-2 py-0.5 rounded-full overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(14,165,233,0.15) 0%, rgba(59,130,246,0.15) 100%)', border: '1px solid rgba(14,165,233,0.35)', boxShadow: '0 0 12px rgba(14,165,233,0.2), inset 0 1px 0 rgba(255,255,255,0.1)' }}>
+                            <span className="relative w-3 h-3 rounded-full bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center flex-shrink-0" style={{ boxShadow: '0 0 8px rgba(14,165,233,0.8)' }}>
+                              <FiCheck className="text-white" style={{ fontSize: 6, strokeWidth: 3.5 }} />
+                            </span>
+                            <span className="text-[9px] font-black tracking-wide leading-none bg-gradient-to-r from-sky-500 to-blue-500 bg-clip-text text-transparent">ADMIN</span>
                           </span>
                         )}
                       </div>
                       {selectedUser.display_name && (
-                        <p className="text-xs text-white/70 truncate mb-1.5">{selectedUser.email}</p>
+                        <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate mb-1">{selectedUser.email}</p>
                       )}
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-white/20 backdrop-blur-sm text-white rounded-full text-[10px] font-bold border border-white/30">
-                        <PlanIcon className="text-[10px]" />
+                      <span className={`inline-block text-[9px] font-bold px-2 py-0.5 rounded-full border ${getPlanBadge(selectedUser.plan)}`}>
+                        <PlanIcon className="inline mr-0.5" style={{ fontSize: 8 }} />
                         {selectedUser.plan.charAt(0).toUpperCase() + selectedUser.plan.slice(1)} Plan
                       </span>
                     </div>
                   </div>
+
                   <button
-                    onClick={() => setShowUserDetailModal(false)}
-                    className="flex-shrink-0 w-7 h-7 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg flex items-center justify-center transition-all border border-white/20"
+                    onClick={closeUserDetail}
+                    className="flex-shrink-0 w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-sky-50 dark:hover:bg-sky-900/30 hover:text-sky-600 dark:hover:text-sky-400 flex items-center justify-center transition-all duration-150 hover:scale-110 active:scale-95"
                   >
-                    <FiX className="text-white text-sm" />
+                    <FiX className="text-slate-500 dark:text-slate-400" style={{ fontSize: 13 }} />
                   </button>
                 </div>
-              </div>
 
-              <div className="p-4 sm:p-5 space-y-4">
-
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-3 gap-1.5 mb-3">
                   {[
-                    { label: 'Total Requests', value: userStats.totalRequests.toLocaleString(), color: 'text-sky-600 dark:text-sky-400', bg: 'bg-sky-50 dark:bg-sky-900/20 border-sky-100 dark:border-sky-800/50' },
-                    { label: 'Success',         value: userStats.successCount.toLocaleString(),  color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-100 dark:border-emerald-800/50' },
-                    { label: 'Errors',          value: userStats.errorCount.toLocaleString(),    color: 'text-red-500 dark:text-red-400', bg: 'bg-red-50 dark:bg-red-900/20 border-red-100 dark:border-red-800/50' },
+                    { label: 'Requests', value: userStats.totalRequests.toLocaleString(), color: 'text-sky-600 dark:text-sky-400', bg: 'bg-sky-50 dark:bg-sky-900/20 border-sky-100 dark:border-sky-800/50' },
+                    { label: 'Success',  value: userStats.successCount.toLocaleString(),  color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-100 dark:border-emerald-800/50' },
+                    { label: 'Errors',   value: userStats.errorCount.toLocaleString(),    color: 'text-red-500 dark:text-red-400', bg: 'bg-red-50 dark:bg-red-900/20 border-red-100 dark:border-red-800/50' },
                   ].map(item => (
                     <div key={item.label} className={`rounded-xl p-2.5 border ${item.bg}`}>
                       <p className="text-[9px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-0.5">{item.label}</p>
-                      <p className={`text-sm sm:text-base font-black tabular-nums ${item.color}`}>{item.value}</p>
+                      <p className={`text-sm font-black tabular-nums ${item.color}`}>{item.value}</p>
                     </div>
                   ))}
                 </div>
 
-                <div className="bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-700 p-3 sm:p-4">
-                  <div className="flex items-center justify-between gap-2 mb-3">
-                    <div className="flex items-center gap-1.5">
-                      <FiTrendingUp className="text-sky-500 text-sm" />
-                      <p className="text-xs font-bold text-slate-800 dark:text-white">Usage (last 30 days)</p>
+                <div className="space-y-1.5 mb-3">
+                  <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-sky-50/60 dark:bg-sky-900/20 border border-sky-100 dark:border-sky-800/40">
+                    <div className="w-5 h-5 rounded-lg bg-sky-100 dark:bg-sky-500/20 flex items-center justify-center flex-shrink-0">
+                      <FiKey className="text-sky-600 dark:text-sky-400" style={{ fontSize: 10 }} />
                     </div>
-                    <div className="flex items-center gap-1 bg-white dark:bg-slate-800 rounded-lg p-0.5 border border-slate-200 dark:border-slate-700">
+                    <div className="flex-1 flex items-center justify-between">
+                      <p className="text-[9px] font-semibold text-sky-500 dark:text-sky-500 uppercase tracking-wider">Active Keys</p>
+                      <p className="text-xs font-bold text-sky-700 dark:text-sky-300">{selectedUser.active_keys}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-sky-50/40 dark:bg-sky-900/10 border border-sky-100 dark:border-sky-800/30">
+                    <div className="w-5 h-5 rounded-lg bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                      <FiCalendar className="text-blue-600 dark:text-blue-400" style={{ fontSize: 10 }} />
+                    </div>
+                    <div className="flex-1 flex items-center justify-between">
+                      <p className="text-[9px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Joined</p>
+                      <p className="text-xs font-bold text-slate-700 dark:text-slate-300">{new Date(selectedUser.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+                    </div>
+                  </div>
+
+                  {selectedUser.plan_expires_at && (
+                    <div className={`flex items-center gap-2.5 px-3 py-2 rounded-xl border ${isExpired ? 'bg-red-50/60 dark:bg-red-900/10 border-red-100 dark:border-red-800/30' : 'bg-emerald-50/60 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-800/30'}`}>
+                      <div className={`w-5 h-5 rounded-lg flex items-center justify-center flex-shrink-0 ${isExpired ? 'bg-red-100 dark:bg-red-500/20' : 'bg-emerald-100 dark:bg-emerald-500/20'}`}>
+                        <FiCheckCircle className={isExpired ? 'text-red-500' : 'text-emerald-500'} style={{ fontSize: 10 }} />
+                      </div>
+                      <div className="flex-1 flex items-center justify-between">
+                        <p className="text-[9px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Plan {isExpired ? 'Expired' : 'Expires'}</p>
+                        <p className={`text-xs font-bold ${isExpired ? 'text-red-500 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                          {new Date(selectedUser.plan_expires_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="bg-sky-50/40 dark:bg-sky-900/10 rounded-xl border border-sky-100 dark:border-sky-800/30 p-3 mb-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-1.5">
+                      <FiTrendingUp className="text-sky-500 text-xs" />
+                      <p className="text-[10px] font-bold text-slate-700 dark:text-slate-300">Usage · 30 days</p>
+                    </div>
+                    <div className="flex items-center gap-0.5 bg-white dark:bg-slate-800 rounded-lg p-0.5 border border-sky-100 dark:border-sky-800/40">
                       {chartLines.map(line => (
                         <button
                           key={line.key}
                           onClick={() => setActiveChartLine(line.key)}
-                          className={`flex items-center gap-1 px-2 py-1 rounded-md text-[9px] sm:text-[10px] font-semibold transition-all duration-200 ${
-                            activeChartLine === line.key
-                              ? 'bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
-                              : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'
-                          }`}
+                          className={`flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-semibold transition-all duration-200 ${activeChartLine === line.key ? 'bg-sky-50 dark:bg-sky-900/40 text-sky-700 dark:text-sky-300 shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}
                         >
-                          <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: line.color }} />
+                          <span className="w-1.5 h-1.5 rounded-full" style={{ background: line.color }} />
                           {line.label}
                         </button>
                       ))}
@@ -929,26 +937,26 @@ export default function AdminDashboard() {
                   </div>
 
                   {userChartData.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-8 gap-2">
-                      <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center">
-                        <FiTrendingUp className="text-slate-400 text-lg" />
+                    <div className="flex flex-col items-center justify-center py-6 gap-1.5">
+                      <div className="w-8 h-8 bg-sky-50 dark:bg-sky-900/30 rounded-xl flex items-center justify-center">
+                        <FiTrendingUp className="text-sky-400" style={{ fontSize: 14 }} />
                       </div>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">No usage data available</p>
+                      <p className="text-[10px] text-slate-400 dark:text-slate-500">No usage data available</p>
                     </div>
                   ) : (
-                    <ResponsiveContainer width="100%" height={160}>
-                      <AreaChart data={userChartData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
+                    <ResponsiveContainer width="100%" height={140}>
+                      <AreaChart data={userChartData} margin={{ top: 4, right: 4, bottom: 0, left: -24 }}>
                         <defs>
                           {chartLines.map(line => (
                             <linearGradient key={line.gradId} id={line.gradId} x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor={line.color} stopOpacity={0.25} />
+                              <stop offset="5%" stopColor={line.color} stopOpacity={0.2} />
                               <stop offset="95%" stopColor={line.color} stopOpacity={0} />
                             </linearGradient>
                           ))}
                         </defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke="currentColor" className="text-slate-200 dark:text-slate-700" />
-                        <XAxis dataKey="date" tick={{ fontSize: 9, fill: 'currentColor' }} tickLine={false} axisLine={false} className="text-slate-400 dark:text-slate-500" />
-                        <YAxis tick={{ fontSize: 9, fill: 'currentColor' }} tickLine={false} axisLine={false} className="text-slate-400 dark:text-slate-500" />
+                        <CartesianGrid strokeDasharray="3 3" stroke="currentColor" className="text-sky-100 dark:text-sky-900/50" />
+                        <XAxis dataKey="date" tick={{ fontSize: 8, fill: 'currentColor' }} tickLine={false} axisLine={false} className="text-slate-400 dark:text-slate-500" />
+                        <YAxis tick={{ fontSize: 8, fill: 'currentColor' }} tickLine={false} axisLine={false} className="text-slate-400 dark:text-slate-500" />
                         <Tooltip content={<UserDetailTooltip />} cursor={{ stroke: activeLine.color, strokeWidth: 1, strokeDasharray: '4 4' }} />
                         <Area
                           type="monotone"
@@ -958,59 +966,25 @@ export default function AdminDashboard() {
                           fill={`url(#${activeLine.gradId})`}
                           strokeWidth={2}
                           dot={false}
-                          activeDot={{ r: 4, fill: activeLine.color, strokeWidth: 2, stroke: '#fff' }}
+                          activeDot={{ r: 3.5, fill: activeLine.color, strokeWidth: 2, stroke: '#fff' }}
                         />
                       </AreaChart>
                     </ResponsiveContainer>
                   )}
                 </div>
 
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-700">
-                    <div className="w-6 h-6 rounded-lg bg-sky-100 dark:bg-sky-500/15 flex items-center justify-center flex-shrink-0">
-                      <FiKey className="text-sky-600 dark:text-sky-400" style={{ fontSize: 11 }} />
-                    </div>
-                    <div>
-                      <p className="text-[9px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide leading-none mb-0.5">Active Keys</p>
-                      <p className="text-xs font-bold text-slate-800 dark:text-white">{selectedUser.active_keys}</p>
-                    </div>
+                <div className="border-t border-sky-100 dark:border-sky-900/40 pt-3">
+                  <div className="flex items-center gap-1.5 mb-2.5">
+                    <FiEdit2 className="text-sky-500 text-xs" />
+                    <p className="text-[10px] font-bold text-slate-700 dark:text-slate-300">Edit Plan</p>
                   </div>
-                  <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-700">
-                    <div className="w-6 h-6 rounded-lg bg-purple-100 dark:bg-purple-500/15 flex items-center justify-center flex-shrink-0">
-                      <FiCalendar className="text-purple-600 dark:text-purple-400" style={{ fontSize: 11 }} />
-                    </div>
+                  <div className="space-y-2">
                     <div>
-                      <p className="text-[9px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide leading-none mb-0.5">Joined</p>
-                      <p className="text-xs font-bold text-slate-800 dark:text-white">{new Date(selectedUser.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
-                    </div>
-                  </div>
-                  {selectedUser.plan_expires_at && (
-                    <div className="col-span-2 flex items-center gap-2.5 px-3 py-2.5 rounded-xl border bg-slate-50 dark:bg-slate-900/60 border-slate-100 dark:border-slate-700">
-                      <div className={`w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 ${isExpired ? 'bg-red-100 dark:bg-red-500/15' : 'bg-emerald-100 dark:bg-emerald-500/15'}`}>
-                        <FiCheckCircle className={isExpired ? 'text-red-500' : 'text-emerald-500'} style={{ fontSize: 11 }} />
-                      </div>
-                      <div>
-                        <p className="text-[9px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide leading-none mb-0.5">Plan {isExpired ? 'Expired' : 'Expires'}</p>
-                        <p className={`text-xs font-bold ${isExpired ? 'text-red-500 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
-                          {new Date(selectedUser.plan_expires_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <FiEdit2 className="text-slate-500 dark:text-slate-400 text-sm" />
-                    <p className="text-xs font-bold text-slate-700 dark:text-slate-300">Edit Plan</p>
-                  </div>
-                  <div className="space-y-2.5">
-                    <div>
-                      <label className="block text-[10px] sm:text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5">Plan</label>
+                      <label className="block text-[9px] font-semibold text-sky-600 dark:text-sky-500 uppercase tracking-wider mb-1">Plan</label>
                       <select
                         value={editUser.plan}
-                        onChange={(e) => setEditUser({ ...editUser, plan: e.target.value })}
-                        className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-xs sm:text-sm text-slate-800 dark:text-white outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all"
+                        onChange={e => setEditUser({ ...editUser, plan: e.target.value })}
+                        className="w-full px-3 py-2 bg-sky-50/60 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800/50 rounded-xl text-xs text-slate-800 dark:text-white outline-none focus:border-sky-500 dark:focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all"
                       >
                         <option value="free">Free (100 req/day)</option>
                         <option value="pro">Pro (400 req/day)</option>
@@ -1018,28 +992,32 @@ export default function AdminDashboard() {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-[10px] sm:text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5">Expires At (Optional)</label>
+                      <label className="block text-[9px] font-semibold text-sky-600 dark:text-sky-500 uppercase tracking-wider mb-1">Expires At</label>
                       <input
                         type="datetime-local"
                         value={editUser.plan_expires_at}
-                        onChange={(e) => setEditUser({ ...editUser, plan_expires_at: e.target.value })}
-                        className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-xs sm:text-sm text-slate-800 dark:text-white outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all"
+                        onChange={e => setEditUser({ ...editUser, plan_expires_at: e.target.value })}
+                        className="w-full px-3 py-2 bg-sky-50/60 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800/50 rounded-xl text-xs text-slate-800 dark:text-white outline-none focus:border-sky-500 dark:focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all"
                       />
                     </div>
                   </div>
                   <div className="flex gap-2 mt-3">
                     <button
-                      onClick={() => setShowUserDetailModal(false)}
+                      onClick={closeUserDetail}
                       disabled={actionLoading}
-                      className="flex-1 px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-white rounded-lg font-semibold transition-colors text-xs disabled:opacity-50"
+                      className="flex-1 px-4 py-2 bg-sky-50 dark:bg-sky-900/20 hover:bg-sky-100 dark:hover:bg-sky-800/40 text-sky-600 dark:text-sky-400 border border-sky-200 dark:border-sky-800/50 rounded-xl font-semibold transition-all text-xs disabled:opacity-50"
                     >
                       Cancel
                     </button>
                     <button
                       onClick={handleUpdateUserPlan}
                       disabled={actionLoading}
-                      className="flex-1 px-4 py-2 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white rounded-lg font-semibold transition-all text-xs disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg"
+                      className="relative flex-1 px-4 py-2 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white rounded-xl font-semibold transition-all text-xs disabled:opacity-50 flex items-center justify-center gap-1.5 overflow-hidden"
+                      style={{ boxShadow: '0 4px 16px rgba(14,165,233,0.35)' }}
                     >
+                      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                        <div className="absolute inset-y-0 w-1/3 bg-white/20 skew-x-[-15deg] animate-shimmer-pass" />
+                      </div>
                       {actionLoading
                         ? <><div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />Saving...</>
                         : <><FiSave className="text-xs" />Save Changes</>
@@ -1049,13 +1027,25 @@ export default function AdminDashboard() {
                 </div>
               </div>
             </div>
+
+            <style jsx>{`
+              @keyframes udBgIn { from{opacity:0;} to{opacity:1;} }
+              @keyframes udModalIn { from{opacity:0;transform:translateY(20px) scale(0.97);} to{opacity:1;transform:translateY(0) scale(1);} }
+              @keyframes udModalOut { from{opacity:1;transform:translateY(0) scale(1);} to{opacity:0;transform:translateY(16px) scale(0.97);} }
+              @keyframes shimmerPass { 0%{transform:translateX(-200%);} 100%{transform:translateX(200%);} }
+              .animate-shimmer-pass { animation:shimmerPass 2.5s ease-in-out infinite; }
+              @media(max-width:640px) {
+                @keyframes udModalIn { from{opacity:0;transform:translateY(100%);} to{opacity:1;transform:translateY(0);} }
+                @keyframes udModalOut { from{opacity:1;transform:translateY(0);} to{opacity:0;transform:translateY(60px);} }
+              }
+            `}</style>
           </div>
         );
       })()}
 
       {toast && (
-        <div className="fixed bottom-3 right-3 sm:bottom-4 sm:right-4 z-50 animate-in slide-in-from-bottom-5 duration-200">
-          <div className={`flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg shadow-lg ${toast.type === 'success' ? 'bg-emerald-600' : 'bg-red-600'} text-white`}>
+        <div className="fixed bottom-3 right-3 sm:bottom-4 sm:right-4 z-[60] animate-in slide-in-from-bottom-5 duration-200">
+          <div className={`flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl shadow-lg ${toast.type === 'success' ? 'bg-emerald-600' : 'bg-red-600'} text-white`}>
             {toast.type === 'success' ? <FiCheckCircle className="text-sm flex-shrink-0" /> : <FiAlertCircle className="text-sm flex-shrink-0" />}
             <p className="font-semibold text-xs">{toast.message}</p>
           </div>
