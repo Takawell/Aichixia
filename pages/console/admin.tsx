@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { supabase } from '@/lib/supabase';
 import { FaServer } from 'react-icons/fa';
-import { FiActivity, FiGift, FiCalendar, FiUsers, FiRefreshCw, FiX, FiCheckCircle, FiAlertCircle, FiLock, FiBarChart2, FiEye, FiShield, FiDatabase, FiKey, FiCpu, FiCheck } from 'react-icons/fi';
+import { FiActivity, FiGift, FiCalendar, FiUsers, FiRefreshCw, FiX, FiCheckCircle, FiAlertCircle, FiLock, FiBarChart2, FiEye, FiShield, FiDatabase, FiKey, FiCpu, FiCheck, FiMail, FiUser, FiTrendingUp, FiEdit2, FiSave } from 'react-icons/fi';
+import { RiVipDiamondLine, RiVipCrownLine } from 'react-icons/ri';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import ThemeToggle from '@/components/ThemeToggle';
 import Overview from '@/components/admin/overview';
 import Monitoring from '@/components/admin/monitoring';
@@ -72,6 +74,34 @@ type RequestLog = {
 
 type TabType = 'overview' | 'monitoring' | 'analytics' | 'promos' | 'redemptions' | 'users';
 
+type ChartLine = 'requests' | 'success' | 'errors';
+
+type TooltipPayloadItem = {
+  value: number;
+  name: string;
+  color: string;
+};
+
+type CustomTooltipProps = {
+  active?: boolean;
+  payload?: TooltipPayloadItem[];
+  label?: string;
+};
+
+function UserDetailTooltip({ active, payload, label }: CustomTooltipProps) {
+  if (!active || !payload || !payload.length) return null;
+  return (
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 shadow-lg">
+      <p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 mb-1">{label}</p>
+      {payload.map((entry) => (
+        <p key={entry.name} className="text-xs font-bold" style={{ color: entry.color }}>
+          {entry.name.charAt(0).toUpperCase() + entry.name.slice(1)}: {entry.value.toLocaleString()}
+        </p>
+      ))}
+    </div>
+  );
+}
+
 const TABS: { id: TabType; label: string; icon: React.ElementType }[] = [
   { id: 'overview',     label: 'Overview',     icon: FiActivity   },
   { id: 'monitoring',   label: 'Monitoring',   icon: FiEye        },
@@ -96,7 +126,7 @@ export default function AdminDashboard() {
   const [dailyUsage, setDailyUsage] = useState<DailyUsage[]>([]);
   const [requestLogs, setRequestLogs] = useState<RequestLog[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showEditUserModal, setShowEditUserModal] = useState(false);
+  const [showUserDetailModal, setShowUserDetailModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
@@ -110,6 +140,7 @@ export default function AdminDashboard() {
   const [pinSuccess, setPinSuccess] = useState(false);
   const [newPromo, setNewPromo] = useState({ code: '', plan_type: 'pro', duration_days: 30, max_uses: 100 });
   const [editUser, setEditUser] = useState({ plan: 'free', plan_expires_at: '' });
+  const [activeChartLine, setActiveChartLine] = useState<ChartLine>('requests');
 
   useEffect(() => {
     const tab = router.query.tab as TabType;
@@ -230,7 +261,7 @@ export default function AdminDashboard() {
       body: JSON.stringify({ action: 'update-user-plan', user_id: selectedUser.user_id, plan: editUser.plan, plan_expires_at: editUser.plan_expires_at || null }),
     });
     setActionLoading(false);
-    if (res.ok) { setShowEditUserModal(false); setSelectedUser(null); fetchAllData(true); showToast('User plan updated successfully', 'success'); }
+    if (res.ok) { setShowUserDetailModal(false); setSelectedUser(null); fetchAllData(true); showToast('User plan updated successfully', 'success'); }
     else showToast('Failed to update user plan', 'error');
   };
 
@@ -246,14 +277,59 @@ export default function AdminDashboard() {
     setTimeout(() => setToast(null), 3000);
   };
 
+  const getPlanColor = (plan: string) => {
+    if (plan === 'enterprise') return 'from-violet-500 to-purple-600';
+    if (plan === 'pro') return 'from-blue-500 to-indigo-600';
+    return 'from-slate-400 to-slate-500';
+  };
+
+  const getPlanBadgeStyle = (plan: string) => {
+    if (plan === 'enterprise') return 'bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400 border-violet-200 dark:border-violet-800';
+    if (plan === 'pro') return 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800';
+    return 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600';
+  };
+
+  const getPlanIcon = (plan: string) => {
+    if (plan === 'enterprise') return RiVipCrownLine;
+    if (plan === 'pro') return RiVipDiamondLine;
+    return FiUsers;
+  };
+
   const loadingSteps = [
-    { icon: FiShield,   text: 'Initializing admin security', color: 'from-sky-400 to-blue-500'     },
-    { icon: FiLock,     text: 'Verifying admin credentials', color: 'from-blue-400 to-indigo-500'  },
-    { icon: FiDatabase, text: 'Loading system data',         color: 'from-indigo-400 to-purple-500'},
-    { icon: FiUsers,    text: 'Fetching user database',      color: 'from-purple-400 to-pink-500'  },
-    { icon: FiBarChart2,text: 'Preparing analytics',         color: 'from-pink-400 to-rose-500'    },
-    { icon: FiCheck,    text: 'Admin panel ready',           color: 'from-emerald-400 to-green-500'},
+    { icon: FiShield,    text: 'Initializing admin security', color: 'from-sky-400 to-blue-500'      },
+    { icon: FiLock,      text: 'Verifying admin credentials', color: 'from-blue-400 to-indigo-500'   },
+    { icon: FiDatabase,  text: 'Loading system data',         color: 'from-indigo-400 to-purple-500' },
+    { icon: FiUsers,     text: 'Fetching user database',      color: 'from-purple-400 to-pink-500'   },
+    { icon: FiBarChart2, text: 'Preparing analytics',         color: 'from-pink-400 to-rose-500'     },
+    { icon: FiCheck,     text: 'Admin panel ready',           color: 'from-emerald-400 to-green-500' },
   ];
+
+  const chartLines: { key: ChartLine; label: string; color: string; gradId: string }[] = [
+    { key: 'requests', label: 'Total',   color: '#0ea5e9', gradId: 'ud-grad-req' },
+    { key: 'success',  label: 'Success', color: '#34d399', gradId: 'ud-grad-suc' },
+    { key: 'errors',   label: 'Errors',  color: '#f87171', gradId: 'ud-grad-err' },
+  ];
+
+  const getUserChartData = (userId: string) => {
+    return dailyUsage
+      .filter(d => d.user_id === userId)
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+      .map(d => ({
+        date: new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        requests: d.requests_count,
+        success: d.success_count,
+        errors: d.error_count,
+      }));
+  };
+
+  const getUserTotalStats = (userId: string) => {
+    const userUsage = dailyUsage.filter(d => d.user_id === userId);
+    return {
+      totalRequests: userUsage.reduce((s, d) => s + d.requests_count, 0),
+      successCount:  userUsage.reduce((s, d) => s + d.success_count, 0),
+      errorCount:    userUsage.reduce((s, d) => s + d.error_count, 0),
+    };
+  };
 
   if (initialLoading) {
     return (
@@ -615,6 +691,8 @@ export default function AdminDashboard() {
     );
   }
 
+  const activeLine = chartLines.find(l => l.key === activeChartLine)!;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-sky-50/20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
       <header className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg border-b border-slate-200 dark:border-slate-700 px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 sticky top-0 z-40">
@@ -683,7 +761,16 @@ export default function AdminDashboard() {
             <Redemptions redemptions={redemptions} loading={false} />
           )}
           {activeTab === 'users' && (
-            <Users users={users} onEditUser={(user) => { setSelectedUser(user); setEditUser({ plan: user.plan, plan_expires_at: user.plan_expires_at ? new Date(user.plan_expires_at).toISOString().slice(0,16) : '' }); setShowEditUserModal(true); }} loading={false} />
+            <Users
+              users={users}
+              onViewUser={(user) => {
+                setSelectedUser(user);
+                setEditUser({ plan: user.plan, plan_expires_at: user.plan_expires_at ? new Date(user.plan_expires_at).toISOString().slice(0, 16) : '' });
+                setActiveChartLine('requests');
+                setShowUserDetailModal(true);
+              }}
+              loading={false}
+            />
           )}
         </div>
       </main>
@@ -738,48 +825,233 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {showEditUserModal && selectedUser && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 z-50 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 max-w-md w-full p-4 sm:p-5 shadow-2xl animate-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm sm:text-base font-bold text-slate-800 dark:text-white">Edit User Plan</h3>
-              <button onClick={() => setShowEditUserModal(false)} className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
-                <FiX className="text-base text-slate-600 dark:text-slate-400" />
-              </button>
-            </div>
-            <div className="mb-3 p-2.5 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
-              <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">{selectedUser.email}</p>
-              {selectedUser.display_name && <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">{selectedUser.display_name}</p>}
-            </div>
-            <div className="space-y-3">
-              <div>
-                <label className="block text-[10px] sm:text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Plan</label>
-                <select value={editUser.plan} onChange={(e) => setEditUser({ ...editUser, plan: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-xs sm:text-sm text-slate-800 dark:text-white outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all">
-                  <option value="free">Free (100 req/day)</option>
-                  <option value="pro">Pro (400 req/day)</option>
-                  <option value="enterprise">Enterprise (800 req/day)</option>
-                </select>
+      {showUserDetailModal && selectedUser && (() => {
+        const PlanIcon = getPlanIcon(selectedUser.plan);
+        const isExpired = selectedUser.plan_expires_at && new Date(selectedUser.plan_expires_at) < new Date();
+        const userChartData = getUserChartData(selectedUser.user_id);
+        const userStats = getUserTotalStats(selectedUser.user_id);
+
+        return (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 z-50 animate-in fade-in duration-200">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in-95 duration-200">
+
+              <div className={`relative p-5 sm:p-6 bg-gradient-to-br ${getPlanColor(selectedUser.plan)} rounded-t-2xl overflow-hidden`}>
+                <div className="absolute inset-0 opacity-20">
+                  <div className="absolute top-0 right-0 w-40 h-40 bg-white rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
+                  <div className="absolute bottom-0 left-0 w-32 h-32 bg-white rounded-full translate-y-1/2 -translate-x-1/2 blur-2xl" />
+                </div>
+                <div className="relative flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                    {selectedUser.avatar_url ? (
+                      <img
+                        src={selectedUser.avatar_url}
+                        alt={selectedUser.display_name || selectedUser.email}
+                        className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-cover border-2 border-white/30 shadow-xl flex-shrink-0"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                          if (fallback) fallback.style.display = 'flex';
+                        }}
+                      />
+                    ) : null}
+                    <div
+                      className="w-14 h-14 sm:w-16 sm:h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center text-white font-black text-xl sm:text-2xl border border-white/30 shadow-xl flex-shrink-0"
+                      style={{ display: selectedUser.avatar_url ? 'none' : 'flex' }}
+                    >
+                      {selectedUser.display_name?.[0]?.toUpperCase() || selectedUser.email[0].toUpperCase()}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        <h3 className="text-base sm:text-lg font-black text-white truncate">
+                          {selectedUser.display_name || selectedUser.email}
+                        </h3>
+                        {selectedUser.is_admin && (
+                          <span className="px-2 py-0.5 bg-white/20 backdrop-blur-sm text-white rounded-full text-[9px] font-black border border-white/30 flex-shrink-0">
+                            ADMIN
+                          </span>
+                        )}
+                      </div>
+                      {selectedUser.display_name && (
+                        <p className="text-xs text-white/70 truncate mb-1.5">{selectedUser.email}</p>
+                      )}
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-white/20 backdrop-blur-sm text-white rounded-full text-[10px] font-bold border border-white/30">
+                        <PlanIcon className="text-[10px]" />
+                        {selectedUser.plan.charAt(0).toUpperCase() + selectedUser.plan.slice(1)} Plan
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setShowUserDetailModal(false)}
+                    className="flex-shrink-0 w-7 h-7 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg flex items-center justify-center transition-all border border-white/20"
+                  >
+                    <FiX className="text-white text-sm" />
+                  </button>
+                </div>
               </div>
-              <div>
-                <label className="block text-[10px] sm:text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Expires At (Optional)</label>
-                <input type="datetime-local" value={editUser.plan_expires_at} onChange={(e) => setEditUser({ ...editUser, plan_expires_at: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-xs sm:text-sm text-slate-800 dark:text-white outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all" />
+
+              <div className="p-4 sm:p-5 space-y-4">
+
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { label: 'Total Requests', value: userStats.totalRequests.toLocaleString(), color: 'text-sky-600 dark:text-sky-400', bg: 'bg-sky-50 dark:bg-sky-900/20 border-sky-100 dark:border-sky-800/50' },
+                    { label: 'Success',         value: userStats.successCount.toLocaleString(),  color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-100 dark:border-emerald-800/50' },
+                    { label: 'Errors',          value: userStats.errorCount.toLocaleString(),    color: 'text-red-500 dark:text-red-400', bg: 'bg-red-50 dark:bg-red-900/20 border-red-100 dark:border-red-800/50' },
+                  ].map(item => (
+                    <div key={item.label} className={`rounded-xl p-2.5 border ${item.bg}`}>
+                      <p className="text-[9px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-0.5">{item.label}</p>
+                      <p className={`text-sm sm:text-base font-black tabular-nums ${item.color}`}>{item.value}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-700 p-3 sm:p-4">
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <div className="flex items-center gap-1.5">
+                      <FiTrendingUp className="text-sky-500 text-sm" />
+                      <p className="text-xs font-bold text-slate-800 dark:text-white">Usage (last 30 days)</p>
+                    </div>
+                    <div className="flex items-center gap-1 bg-white dark:bg-slate-800 rounded-lg p-0.5 border border-slate-200 dark:border-slate-700">
+                      {chartLines.map(line => (
+                        <button
+                          key={line.key}
+                          onClick={() => setActiveChartLine(line.key)}
+                          className={`flex items-center gap-1 px-2 py-1 rounded-md text-[9px] sm:text-[10px] font-semibold transition-all duration-200 ${
+                            activeChartLine === line.key
+                              ? 'bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
+                              : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'
+                          }`}
+                        >
+                          <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: line.color }} />
+                          {line.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {userChartData.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-8 gap-2">
+                      <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center">
+                        <FiTrendingUp className="text-slate-400 text-lg" />
+                      </div>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">No usage data available</p>
+                    </div>
+                  ) : (
+                    <ResponsiveContainer width="100%" height={160}>
+                      <AreaChart data={userChartData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
+                        <defs>
+                          {chartLines.map(line => (
+                            <linearGradient key={line.gradId} id={line.gradId} x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor={line.color} stopOpacity={0.25} />
+                              <stop offset="95%" stopColor={line.color} stopOpacity={0} />
+                            </linearGradient>
+                          ))}
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke="currentColor" className="text-slate-200 dark:text-slate-700" />
+                        <XAxis dataKey="date" tick={{ fontSize: 9, fill: 'currentColor' }} tickLine={false} axisLine={false} className="text-slate-400 dark:text-slate-500" />
+                        <YAxis tick={{ fontSize: 9, fill: 'currentColor' }} tickLine={false} axisLine={false} className="text-slate-400 dark:text-slate-500" />
+                        <Tooltip content={<UserDetailTooltip />} cursor={{ stroke: activeLine.color, strokeWidth: 1, strokeDasharray: '4 4' }} />
+                        <Area
+                          type="monotone"
+                          dataKey={activeChartLine}
+                          stroke={activeLine.color}
+                          fillOpacity={1}
+                          fill={`url(#${activeLine.gradId})`}
+                          strokeWidth={2}
+                          dot={false}
+                          activeDot={{ r: 4, fill: activeLine.color, strokeWidth: 2, stroke: '#fff' }}
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-700">
+                    <div className="w-6 h-6 rounded-lg bg-sky-100 dark:bg-sky-500/15 flex items-center justify-center flex-shrink-0">
+                      <FiKey className="text-sky-600 dark:text-sky-400" style={{ fontSize: 11 }} />
+                    </div>
+                    <div>
+                      <p className="text-[9px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide leading-none mb-0.5">Active Keys</p>
+                      <p className="text-xs font-bold text-slate-800 dark:text-white">{selectedUser.active_keys}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-700">
+                    <div className="w-6 h-6 rounded-lg bg-purple-100 dark:bg-purple-500/15 flex items-center justify-center flex-shrink-0">
+                      <FiCalendar className="text-purple-600 dark:text-purple-400" style={{ fontSize: 11 }} />
+                    </div>
+                    <div>
+                      <p className="text-[9px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide leading-none mb-0.5">Joined</p>
+                      <p className="text-xs font-bold text-slate-800 dark:text-white">{new Date(selectedUser.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+                    </div>
+                  </div>
+                  {selectedUser.plan_expires_at && (
+                    <div className="col-span-2 flex items-center gap-2.5 px-3 py-2.5 rounded-xl border bg-slate-50 dark:bg-slate-900/60 border-slate-100 dark:border-slate-700">
+                      <div className={`w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 ${isExpired ? 'bg-red-100 dark:bg-red-500/15' : 'bg-emerald-100 dark:bg-emerald-500/15'}`}>
+                        <FiCheckCircle className={isExpired ? 'text-red-500' : 'text-emerald-500'} style={{ fontSize: 11 }} />
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide leading-none mb-0.5">Plan {isExpired ? 'Expired' : 'Expires'}</p>
+                        <p className={`text-xs font-bold ${isExpired ? 'text-red-500 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                          {new Date(selectedUser.plan_expires_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <FiEdit2 className="text-slate-500 dark:text-slate-400 text-sm" />
+                    <p className="text-xs font-bold text-slate-700 dark:text-slate-300">Edit Plan</p>
+                  </div>
+                  <div className="space-y-2.5">
+                    <div>
+                      <label className="block text-[10px] sm:text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5">Plan</label>
+                      <select
+                        value={editUser.plan}
+                        onChange={(e) => setEditUser({ ...editUser, plan: e.target.value })}
+                        className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-xs sm:text-sm text-slate-800 dark:text-white outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all"
+                      >
+                        <option value="free">Free (100 req/day)</option>
+                        <option value="pro">Pro (400 req/day)</option>
+                        <option value="enterprise">Enterprise (800 req/day)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] sm:text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5">Expires At (Optional)</label>
+                      <input
+                        type="datetime-local"
+                        value={editUser.plan_expires_at}
+                        onChange={(e) => setEditUser({ ...editUser, plan_expires_at: e.target.value })}
+                        className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-xs sm:text-sm text-slate-800 dark:text-white outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex gap-2 mt-3">
+                    <button
+                      onClick={() => setShowUserDetailModal(false)}
+                      disabled={actionLoading}
+                      className="flex-1 px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-white rounded-lg font-semibold transition-colors text-xs disabled:opacity-50"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleUpdateUserPlan}
+                      disabled={actionLoading}
+                      className="flex-1 px-4 py-2 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white rounded-lg font-semibold transition-all text-xs disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg"
+                    >
+                      {actionLoading
+                        ? <><div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />Saving...</>
+                        : <><FiSave className="text-xs" />Save Changes</>
+                      }
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div className="flex gap-2 sm:gap-3 mt-4">
-              <button onClick={() => setShowEditUserModal(false)} disabled={actionLoading}
-                className="flex-1 px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-white rounded-lg font-semibold transition-colors text-xs disabled:opacity-50">
-                Cancel
-              </button>
-              <button onClick={handleUpdateUserPlan} disabled={actionLoading}
-                className="flex-1 px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-lg font-semibold transition-all text-xs disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg">
-                {actionLoading ? <><div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />Updating...</> : 'Update Plan'}
-              </button>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {toast && (
         <div className="fixed bottom-3 right-3 sm:bottom-4 sm:right-4 z-50 animate-in slide-in-from-bottom-5 duration-200">
