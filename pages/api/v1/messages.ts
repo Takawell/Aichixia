@@ -69,16 +69,18 @@ const RATE_LIMIT_ERRORS = [
   OpenAIRateLimitError, KimiRateLimitError, GlmRateLimitError, GPTRateLimitError,
   ClaudeRateLimitError, CohereRateLimitError, DeepSeekRateLimitError, DeepSeekVRateLimitError,
   QwenRateLimitError, QwenV2RateLimitError, GptOssRateLimitError, CompoundRateLimitError,
-  LlamaRateLimitError, MistralRateLimitError, MimoRateLimitError, PhiRateLimitError, MinimaxRateLimitError,
-  GrokRateLimitError, GrokFastRateLimitError, ZhipuRateLimitError, AichixiaRateLimitError,
+  LlamaRateLimitError, MistralRateLimitError, MimoRateLimitError, PhiRateLimitError,
+  MinimaxRateLimitError, GrokRateLimitError, GrokFastRateLimitError, ZhipuRateLimitError,
+  AichixiaRateLimitError,
 ];
 
 const QUOTA_ERRORS = [
   OpenAIQuotaError, KimiQuotaError, GlmQuotaError, GPTQuotaError,
   ClaudeQuotaError, CohereQuotaError, DeepSeekQuotaError, DeepSeekVQuotaError,
   QwenQuotaError, QwenV2QuotaError, GptOssQuotaError, CompoundQuotaError,
-  LlamaQuotaError, MistralQuotaError, MimoQuotaError, PhiQuotaError, MinimaxQuotaError,
-  GrokQuotaError, GrokFastQuotaError, ZhipuQuotaError, AichixiaQuotaError,
+  LlamaQuotaError, MistralQuotaError, MimoQuotaError, PhiQuotaError,
+  MinimaxQuotaError, GrokQuotaError, GrokFastQuotaError, ZhipuQuotaError,
+  AichixiaQuotaError,
 ];
 
 function isRateLimitError(error: any): boolean {
@@ -173,28 +175,38 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     } = req.body;
 
     if (!model || typeof model !== "string") {
+      await incrementUsage(apiKeyData.id);
+      await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, false);
       await logRequest({ api_key_id: apiKeyData.id, user_id: apiKeyData.user_id, model: 'unknown', endpoint: '/api/v1/messages', status: 400, tokens_used: 0, error_message: 'model is required', ip_address: ip, user_agent: userAgent });
       return anthropicError("invalid_request_error", "model is required and must be a string.", 400, res);
     }
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
+      await incrementUsage(apiKeyData.id);
+      await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, false);
       await logRequest({ api_key_id: apiKeyData.id, user_id: apiKeyData.user_id, model, endpoint: '/api/v1/messages', status: 400, tokens_used: 0, error_message: 'messages is required', ip_address: ip, user_agent: userAgent });
       return anthropicError("invalid_request_error", "messages is required and must be a non-empty array.", 400, res);
     }
 
     if (!max_tokens || typeof max_tokens !== 'number') {
+      await incrementUsage(apiKeyData.id);
+      await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, false);
       await logRequest({ api_key_id: apiKeyData.id, user_id: apiKeyData.user_id, model, endpoint: '/api/v1/messages', status: 400, tokens_used: 0, error_message: 'max_tokens is required', ip_address: ip, user_agent: userAgent });
       return anthropicError("invalid_request_error", "max_tokens is required.", 400, res);
     }
 
     const modelAccess = await checkModelAccess(apiKeyData.user_id, model);
     if (!modelAccess.allowed) {
+      await incrementUsage(apiKeyData.id);
+      await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, false);
       await logRequest({ api_key_id: apiKeyData.id, user_id: apiKeyData.user_id, model, endpoint: '/api/v1/messages', status: 403, tokens_used: 0, error_message: modelAccess.error || 'Model access denied', ip_address: ip, user_agent: userAgent });
       return anthropicError("permission_error", modelAccess.error || "Model access denied.", 403, res);
     }
 
     const modelConfig = MODEL_MAPPING[model.toLowerCase()];
     if (!modelConfig) {
+      await incrementUsage(apiKeyData.id);
+      await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, false);
       await logRequest({ api_key_id: apiKeyData.id, user_id: apiKeyData.user_id, model, endpoint: '/api/v1/messages', status: 400, tokens_used: 0, error_message: 'model not found', ip_address: ip, user_agent: userAgent });
       return anthropicError("invalid_request_error", `Model '${model}' is not supported. Available models: ${Object.keys(MODEL_MAPPING).join(", ")}`, 400, res);
     }
@@ -208,7 +220,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     for (const msg of messages) {
       const role = msg.role as "user" | "assistant";
       let content: any;
-
       if (typeof msg.content === "string") {
         content = msg.content;
       } else if (Array.isArray(msg.content)) {
@@ -216,7 +227,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       } else {
         content = String(msg.content);
       }
-
       history.push({ role, content });
     }
 
@@ -261,6 +271,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const latency = Date.now() - startTime;
 
+    await incrementUsage(apiKeyData.id);
     await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, false);
     await logRequest({
       api_key_id: apiKeyData.id,
