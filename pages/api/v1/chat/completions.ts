@@ -66,50 +66,20 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
 const LOCKED_MODELS_PRO = ['deepseek-v3.2', 'qwen3-235b', 'minimax-m2.7', 'claude-opus-4.5', 'glm-4.7', 'aichixia-flash', 'grok-4-fast', 'kimi-k2.5'];
 
 const RATE_LIMIT_ERRORS = [
-  OpenAIRateLimitError,
-  KimiRateLimitError,
-  GlmRateLimitError,
-  GPTRateLimitError,
-  ClaudeRateLimitError,
-  CohereRateLimitError,
-  DeepSeekRateLimitError,
-  DeepSeekVRateLimitError,
-  QwenRateLimitError,
-  QwenV2RateLimitError,
-  GptOssRateLimitError,
-  CompoundRateLimitError,
-  LlamaRateLimitError,
-  MistralRateLimitError,
-  MimoRateLimitError,
-  PhiRateLimitError,
-  MinimaxRateLimitError,
-  GrokRateLimitError,
-  GrokFastRateLimitError,
-  ZhipuRateLimitError,
+  OpenAIRateLimitError, KimiRateLimitError, GlmRateLimitError, GPTRateLimitError,
+  ClaudeRateLimitError, CohereRateLimitError, DeepSeekRateLimitError, DeepSeekVRateLimitError,
+  QwenRateLimitError, QwenV2RateLimitError, GptOssRateLimitError, CompoundRateLimitError,
+  LlamaRateLimitError, MistralRateLimitError, MimoRateLimitError, PhiRateLimitError,
+  MinimaxRateLimitError, GrokRateLimitError, GrokFastRateLimitError, ZhipuRateLimitError,
   AichixiaRateLimitError,
 ];
 
 const QUOTA_ERRORS = [
-  OpenAIQuotaError,
-  KimiQuotaError,
-  GlmQuotaError,
-  GPTQuotaError,
-  ClaudeQuotaError,
-  CohereQuotaError,
-  DeepSeekQuotaError,
-  DeepSeekVQuotaError,
-  QwenQuotaError,
-  QwenV2QuotaError,
-  GptOssQuotaError,
-  CompoundQuotaError,
-  LlamaQuotaError,
-  MistralQuotaError,
-  MimoQuotaError,
-  PhiQuotaError,
-  MinimaxQuotaError,
-  GrokQuotaError,
-  GrokFastQuotaError,
-  ZhipuQuotaError,
+  OpenAIQuotaError, KimiQuotaError, GlmQuotaError, GPTQuotaError,
+  ClaudeQuotaError, CohereQuotaError, DeepSeekQuotaError, DeepSeekVQuotaError,
+  QwenQuotaError, QwenV2QuotaError, GptOssQuotaError, CompoundQuotaError,
+  LlamaQuotaError, MistralQuotaError, MimoQuotaError, PhiQuotaError,
+  MinimaxQuotaError, GrokQuotaError, GrokFastQuotaError, ZhipuQuotaError,
   AichixiaQuotaError,
 ];
 
@@ -148,9 +118,7 @@ async function checkModelAccess(userId: string, model: string): Promise<{ allowe
     .eq('user_id', userId)
     .single();
 
-  if (error || !settings) {
-    return { allowed: true };
-  }
+  if (error || !settings) return { allowed: true };
 
   const userPlan = settings.plan;
   const modelLower = model.toLowerCase();
@@ -167,12 +135,7 @@ async function checkModelAccess(userId: string, model: string): Promise<{ allowe
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
     return res.status(405).json({
-      error: {
-        message: "Method not allowed",
-        type: "invalid_request_error",
-        param: null,
-        code: null,
-      },
+      error: { message: "Method not allowed", type: "invalid_request_error", param: null, code: null },
     });
   }
 
@@ -181,12 +144,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (!apiKey) {
     return res.status(401).json({
-      error: {
-        message: "Missing API key in Authorization header",
-        type: "invalid_request_error",
-        param: null,
-        code: "missing_api_key",
-      },
+      error: { message: "Missing API key in Authorization header", type: "invalid_request_error", param: null, code: "missing_api_key" },
     });
   }
 
@@ -194,12 +152,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (!verifyResult || !verifyResult.key) {
     return res.status(401).json({
-      error: {
-        message: "Invalid API key",
-        type: "invalid_request_error",
-        param: null,
-        code: "invalid_api_key",
-      },
+      error: { message: "Invalid API key", type: "invalid_request_error", param: null, code: "invalid_api_key" },
     });
   }
 
@@ -217,16 +170,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     return res.status(429).json({
-      error: {
-        message: verifyResult.error,
-        type: "rate_limit_error",
-        param: null,
-        code: "rate_limit_exceeded",
-      },
+      error: { message: verifyResult.error, type: "rate_limit_error", param: null, code: "rate_limit_exceeded" },
     });
   }
 
   const apiKeyData = verifyResult.key;
+  const ipAddress = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress || null;
+  const userAgent = req.headers['user-agent'] || null;
 
   try {
     const {
@@ -238,120 +188,78 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     } = req.body;
 
     if (!model || typeof model !== "string") {
+      await incrementUsage(apiKeyData.id);
+      await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, false);
       await logRequest({
-        api_key_id: apiKeyData.id,
-        user_id: apiKeyData.user_id,
-        model: 'unknown',
-        endpoint: '/api/v1/chat/completions',
-        status: 400,
-        tokens_used: 0,
-        error_message: 'model is required',
-        ip_address: (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress || null,
-        user_agent: req.headers['user-agent'] || null,
+        api_key_id: apiKeyData.id, user_id: apiKeyData.user_id,
+        model: 'unknown', endpoint: '/api/v1/chat/completions',
+        status: 400, tokens_used: 0, error_message: 'model is required',
+        ip_address: ipAddress, user_agent: userAgent,
       });
-
       return res.status(400).json({
-        error: {
-          message: "model is required and must be a string",
-          type: "invalid_request_error",
-          param: "model",
-          code: null,
-        },
+        error: { message: "model is required and must be a string", type: "invalid_request_error", param: "model", code: null },
       });
     }
 
     const modelAccess = await checkModelAccess(apiKeyData.user_id, model);
 
     if (!modelAccess.allowed) {
+      await incrementUsage(apiKeyData.id);
+      await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, false);
       await logRequest({
-        api_key_id: apiKeyData.id,
-        user_id: apiKeyData.user_id,
-        model: model,
-        endpoint: '/api/v1/chat/completions',
-        status: 403,
-        tokens_used: 0,
-        error_message: modelAccess.error || 'Model access denied',
-        ip_address: (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress || null,
-        user_agent: req.headers['user-agent'] || null,
+        api_key_id: apiKeyData.id, user_id: apiKeyData.user_id,
+        model, endpoint: '/api/v1/chat/completions',
+        status: 403, tokens_used: 0, error_message: modelAccess.error || 'Model access denied',
+        ip_address: ipAddress, user_agent: userAgent,
       });
-
       return res.status(403).json({
-        error: {
-          message: modelAccess.error,
-          type: "insufficient_quota",
-          param: "model",
-          code: "model_access_denied",
-        },
+        error: { message: modelAccess.error, type: "insufficient_quota", param: "model", code: "model_access_denied" },
       });
     }
 
     if (!messages || !Array.isArray(messages)) {
+      await incrementUsage(apiKeyData.id);
+      await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, false);
       await logRequest({
-        api_key_id: apiKeyData.id,
-        user_id: apiKeyData.user_id,
-        model: model,
-        endpoint: '/api/v1/chat/completions',
-        status: 400,
-        tokens_used: 0,
-        error_message: 'messages is required',
-        ip_address: (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress || null,
-        user_agent: req.headers['user-agent'] || null,
+        api_key_id: apiKeyData.id, user_id: apiKeyData.user_id,
+        model, endpoint: '/api/v1/chat/completions',
+        status: 400, tokens_used: 0, error_message: 'messages is required',
+        ip_address: ipAddress, user_agent: userAgent,
       });
-
       return res.status(400).json({
-        error: {
-          message: "messages is required and must be an array",
-          type: "invalid_request_error",
-          param: "messages",
-          code: null,
-        },
+        error: { message: "messages is required and must be an array", type: "invalid_request_error", param: "messages", code: null },
       });
     }
 
     if (stream) {
+      await incrementUsage(apiKeyData.id);
+      await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, false);
       await logRequest({
-        api_key_id: apiKeyData.id,
-        user_id: apiKeyData.user_id,
-        model: model,
-        endpoint: '/api/v1/chat/completions',
-        status: 400,
-        tokens_used: 0,
-        error_message: 'streaming not supported',
-        ip_address: (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress || null,
-        user_agent: req.headers['user-agent'] || null,
+        api_key_id: apiKeyData.id, user_id: apiKeyData.user_id,
+        model, endpoint: '/api/v1/chat/completions',
+        status: 400, tokens_used: 0, error_message: 'streaming not supported',
+        ip_address: ipAddress, user_agent: userAgent,
       });
-
       return res.status(400).json({
-        error: {
-          message: "Streaming is not supported in this endpoint",
-          type: "invalid_request_error",
-          param: "stream",
-          code: null,
-        },
+        error: { message: "Streaming is not supported in this endpoint", type: "invalid_request_error", param: "stream", code: null },
       });
     }
 
     const modelConfig = MODEL_MAPPING[model.toLowerCase()];
 
     if (!modelConfig) {
+      await incrementUsage(apiKeyData.id);
+      await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, false);
       await logRequest({
-        api_key_id: apiKeyData.id,
-        user_id: apiKeyData.user_id,
-        model: model,
-        endpoint: '/api/v1/chat/completions',
-        status: 400,
-        tokens_used: 0,
-        error_message: 'model not found',
-        ip_address: (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress || null,
-        user_agent: req.headers['user-agent'] || null,
+        api_key_id: apiKeyData.id, user_id: apiKeyData.user_id,
+        model, endpoint: '/api/v1/chat/completions',
+        status: 400, tokens_used: 0, error_message: 'model not found',
+        ip_address: ipAddress, user_agent: userAgent,
       });
-
       return res.status(400).json({
         error: {
           message: `Model '${model}' is not supported. Available models: ${Object.keys(MODEL_MAPPING).join(", ")}`,
-          type: "invalid_request_error",
-          param: "model",
-          code: "model_not_found",
+          type: "invalid_request_error", param: "model", code: "model_not_found",
         },
       });
     }
@@ -361,10 +269,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       content: msg.content,
     }));
 
-    const result = await modelConfig.fn(history, {
-      temperature,
-      maxTokens: max_tokens,
-    });
+    const result = await modelConfig.fn(history, { temperature, maxTokens: max_tokens });
 
     const latency = Date.now() - startTime;
     const promptText = messages.map((m: any) => extractTextFromContent(m.content)).join(' ');
@@ -375,29 +280,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await incrementUsage(apiKeyData.id);
     await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, totalTokens, true);
     await logRequest({
-      api_key_id: apiKeyData.id,
-      user_id: apiKeyData.user_id,
-      model: model,
-      endpoint: '/api/v1/chat/completions',
-      status: 200,
-      latency_ms: latency,
-      tokens_used: totalTokens,
-      ip_address: (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress || null,
-      user_agent: req.headers['user-agent'] || null,
+      api_key_id: apiKeyData.id, user_id: apiKeyData.user_id,
+      model, endpoint: '/api/v1/chat/completions',
+      status: 200, latency_ms: latency, tokens_used: totalTokens,
+      ip_address: ipAddress, user_agent: userAgent,
     });
 
-    const response = {
+    return res.status(200).json({
       id: `chatcmpl-${Date.now()}`,
       object: "chat.completion",
       created: Math.floor(Date.now() / 1000),
-      model: model,
+      model,
       choices: [
         {
           index: 0,
-          message: {
-            role: "assistant",
-            content: result.reply,
-          },
+          message: { role: "assistant", content: result.reply },
           finish_reason: "stop",
         },
       ],
@@ -406,57 +303,36 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         completion_tokens: completionTokens,
         total_tokens: totalTokens,
       },
-    };
-
-    return res.status(200).json(response);
+    });
   } catch (err: any) {
     console.error("OpenAI-compatible API error:", err);
 
     const latency = Date.now() - startTime;
 
+    await incrementUsage(apiKeyData.id);
     await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, false);
     await logRequest({
-      api_key_id: apiKeyData.id,
-      user_id: apiKeyData.user_id,
-      model: req.body.model || 'unknown',
-      endpoint: '/api/v1/chat/completions',
+      api_key_id: apiKeyData.id, user_id: apiKeyData.user_id,
+      model: req.body.model || 'unknown', endpoint: '/api/v1/chat/completions',
       status: isRateLimitError(err) ? 429 : 500,
-      latency_ms: latency,
-      tokens_used: 0,
-      error_message: err.message,
-      ip_address: (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress || null,
-      user_agent: req.headers['user-agent'] || null,
+      latency_ms: latency, tokens_used: 0, error_message: err.message,
+      ip_address: ipAddress, user_agent: userAgent,
     });
 
     if (isRateLimitError(err)) {
       return res.status(429).json({
-        error: {
-          message: "Rate limit exceeded. Please try again later.",
-          type: "rate_limit_error",
-          param: null,
-          code: "rate_limit_exceeded",
-        },
+        error: { message: "Rate limit exceeded. Please try again later.", type: "rate_limit_error", param: null, code: "rate_limit_exceeded" },
       });
     }
 
     if (isQuotaError(err)) {
       return res.status(429).json({
-        error: {
-          message: "Quota exceeded. Please check your plan.",
-          type: "insufficient_quota",
-          param: null,
-          code: "insufficient_quota",
-        },
+        error: { message: "Quota exceeded. Please check your plan.", type: "insufficient_quota", param: null, code: "insufficient_quota" },
       });
     }
 
     return res.status(500).json({
-      error: {
-        message: err.message || "Internal server error",
-        type: "server_error",
-        param: null,
-        code: null,
-      },
+      error: { message: err.message || "Internal server error", type: "server_error", param: null, code: null },
     });
   }
 }
