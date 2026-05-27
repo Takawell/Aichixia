@@ -100,9 +100,7 @@ function StatCard({ icon: Icon, label, value, color, lightBg, darkBg, lightBorde
   }, [delay]);
 
   return (
-    <div
-      className={`relative overflow-hidden rounded-xl border ${lightBorder} ${darkBorder} ${lightBg} ${darkBg} p-3 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'} hover:-translate-y-0.5 hover:shadow-lg group cursor-default`}
-    >
+    <div className={`relative overflow-hidden rounded-xl border ${lightBorder} ${darkBorder} ${lightBg} ${darkBg} p-3 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'} hover:-translate-y-0.5 hover:shadow-lg group cursor-default`}>
       <div className={`absolute -top-4 -right-4 w-16 h-16 rounded-full blur-xl opacity-10 dark:opacity-20 group-hover:opacity-25 dark:group-hover:opacity-35 transition-opacity duration-500 ${glowClass}`} />
       <div className="relative z-10 flex items-center gap-3">
         <div className={`p-1.5 rounded-lg border ${lightBorder} ${darkBorder} ${lightBg} ${darkBg} flex-shrink-0`}>
@@ -131,14 +129,33 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
   }, []);
 
   const days = timeRange === '7d' ? 7 : 30;
-  const chartData = dailyUsage
-    .slice(-days)
-    .map(day => ({
-      date: new Date(day.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-      requests: day.requests_count,
-      tokens: Math.round(day.tokens_used / 1000),
-      success: day.success_count,
-      errors: day.error_count,
+
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - days);
+  cutoff.setHours(0, 0, 0, 0);
+
+  const grouped = dailyUsage
+    .filter(d => new Date(d.date) >= cutoff)
+    .reduce((acc, d) => {
+      const dateKey = d.date.split('T')[0];
+      if (!acc[dateKey]) {
+        acc[dateKey] = { date: dateKey, requests_count: 0, tokens_used: 0, success_count: 0, error_count: 0 };
+      }
+      acc[dateKey].requests_count += d.requests_count;
+      acc[dateKey].tokens_used   += d.tokens_used;
+      acc[dateKey].success_count += d.success_count;
+      acc[dateKey].error_count   += d.error_count;
+      return acc;
+    }, {} as Record<string, { date: string; requests_count: number; tokens_used: number; success_count: number; error_count: number }>);
+
+  const chartData = Object.values(grouped)
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    .map(d => ({
+      date: new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      requests: d.requests_count,
+      tokens: Math.round(d.tokens_used / 1000),
+      success: d.success_count,
+      errors: d.error_count,
     }));
 
   const modelUsage = requestLogs.reduce((acc, log) => {
@@ -164,9 +181,9 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
     .slice(0, 5);
 
   const statusDistribution = [
-    { name: 'Success', value: requestLogs.filter(l => l.status >= 200 && l.status < 300).length, color: '#10b981' },
+    { name: 'Success',    value: requestLogs.filter(l => l.status >= 200 && l.status < 300).length, color: '#10b981' },
     { name: 'Client Err', value: requestLogs.filter(l => l.status >= 400 && l.status < 500).length, color: '#f59e0b' },
-    { name: 'Server Err', value: requestLogs.filter(l => l.status >= 500).length, color: '#ef4444' },
+    { name: 'Server Err', value: requestLogs.filter(l => l.status >= 500).length,                   color: '#ef4444' },
   ].filter(i => i.value > 0);
 
   const stats = {
@@ -207,62 +224,30 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
     <div className="space-y-3 sm:space-y-4">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
         <StatCard
-          icon={FiActivity}
-          label="Total Requests"
-          color="text-sky-600 dark:text-sky-400"
-          lightIcon="text-sky-600"
-          darkIcon="dark:text-sky-400"
-          lightBg="bg-sky-50"
-          darkBg="dark:bg-sky-900/20"
-          lightBorder="border-sky-200"
-          darkBorder="dark:border-sky-800"
-          glowClass="bg-sky-500"
-          value={stats.totalRequests}
-          delay={0}
+          icon={FiActivity} label="Total Requests"
+          color="text-sky-600 dark:text-sky-400" lightIcon="text-sky-600" darkIcon="dark:text-sky-400"
+          lightBg="bg-sky-50" darkBg="dark:bg-sky-900/20" lightBorder="border-sky-200" darkBorder="dark:border-sky-800"
+          glowClass="bg-sky-500" value={stats.totalRequests} delay={0}
         />
         <StatCard
-          icon={FiCpu}
-          label="Total Tokens"
-          color="text-violet-600 dark:text-violet-400"
-          lightIcon="text-violet-600"
-          darkIcon="dark:text-violet-400"
-          lightBg="bg-violet-50"
-          darkBg="dark:bg-violet-900/20"
-          lightBorder="border-violet-200"
-          darkBorder="dark:border-violet-800"
-          glowClass="bg-violet-500"
-          value={Math.round(stats.totalTokens / 1000)}
-          delay={80}
+          icon={FiCpu} label="Total Tokens"
+          color="text-violet-600 dark:text-violet-400" lightIcon="text-violet-600" darkIcon="dark:text-violet-400"
+          lightBg="bg-violet-50" darkBg="dark:bg-violet-900/20" lightBorder="border-violet-200" darkBorder="dark:border-violet-800"
+          glowClass="bg-violet-500" value={Math.round(stats.totalTokens / 1000)} delay={80}
           format={(v) => `${v.toLocaleString()}K`}
         />
         <StatCard
-          icon={FiZap}
-          label="Avg Latency"
-          color="text-amber-600 dark:text-amber-400"
-          lightIcon="text-amber-600"
-          darkIcon="dark:text-amber-400"
-          lightBg="bg-amber-50"
-          darkBg="dark:bg-amber-900/20"
-          lightBorder="border-amber-200"
-          darkBorder="dark:border-amber-800"
-          glowClass="bg-amber-500"
-          value={stats.avgLatency}
-          delay={160}
+          icon={FiZap} label="Avg Latency"
+          color="text-amber-600 dark:text-amber-400" lightIcon="text-amber-600" darkIcon="dark:text-amber-400"
+          lightBg="bg-amber-50" darkBg="dark:bg-amber-900/20" lightBorder="border-amber-200" darkBorder="dark:border-amber-800"
+          glowClass="bg-amber-500" value={stats.avgLatency} delay={160}
           format={(v) => `${v}ms`}
         />
         <StatCard
-          icon={FiCheckCircle}
-          label="Success Rate"
-          color="text-emerald-600 dark:text-emerald-400"
-          lightIcon="text-emerald-600"
-          darkIcon="dark:text-emerald-400"
-          lightBg="bg-emerald-50"
-          darkBg="dark:bg-emerald-900/20"
-          lightBorder="border-emerald-200"
-          darkBorder="dark:border-emerald-800"
-          glowClass="bg-emerald-500"
-          value={stats.successRate}
-          delay={240}
+          icon={FiCheckCircle} label="Success Rate"
+          color="text-emerald-600 dark:text-emerald-400" lightIcon="text-emerald-600" darkIcon="dark:text-emerald-400"
+          lightBg="bg-emerald-50" darkBg="dark:bg-emerald-900/20" lightBorder="border-emerald-200" darkBorder="dark:border-emerald-800"
+          glowClass="bg-emerald-500" value={stats.successRate} delay={240}
           format={(v) => `${v}%`}
         />
       </div>
@@ -349,7 +334,6 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
               <p className="text-[10px] text-slate-500 dark:text-slate-400">By request count</p>
             </div>
           </div>
-
           {modelData.length === 0 ? (
             <div className="flex items-center justify-center h-32 text-slate-400 dark:text-slate-500 text-sm">No data</div>
           ) : (
@@ -371,11 +355,7 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
                     <div className="h-1 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
                       <div
                         className="h-full rounded-full transition-all duration-1000 ease-out"
-                        style={{
-                          width: `${pct}%`,
-                          background: MODEL_COLORS[i % MODEL_COLORS.length],
-                          transitionDelay: `${i * 80 + 600}ms`,
-                        }}
+                        style={{ width: `${pct}%`, background: MODEL_COLORS[i % MODEL_COLORS.length], transitionDelay: `${i * 80 + 600}ms` }}
                       />
                     </div>
                   </div>
@@ -395,23 +375,13 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
               <p className="text-[10px] text-slate-500 dark:text-slate-400">Request outcomes</p>
             </div>
           </div>
-
           {statusDistribution.length === 0 ? (
             <div className="flex items-center justify-center h-32 text-slate-400 dark:text-slate-500 text-sm">No data</div>
           ) : (
             <div className="flex flex-col sm:flex-row items-center gap-4">
               <ResponsiveContainer width={140} height={140}>
                 <PieChart>
-                  <Pie
-                    data={statusDistribution}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={38}
-                    outerRadius={60}
-                    paddingAngle={3}
-                    dataKey="value"
-                    strokeWidth={0}
-                  >
+                  <Pie data={statusDistribution} cx="50%" cy="50%" innerRadius={38} outerRadius={60} paddingAngle={3} dataKey="value" strokeWidth={0}>
                     {statusDistribution.map((entry, index) => (
                       <Cell key={index} fill={entry.color} />
                     ))}
@@ -433,10 +403,7 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
                         <span className="text-xs font-black text-slate-700 dark:text-slate-300 tabular-nums">{item.value.toLocaleString()}</span>
                       </div>
                       <div className="h-1 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                        <div
-                          className="h-full rounded-full transition-all duration-1000 ease-out"
-                          style={{ width: `${pct}%`, background: item.color }}
-                        />
+                        <div className="h-full rounded-full transition-all duration-1000 ease-out" style={{ width: `${pct}%`, background: item.color }} />
                       </div>
                     </div>
                   );
@@ -459,13 +426,9 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
                 <p className="text-[10px] text-slate-500 dark:text-slate-400">{errorData.length} error type{errorData.length > 1 ? 's' : ''} detected</p>
               </div>
             </div>
-
             <div className="space-y-2">
               {errorData.map((error, i) => (
-                <div
-                  key={i}
-                  className="flex items-center gap-3 p-2.5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl hover:border-red-400 dark:hover:border-red-600 transition-colors duration-200 group"
-                >
+                <div key={i} className="flex items-center gap-3 p-2.5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl hover:border-red-400 dark:hover:border-red-600 transition-colors duration-200 group">
                   <div className="flex-shrink-0 w-6 h-6 rounded-lg bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center shadow-sm">
                     <span className="text-[9px] font-black text-white">{i + 1}</span>
                   </div>
