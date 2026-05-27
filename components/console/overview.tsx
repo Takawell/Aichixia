@@ -52,32 +52,21 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
   );
 }
 
-type ChartRange = 3 | 7 | 14 | 30;
-
 export default function Overview({ stats, usageData, onNavigate }: OverviewProps) {
   const [activeChartLine, setActiveChartLine] = useState<'requests' | 'success' | 'errors'>('requests');
-  const [chartRange, setChartRange] = useState<ChartRange>(7);
 
-  const sortedData = [...usageData].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  const chartData = [...usageData]
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    .map(d => ({
+      date: new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      requests: d.requests_count,
+      success: d.success_count,
+      errors: d.error_count,
+    }));
 
-  const filteredData = sortedData.filter(d => {
-    const date = new Date(d.date);
-    const cutoff = new Date();
-    cutoff.setDate(cutoff.getDate() - chartRange);
-    cutoff.setHours(0, 0, 0, 0);
-    return date >= cutoff;
-  });
-
-  const chartData = filteredData.map(d => ({
-    date: new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    requests: d.requests_count,
-    success: d.success_count,
-    errors: d.error_count,
-  }));
-
-  const periodTotal = filteredData.reduce((s, d) => s + d.requests_count, 0);
-  const periodSuccess = filteredData.reduce((s, d) => s + d.success_count, 0);
-  const periodErrors = filteredData.reduce((s, d) => s + d.error_count, 0);
+  const periodTotal   = usageData.reduce((s, d) => s + d.requests_count, 0);
+  const periodSuccess = usageData.reduce((s, d) => s + d.success_count, 0);
+  const periodErrors  = usageData.reduce((s, d) => s + d.error_count, 0);
 
   const chartLines = [
     { key: 'requests' as const, label: 'Total',   color: '#0ea5e9', gradId: 'ov-grad-req' },
@@ -85,8 +74,6 @@ export default function Overview({ stats, usageData, onNavigate }: OverviewProps
     { key: 'errors'   as const, label: 'Errors',  color: '#f87171', gradId: 'ov-grad-err' },
   ];
   const activeLine = chartLines.find(l => l.key === activeChartLine)!;
-
-  const rangeOptions: ChartRange[] = [3, 7, 14, 30];
 
   return (
     <div className="space-y-3 sm:space-y-4">
@@ -172,49 +159,32 @@ export default function Overview({ stats, usageData, onNavigate }: OverviewProps
               Usage Over Time
             </h3>
             <p className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-              Last {chartRange} days activity
+              Last {usageData.length} days activity
             </p>
           </div>
-          <div className="flex items-center gap-2 flex-wrap self-start sm:self-auto">
-            <div className="flex items-center gap-0.5 bg-zinc-100 dark:bg-zinc-900 rounded-xl p-1">
-              {rangeOptions.map(r => (
-                <button
-                  key={r}
-                  onClick={() => setChartRange(r)}
-                  className={`px-2 py-1 rounded-lg text-[10px] sm:text-xs font-semibold transition-all duration-200 ${
-                    chartRange === r
-                      ? 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-sm'
-                      : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300'
-                  }`}
-                >
-                  {r}d
-                </button>
-              ))}
-            </div>
-            <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-900 rounded-xl p-1">
-              {chartLines.map(line => (
-                <button
-                  key={line.key}
-                  onClick={() => setActiveChartLine(line.key)}
-                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] sm:text-xs font-semibold transition-all duration-200 ${
-                    activeChartLine === line.key
-                      ? 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-sm'
-                      : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300'
-                  }`}
-                >
-                  <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: line.color }} />
-                  {line.label}
-                </button>
-              ))}
-            </div>
+          <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-900 rounded-xl p-1 self-start sm:self-auto">
+            {chartLines.map(line => (
+              <button
+                key={line.key}
+                onClick={() => setActiveChartLine(line.key)}
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] sm:text-xs font-semibold transition-all duration-200 ${
+                  activeChartLine === line.key
+                    ? 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-sm'
+                    : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300'
+                }`}
+              >
+                <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: line.color }} />
+                {line.label}
+              </button>
+            ))}
           </div>
         </div>
 
         <div className="grid grid-cols-3 gap-2 mb-4">
           {[
-            { label: 'Total',   value: periodTotal,   color: 'text-sky-600 dark:text-sky-400'     },
+            { label: 'Total',   value: periodTotal,   color: 'text-sky-600 dark:text-sky-400' },
             { label: 'Success', value: periodSuccess, color: 'text-emerald-600 dark:text-emerald-400' },
-            { label: 'Errors',  value: periodErrors,  color: 'text-red-500 dark:text-red-400'     },
+            { label: 'Errors',  value: periodErrors,  color: 'text-red-500 dark:text-red-400' },
           ].map(item => (
             <div key={item.label} className="bg-zinc-50 dark:bg-zinc-900/60 rounded-xl p-2 sm:p-2.5 border border-zinc-100 dark:border-zinc-800">
               <p className="text-[9px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wide mb-0.5">{item.label}</p>
@@ -305,6 +275,7 @@ export default function Overview({ stats, usageData, onNavigate }: OverviewProps
           </button>
         </div>
       </div>
+
       <style jsx>{`
         @keyframes shimmer {
           0% { transform: translateX(-100%); }
