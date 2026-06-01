@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { FiCopy, FiCheck, FiLock, FiZap, FiCpu, FiTrendingUp, FiDollarSign, FiSearch, FiStar, FiInfo, FiImage, FiX, FiExternalLink, FiMic } from 'react-icons/fi';
-import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiAirbrake, SiMaze, SiXiaomi, SiFlux, SiImagedotsc, SiSecurityscorecard, SiLapce } from 'react-icons/si';
+import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiAirbrake, SiMaze, SiXiaomi, SiFlux, SiImagedotsc, SiSecurityscorecard, SiLapce, SiGithubcopilot } from 'react-icons/si';
 import { GiSpermWhale, GiPowerLightning, GiClover, GiFire } from 'react-icons/gi';
 import { TbSquareLetterZ, TbLetterM } from 'react-icons/tb';
 import { TiVendorMicrosoft } from "react-icons/ti";
@@ -192,6 +192,20 @@ const AVAILABLE_MODELS = [
     contextWindow: '256K tokens',
     pricing: 'Premium',
     features: ['Chinese expertise', 'Long context', 'Cultural nuance'],
+    endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
+  },
+  {
+    id: 'copilot',
+    name: 'Microsoft Copilot',
+    icon: SiGithubcopilot,
+    color: 'from-blue-500 to-cyan-500',
+    category: 'Text Generation',
+    description: 'Microsoft Copilot with dynamic model routing',
+    speed: 3,
+    quality: 4,
+    contextWindow: '128K tokens',
+    pricing: 'Budget',
+    features: ['Web search', 'Document analysis', 'Multilingual'],
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
