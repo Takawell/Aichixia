@@ -55,7 +55,19 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
 export default function Overview({ stats, usageData, onNavigate }: OverviewProps) {
   const [activeChartLine, setActiveChartLine] = useState<'requests' | 'success' | 'errors'>('requests');
 
-  const chartData = [...usageData]
+  const grouped = usageData.reduce((acc, d) => {
+    const dateKey = d.date.split('T')[0];
+    if (!acc[dateKey]) {
+      acc[dateKey] = { date: dateKey, requests_count: 0, tokens_used: 0, success_count: 0, error_count: 0 };
+    }
+    acc[dateKey].requests_count += d.requests_count;
+    acc[dateKey].tokens_used   += d.tokens_used;
+    acc[dateKey].success_count += d.success_count;
+    acc[dateKey].error_count   += d.error_count;
+    return acc;
+  }, {} as Record<string, { date: string; requests_count: number; tokens_used: number; success_count: number; error_count: number }>);
+
+  const chartData = Object.values(grouped)
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     .map(d => ({
       date: new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
@@ -159,7 +171,7 @@ export default function Overview({ stats, usageData, onNavigate }: OverviewProps
               Usage Over Time
             </h3>
             <p className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-              Last {usageData.length} days activity
+              Last {chartData.length} days activity
             </p>
           </div>
           <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-900 rounded-xl p-1 self-start sm:self-auto">
