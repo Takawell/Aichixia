@@ -1360,7 +1360,7 @@ console.log(data.text);`,
           }
           .assist-scroll::-webkit-scrollbar { width:3px; }
           .assist-scroll::-webkit-scrollbar-track { background:transparent; }
-          .assist-scroll::-webkit-scrollbar-thumb { background:rgba(168,85,247,0.25); border-radius:99px; }
+          .assist-scroll::-webkit-scrollbar-thumb { background:rgba(14,165,233,0.2); border-radius:99px; }
           .assist-md p { margin:0 0 6px 0; }
           .assist-md p:last-child { margin-bottom:0; }
           .assist-md code { font-family:monospace; font-size:10px; padding:1px 4px; border-radius:4px; }
@@ -1371,8 +1371,8 @@ console.log(data.text);`,
           .assist-md li { margin:2px 0; }
           .assist-md h1,.assist-md h2,.assist-md h3 { margin:8px 0 4px; font-weight:700; }
           .assist-md a { text-decoration:underline; opacity:0.85; }
-          .assist-md blockquote { border-left:3px solid rgba(168,85,247,0.4); padding-left:8px; margin:4px 0; opacity:0.85; }
-          .assist-md table { border-collapse:collapse; width:100%; margin:6px 0; font-size:10px; }
+          .assist-md blockquote { border-left:3px solid rgba(14,165,233,0.35); padding-left:8px; margin:4px 0; opacity:0.85; }
+          .assist-md table { border-collapse:collapse; min-width:100%; margin:6px 0; font-size:10px; display:block; overflow-x:auto; }
           .assist-md th,.assist-md td { border:1px solid rgba(0,0,0,0.1); padding:3px 6px; }
           .assist-md-dark code { background:rgba(255,255,255,0.1); color:#e2e8f0; }
           .assist-md-dark th,.assist-md-dark td { border-color:rgba(255,255,255,0.1); }
@@ -1400,46 +1400,46 @@ console.log(data.text);`,
                 background: isDark
                   ? 'linear-gradient(145deg,#18181b,#0f0f12)'
                   : 'linear-gradient(145deg,#ffffff,#faf5ff)',
-                border: isDark ? '1px solid rgba(168,85,247,0.2)' : '1px solid rgba(168,85,247,0.15)',
+                border: isDark ? '1px solid rgba(14,165,233,0.18)' : '1px solid rgba(14,165,233,0.12)',
                 boxShadow: isDark
-                  ? '0 24px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(168,85,247,0.1), inset 0 1px 0 rgba(255,255,255,0.04)'
-                  : '0 24px 60px rgba(168,85,247,0.15), 0 8px 24px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.9)',
+                  ? '0 24px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(14,165,233,0.08), inset 0 1px 0 rgba(255,255,255,0.04)'
+                  : '0 24px 60px rgba(14,165,233,0.12), 0 8px 24px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.9)',
               }}
             >
               <div
                 className="absolute inset-x-0 top-0 h-40 pointer-events-none"
                 style={{
                   background: isDark
-                    ? 'radial-gradient(ellipse at 50% 0%,rgba(168,85,247,0.12) 0%,transparent 70%)'
-                    : 'radial-gradient(ellipse at 50% 0%,rgba(168,85,247,0.08) 0%,transparent 70%)',
+                    ? 'radial-gradient(ellipse at 50% 0%,rgba(14,165,233,0.1) 0%,transparent 70%)'
+                    : 'radial-gradient(ellipse at 50% 0%,rgba(14,165,233,0.07) 0%,transparent 70%)',
                 }}
               />
-              <div className="absolute top-3 right-8 w-1 h-1 rounded-full bg-purple-400 assist-sparkle-1" style={{ boxShadow: '0 0 4px rgba(168,85,247,0.8)' }} />
-              <div className="absolute top-6 right-16 w-1.5 h-1.5 rounded-full bg-pink-400 assist-sparkle-2" style={{ boxShadow: '0 0 4px rgba(244,114,182,0.8)' }} />
+              <div className="absolute top-3 right-8 w-1 h-1 rounded-full bg-sky-400 assist-sparkle-1" style={{ boxShadow: '0 0 4px rgba(14,165,233,0.8)' }} />
+              <div className="absolute top-6 right-16 w-1.5 h-1.5 rounded-full bg-blue-400 assist-sparkle-2" style={{ boxShadow: '0 0 4px rgba(56,189,248,0.8)' }} />
               <div className="absolute top-2 right-24 w-1 h-1 rounded-full bg-blue-400 assist-sparkle-3" style={{ boxShadow: '0 0 4px rgba(96,165,250,0.8)' }} />
 
-              <div className="relative z-10 flex items-center justify-between px-4 py-3 flex-shrink-0" style={{ borderBottom: isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(168,85,247,0.1)' }}>
+              <div className="relative z-10 flex items-center justify-between px-4 py-3 flex-shrink-0" style={{ borderBottom: isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(14,165,233,0.08)' }}>
                 <div className="flex items-center gap-3">
                   <div className="relative flex-shrink-0 assist-float">
                     <img
                       src="/my.png"
                       alt="Assistant"
                       className="w-9 h-9 rounded-2xl object-cover"
-                      style={{ border: isDark ? '2px solid rgba(168,85,247,0.4)' : '2px solid rgba(168,85,247,0.3)', boxShadow: '0 0 12px rgba(168,85,247,0.3)' }}
+                      style={{ border: isDark ? '2px solid rgba(14,165,233,0.35)' : '2px solid rgba(14,165,233,0.25)', boxShadow: '0 0 12px rgba(14,165,233,0.25)' }}
                       onError={e => {
                         e.currentTarget.style.display = 'none';
                         const fb = e.currentTarget.nextElementSibling as HTMLElement;
                         if (fb) fb.style.display = 'flex';
                       }}
                     />
-                    <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 items-center justify-center" style={{ display: 'none', boxShadow: '0 0 12px rgba(168,85,247,0.4)' }}>
+                    <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-sky-500 to-blue-600 items-center justify-center" style={{ display: 'none', boxShadow: '0 0 12px rgba(14,165,233,0.35)' }}>
                       <SiGooglegemini className="text-white text-base" />
                     </div>
                     <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 rounded-full border-2 z-10" style={{ borderColor: isDark ? '#0f0f12' : '#ffffff', boxShadow: '0 0 6px rgba(52,211,153,0.7)' }} />
                   </div>
                   <div>
-                    <p className="text-xs font-black leading-tight" style={{ color: isDark ? '#f1f0ff' : '#1e1b2e' }}>Aichi Assistant ✨</p>
-                    <p className="text-[9px]" style={{ color: isDark ? 'rgba(196,181,253,0.6)' : 'rgba(109,40,217,0.5)' }}>Always here to help~</p>
+                    <p className="text-xs font-black leading-tight" style={{ color: isDark ? '#f0f9ff' : '#0f172a' }}>Aichixia Assistant</p>
+                    <p className="text-[9px]" style={{ color: isDark ? 'rgba(125,211,252,0.6)' : 'rgba(14,165,233,0.45)' }}>Always online · Powered by Aichixia</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
@@ -1447,18 +1447,18 @@ console.log(data.text);`,
                     <button
                       onClick={resetAssistant}
                       className="w-7 h-7 rounded-xl flex items-center justify-center transition-all hover:scale-110 active:scale-95"
-                      style={{ background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(168,85,247,0.08)', border: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(168,85,247,0.15)' }}
+                      style={{ background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(14,165,233,0.07)', border: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(14,165,233,0.12)' }}
                       title="Clear chat"
                     >
-                      <FiRefreshCw style={{ fontSize: 11, color: isDark ? 'rgba(196,181,253,0.7)' : 'rgba(109,40,217,0.6)' }} />
+                      <FiRefreshCw style={{ fontSize: 11, color: isDark ? 'rgba(125,211,252,0.7)' : 'rgba(14,165,233,0.55)' }} />
                     </button>
                   )}
                   <button
                     onClick={closeAssistant}
                     className="w-7 h-7 rounded-xl flex items-center justify-center transition-all hover:scale-110 active:scale-95"
-                    style={{ background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(168,85,247,0.08)', border: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(168,85,247,0.15)' }}
+                    style={{ background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(14,165,233,0.07)', border: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(14,165,233,0.12)' }}
                   >
-                    <FiX style={{ fontSize: 12, color: isDark ? 'rgba(196,181,253,0.7)' : 'rgba(109,40,217,0.6)' }} />
+                    <FiX style={{ fontSize: 12, color: isDark ? 'rgba(125,211,252,0.7)' : 'rgba(14,165,233,0.55)' }} />
                   </button>
                 </div>
               </div>
@@ -1467,26 +1467,26 @@ console.log(data.text);`,
                 {assistantMessages.length === 0 && (
                   <div className="flex flex-col items-center justify-center h-full gap-4 text-center py-2">
                     <div className="relative">
-                      <div className="absolute inset-0 rounded-3xl blur-2xl animate-pulse" style={{ background: 'radial-gradient(circle,rgba(168,85,247,0.25),transparent)' }} />
+                      <div className="absolute inset-0 rounded-3xl blur-2xl animate-pulse" style={{ background: 'radial-gradient(circle,rgba(14,165,233,0.2),transparent)' }} />
                       <img
                         src="/my.png"
                         alt="Assistant"
                         className="relative w-20 h-20 rounded-3xl object-cover"
-                        style={{ border: '2px solid rgba(168,85,247,0.35)', boxShadow: '0 8px 28px rgba(168,85,247,0.25), 0 0 0 4px rgba(168,85,247,0.08)' }}
+                        style={{ border: '2px solid rgba(14,165,233,0.3)', boxShadow: '0 8px 28px rgba(14,165,233,0.2), 0 0 0 4px rgba(14,165,233,0.07)' }}
                         onError={e => {
                           e.currentTarget.style.display = 'none';
                           const fb = e.currentTarget.nextElementSibling as HTMLElement;
                           if (fb) fb.style.display = 'flex';
                         }}
                       />
-                      <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-purple-500 via-pink-500 to-blue-500 items-center justify-center" style={{ display: 'none', boxShadow: '0 8px 28px rgba(168,85,247,0.3)' }}>
+                      <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-sky-400 via-sky-500 to-blue-600 items-center justify-center" style={{ display: 'none', boxShadow: '0 8px 28px rgba(14,165,233,0.25)' }}>
                         <SiGooglegemini className="text-white text-3xl" />
                       </div>
-                      <div className="absolute -top-1 -right-1 text-sm">✨</div>
+                      
                     </div>
                     <div>
-                      <p className="text-sm font-black mb-1" style={{ color: isDark ? '#f1f0ff' : '#1e1b2e' }}>Hii! Aku Aichi~ 👋</p>
-                      <p className="text-xs leading-relaxed max-w-[210px]" style={{ color: isDark ? 'rgba(196,181,253,0.6)' : 'rgba(109,40,217,0.55)' }}>Tanya apa aja tentang Aichixia API, aku siap bantu!</p>
+                      <p className="text-sm font-black mb-1" style={{ color: isDark ? '#f0f9ff' : '#0f172a' }}>Hi! I'm Aichixia Assistant.</p>
+                      <p className="text-xs leading-relaxed max-w-[210px]" style={{ color: isDark ? 'rgba(125,211,252,0.6)' : 'rgba(14,165,233,0.5)' }}>Ask me anything about the Aichixia API and I'll help you get started.</p>
                     </div>
                     <div className="flex flex-wrap gap-1.5 justify-center">
                       {[
@@ -1500,9 +1500,9 @@ console.log(data.text);`,
                           onClick={() => { setAssistantInput(q); assistantInputRef.current?.focus(); }}
                           className="px-2.5 py-1.5 rounded-xl text-[10px] font-semibold transition-all hover:scale-105 active:scale-95"
                           style={{
-                            background: isDark ? 'rgba(168,85,247,0.1)' : 'rgba(168,85,247,0.06)',
-                            border: isDark ? '1px solid rgba(168,85,247,0.25)' : '1px solid rgba(168,85,247,0.2)',
-                            color: isDark ? 'rgba(196,181,253,0.9)' : 'rgba(109,40,217,0.8)',
+                            background: isDark ? 'rgba(14,165,233,0.08)' : 'rgba(14,165,233,0.05)',
+                            border: isDark ? '1px solid rgba(14,165,233,0.2)' : '1px solid rgba(14,165,233,0.18)',
+                            color: isDark ? 'rgba(125,211,252,0.9)' : 'rgba(14,165,233,0.75)',
                           }}
                         >
                           {q}
@@ -1520,49 +1520,49 @@ console.log(data.text);`,
                           src="/my.png"
                           alt="Assistant"
                           className="w-6 h-6 rounded-xl object-cover"
-                          style={{ border: '1.5px solid rgba(168,85,247,0.3)' }}
+                          style={{ border: '1.5px solid rgba(14,165,233,0.25)' }}
                           onError={e => {
                             e.currentTarget.style.display = 'none';
                             const fb = e.currentTarget.nextElementSibling as HTMLElement;
                             if (fb) fb.style.display = 'flex';
                           }}
                         />
-                        <div className="w-6 h-6 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 items-center justify-center" style={{ display: 'none' }}>
+                        <div className="w-6 h-6 rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 items-center justify-center" style={{ display: 'none' }}>
                           <SiGooglegemini className="text-white" style={{ fontSize: 9 }} />
                         </div>
                       </div>
                     )}
                     <div
-                      className={`relative max-w-[80%] px-3 py-2 text-xs leading-relaxed break-words overflow-hidden ${msg.role === 'user' ? 'rounded-2xl rounded-tr-sm' : 'rounded-2xl rounded-tl-sm'}`}
+                      className={`relative max-w-[80%] px-3 py-2 text-xs leading-relaxed break-words ${msg.role === 'user' ? 'rounded-2xl rounded-tr-sm overflow-hidden' : 'rounded-2xl rounded-tl-sm overflow-x-auto'}`}
                       style={msg.role === 'user' ? {
-                        background: 'linear-gradient(135deg,#7c3aed,#a855f7,#ec4899)',
+                        background: 'linear-gradient(135deg,#0ea5e9,#2563eb)',
                         color: '#fff',
-                        boxShadow: '0 4px 14px rgba(124,58,237,0.3)',
+                        boxShadow: '0 4px 14px rgba(14,165,233,0.25)',
                       } : {
-                        background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(168,85,247,0.06)',
-                        border: isDark ? '1px solid rgba(255,255,255,0.07)' : '1px solid rgba(168,85,247,0.12)',
-                        color: isDark ? '#e2e0ff' : '#1e1b2e',
+                        background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(14,165,233,0.05)',
+                        border: isDark ? '1px solid rgba(255,255,255,0.07)' : '1px solid rgba(14,165,233,0.1)',
+                        color: isDark ? '#e0f2fe' : '#0f172a',
                       }}
                     >
                       {msg.role === 'user' && <span className="assist-shimmer" />}
                       {msg.role === 'user' ? (
                         <span>{msg.content}</span>
                       ) : (
-                        <div className={`assist-md ${isDark ? 'assist-md-dark' : 'assist-md-light'}`}>
+                        <div className={`assist-md ${isDark ? 'assist-md-dark' : 'assist-md-light'}`} style={{ overflowX: 'auto', maxWidth: '100%' }}>
                           <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}
                             components={{
                               code: ({ node, className, children, ...props }: any) => {
                                 const isBlock = className?.includes('language-');
                                 return isBlock ? (
                                   <pre style={{ background: isDark ? 'rgba(0,0,0,0.35)' : 'rgba(0,0,0,0.06)', padding: '8px 10px', borderRadius: 8, overflowX: 'auto', margin: '6px 0' }}>
-                                    <code style={{ fontSize: 10, fontFamily: 'monospace', color: isDark ? '#c4b5fd' : '#6d28d9' }}>{children}</code>
+                                    <code style={{ fontSize: 10, fontFamily: 'monospace', color: isDark ? '#7dd3fc' : '#0ea5e9' }}>{children}</code>
                                   </pre>
                                 ) : (
-                                  <code style={{ background: isDark ? 'rgba(168,85,247,0.15)' : 'rgba(168,85,247,0.1)', color: isDark ? '#c4b5fd' : '#6d28d9', padding: '1px 5px', borderRadius: 4, fontSize: 10, fontFamily: 'monospace' }} {...props}>{children}</code>
+                                  <code style={{ background: isDark ? 'rgba(14,165,233,0.12)' : 'rgba(14,165,233,0.08)', color: isDark ? '#7dd3fc' : '#0ea5e9', padding: '1px 5px', borderRadius: 4, fontSize: 10, fontFamily: 'monospace' }} {...props}>{children}</code>
                                 );
                               },
                               a: ({ href, children }: any) => (
-                                <a href={href} target="_blank" rel="noopener noreferrer" style={{ color: isDark ? '#a78bfa' : '#7c3aed', textDecoration: 'underline' }}>{children}</a>
+                                <a href={href} target="_blank" rel="noopener noreferrer" style={{ color: isDark ? '#a78bfa' : '#0ea5e9', textDecoration: 'underline' }}>{children}</a>
                               ),
                             }}
                           >
@@ -1581,40 +1581,40 @@ console.log(data.text);`,
                         src="/my.png"
                         alt="Assistant"
                         className="w-6 h-6 rounded-xl object-cover"
-                        style={{ border: '1.5px solid rgba(168,85,247,0.3)' }}
+                        style={{ border: '1.5px solid rgba(14,165,233,0.25)' }}
                         onError={e => {
                           e.currentTarget.style.display = 'none';
                           const fb = e.currentTarget.nextElementSibling as HTMLElement;
                           if (fb) fb.style.display = 'flex';
                         }}
                       />
-                      <div className="w-6 h-6 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 items-center justify-center" style={{ display: 'none' }}>
+                      <div className="w-6 h-6 rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 items-center justify-center" style={{ display: 'none' }}>
                         <SiGooglegemini className="text-white" style={{ fontSize: 9 }} />
                       </div>
                     </div>
                     <div
                       className="assist-typing inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl rounded-tl-sm"
                       style={{
-                        background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(168,85,247,0.06)',
-                        border: isDark ? '1px solid rgba(255,255,255,0.07)' : '1px solid rgba(168,85,247,0.12)',
+                        background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(14,165,233,0.05)',
+                        border: isDark ? '1px solid rgba(255,255,255,0.07)' : '1px solid rgba(14,165,233,0.1)',
                         width: 'fit-content',
                       }}
                     >
-                      <span className="w-1.5 h-1.5 rounded-full" style={{ background: isDark ? 'rgba(196,181,253,0.6)' : 'rgba(109,40,217,0.4)' }} />
-                      <span className="w-1.5 h-1.5 rounded-full" style={{ background: isDark ? 'rgba(196,181,253,0.6)' : 'rgba(109,40,217,0.4)' }} />
-                      <span className="w-1.5 h-1.5 rounded-full" style={{ background: isDark ? 'rgba(196,181,253,0.6)' : 'rgba(109,40,217,0.4)' }} />
+                      <span className="w-1.5 h-1.5 rounded-full" style={{ background: isDark ? 'rgba(125,211,252,0.6)' : 'rgba(14,165,233,0.35)' }} />
+                      <span className="w-1.5 h-1.5 rounded-full" style={{ background: isDark ? 'rgba(125,211,252,0.6)' : 'rgba(14,165,233,0.35)' }} />
+                      <span className="w-1.5 h-1.5 rounded-full" style={{ background: isDark ? 'rgba(125,211,252,0.6)' : 'rgba(14,165,233,0.35)' }} />
                     </div>
                   </div>
                 )}
                 <div ref={assistantEndRef} />
               </div>
 
-              <div className="relative z-10 flex-shrink-0 px-3 pb-3 pt-2" style={{ borderTop: isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(168,85,247,0.1)' }}>
+              <div className="relative z-10 flex-shrink-0 px-3 pb-3 pt-2" style={{ borderTop: isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(14,165,233,0.08)' }}>
                 <div
                   className="flex items-end gap-2 rounded-2xl px-3 py-2.5 transition-all duration-200"
                   style={{
                     background: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(168,85,247,0.04)',
-                    border: isDark ? '1px solid rgba(168,85,247,0.2)' : '1px solid rgba(168,85,247,0.15)',
+                    border: isDark ? '1px solid rgba(14,165,233,0.18)' : '1px solid rgba(14,165,233,0.12)',
                   }}
                 >
                   <textarea
@@ -1622,17 +1622,17 @@ console.log(data.text);`,
                     value={assistantInput}
                     onChange={e => setAssistantInput(e.target.value)}
                     onKeyDown={handleAssistantKey}
-                    placeholder="Ask Aichi anything~ ✨"
+                    placeholder="Ask about the Aichixia API..."
                     rows={1}
                     disabled={assistantLoading}
                     className="flex-1 bg-transparent text-xs outline-none resize-none leading-relaxed max-h-20 overflow-y-auto disabled:opacity-50"
-                    style={{ minHeight: '20px', color: isDark ? '#e2e0ff' : '#1e1b2e' }}
+                    style={{ minHeight: '20px', color: isDark ? '#e0f2fe' : '#0f172a' }}
                   />
                   <button
                     onClick={sendAssistantMessage}
                     disabled={!assistantInput.trim() || assistantLoading}
                     className="relative flex-shrink-0 w-7 h-7 rounded-xl flex items-center justify-center transition-all hover:scale-110 active:scale-95 overflow-hidden disabled:opacity-35 disabled:cursor-not-allowed"
-                    style={{ background: 'linear-gradient(135deg,#7c3aed,#a855f7)', boxShadow: '0 3px 10px rgba(124,58,237,0.4)' }}
+                    style={{ background: 'linear-gradient(135deg,#0ea5e9,#2563eb)', boxShadow: '0 3px 10px rgba(14,165,233,0.35)' }}
                   >
                     <span className="assist-shimmer" />
                     {assistantLoading
@@ -1641,7 +1641,7 @@ console.log(data.text);`,
                     }
                   </button>
                 </div>
-                <p className="text-[9px] text-center mt-1.5" style={{ color: isDark ? 'rgba(196,181,253,0.35)' : 'rgba(109,40,217,0.35)' }}>Enter to send · Shift+Enter newline</p>
+                <p className="text-[9px] text-center mt-1.5" style={{ color: isDark ? 'rgba(125,211,252,0.35)' : 'rgba(14,165,233,0.3)' }}>Enter to send · Shift+Enter newline</p>
               </div>
             </div>
           )}
@@ -1650,17 +1650,17 @@ console.log(data.text);`,
             onClick={assistantOpen ? closeAssistant : openAssistant}
             className="relative assist-btn-in group"
             style={{ width: 44, height: 44 }}
-            aria-label="Open Aichi Assistant"
+            aria-label="Open Aichixia Assistant"
           >
             {assistantPulse && !assistantOpen && (
               <>
-                <span className="absolute inset-0 rounded-full bg-purple-500" style={{ animation: 'pulseRing 2s ease-out infinite', opacity: 0.4 }} />
-                <span className="absolute inset-0 rounded-full bg-pink-400" style={{ animation: 'pulseRing 2s ease-out infinite 0.7s', opacity: 0.25 }} />
+                <span className="absolute inset-0 rounded-full bg-sky-500" style={{ animation: 'pulseRing 2s ease-out infinite', opacity: 0.4 }} />
+                <span className="absolute inset-0 rounded-full bg-blue-400" style={{ animation: 'pulseRing 2s ease-out infinite 0.7s', opacity: 0.25 }} />
               </>
             )}
             <div
               className="relative w-full h-full rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-110 active:scale-95 overflow-hidden"
-              style={{ background: 'linear-gradient(135deg,#7c3aed,#a855f7,#ec4899)', boxShadow: '0 4px 14px rgba(124,58,237,0.5), 0 2px 4px rgba(0,0,0,0.2)' }}
+              style={{ background: 'linear-gradient(135deg,#0ea5e9,#2563eb)', boxShadow: '0 4px 14px rgba(14,165,233,0.45), 0 2px 4px rgba(0,0,0,0.2)' }}
             >
               <span className="assist-shimmer" />
               <div className="relative z-10 flex items-center justify-center">
