@@ -1,7 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { FaCopy, FaCheck, FaChevronRight, FaTerminal, FaBolt, FaBook, FaMoon, FaSun, FaBars, FaTimes, FaKey, FaMicrophone, FaImage, FaCode, FaCheckCircle, FaRocket, FaLayerGroup, FaDatabase, FaPlay, FaInfoCircle, FaFileAudio, FaGlobe, FaCloudUploadAlt } from "react-icons/fa";
+import { FiSend, FiX, FiMessageSquare, FiRefreshCw, FiChevronDown } from "react-icons/fi";
+import { SiGoogleassistant } from "react-icons/si";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 
@@ -13,6 +15,14 @@ export default function Docs() {
   const [activeTab, setActiveTab] = useState<'chat' | 'image' | 'tts' | 'quickstart' | 'anthropic' | 'stt'>('quickstart');
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [expandedSection, setExpandedSection] = useState<string | null>('chat-completions');
+  const [assistantOpen, setAssistantOpen] = useState(false);
+  const [assistantVisible, setAssistantVisible] = useState(false);
+  const [assistantMessages, setAssistantMessages] = useState<{role:'user'|'assistant';content:string}[]>([]);
+  const [assistantInput, setAssistantInput] = useState('');
+  const [assistantLoading, setAssistantLoading] = useState(false);
+  const [assistantPulse, setAssistantPulse] = useState(true);
+  const assistantEndRef = useRef<HTMLDivElement>(null);
+  const assistantInputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     const theme = localStorage.getItem('theme');
@@ -42,6 +52,60 @@ export default function Docs() {
 
   const toggleSection = (section: string) => {
     setExpandedSection(expandedSection === section ? null : section);
+  };
+
+  const openAssistant = () => {
+    setAssistantOpen(true);
+    setAssistantPulse(false);
+    requestAnimationFrame(() => requestAnimationFrame(() => setAssistantVisible(true)));
+    setTimeout(() => assistantInputRef.current?.focus(), 350);
+  };
+
+  const closeAssistant = () => {
+    setAssistantVisible(false);
+    setTimeout(() => setAssistantOpen(false), 300);
+  };
+
+  const sendAssistantMessage = useCallback(async () => {
+    const content = assistantInput.trim();
+    if (!content || assistantLoading) return;
+    const userMsg = { role: 'user' as const, content };
+    const newMessages = [...assistantMessages, userMsg];
+    setAssistantMessages(newMessages);
+    setAssistantInput('');
+    setAssistantLoading(true);
+    setTimeout(() => assistantEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
+    try {
+      const res = await fetch('https://www.aichixia.xyz/api/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + process.env.NEXT_PUBLIC_AICHIXIA_API_KEY },
+        body: JSON.stringify({
+          model: 'aichixia-flash',
+          max_tokens: 1000,
+          messages: [
+            { role: 'system', content: 'You are a helpful API assistant for Aichixia, an AI API aggregation platform. Help users integrate and use the API. Aichixia supports: OpenAI-compatible endpoint (POST /api/v1/chat/completions), Anthropic-compatible endpoint (POST /api/v1/messages), Image generation (POST /api/v1/images/generations), TTS (POST /api/v1/audio/speech), STT (POST /api/v1/audio/transcriptions and /audio/translations). Base URL: https://www.aichixia.xyz. Auth: Bearer token or x-api-key header. Available models include: gpt-5-mini, gpt-5.2, claude-opus-4.5, gemini-3-flash, grok-3, deepseek-v3.2, qwen3-235b, llama-3.3-70b and more. Free plan: 100 req/day, Pro: 400 req/day, Enterprise: 800 req/day. Be concise and helpful. Use code examples when relevant.' },
+            ...newMessages.map(m => ({ role: m.role, content: m.content })),
+          ],
+        }),
+      });
+      const data = await res.json();
+      const reply = data.choices?.[0]?.message?.content || 'Sorry, something went wrong.';
+      setAssistantMessages(prev => [...prev, { role: 'assistant', content: reply }]);
+    } catch {
+      setAssistantMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, I could not connect. Please try again.' }]);
+    }
+    setAssistantLoading(false);
+    setTimeout(() => assistantEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 80);
+  }, [assistantInput, assistantLoading, assistantMessages]);
+
+  const handleAssistantKey = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendAssistantMessage(); }
+  };
+
+  const resetAssistant = () => {
+    setAssistantMessages([]);
+    setAssistantInput('');
+    assistantInputRef.current?.focus();
   };
 
   const codeExamples = {
@@ -1236,6 +1300,146 @@ console.log(data.text);`,
             </div>
           </div>
         </footer>
+
+        <style dangerouslySetInnerHTML={{__html: `
+          @keyframes assistIn { from{opacity:0;transform:translateY(16px) scale(0.96);} to{opacity:1;transform:translateY(0) scale(1);} }
+          @keyframes assistOut { from{opacity:1;transform:translateY(0) scale(1);} to{opacity:0;transform:translateY(16px) scale(0.96);} }
+          @keyframes assistBtnIn { from{opacity:0;transform:scale(0.5);} to{opacity:1;transform:scale(1);} }
+          @keyframes pulseRing { 0%{transform:scale(1);opacity:0.6;} 100%{transform:scale(1.6);opacity:0;} }
+          @keyframes msgIn { from{opacity:0;transform:translateY(6px);} to{opacity:1;transform:translateY(0);} }
+          @keyframes typingBounce { 0%,60%,100%{transform:translateY(0);} 30%{transform:translateY(-5px);} }
+          .assist-modal-in { animation: assistIn 0.3s cubic-bezier(0.22,1,0.36,1) both; }
+          .assist-modal-out { animation: assistOut 0.25s cubic-bezier(0.4,0,1,1) both; }
+          .assist-btn-in { animation: assistBtnIn 0.4s cubic-bezier(0.34,1.56,0.64,1) 0.5s both; }
+          .assist-msg-in { animation: msgIn 0.2s cubic-bezier(0.22,1,0.36,1) both; }
+          .assist-typing span { animation: typingBounce 1.2s ease-in-out infinite; }
+          .assist-typing span:nth-child(2) { animation-delay: 0.15s; }
+          .assist-typing span:nth-child(3) { animation-delay: 0.3s; }
+        `}} />
+
+        <div className="fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-50 flex flex-col items-end gap-3">
+          {assistantOpen && (
+            <div className={`w-[calc(100vw-40px)] sm:w-96 bg-white dark:bg-zinc-950 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-2xl shadow-black/20 dark:shadow-black/60 overflow-hidden flex flex-col ${assistantVisible ? 'assist-modal-in' : 'assist-modal-out'}`} style={{ maxHeight: 'min(520px, calc(100vh - 120px))' }}>
+              <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-100 dark:border-zinc-800 bg-gradient-to-r from-blue-600 to-cyan-600 flex-shrink-0">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                    <SiGoogleassistant className="text-white text-sm" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-black text-white leading-tight">API Assistant</p>
+                    <div className="flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+                      <p className="text-[9px] text-white/70">Powered by Claude</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1">
+                  {assistantMessages.length > 0 && (
+                    <button onClick={resetAssistant} className="w-6 h-6 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors" title="Clear chat">
+                      <FiRefreshCw className="text-white/80 text-xs" />
+                    </button>
+                  )}
+                  <button onClick={closeAssistant} className="w-6 h-6 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
+                    <FiX className="text-white/80 text-xs" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex-1 overflow-y-auto px-3 py-3 space-y-3 min-h-0" style={{ scrollbarWidth: 'thin' }}>
+                {assistantMessages.length === 0 && (
+                  <div className="flex flex-col items-center justify-center h-full py-6 gap-3 text-center">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/25">
+                      <SiGoogleassistant className="text-white text-xl" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-zinc-800 dark:text-white mb-1">Aichixia API Assistant</p>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 max-w-[220px] leading-relaxed">Ask me anything about integrating and using the API.</p>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5 justify-center">
+                      {['How do I get started?', 'Show me a Python example', 'What models are free?', 'How does TTS work?'].map(q => (
+                        <button key={q} onClick={() => { setAssistantInput(q); assistantInputRef.current?.focus(); }} className="px-2.5 py-1 rounded-full bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/50 text-[10px] font-semibold text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-800/40 transition-colors">
+                          {q}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {assistantMessages.map((msg, i) => (
+                  <div key={i} className={`flex gap-2 assist-msg-in ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
+                    {msg.role === 'assistant' && (
+                      <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm">
+                        <SiGoogleassistant className="text-white" style={{ fontSize: 10 }} />
+                      </div>
+                    )}
+                    <div className={`max-w-[82%] px-3 py-2 rounded-2xl text-xs leading-relaxed whitespace-pre-wrap break-words ${msg.role === 'user' ? 'bg-gradient-to-br from-blue-600 to-cyan-600 text-white rounded-tr-sm shadow-md shadow-blue-500/15' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 rounded-tl-sm'}`}>
+                      {msg.content}
+                    </div>
+                  </div>
+                ))}
+                {assistantLoading && (
+                  <div className="flex gap-2 assist-msg-in">
+                    <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <SiGoogleassistant className="text-white" style={{ fontSize: 10 }} />
+                    </div>
+                    <div className="px-3 py-2.5 rounded-2xl rounded-tl-sm bg-zinc-100 dark:bg-zinc-800 flex items-center gap-1 assist-typing">
+                      <span className="w-1.5 h-1.5 bg-zinc-400 dark:bg-zinc-500 rounded-full inline-block" />
+                      <span className="w-1.5 h-1.5 bg-zinc-400 dark:bg-zinc-500 rounded-full inline-block" />
+                      <span className="w-1.5 h-1.5 bg-zinc-400 dark:bg-zinc-500 rounded-full inline-block" />
+                    </div>
+                  </div>
+                )}
+                <div ref={assistantEndRef} />
+              </div>
+
+              <div className="flex-shrink-0 border-t border-zinc-100 dark:border-zinc-800 px-3 py-2.5">
+                <div className="flex items-end gap-2 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl px-3 py-2 focus-within:border-blue-400 dark:focus-within:border-blue-600 focus-within:ring-2 focus-within:ring-blue-500/15 transition-all">
+                  <textarea
+                    ref={assistantInputRef}
+                    value={assistantInput}
+                    onChange={e => setAssistantInput(e.target.value)}
+                    onKeyDown={handleAssistantKey}
+                    placeholder="Ask about the API..."
+                    rows={1}
+                    disabled={assistantLoading}
+                    className="flex-1 bg-transparent text-xs text-zinc-800 dark:text-white placeholder:text-zinc-400 outline-none resize-none leading-relaxed max-h-24 overflow-y-auto disabled:opacity-50"
+                    style={{ minHeight: '20px' }}
+                  />
+                  <button
+                    onClick={sendAssistantMessage}
+                    disabled={!assistantInput.trim() || assistantLoading}
+                    className="flex-shrink-0 w-6 h-6 bg-gradient-to-br from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg flex items-center justify-center transition-all active:scale-95 shadow-md shadow-blue-500/20"
+                  >
+                    {assistantLoading
+                      ? <div className="w-2.5 h-2.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      : <FiSend className="text-white" style={{ fontSize: 10 }} />
+                    }
+                  </button>
+                </div>
+                <p className="text-[9px] text-zinc-400 dark:text-zinc-600 text-center mt-1">Enter to send · Shift+Enter for newline</p>
+              </div>
+            </div>
+          )}
+
+          <button
+            onClick={assistantOpen ? closeAssistant : openAssistant}
+            className="relative w-13 h-13 assist-btn-in group"
+            style={{ width: 52, height: 52 }}
+            aria-label="Open API Assistant"
+          >
+            {assistantPulse && !assistantOpen && (
+              <>
+                <span className="absolute inset-0 rounded-full bg-blue-500 opacity-40" style={{ animation: 'pulseRing 1.8s ease-out infinite' }} />
+                <span className="absolute inset-0 rounded-full bg-blue-500 opacity-25" style={{ animation: 'pulseRing 1.8s ease-out infinite 0.6s' }} />
+              </>
+            )}
+            <div className={`relative w-full h-full rounded-full bg-gradient-to-br from-blue-600 to-cyan-600 flex items-center justify-center shadow-lg shadow-blue-500/35 transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-blue-500/45 active:scale-95 ${assistantOpen ? 'rotate-0' : ''}`}>
+              {assistantOpen
+                ? <FiChevronDown className="text-white text-base" />
+                : <SiGoogleassistant className="text-white text-lg" />
+              }
+            </div>
+          </button>
+        </div>
       </main>
     </>
   );
