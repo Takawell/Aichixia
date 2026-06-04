@@ -16,7 +16,8 @@ export async function getUserFromToken(token: string) {
 }
 
 export async function verifyApiKey(apiKey: string) {
-  const { data, error } = await supabase
+  const supabaseAdmin = getServiceSupabase();
+  const { data, error } = await supabaseAdmin
     .from('api_keys')
     .select('*')
     .eq('key', apiKey)
@@ -29,7 +30,6 @@ export async function verifyApiKey(apiKey: string) {
   const lastReset = data.last_reset_at?.split('T')[0];
 
   if (lastReset !== today) {
-    const supabaseAdmin = getServiceSupabase();
     await supabaseAdmin
       .from('api_keys')
       .update({ requests_used: 0, last_reset_at: new Date().toISOString() })
@@ -37,7 +37,7 @@ export async function verifyApiKey(apiKey: string) {
     data.requests_used = 0;
   }
 
-  const { data: todayUsage } = await supabase
+  const { data: todayUsage } = await supabaseAdmin
     .from('daily_usage')
     .select('requests_count')
     .eq('api_key_id', data.id)
@@ -87,7 +87,9 @@ export async function logRequest(data: {
   ip_address?: string;
   user_agent?: string;
 }) {
-  const { error } = await supabase
+  const supabaseAdmin = getServiceSupabase();
+
+  const { error } = await supabaseAdmin
     .from('request_logs')
     .insert(data);
 
@@ -100,9 +102,10 @@ export async function updateDailyUsage(
   tokensUsed: number = 0,
   isSuccess: boolean = true
 ) {
+  const supabaseAdmin = getServiceSupabase();
   const today = new Date().toISOString().split('T')[0];
 
-  const { data: existing } = await supabase
+  const { data: existing } = await supabaseAdmin
     .from('daily_usage')
     .select('*')
     .eq('api_key_id', apiKeyId)
@@ -110,7 +113,7 @@ export async function updateDailyUsage(
     .single();
 
   if (existing) {
-    await supabase
+    await supabaseAdmin
       .from('daily_usage')
       .update({
         requests_count: existing.requests_count + 1,
@@ -120,7 +123,7 @@ export async function updateDailyUsage(
       })
       .eq('id', existing.id);
   } else {
-    await supabase
+    await supabaseAdmin
       .from('daily_usage')
       .insert({
         api_key_id: apiKeyId,
@@ -135,10 +138,11 @@ export async function updateDailyUsage(
 }
 
 export async function getUsageStats(userId: string, days: number = 7, forAdmin: boolean = false) {
+  const supabaseAdmin = getServiceSupabase();
   const startDate = new Date();
   startDate.setDate(startDate.getDate() - days);
 
-  const query = supabase
+  const query = supabaseAdmin
     .from('daily_usage')
     .select('*')
     .gte('date', startDate.toISOString().split('T')[0])
@@ -155,7 +159,9 @@ export async function getUsageStats(userId: string, days: number = 7, forAdmin: 
 }
 
 export async function getRecentLogs(userId: string, limit: number = 20, forAdmin: boolean = false) {
-  const query = supabase
+  const supabaseAdmin = getServiceSupabase();
+
+  const query = supabaseAdmin
     .from('request_logs')
     .select('*')
     .order('created_at', { ascending: false })
@@ -261,9 +267,10 @@ export async function updateApiKeyName(userId: string, keyId: string, newName: s
 }
 
 export async function getTotalStats(userId: string) {
+  const supabaseAdmin = getServiceSupabase();
   const today = new Date().toISOString().split('T')[0];
 
-  const { data: keys } = await supabase
+  const { data: keys } = await supabaseAdmin
     .from('api_keys')
     .select('id, rate_limit, is_active')
     .eq('user_id', userId);
@@ -273,12 +280,12 @@ export async function getTotalStats(userId: string) {
   const activeKeys = keys.filter(k => k.is_active).length;
   const totalLimit = keys.reduce((sum, k) => sum + k.rate_limit, 0);
 
-  const { data: allUsage } = await supabase
+  const { data: allUsage } = await supabaseAdmin
     .from('daily_usage')
     .select('requests_count, success_count, error_count')
     .eq('user_id', userId);
 
-  const { data: todayUsage } = await supabase
+  const { data: todayUsage } = await supabaseAdmin
     .from('daily_usage')
     .select('requests_count')
     .eq('user_id', userId)
