@@ -17,7 +17,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === 'GET') {
     const keys = await getUserKeys(user.id);
-    return res.status(200).json({ keys });
+    const safeKeys = keys.map(({ key, ...rest }: any) => rest);
+    return res.status(200).json({ keys: safeKeys });
   }
 
   if (req.method === 'POST') {
@@ -37,15 +38,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(201).json({ key: newKey });
     } catch (error: any) {
       if (error.message === 'MAX_KEYS_REACHED') {
-        return res.status(400).json({ 
+        return res.status(400).json({
           error: 'Maximum 2 API keys allowed. Revoke one to create new.',
           code: 'MAX_KEYS_REACHED'
         });
       }
-      
+
       if (error.message.startsWith('COOLDOWN_ACTIVE:')) {
         const hoursRemaining = parseInt(error.message.split(':')[1]);
-        return res.status(429).json({ 
+        return res.status(429).json({
           error: `Please wait ${hoursRemaining} hour${hoursRemaining > 1 ? 's' : ''} before creating another key`,
           code: 'COOLDOWN_ACTIVE',
           hoursRemaining
