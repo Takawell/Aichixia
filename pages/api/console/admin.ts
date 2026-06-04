@@ -4,7 +4,7 @@ import { getServiceSupabase } from '@/lib/supabase';
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     const supabaseAdmin = getServiceSupabase();
-    
+
     const token = req.headers.authorization?.replace('Bearer ', '');
 
     if (!token) {
@@ -101,7 +101,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(400).json({ error: 'Invalid type parameter' });
       } catch (error: any) {
         console.error('GET Admin Error:', error);
-        return res.status(500).json({ error: error.message });
+        return res.status(500).json({ error: 'Internal server error' });
       }
     }
 
@@ -131,13 +131,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         if (error) throw error;
 
-        return res.status(201).json({ 
+        return res.status(201).json({
           message: 'Promo code created successfully',
-          promoCode: newPromo 
+          promoCode: newPromo
         });
       } catch (error: any) {
         console.error('POST Admin Error:', error);
-        return res.status(500).json({ error: error.message });
+        return res.status(500).json({ error: 'Internal server error' });
       }
     }
 
@@ -193,7 +193,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(400).json({ error: 'Invalid action' });
       } catch (error: any) {
         console.error('PATCH Admin Error:', error);
-        return res.status(500).json({ error: error.message });
+        return res.status(500).json({ error: 'Internal server error' });
       }
     }
 
@@ -215,17 +215,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(200).json({ message: 'Promo code deactivated successfully' });
       } catch (error: any) {
         console.error('DELETE Admin Error:', error);
-        return res.status(500).json({ error: error.message });
+        return res.status(500).json({ error: 'Internal server error' });
       }
     }
 
     return res.status(405).json({ error: 'Method not allowed' });
   } catch (error: any) {
     console.error('Admin API Critical Error:', error);
-    return res.status(500).json({ 
-      error: 'Internal server error',
-      message: error.message,
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
-    });
+    return res.status(500).json({ error: 'Internal server error' });
   }
 }
