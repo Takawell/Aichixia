@@ -154,55 +154,55 @@ function validateEmail(email: string): { valid: boolean; reason?: string } {
   const trimmed = email.trim().toLowerCase();
 
   if (!trimmed.includes('@') || trimmed.split('@').length !== 2) {
-    return { valid: false, reason: 'Format email tidak valid.' };
+    return { valid: false, reason: 'Invalid email format.' };
   }
 
   const [localPart, domain] = trimmed.split('@');
 
   if (!localPart || localPart.length < 2) {
-    return { valid: false, reason: 'Nama pengguna email terlalu pendek.' };
+    return { valid: false, reason: 'Email username is too short.' };
   }
 
   if (!domain || !domain.includes('.') || domain.length < 4) {
-    return { valid: false, reason: 'Domain email tidak valid.' };
+    return { valid: false, reason: 'Invalid email domain.' };
   }
 
   if (BLACKLISTED_DOMAINS.includes(domain)) {
-    return { valid: false, reason: 'Domain email ini tidak diizinkan untuk mendaftar.' };
+    return { valid: false, reason: 'This email domain is not allowed to register.' };
   }
 
   for (const pattern of SUSPICIOUS_DOMAIN_PATTERNS) {
     if (pattern.test(domain)) {
-      return { valid: false, reason: 'Domain email terdeteksi sebagai disposable atau mencurigakan.' };
+      return { valid: false, reason: 'Email domain detected as disposable or suspicious.' };
     }
   }
 
   for (const pattern of SUSPICIOUS_USERNAME_PATTERNS) {
     if (pattern.test(localPart) || pattern.test(trimmed)) {
-      return { valid: false, reason: 'Nama pengguna email terdeteksi mencurigakan. Gunakan email asli kamu.' };
+      return { valid: false, reason: 'The email username was detected as suspicious. Please use your real email address.' };
     }
   }
 
   if (/[+]{1}/.test(localPart)) {
-    return { valid: false, reason: 'Email dengan karakter "+" tidak diizinkan untuk mencegah bypass.' };
+    return { valid: false, reason: 'Emails with "+" character are not allowed.' };
   }
 
   if (/\.{2,}/.test(trimmed) || /^\./.test(localPart) || /\.$/.test(localPart)) {
-    return { valid: false, reason: 'Format email tidak valid.' };
+    return { valid: false, reason: 'Invalid email format.' };
   }
 
   if (localPart.length > 64 || domain.length > 253) {
-    return { valid: false, reason: 'Email terlalu panjang.' };
+    return { valid: false, reason: 'Email is too long.' };
   }
 
   const domainParts = domain.split('.');
   const tld = domainParts[domainParts.length - 1];
   if (tld.length < 2 || tld.length > 10) {
-    return { valid: false, reason: 'TLD domain tidak valid.' };
+    return { valid: false, reason: 'Invalid domain TLD.' };
   }
 
   if (/^\d+$/.test(tld)) {
-    return { valid: false, reason: 'Domain email tidak valid.' };
+    return { valid: false, reason: 'Invalid email domain.' };
   }
 
   return { valid: true };
@@ -1069,7 +1069,6 @@ export default function Register() {
               {confirmPassword.length > 0 && password === confirmPassword && confirmPassword.length >= 6 && (
                 <p style={{ fontSize: 12, color: '#4ade80', marginTop: -8, marginBottom: 12, paddingLeft: 2 }}>✓ Passwords match</p>
               )}
-
               <PrimaryBtn loading={loading}>{loading ? 'Creating account...' : 'Create Account'}</PrimaryBtn>
             </form>
 
