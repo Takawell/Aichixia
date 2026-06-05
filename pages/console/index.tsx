@@ -79,7 +79,6 @@ export default function Console() {
   const [loadingStep, setLoadingStep] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
   const [keys, setKeys] = useState<ApiKey[]>([]);
-  const [keySecrets, setKeySecrets] = useState<Record<string, string>>({});
   const [logs, setLogs] = useState<RequestLog[]>([]);
   const [usageData, setUsageData] = useState<DailyUsage[]>([]);
   const [stats, setStats] = useState({ totalRequests: 0, activeKeys: 0, rateLimitUsage: 0, successCount: 0, errorCount: 0 });
@@ -231,12 +230,7 @@ export default function Console() {
       const usageArr: DailyUsage[] = usageDataRes.usage || [];
       const statsBase = statsData.stats || { totalRequests: 0, activeKeys: 0, rateLimitUsage: 0, successCount: 0, errorCount: 0 };
 
-      const fetchedKeys: ApiKey[] = (keysData.keys || []).map((k: any) => ({
-        ...k,
-        key: keySecrets[k.id] || '',
-      }));
-
-      setKeys(fetchedKeys);
+      setKeys(keysData.keys || []);
       setStats({
         totalRequests: statsBase.totalRequests ?? 0,
         activeKeys: statsBase.activeKeys ?? 0,
@@ -346,10 +340,7 @@ export default function Console() {
     setActionLoading(false);
 
     if (res.ok) {
-      const rawKey: string = data.key.key;
-      const keyId: string = data.key.id;
-      setCreatedKey(rawKey);
-      setKeySecrets(prev => ({ ...prev, [keyId]: rawKey }));
+      setCreatedKey(data.key.key);
       setNewKeyName('');
       fetchAllData(true);
       showToast('API key created successfully', 'success');
@@ -377,11 +368,6 @@ export default function Console() {
     setActionLoading(false);
 
     if (res.ok) {
-      setKeySecrets(prev => {
-        const next = { ...prev };
-        delete next[selectedKey.id];
-        return next;
-      });
       setShowRevokeModal(false);
       setSelectedKey(null);
       fetchAllData(true);
@@ -914,10 +900,7 @@ export default function Console() {
             {activeTab === 'keys' && (
               <ApiKeys
                 keys={keys}
-                onCopy={(text, keyId) => {
-                  const secret = keySecrets[keyId];
-                  copyToClipboard(secret || text, keyId);
-                }}
+                onCopy={copyToClipboard}
                 copiedKey={copiedKey}
                 onCreateKey={() => setShowCreateModal(true)}
                 onRevokeKey={(key) => {
@@ -1097,10 +1080,8 @@ export default function Console() {
                 <div className="flex items-center gap-3.5">
                   <div className="relative flex-shrink-0">
                     {profile?.avatar_url ? (
-                      <Image
+                      <img
                         src={profile.avatar_url}
-                        width={56}
-                        height={56}
                         alt="Avatar"
                         className="w-14 h-14 rounded-2xl object-cover ring-2 ring-sky-400/40 avatar-ring"
                         style={{ boxShadow: '0 0 0 0 rgba(56,189,248,0.4)' }}
