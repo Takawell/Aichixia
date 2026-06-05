@@ -10,18 +10,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-
   if (authError || !user) {
     return res.status(401).json({ error: 'Invalid token' });
   }
 
   if (req.method === 'GET') {
     const keys = await getUserKeys(user.id);
-    const safeKeys = keys.map(({ key, ...rest }: any) => rest);
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
-    return res.status(200).json({ keys: safeKeys });
+    return res.status(200).json({ keys });
   }
 
   if (req.method === 'POST') {
