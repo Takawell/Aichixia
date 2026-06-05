@@ -10,6 +10,204 @@ const A = '#0ea5e9';
 const AL = '#38bdf8';
 const AD = '#0284c7';
 
+const BLACKLISTED_DOMAINS = [
+  'wshu.net','mailinator.com','tempmail.com','guerrillamail.com','throwam.com',
+  'sharklasers.com','guerrillamailblock.com','grr.la','guerrillamail.info',
+  'guerrillamail.biz','guerrillamail.de','guerrillamail.net','guerrillamail.org',
+  'spam4.me','trashmail.com','trashmail.me','trashmail.net','dispostable.com',
+  'yopmail.com','yopmail.fr','cool.fr.nf','jetable.fr.nf','nospam.ze.tc',
+  'nomail.xl.cx','mega.zik.dj','speed.1s.fr','courriel.fr.nf','moncourrier.fr.nf',
+  'monemail.fr.nf','monmail.fr.nf','fakeinbox.com','mailnull.com','spamgourmet.com',
+  'spamgourmet.net','spamgourmet.org','maildrop.cc','discard.email','spamhero.com',
+  'tempinbox.com','tempinbox.co.uk','throwam.net','getairmail.com','filzmail.com',
+  'spamfree24.org','spamfree24.de','spamfree24.eu','spamfree24.info','spamfree24.net',
+  'spamfree.eu','wegwerfmail.de','wegwerfmail.net','wegwerfmail.org',
+  'mailnesia.com','mailnull.com','spamgourmet.com','trashmail.io','trashmail.at',
+  'trashmail.xyz','trashmail.live','trashmail.win','trashmail.me','trashmail.com',
+  'tempmail.ninja','tempmail.plus','tempmail.email','tempmail.de','tempmail.net',
+  'temp-mail.org','temp-mail.io','temp-mail.ru','temp-mail.net','tempmailo.com',
+  'tmailinator.com','tmail.io','tmail.com','getnada.com','nada.email',
+  'inboxkitten.com','mohmal.com','throwam.com','throwam.net','throwam.me',
+  'throwam.org','throwam.xyz','throwaway.email','throw.email',
+  '10minutemail.com','10minutemail.net','10minutemail.org','10minutemail.de',
+  '10minutemail.co.za','10minutemail.ru','10minutemail.be','10minutemail.cf',
+  '10minemail.com','20minutemail.com','30minutemail.com','60minutemail.com',
+  'minutemail.com','minuteinbox.com','mintemail.com','minmail.org',
+  'fakeinbox.org','fakeinbox.net','fakeinbox.info','fakemailgenerator.com',
+  'fakemail.fr','fakemail.net','fakeemailgenerator.com','fakeemailer.com',
+  'mailbucket.org','mailcat.biz','mailcatch.com','mailchop.com','maildef.com',
+  'mailexpire.com','mailfall.com','mailfence.com','mailfs.com','mailguard.me',
+  'mailhazard.com','mailhazard.us','mailimate.com','mailin8r.com','mailinater.com',
+  'mailinator2.com','mailinator.net','mailinator.org','mailinator.gq','mailinator.co',
+  'mailinbox.co','mailinbox.net','mailink.net','mailismagic.com','mailjunk.cf',
+  'mailkor.xyz','mailme.ir','mailme.lv','mailme.gq','mailmetrash.com',
+  'mailmoat.com','mailnew.com','mailnull.net','mailnull.org','mailpick.biz',
+  'mailproxsy.com','mailquack.com','mailrock.biz','mailseal.de','mailshell.com',
+  'mailsiphon.com','mailslapping.com','mailslite.com','mailsmagic.com','mailsnull.com',
+  'mailspam.me','mailspam.xyz','mailspam.life','mailsru.com','mailsucker.net',
+  'mailsw.com','mailtag.com','mailtechx.com','mailtemp.info','mailtemp.net',
+  'mailtemp.org','mailtemporaire.com','mailtemporaire.fr','mailthunder.com',
+  'mailtome.de','mailtothis.com','mailtrash.net','mailtrix.net','mailtv.net',
+  'mailtv.tv','mailzilla.com','mailzilla.org','maizzle.com','makemetheking.com',
+  'manybrain.com','mbx.cc','mega.zik.dj','mezimages.net','mierdamail.com',
+  'minsmail.com','moburl.com','moncourrier.fr.nf','monemail.fr.nf','monmail.fr.nf',
+  'mvrht.com','mxfuel.com','my10minutemail.com','mymail-in.net','mymailoasis.com',
+  'mynetstore.de','mytemp.email','mytempemail.com','mytempmail.com',
+  'netzidiot.de','nice-4u.com','noblepioneer.com','nobugmail.com',
+  'noclickemail.com','nogmailspam.info','nomorespamemails.com','nonspam.eu',
+  'nonspammer.de','noref.in','notsharingmy.info','nowhere.org','nowmymail.com',
+  'nwldx.com','nwytg.net','objectmail.com','obobbo.com','odaymail.com',
+  'odnorazovoe.ru','one-time.email','oneoffemail.com','oneoffmail.com',
+  'onewaymail.com','online.ms','onqin.com','opentrash.com','ordinaryamerican.net',
+  'otherinbox.com','owlpic.com','pookmail.com','poste.io','postinbox.com',
+  'postpro.net','privy-mail.com','privy-mail.de','proxymail.eu','punkass.com',
+  'put2.net','qq.com','quickinbox.com','rcpt.at','realemail.net',
+  'receiveee.chickenkiller.com','recursor.net','regbypass.comsafe-mail.net',
+  'rklips.com','rmqkr.net','rtrtr.com','s0ny.net','safe-mail.net',
+  'safetymail.info','safetypost.de','sandboxmail.net','saynotospams.com',
+  'selfdestructingmail.com','sendspamhere.com','sharklasers.com','shiftmail.com',
+  'shitmail.me','shitmail.org','shitware.nl','skeefmail.com','slopsbox.com',
+  'slushmail.com','smapfree24.com','smapfree24.de','smapfree24.eu',
+  'smapfree24.info','smapfree24.org','smellfear.com','snakemail.com',
+  'sneakemail.com','sneakmail.de','snkmail.com','sofimail.com','sofort-mail.de',
+  'sogetthis.com','soodonims.com','spam.la','spamavert.com','spambox.info',
+  'spambox.irishspringrealty.com','spambox.us','spamcannon.com','spamcannon.net',
+  'spamcero.com','spamcon.org','spamcorptastic.com','spamcowboy.com',
+  'spamcowboy.net','spamcowboy.org','spamday.com','spamex.com',
+  'spamfree24.com','spamgoes.in','spamgourmet.net','spamgourmet.org',
+  'spamherelots.com','spamhereplease.com','spamhole.com','spamify.com',
+  'spaminator.de','spamkill.info','spaml.com','spaml.de','spammotel.com',
+  'spammy.host','spamoff.de','spamslicer.com','spamspot.com','spamstack.net',
+  'spamthis.co.uk','spamthisplease.com','spamtrail.com','spamtroll.net',
+  'speed.1s.fr','spoofmail.de','squizzy.de','squizzy.eu','squizzy.net',
+  'stinkefinger.net','stuffmail.de','super-auswahl.de','supergreatmail.com',
+  'supermailer.jp','superrito.com','superstachel.de','suremail.info',
+  'sweetxxx.de','tafmail.com','tagyourself.com','talkinator.com','tapchicoupon.com',
+  'tbwt.com','techemail.com','techgroup.me','teewars.org','teleworm.com',
+  'teleworm.us','temp-mail.com','temp.bartdevos.be','tempail.com','tempalias.com',
+  'tempe-mail.com','tempemails.net','tempinbox.co.uk','tempm.com','tempmail2.com',
+  'tempr.email','tempsky.com','tempthe.net','tempymail.com','thanksnospam.info',
+  'thc.st','thedoghousemail.com','thelimestones.com','thichanthit.com',
+  'throwamail.com','throwam.com','throwam.net','throwaway.email',
+  'throya.com','tilien.com','tmail.com','tmailinator.com','toiea.com',
+  'topranklist.de','torchmail.com','tradermail.info','trash-amil.com',
+  'trash-mail.at','trash-mail.cf','trash-mail.ga','trash-mail.ml',
+  'trash-me.com','trashdevil.com','trashdevil.de','trashemail.de',
+  'trashimail.de','trashmail.app','trashmail.at','trashmail.com',
+  'trashmail.gq','trashmail.io','trashmail.me','trashmail.net',
+  'trashmail.org','trashmail.xyz','trashmailer.com','trashpanda.cc',
+  'trashtigers.com','trbvm.com','trbvn.com','trbvo.com','trillianpro.com',
+  'trshcn.com','turual.com','twinmail.de','tyldd.com','uggsrock.com',
+  'umail.net','uroid.com','username.e4ward.com','venompen.com','veryrealemail.com',
+  'vidchart.com','viditag.com','viewcastmedia.com','viewcastmedia.net',
+  'viewcastmedia.org','viroleni.cu.cc','vkcode.ru','vomoto.com','vpn.st',
+  'vsimcard.com','vubby.com','walala.org','walkmail.net','watchfull.net',
+  'wbdet.com','webm4il.info','wegwerfmail.de','wegwerfmail.net','wegwerfmail.org',
+  'wetrainbayarea.com','wetrainbayarea.org','wilemail.com','willhackforfood.biz',
+  'willselfdestruct.com','wmail.cf','wolfsmail.tk','writeme.us','wronghead.com',
+  'wuzupmail.net','www.e4ward.com','www.mailinator.com','xagloo.com',
+  'xemaps.com','xents.com','xmaily.com','xoxy.net','xyzfree.net',
+  'yapped.net','yeah.net','yep.it','yogamaven.com','yopmail.com',
+  'yopmail.fr','yopmail.gq','you-spam.com','youmailr.com','ypmail.webredirect.org',
+  'yuurok.com','z1p.biz','za.com','zehnminuten.de','zehnminutenmail.de',
+  'zhouemail.510520.org','zippymail.info','zoemail.net','zoemail.org',
+  'zomg.info','zxcv.com','zxcvbnm.com','zzz.com',
+];
+
+const SUSPICIOUS_USERNAME_PATTERNS: RegExp[] = [
+  /^test\d*$/i,
+  /^attacker/i,
+  /^hacker/i,
+  /^spam/i,
+  /^fake/i,
+  /^temp\d*$/i,
+  /^tmp\d*$/i,
+  /^disposable/i,
+  /^trash/i,
+  /^throwaway/i,
+  /^burner/i,
+  /^noname/i,
+  /^nobody/i,
+  /^noreply/i,
+  /^no-reply/i,
+  /^admin\d*$/i,
+  /^root\d*$/i,
+  /^user\d{4,}$/i,
+  /^[a-z]{1,2}\d{6,}$/i,
+  /^[a-z0-9]{30,}@/i,
+  /^(qwerty|asdfgh|zxcvbn|qazwsx|12345|abcdef|aaaaa|bbbbb)/i,
+  /^(null|undefined|void|delete|drop|select|insert|update)/i,
+  /^x{3,}$/i,
+  /^(.)\1{4,}/i,
+];
+
+const SUSPICIOUS_DOMAIN_PATTERNS: RegExp[] = [
+  /^(temp|tmp|trash|spam|fake|junk|disposable|throwaway|burner|no-?reply|test)[.\-_]/i,
+  /[.\-_](temp|tmp|trash|spam|fake|junk|mail\d+)(\.|$)/i,
+  /\d{8,}/,
+  /^[a-z]{1,3}\d{4,}\./i,
+  /(mail|inbox|email)(er|inator|inator2|inator3)\./i,
+  /^(yop|zap|zed|bim|bam|boo|foo|bar|baz|qux)[a-z]{0,3}\./i,
+];
+
+function validateEmail(email: string): { valid: boolean; reason?: string } {
+  const trimmed = email.trim().toLowerCase();
+
+  if (!trimmed.includes('@') || trimmed.split('@').length !== 2) {
+    return { valid: false, reason: 'Format email tidak valid.' };
+  }
+
+  const [localPart, domain] = trimmed.split('@');
+
+  if (!localPart || localPart.length < 2) {
+    return { valid: false, reason: 'Nama pengguna email terlalu pendek.' };
+  }
+
+  if (!domain || !domain.includes('.') || domain.length < 4) {
+    return { valid: false, reason: 'Domain email tidak valid.' };
+  }
+
+  if (BLACKLISTED_DOMAINS.includes(domain)) {
+    return { valid: false, reason: 'Domain email ini tidak diizinkan untuk mendaftar.' };
+  }
+
+  for (const pattern of SUSPICIOUS_DOMAIN_PATTERNS) {
+    if (pattern.test(domain)) {
+      return { valid: false, reason: 'Domain email terdeteksi sebagai disposable atau mencurigakan.' };
+    }
+  }
+
+  for (const pattern of SUSPICIOUS_USERNAME_PATTERNS) {
+    if (pattern.test(localPart) || pattern.test(trimmed)) {
+      return { valid: false, reason: 'Nama pengguna email terdeteksi mencurigakan. Gunakan email asli kamu.' };
+    }
+  }
+
+  if (/[+]{1}/.test(localPart)) {
+    return { valid: false, reason: 'Email dengan karakter "+" tidak diizinkan untuk mencegah bypass.' };
+  }
+
+  if (/\.{2,}/.test(trimmed) || /^\./.test(localPart) || /\.$/.test(localPart)) {
+    return { valid: false, reason: 'Format email tidak valid.' };
+  }
+
+  if (localPart.length > 64 || domain.length > 253) {
+    return { valid: false, reason: 'Email terlalu panjang.' };
+  }
+
+  const domainParts = domain.split('.');
+  const tld = domainParts[domainParts.length - 1];
+  if (tld.length < 2 || tld.length > 10) {
+    return { valid: false, reason: 'TLD domain tidak valid.' };
+  }
+
+  if (/^\d+$/.test(tld)) {
+    return { valid: false, reason: 'Domain email tidak valid.' };
+  }
+
+  return { valid: true };
+}
+
 type ErrorExpr = 0|1|2|3|4;
 type SuccessExpr = 0|1|2|3|4;
 type ClickReaction = 'none'|'squeeze'|'spin'|'dizzy'|'hearts'|'jump';
@@ -633,6 +831,14 @@ export default function Register() {
       const expr = Math.floor(Math.random() * 5) as ErrorExpr;
       setErrorExpr(expr);
       setError('Password must be at least 6 characters'); setLoading(false);
+      setShaking(true); setTimeout(() => setShaking(false), 650);
+      return;
+    }
+    const emailCheck = validateEmail(email);
+    if (!emailCheck.valid) {
+      const expr = Math.floor(Math.random() * 5) as ErrorExpr;
+      setErrorExpr(expr);
+      setError(emailCheck.reason ?? 'Email tidak valid.'); setLoading(false);
       setShaking(true); setTimeout(() => setShaking(false), 650);
       return;
     }
