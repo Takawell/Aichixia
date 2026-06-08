@@ -111,7 +111,7 @@ const BLACKLISTED_DOMAINS = [
   'yopmail.fr','yopmail.gq','you-spam.com','youmailr.com','ypmail.webredirect.org',
   'yuurok.com','z1p.biz','za.com','zehnminuten.de','zehnminutenmail.de',
   'zhouemail.510520.org','zippymail.info','zoemail.net','zoemail.org',
-  'zomg.info','zxcv.com','zxcvbnm.com','zzz.com',
+  'zomg.info','zxcv.com','zxcvbnm.com','zzz.com', 'web-library.net',
 ];
 
 const SUSPICIOUS_USERNAME_PATTERNS: RegExp[] = [
