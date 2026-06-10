@@ -41,7 +41,7 @@ type ChatFunction = (
 
 const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "deepseek-v3.2": { fn: chatDeepSeek, provider: "deepseek" },
-  "deepseek-v3.1": { fn: chatDeepSeekV, provider: "deepseek-v" },
+  "deepseek-v4-flash": { fn: chatDeepSeekV, provider: "deepseek-v" },
   "gpt-5-mini": { fn: chatOpenAI, provider: "openai" },
   "claude-opus-4.5": { fn: chatClaude, provider: "claude" },
   "gemini-3-flash": { fn: chatGemini, provider: "gemini" },
