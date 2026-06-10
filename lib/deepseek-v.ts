@@ -8,7 +8,7 @@ export type ChatMessage = {
 };
 
 const NVIDIA_API_KEY = process.env.NVIDIA_API_KEY;
-const DEEPSEEK_V_MODEL = process.env.DEEPSEEK_V_MODEL || "deepseek-ai/deepseek-v4-pro";
+const DEEPSEEK_V_MODEL = process.env.DEEPSEEK_V_MODEL || "deepseek-ai/deepseek-v4-flash";
 
 if (!NVIDIA_API_KEY) {
   console.warn("[lib/deepseek-v] Warning: NVIDIA_API_KEY not set in env.");
