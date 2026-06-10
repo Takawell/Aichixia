@@ -11,16 +11,11 @@ export type ChatMessage = {
 };
 
 const KIMI_API_KEY = process.env.KIMI_API_KEY;
-const KIMI_ID = process.env.KIMI_ID;
-const KIMI_MODEL = process.env.KIMI_MODEL;
+const KIMI_MODEL = process.env.KIMI_MODEL || "moonshotai/kimi-k2.6";
 const TAVILY_API_KEY = process.env.TAVILY_API_KEY;
 
 if (!KIMI_API_KEY) {
   console.warn("Warning: KIMI_API_KEY not set in env.");
-}
-
-if (!KIMI_ID) {
-  console.warn("Warning: KIMI_ID not set in env.");
 }
 
 if (!TAVILY_API_KEY) {
@@ -29,7 +24,7 @@ if (!TAVILY_API_KEY) {
 
 const client = new OpenAI({
   apiKey: KIMI_API_KEY,
-  baseURL: `https://api.cloudflare.com/client/v4/accounts/${KIMI_ID}/ai/v1`,
+  baseURL: "https://integrate.api.nvidia.com/v1",
 });
 
 const tavilyClient = TAVILY_API_KEY ? tavily({ apiKey: TAVILY_API_KEY }) : null;
@@ -108,11 +103,7 @@ export async function chatKimi(
   }
 ): Promise<{ reply: string }> {
   if (!KIMI_API_KEY) {
-    throw new Error("KIMI_API_KEY not defined in environment variables.");
-  }
-
-  if (!KIMI_ID) {
-    throw new Error("KIMI_ID not defined in environment variables.");
+    throw new Error("NVIDIA_API_KEY not defined in environment variables.");
   }
 
   const enableSearch = opts?.enableSearch !== false && tavilyClient !== null;
@@ -132,8 +123,9 @@ export async function chatKimi(
           ...(m.tool_call_id && { tool_call_id: m.tool_call_id }),
           ...(m.tool_calls && { tool_calls: m.tool_calls }),
         })),
-        temperature: opts?.temperature ?? 0.8,
-        max_tokens: opts?.maxTokens ?? 1080,
+        temperature: opts?.temperature ?? 1.0,
+        max_tokens: opts?.maxTokens ?? 16384,
+        top_p: 1.0,
         ...(enableSearch && { tools: [SEARCH_TOOL] }),
       });
 
