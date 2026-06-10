@@ -45,7 +45,7 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "gpt-5-mini": { fn: chatOpenAI, provider: "openai" },
   "claude-opus-4.5": { fn: chatClaude, provider: "claude" },
   "gemini-3-flash": { fn: chatGemini, provider: "gemini" },
-  "kimi-k2.5": { fn: chatKimi, provider: "kimi" },
+  "kimi-k2.6": { fn: chatKimi, provider: "kimi" },
   "glm-4.7": { fn: chatGlm, provider: "glm" },
   "gpt-5.2": { fn: chatGPT, provider: "gpt" },
   "mistral-large-3-675b-instruct": { fn: chatMistral, provider: "mistral" },
