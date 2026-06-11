@@ -23,6 +23,7 @@ import { chatGrok, GrokRateLimitError, GrokQuotaError } from "@/lib/grok";
 import { chatZhipu, ZhipuRateLimitError, ZhipuQuotaError } from "@/lib/zhipu";
 import { chatPhi, PhiRateLimitError, PhiQuotaError } from "@/lib/phi";
 import { chatCopilot, CopilotRateLimitError, CopilotQuotaError } from "@/lib/copilot";
+import { chatWormgpt, WormgptRateLimitError, WormgptQuotaError } from "@/lib/wormgpt";
 import { verifyApiKey, incrementUsage, logRequest, updateDailyUsage } from "@/lib/console-utils";
 import { getServiceSupabase } from "@/lib/supabase";
 
@@ -62,6 +63,7 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "grok-4-fast": { fn: chatGrokFast, provider: "grok-fast" },
   "glm-4.7-flash": { fn: chatZhipu, provider: "zhipu" },
   "copilot": { fn: chatCopilot, provider: "copilot" },
+  "wormgpt-v4": { fn: chatWormgpt, provider: "wormgpt" },
   "aichixia-flash": { fn: chatAichixia, provider: "aichixia" },
 };
 
@@ -73,7 +75,7 @@ const RATE_LIMIT_ERRORS = [
   QwenRateLimitError, QwenV2RateLimitError, GptOssRateLimitError, CompoundRateLimitError,
   LlamaRateLimitError, MistralRateLimitError, MimoRateLimitError, PhiRateLimitError,
   MinimaxRateLimitError, GrokRateLimitError, GrokFastRateLimitError, ZhipuRateLimitError,
-  AichixiaRateLimitError, CopilotRateLimitError,
+  AichixiaRateLimitError, CopilotRateLimitError, WormgptRateLimitError,
 ];
 
 const QUOTA_ERRORS = [
@@ -82,7 +84,7 @@ const QUOTA_ERRORS = [
   QwenQuotaError, QwenV2QuotaError, GptOssQuotaError, CompoundQuotaError,
   LlamaQuotaError, MistralQuotaError, MimoQuotaError, PhiQuotaError,
   MinimaxQuotaError, GrokQuotaError, GrokFastQuotaError, ZhipuQuotaError,
-  AichixiaQuotaError, CopilotQuotaError,
+  AichixiaQuotaError, CopilotQuotaError, WormgptQuotaError,
 ];
 
 function isRateLimitError(error: any): boolean {
