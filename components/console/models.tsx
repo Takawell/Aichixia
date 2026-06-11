@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { FiCopy, FiCheck, FiLock, FiZap, FiCpu, FiTrendingUp, FiDollarSign, FiSearch, FiStar, FiInfo, FiImage, FiX, FiExternalLink, FiMic } from 'react-icons/fi';
 import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiAirbrake, SiMaze, SiXiaomi, SiFlux, SiImagedotsc, SiSecurityscorecard, SiLapce, SiGithubcopilot } from 'react-icons/si';
-import { GiSpermWhale, GiPowerLightning, GiClover, GiFire } from 'react-icons/gi';
+import { GiSpermWhale, GiPowerLightning, GiClover, GiFire, GiWormMouth, } from 'react-icons/gi';
 import { TbSquareLetterZ, TbLetterM } from 'react-icons/tb';
 import { TiVendorMicrosoft } from "react-icons/ti";
 import { HiSpeakerWave } from 'react-icons/hi2';
