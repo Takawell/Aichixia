@@ -50,7 +50,7 @@ export async function chatDeepSeekV(
       })),
       temperature: opts?.temperature ?? 1,
       top_p: 0.95,
-      max_tokens: opts?.maxTokens ?? 16384,
+      max_tokens: opts?.maxTokens ?? 4096,
       chat_template_kwargs: {
         thinking: opts?.enableThinking ?? false,
       },
