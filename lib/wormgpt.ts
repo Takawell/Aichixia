@@ -7,8 +7,7 @@ export type ChatMessage = {
   tool_calls?: any[];
 };
 
-const WORMGPT_BASE_URL =
-  process.env.WORMGPT_BASE_URL;
+const WORMGPT_BASE_URL = process.env.WORMGPT_BASE_URL;
 
 export class WormgptError extends Error {
   constructor(message: string) {
@@ -60,7 +59,7 @@ export async function chatWormgpt(
   const prompt = buildPromptFromHistory(history);
 
   const url = new URL(WORMGPT_BASE_URL);
-  url.searchParams.set("q", prompt);
+  url.searchParams.set("prompt", prompt);
 
   const response = await fetch(url.toString());
 
@@ -80,11 +79,11 @@ export async function chatWormgpt(
 
   const data = await response.json();
 
-  if (!data.status || !data.result?.text) {
+  if (!data.status || !data.result?.response) {
     throw new WormgptError("Wormgpt returned an invalid response.");
   }
 
-  return { reply: data.result.text.trim() };
+  return { reply: data.result.response.trim() };
 }
 
 export async function quickChatWormgpt(
