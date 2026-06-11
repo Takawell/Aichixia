@@ -7,7 +7,7 @@ export type ChatMessage = {
   tool_calls?: any[];
 };
 
-const COPILOT_BASE_URL =
+const WORMGPT_BASE_URL =
   process.env.WORMGPT_BASE_URL;
 
 export class WormgptError extends Error {
