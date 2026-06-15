@@ -419,7 +419,7 @@ const NotFound: NextPage = () => {
   useEffect(() => {
     if (!ready) return;
     const lines = [
-      "> AICHIXIA KERNEL v5.14.1",
+      "> AICHIXIA KERNEL v4.18.1",
       "> Booting system modules...",
       "> [OK] Neural network initialized",
       "> [OK] Route resolver loaded",
