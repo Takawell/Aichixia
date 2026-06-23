@@ -1,44 +1,70 @@
 import { useEffect, useRef, useState } from "react";
 import Head from "next/head";
+import {
+  RiRobot2Line,
+  RiCpuLine,
+  RiShieldCheckLine,
+  RiDatabase2Line,
+  RiCodeSSlashLine,
+  RiWifiOffLine,
+  RiTimeLine,
+  RiMailLine,
+  RiCheckLine,
+  RiFileCopyLine,
+  RiArrowRightLine,
+  RiPulseLine,
+} from "react-icons/ri";
 
-const messages = [
-  { icon: "💔", text: "Takawell & Reina are on a date. Server will be back when they stop being adorable." },
-  { icon: "🌹", text: "Our two devs decided love > uptime. We respect the decision." },
-  { icon: "☕", text: "Takawell is writing code. Reina is distracting him. Productivity: 0%." },
-  { icon: "🤝", text: "Both developers are currently \"debugging\" their relationship." },
-  { icon: "🛠️", text: "Server is under maintenance. (Translation: the devs forgot to push before the date.)" },
-  { icon: "📡", text: "Systems offline. Reason: Takawell looked at Reina and forgot what an API is." },
+const LOG_LINES = [
+  { icon: RiRobot2Line,      text: "AI maintenance agent initialized",                  status: "ok"      },
+  { icon: RiCpuLine,         text: "Human developers unavailable — reason: classified",  status: "warn"    },
+  { icon: RiDatabase2Line,   text: "Running database integrity checks",                  status: "ok"      },
+  { icon: RiShieldCheckLine, text: "Patching security vulnerabilities",                  status: "ok"      },
+  { icon: RiCodeSSlashLine,  text: "Rebuilding API route handlers",                      status: "loading" },
+  { icon: RiWifiOffLine,     text: "External traffic suspended",                         status: "warn"    },
+];
+
+const STATUSES = [
+  { label: "API Gateway",    up: false },
+  { label: "Auth Service",   up: true  },
+  { label: "Model Router",   up: false },
+  { label: "Usage Tracker",  up: true  },
+  { label: "Billing Engine", up: true  },
+  { label: "Playground",     up: false },
 ];
 
 export default function Maintenance() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [mounted, setMounted] = useState(false);
-  const [msgIndex, setMsgIndex] = useState(0);
-  const [fade, setFade] = useState(true);
-  const [progress] = useState(47);
-  const [dots, setDots] = useState(".");
-  const [copied, setCopied] = useState(false);
+  const [ready, setReady]             = useState(false);
+  const [progress, setProgress]       = useState(0);
+  const [visibleLogs, setVisibleLogs] = useState(0);
+  const [copied, setCopied]           = useState(false);
+  const [tick, setTick]               = useState(0);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    setReady(true);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setFade(false);
-      setTimeout(() => {
-        setMsgIndex((i) => (i + 1) % messages.length);
-        setFade(true);
-      }, 400);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
+    const t1 = setTimeout(() => {
+      let p = 0;
+      const iv = setInterval(() => {
+        p += Math.random() * 1.8 + 0.2;
+        if (p >= 63) { p = 63; clearInterval(iv); }
+        setProgress(+p.toFixed(1));
+      }, 80);
+    }, 600);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setDots((d) => (d.length >= 3 ? "." : d + "."));
-    }, 500);
-    return () => clearInterval(interval);
+    const t2 = setTimeout(() => {
+      let i = 0;
+      const iv = setInterval(() => {
+        i++;
+        setVisibleLogs(i);
+        if (i >= LOG_LINES.length) clearInterval(iv);
+      }, 340);
+    }, 900);
+
+    const tickIv = setInterval(() => setTick(t => t + 1), 1000);
+
+    return () => { clearTimeout(t1); clearTimeout(t2); clearInterval(tickIv); };
   }, []);
 
   useEffect(() => {
@@ -46,201 +72,283 @@ export default function Maintenance() {
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-
-    let animId: number;
+    let raf: number;
     let W = 0, H = 0;
-
-    const resize = () => {
-      W = canvas.width = window.innerWidth;
-      H = canvas.height = window.innerHeight;
-    };
+    const resize = () => { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; };
     resize();
     window.addEventListener("resize", resize);
-
-    type P = { x: number; y: number; vx: number; vy: number; r: number; a: number; t: number };
-    const pts: P[] = Array.from({ length: 55 }, () => ({
+    type Dot = { x: number; y: number; vx: number; vy: number; r: number; phase: number };
+    const dots: Dot[] = Array.from({ length: 65 }, () => ({
       x: Math.random() * window.innerWidth,
       y: Math.random() * window.innerHeight,
-      vx: (Math.random() - 0.5) * 0.25,
-      vy: (Math.random() - 0.5) * 0.25,
-      r: Math.random() * 1.2 + 0.4,
-      a: Math.random() * 0.3 + 0.08,
-      t: Math.random() * Math.PI * 2,
+      vx: (Math.random() - 0.5) * 0.22,
+      vy: (Math.random() - 0.5) * 0.22,
+      r: Math.random() * 1.1 + 0.4,
+      phase: Math.random() * Math.PI * 2,
     }));
-
-    const draw = () => {
+    const loop = () => {
       ctx.clearRect(0, 0, W, H);
-      pts.forEach((p) => {
-        p.x += p.vx; p.y += p.vy; p.t += 0.015;
-        if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
-        if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(14,165,233,${p.a * (0.6 + 0.4 * Math.sin(p.t))})`;
-        ctx.fill();
+      dots.forEach(d => {
+        d.x += d.vx; d.y += d.vy; d.phase += 0.013;
+        if (d.x < 0) d.x = W; if (d.x > W) d.x = 0;
+        if (d.y < 0) d.y = H; if (d.y > H) d.y = 0;
+        const a = 0.08 + 0.12 * Math.sin(d.phase);
+        ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(14,165,233,${a})`; ctx.fill();
       });
-      for (let i = 0; i < pts.length; i++) {
-        for (let j = i + 1; j < pts.length; j++) {
-          const dx = pts[i].x - pts[j].x, dy = pts[i].y - pts[j].y;
-          const d = Math.sqrt(dx * dx + dy * dy);
-          if (d < 110) {
+      for (let i = 0; i < dots.length; i++) {
+        for (let j = i + 1; j < dots.length; j++) {
+          const dx = dots[i].x - dots[j].x, dy = dots[i].y - dots[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 115) {
             ctx.beginPath();
-            ctx.moveTo(pts[i].x, pts[i].y);
-            ctx.lineTo(pts[j].x, pts[j].y);
-            ctx.strokeStyle = `rgba(14,165,233,${0.07 * (1 - d / 110)})`;
-            ctx.lineWidth = 0.5;
-            ctx.stroke();
+            ctx.moveTo(dots[i].x, dots[i].y); ctx.lineTo(dots[j].x, dots[j].y);
+            ctx.strokeStyle = `rgba(14,165,233,${0.06 * (1 - dist / 115)})`;
+            ctx.lineWidth = 0.5; ctx.stroke();
           }
         }
       }
-      animId = requestAnimationFrame(draw);
+      raf = requestAnimationFrame(loop);
     };
-    draw();
-    return () => { cancelAnimationFrame(animId); window.removeEventListener("resize", resize); };
+    loop();
+    return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", resize); };
   }, []);
 
   const copy = () => {
-    navigator.clipboard.writeText("hello@aichixia.xyz");
+    navigator.clipboard.writeText("contact@aichixia.xyz");
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setTimeout(() => setCopied(false), 2200);
   };
 
-  if (!mounted) return null;
+  const elapsed = `${String(Math.floor(tick / 3600)).padStart(2,"0")}:${String(Math.floor((tick % 3600) / 60)).padStart(2,"0")}:${String(tick % 60).padStart(2,"0")}`;
+
+  if (!ready) return null;
 
   return (
     <>
       <Head>
-        <title>Aichixia — Under Maintenance</title>
+        <title>Aichixia — System Maintenance</title>
         <meta name="robots" content="noindex, nofollow" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
       </Head>
 
       <style>{`
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        html, body { height: 100%; background: #060a0f; font-family: system-ui, -apple-system, sans-serif; }
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes spinR { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
-        @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-        @keyframes msgFade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes gradMove { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
-        .fu1 { animation: fadeUp 0.6s cubic-bezier(.22,1,.36,1) 0.1s both; }
-        .fu2 { animation: fadeUp 0.6s cubic-bezier(.22,1,.36,1) 0.25s both; }
-        .fu3 { animation: fadeUp 0.6s cubic-bezier(.22,1,.36,1) 0.4s both; }
-        .fu4 { animation: fadeUp 0.6s cubic-bezier(.22,1,.36,1) 0.55s both; }
-        .fu5 { animation: fadeUp 0.6s cubic-bezier(.22,1,.36,1) 0.7s both; }
-        .fu6 { animation: fadeUp 0.6s cubic-bezier(.22,1,.36,1) 0.85s both; }
-        .fi { animation: fadeIn 1s ease 0.2s both; }
-        .grad-text {
-          background: linear-gradient(270deg, #0ea5e9, #38bdf8, #7dd3fc, #0ea5e9);
-          background-size: 300% 300%;
+        html, body { height: 100%; background: #04080f; overflow: hidden; }
+        :root {
+          --sky: #0ea5e9;
+          --sky-dim: rgba(14,165,233,0.12);
+          --sky-border: rgba(14,165,233,0.18);
+          --surface: rgba(255,255,255,0.022);
+          --border: rgba(255,255,255,0.058);
+          --mono: 'Fira Code', monospace;
+          --sans: 'Outfit', sans-serif;
+        }
+        @keyframes fadeUp  { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes fadeIn  { from{opacity:0} to{opacity:1} }
+        @keyframes spinCW  { to{transform:rotate(360deg)} }
+        @keyframes spinCCW { to{transform:rotate(-360deg)} }
+        @keyframes floatY  { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+        @keyframes pulse   { 0%,100%{opacity:1} 50%{opacity:0.22} }
+        @keyframes scanline{ from{transform:translateY(-100vh)} to{transform:translateY(100vh)} }
+        @keyframes slideIn { from{opacity:0;transform:translateX(-10px)} to{opacity:1;transform:translateX(0)} }
+        @keyframes barGlow { 0%,100%{box-shadow:0 0 8px rgba(14,165,233,0.35)} 50%{box-shadow:0 0 20px rgba(14,165,233,0.65)} }
+        @keyframes gradShift{0%,100%{background-position:0% 50%} 50%{background-position:100% 50%}}
+
+        .fu1{animation:fadeUp .65s cubic-bezier(.22,1,.36,1) .05s both}
+        .fu2{animation:fadeUp .65s cubic-bezier(.22,1,.36,1) .18s both}
+        .fu3{animation:fadeUp .65s cubic-bezier(.22,1,.36,1) .3s both}
+        .fu4{animation:fadeUp .65s cubic-bezier(.22,1,.36,1) .44s both}
+        .fu5{animation:fadeUp .65s cubic-bezier(.22,1,.36,1) .58s both}
+        .fu6{animation:fadeUp .65s cubic-bezier(.22,1,.36,1) .72s both}
+        .fi {animation:fadeIn 1.2s ease .2s both}
+
+        .headline-grad {
+          background: linear-gradient(120deg,#f0f4f8 0%,#94a3b8 45%,#f0f4f8 90%);
+          background-size: 220% 100%;
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
-          animation: gradMove 4s ease infinite;
+          animation: gradShift 5s ease infinite;
         }
+        .card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 14px;
+          backdrop-filter: blur(12px);
+        }
+        .log-row {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 7px 0;
+          border-bottom: 1px solid rgba(255,255,255,0.038);
+          animation: slideIn .3s ease both;
+        }
+        .log-row:last-child { border-bottom: none; }
+        .svc-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 5.5px 0;
+          border-bottom: 1px solid rgba(255,255,255,0.038);
+        }
+        .svc-row:last-child { border-bottom: none; }
+        .btn-copy {
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 10px 20px;
+          border-radius: 10px;
+          border: 1px solid var(--sky-border);
+          background: var(--sky-dim);
+          color: var(--sky);
+          font-family: var(--sans);
+          font-size: 13px;
+          font-weight: 600;
+          letter-spacing: .01em;
+          transition: all .2s ease;
+        }
+        .btn-copy:hover { background: rgba(14,165,233,0.2); border-color: rgba(14,165,233,0.3); }
+        .btn-copy.ok    { border-color: rgba(34,197,94,.32); background: rgba(34,197,94,.07); color: #4ade80; }
       `}</style>
 
-      <div style={{ position: "fixed", inset: 0, overflow: "hidden" }}>
+      <div style={{position:"fixed",inset:0,overflow:"hidden",fontFamily:"'Outfit',sans-serif"}}>
 
-        <canvas ref={canvasRef} style={{ position: "absolute", inset: 0, zIndex: 0 }} />
+        <canvas ref={canvasRef} style={{position:"absolute",inset:0,zIndex:0}} />
 
-        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 70% 50% at 50% 0%, rgba(14,165,233,0.06) 0%, transparent 65%)", zIndex: 1, pointerEvents: "none" }} />
-        <div style={{ position: "absolute", top: "30%", left: "5%", width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle, rgba(14,165,233,0.04) 0%, transparent 70%)", filter: "blur(60px)", zIndex: 1, pointerEvents: "none" }} />
-        <div style={{ position: "absolute", bottom: "15%", right: "5%", width: 350, height: 350, borderRadius: "50%", background: "radial-gradient(circle, rgba(244,114,182,0.04) 0%, transparent 70%)", filter: "blur(50px)", zIndex: 1, pointerEvents: "none" }} />
+        <div style={{position:"absolute",inset:0,background:"radial-gradient(ellipse 75% 55% at 50% -5%,rgba(14,165,233,0.07) 0%,transparent 65%)",zIndex:1,pointerEvents:"none"}} />
+        <div style={{position:"absolute",top:"25%",left:"-5%",width:500,height:500,borderRadius:"50%",background:"radial-gradient(circle,rgba(14,165,233,0.04) 0%,transparent 70%)",filter:"blur(70px)",zIndex:1,pointerEvents:"none"}} />
+        <div style={{position:"absolute",bottom:"10%",right:"-5%",width:380,height:380,borderRadius:"50%",background:"radial-gradient(circle,rgba(56,189,248,0.04) 0%,transparent 70%)",filter:"blur(60px)",zIndex:1,pointerEvents:"none"}} />
+        <div style={{position:"absolute",left:0,right:0,top:0,height:"1px",background:"linear-gradient(90deg,transparent,rgba(14,165,233,0.5),transparent)",animation:"scanline 8s linear infinite",zIndex:2,pointerEvents:"none"}} />
 
-        <div style={{ position: "relative", zIndex: 10, height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "24px 20px" }}>
+        <div style={{position:"relative",zIndex:10,height:"100%",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"20px 16px",overflowY:"auto"}}>
 
-          <div className="fu1" style={{ marginBottom: 32, animation: "float 4s ease-in-out infinite" }}>
-            <div style={{ position: "relative", width: 80, height: 80 }}>
-              <div style={{ position: "absolute", inset: 0, borderRadius: "50%", border: "1px solid rgba(14,165,233,0.15)", animation: "spin 12s linear infinite" }} />
-              <div style={{ position: "absolute", inset: 8, borderRadius: "50%", border: "1px dashed rgba(14,165,233,0.1)", animation: "spinR 8s linear infinite" }} />
-              <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <div style={{ width: 48, height: 48, borderRadius: "50%", background: "rgba(14,165,233,0.07)", border: "1px solid rgba(14,165,233,0.2)", display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(8px)" }}>
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#0ea5e9" strokeWidth="1.5" strokeLinejoin="round" />
-                    <path d="M2 17L12 22L22 17" stroke="#0ea5e9" strokeWidth="1.5" strokeLinejoin="round" />
-                    <path d="M2 12L12 17L22 12" stroke="rgba(14,165,233,0.4)" strokeWidth="1.5" strokeLinejoin="round" />
-                  </svg>
+          <div className="fu1" style={{marginBottom:28,animation:"floatY 5s ease-in-out infinite"}}>
+            <div style={{position:"relative",width:76,height:76}}>
+              <div style={{position:"absolute",inset:0,borderRadius:"50%",border:"1px solid rgba(14,165,233,0.13)",animation:"spinCW 14s linear infinite"}} />
+              <div style={{position:"absolute",inset:9,borderRadius:"50%",border:"1px dashed rgba(14,165,233,0.08)",animation:"spinCCW 9s linear infinite"}} />
+              <div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                <div style={{width:50,height:50,borderRadius:"50%",background:"rgba(14,165,233,0.07)",border:"1px solid rgba(14,165,233,0.2)",display:"flex",alignItems:"center",justifyContent:"center",backdropFilter:"blur(8px)"}}>
+                  <RiRobot2Line style={{fontSize:22,color:"#0ea5e9"}} />
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="fu2" style={{ marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#f59e0b", animation: "pulse 1.5s ease infinite" }} />
-            <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(245,158,11,0.8)" }}>Under Maintenance</span>
-          </div>
-
-          <div className="fu3" style={{ textAlign: "center", marginBottom: 10 }}>
-            <h1 style={{ fontSize: "clamp(2rem, 7vw, 3.5rem)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.1, color: "#f8fafc" }}>
-              We'll be right back<span className="grad-text">.</span>
-            </h1>
-          </div>
-
-          <div className="fu3" style={{ textAlign: "center", maxWidth: 440, marginBottom: 32 }}>
-            <p style={{ color: "rgba(148,163,184,0.75)", fontSize: "clamp(0.82rem, 2.2vw, 0.95rem)", lineHeight: 1.75 }}>
-              Aichixia is currently undergoing scheduled maintenance to improve performance, reliability, and security across all endpoints.
-            </p>
-          </div>
-
-          <div className="fu4" style={{ width: "100%", maxWidth: 400, marginBottom: 10 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-              <span style={{ fontSize: 12, color: "rgba(148,163,184,0.5)", fontWeight: 500 }}>Restoration progress</span>
-              <span style={{ fontSize: 12, color: "#0ea5e9", fontWeight: 600 }}>{progress}%</span>
-            </div>
-            <div style={{ height: 5, background: "rgba(255,255,255,0.05)", borderRadius: 99, overflow: "hidden", border: "1px solid rgba(255,255,255,0.04)" }}>
-              <div style={{ height: "100%", width: `${progress}%`, background: "linear-gradient(90deg, #0284c7, #0ea5e9, #38bdf8)", borderRadius: 99, boxShadow: "0 0 12px rgba(14,165,233,0.4)", transition: "width 1.2s ease" }} />
-            </div>
-          </div>
-
-          <div className="fu4" style={{ marginBottom: 32, textAlign: "center" }}>
-            <p style={{ fontSize: 12, color: "rgba(148,163,184,0.4)", fontWeight: 500 }}>
-              Estimated downtime: a few hours{dots}
-            </p>
-          </div>
-
-          <div className="fu5" style={{ width: "100%", maxWidth: 400, marginBottom: 28, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 14, padding: "14px 16px", backdropFilter: "blur(12px)", minHeight: 64, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <p style={{ textAlign: "center", fontSize: "clamp(0.8rem, 2vw, 0.88rem)", color: "rgba(203,213,225,0.8)", lineHeight: 1.6, transition: "opacity 0.4s, transform 0.4s", opacity: fade ? 1 : 0, transform: fade ? "translateY(0)" : "translateY(6px)" }}>
-              <span style={{ marginRight: 8 }}>{messages[msgIndex].icon}</span>
-              {messages[msgIndex].text}
-            </p>
-          </div>
-
-          <div className="fu6" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
-            <p style={{ fontSize: 11, color: "rgba(148,163,184,0.35)", fontWeight: 500, letterSpacing: "0.1em", textTransform: "uppercase" }}>
-              Questions? We (might) respond
-            </p>
-            <button
-              onClick={copy}
-              style={{ cursor: "pointer", background: "rgba(14,165,233,0.06)", border: `1px solid ${copied ? "rgba(34,197,94,0.35)" : "rgba(14,165,233,0.18)"}`, borderRadius: 10, padding: "9px 18px", display: "flex", alignItems: "center", gap: 8, color: copied ? "#4ade80" : "#38bdf8", fontSize: 13, fontWeight: 500, transition: "all 0.2s ease" }}
-              onMouseEnter={e => (e.currentTarget.style.background = "rgba(14,165,233,0.1)")}
-              onMouseLeave={e => (e.currentTarget.style.background = "rgba(14,165,233,0.06)")}
-            >
-              {copied ? (
-                <>
-                  <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M2 7L5.5 10.5L12 3.5" stroke="#4ade80" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                  Copied!
-                </>
-              ) : (
-                <>
-                  hello@aichixia.xyz
-                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" strokeWidth="1.3" /><path d="M11 5V3.5A1.5 1.5 0 0 0 9.5 2H3.5A1.5 1.5 0 0 0 2 3.5V9.5A1.5 1.5 0 0 0 3.5 11H5" stroke="currentColor" strokeWidth="1.3" /></svg>
-                </>
-              )}
-            </button>
-          </div>
-
-          <div className="fi" style={{ position: "absolute", bottom: 20, left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: 8, whiteSpace: "nowrap" }}>
-            <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#f59e0b", boxShadow: "0 0 6px #f59e0b", animation: "pulse 2s ease infinite" }} />
-            <span style={{ fontSize: 11, color: "rgba(148,163,184,0.3)", letterSpacing: "0.08em" }}>
-              © {new Date().getFullYear()} Aichixia · Built with ♥ by Takawell & Reina
+          <div className="fu2" style={{display:"flex",alignItems:"center",gap:8,marginBottom:14}}>
+            <div style={{width:6,height:6,borderRadius:"50%",background:"#f59e0b",boxShadow:"0 0 7px #f59e0b",animation:"pulse 1.6s ease infinite"}} />
+            <span style={{fontFamily:"'Fira Code',monospace",fontSize:11,letterSpacing:"0.18em",textTransform:"uppercase",color:"rgba(245,158,11,0.75)",fontWeight:500}}>
+              sys.maintenance — auto-agent active
             </span>
           </div>
 
+          <div className="fu3" style={{textAlign:"center",marginBottom:8}}>
+            <h1 className="headline-grad" style={{fontSize:"clamp(2.2rem, 6.5vw, 4rem)",fontWeight:800,letterSpacing:"-0.035em",lineHeight:1.08}}>
+              System Offline
+            </h1>
+          </div>
+
+          <div className="fu3" style={{textAlign:"center",maxWidth:480,marginBottom:28}}>
+            <p style={{color:"rgba(148,163,184,0.65)",fontSize:"clamp(0.82rem, 2vw, 0.94rem)",lineHeight:1.78,fontWeight:400}}>
+              Our AI maintenance agent has taken over while the engineering team is{" "}
+              <span style={{color:"rgba(203,213,225,0.9)",fontWeight:500}}>temporarily unavailable</span>.
+              Services will resume once the agent completes its current patch cycle.
+            </p>
+          </div>
+
+          <div className="fu4" style={{display:"grid",gridTemplateColumns:"repeat(auto-fit, minmax(270px, 1fr))",gap:12,width:"100%",maxWidth:680,marginBottom:14}}>
+
+            <div className="card" style={{padding:"16px 18px"}}>
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}}>
+                <div style={{display:"flex",alignItems:"center",gap:7}}>
+                  <RiPulseLine style={{fontSize:13,color:"#0ea5e9"}} />
+                  <span style={{fontFamily:"'Fira Code',monospace",fontSize:11,color:"rgba(148,163,184,0.5)",letterSpacing:"0.1em",textTransform:"uppercase"}}>Patch progress</span>
+                </div>
+                <span style={{fontFamily:"'Fira Code',monospace",fontSize:12,color:"#0ea5e9",fontWeight:500}}>{progress}%</span>
+              </div>
+              <div style={{height:4,background:"rgba(255,255,255,0.05)",borderRadius:99,overflow:"hidden"}}>
+                <div style={{height:"100%",width:`${progress}%`,background:"linear-gradient(90deg,#0284c7,#0ea5e9,#38bdf8)",borderRadius:99,transition:"width .5s ease",animation:"barGlow 2.5s ease infinite"}} />
+              </div>
+              <div style={{display:"flex",justifyContent:"space-between",marginTop:10}}>
+                <span style={{fontFamily:"'Fira Code',monospace",fontSize:10,color:"rgba(148,163,184,0.32)",display:"flex",alignItems:"center",gap:4}}>
+                  <RiTimeLine style={{fontSize:10}} />
+                  {elapsed}
+                </span>
+                <span style={{fontFamily:"'Fira Code',monospace",fontSize:10,color:"rgba(245,158,11,0.55)"}}>ETA: unknown</span>
+              </div>
+            </div>
+
+            <div className="card" style={{padding:"16px 18px"}}>
+              <div style={{display:"flex",alignItems:"center",gap:7,marginBottom:10}}>
+                <RiDatabase2Line style={{fontSize:13,color:"#0ea5e9"}} />
+                <span style={{fontFamily:"'Fira Code',monospace",fontSize:11,color:"rgba(148,163,184,0.5)",letterSpacing:"0.1em",textTransform:"uppercase"}}>Service status</span>
+              </div>
+              {STATUSES.map((s, i) => (
+                <div key={i} className="svc-row">
+                  <span style={{fontSize:12,color:"rgba(203,213,225,0.65)",fontWeight:400}}>{s.label}</span>
+                  <div style={{display:"flex",alignItems:"center",gap:6}}>
+                    <div style={{width:6,height:6,borderRadius:"50%",background:s.up?"#22c55e":"#ef4444",boxShadow:`0 0 5px ${s.up?"#22c55e":"#ef4444"}`,animation:s.up?undefined:"pulse 1.4s ease infinite"}} />
+                    <span style={{fontFamily:"'Fira Code',monospace",fontSize:10,color:s.up?"rgba(34,197,94,0.65)":"rgba(239,68,68,0.65)"}}>
+                      {s.up ? "operational" : "degraded"}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+          </div>
+
+          <div className="card fu5" style={{width:"100%",maxWidth:680,padding:"14px 18px",marginBottom:22}}>
+            <div style={{display:"flex",alignItems:"center",gap:7,marginBottom:10}}>
+              <RiCodeSSlashLine style={{fontSize:13,color:"#0ea5e9"}} />
+              <span style={{fontFamily:"'Fira Code',monospace",fontSize:11,color:"rgba(148,163,184,0.5)",letterSpacing:"0.1em",textTransform:"uppercase"}}>Agent log</span>
+              <div style={{marginLeft:"auto",display:"flex",alignItems:"center",gap:5}}>
+                <div style={{width:5,height:5,borderRadius:"50%",background:"#0ea5e9",boxShadow:"0 0 5px #0ea5e9",animation:"pulse 1s ease infinite"}} />
+                <span style={{fontFamily:"'Fira Code',monospace",fontSize:10,color:"rgba(14,165,233,0.5)"}}>live</span>
+              </div>
+            </div>
+            {LOG_LINES.slice(0, visibleLogs).map((line, i) => (
+              <div key={i} className="log-row" style={{animationDelay:`${i*0.04}s`}}>
+                <line.icon style={{fontSize:13,flexShrink:0,color:line.status==="ok"?"rgba(34,197,94,0.65)":line.status==="warn"?"rgba(245,158,11,0.65)":"rgba(14,165,233,0.65)"}} />
+                <span style={{fontFamily:"'Fira Code',monospace",fontSize:11,color:line.status==="warn"?"rgba(245,158,11,0.72)":line.status==="loading"?"rgba(203,213,225,0.78)":"rgba(148,163,184,0.52)",flex:1,letterSpacing:"0.01em"}}>
+                  {line.text}
+                </span>
+                {line.status==="ok"      && <RiCheckLine style={{fontSize:12,color:"rgba(34,197,94,0.55)",flexShrink:0}} />}
+                {line.status==="warn"    && <span style={{fontFamily:"'Fira Code',monospace",fontSize:10,color:"rgba(245,158,11,0.6)",background:"rgba(245,158,11,0.06)",border:"1px solid rgba(245,158,11,0.14)",borderRadius:4,padding:"1px 6px",flexShrink:0}}>warn</span>}
+                {line.status==="loading" && <span style={{fontFamily:"'Fira Code',monospace",fontSize:10,color:"rgba(14,165,233,0.6)",background:"rgba(14,165,233,0.06)",border:"1px solid rgba(14,165,233,0.12)",borderRadius:4,padding:"1px 6px",flexShrink:0}}>running</span>}
+              </div>
+            ))}
+          </div>
+
+          <div className="fu6" style={{display:"flex",flexDirection:"column",alignItems:"center",gap:10}}>
+            <p style={{fontSize:11,color:"rgba(148,163,184,0.32)",fontWeight:500,letterSpacing:"0.1em",textTransform:"uppercase",display:"flex",alignItems:"center",gap:5}}>
+              <RiMailLine style={{fontSize:12}} />
+              Inquiries
+            </p>
+            <button onClick={copy} className={`btn-copy${copied?" ok":""}`}>
+              {copied
+                ? <><RiCheckLine style={{fontSize:14}} /> Copied to clipboard</>
+                : <><RiFileCopyLine style={{fontSize:13}} /> contact@aichixia.xyz <RiArrowRightLine style={{fontSize:12,opacity:.55}} /></>
+              }
+            </button>
+          </div>
+
         </div>
+
+        <div className="fi" style={{position:"absolute",bottom:16,left:0,right:0,display:"flex",justifyContent:"center",zIndex:11}}>
+          <div style={{display:"flex",alignItems:"center",gap:7}}>
+            <div style={{width:5,height:5,borderRadius:"50%",background:"#f59e0b",boxShadow:"0 0 5px #f59e0b",animation:"pulse 2s ease infinite"}} />
+            <span style={{fontFamily:"'Fira Code',monospace",fontSize:10,color:"rgba(148,163,184,0.26)",letterSpacing:"0.1em"}}>
+              © {new Date().getFullYear()} Aichixia · Aichiverse
+            </span>
+          </div>
+        </div>
+
       </div>
     </>
   );
