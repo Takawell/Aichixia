@@ -665,12 +665,7 @@ export default function AdminDashboard() {
         <div className="flex items-center justify-between px-3 sm:px-5 h-12 sm:h-13">
 
           <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-            <div className="relative flex-shrink-0">
-              <div className="absolute inset-0 bg-sky-500/20 rounded-lg blur-sm" />
-              <div className="relative w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-sky-400 via-sky-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-sky-500/25">
-                <DiSwift className="text-white text-sm sm:text-base" />
-              </div>
-            </div>
+            <DiSwift className="flex-shrink-0 text-[28px] sm:text-[32px] text-sky-500 dark:text-sky-400" />
             <div className="min-w-0">
               <h1 className="text-sm sm:text-[15px] font-bold text-slate-800 dark:text-white leading-none tracking-tight truncate">
                 Admin Dashboard
