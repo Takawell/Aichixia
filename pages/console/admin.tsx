@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { supabase } from '@/lib/supabase';
 import { FiActivity, FiGift, FiCalendar, FiUsers, FiRefreshCw, FiX, FiCheckCircle, FiAlertCircle, FiLock, FiBarChart2, FiEye, FiShield, FiDatabase, FiKey, FiCheck, FiTrendingUp, FiEdit2, FiSave, FiCpu, FiZap } from 'react-icons/fi';
-import { RiVipDiamondLine, RiVipCrownLine, RiDashboardLine } from 'react-icons/ri';
+import { RiVipDiamondLine, RiVipCrownLine } from 'react-icons/ri';
+import { DiSwift } from 'react-icons/di';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import ThemeToggle from '@/components/ThemeToggle';
 import Overview from '@/components/admin/overview';
@@ -667,20 +668,14 @@ export default function AdminDashboard() {
             <div className="relative flex-shrink-0">
               <div className="absolute inset-0 bg-sky-500/20 rounded-lg blur-sm" />
               <div className="relative w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-sky-400 via-sky-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-sky-500/25">
-                <RiDashboardLine className="text-white text-sm sm:text-base" />
+                <DiSwift className="text-white text-sm sm:text-base" />
               </div>
             </div>
             <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <h1 className="text-sm sm:text-[15px] font-bold text-slate-800 dark:text-white leading-none tracking-tight truncate">
-                  Admin
-                </h1>
-                <span className="hidden sm:flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-sky-50 dark:bg-sky-500/10 border border-sky-200 dark:border-sky-500/20 text-[10px] font-semibold text-sky-600 dark:text-sky-400 leading-none">
-                  <span className="w-1 h-1 rounded-full bg-sky-500 animate-pulse" />
-                  LIVE
-                </span>
-              </div>
-              <p className="hidden sm:block text-[10px] text-slate-400 dark:text-slate-500 mt-0.5 leading-none">Aichixia Control Panel</p>
+              <h1 className="text-sm sm:text-[15px] font-bold text-slate-800 dark:text-white leading-none tracking-tight truncate">
+                Admin Dashboard
+              </h1>
+              <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5 leading-none">Aichixia Control Panel</p>
             </div>
           </div>
 
