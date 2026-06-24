@@ -1,9 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { supabase } from '@/lib/supabase';
-import { FaServer } from 'react-icons/fa';
-import { FiActivity, FiGift, FiCalendar, FiUsers, FiRefreshCw, FiX, FiCheckCircle, FiAlertCircle, FiLock, FiBarChart2, FiEye, FiShield, FiDatabase, FiKey, FiCheck, FiTrendingUp, FiEdit2, FiSave, FiCpu } from 'react-icons/fi';
-import { RiVipDiamondLine, RiVipCrownLine } from 'react-icons/ri';
+import { FiActivity, FiGift, FiCalendar, FiUsers, FiRefreshCw, FiX, FiCheckCircle, FiAlertCircle, FiLock, FiBarChart2, FiEye, FiShield, FiDatabase, FiKey, FiCheck, FiTrendingUp, FiEdit2, FiSave, FiCpu, FiZap } from 'react-icons/fi';
+import { RiVipDiamondLine, RiVipCrownLine, RiDashboardLine } from 'react-icons/ri';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import ThemeToggle from '@/components/ThemeToggle';
 import Overview from '@/components/admin/overview';
@@ -659,29 +658,47 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-sky-50/20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
-      <header className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg border-b border-slate-200 dark:border-slate-700 px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 sticky top-0 z-40">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5 sm:gap-3">
-            <div className="w-8 h-8 sm:w-9 sm:h-9 bg-gradient-to-br from-sky-500 to-blue-600 rounded-lg flex items-center justify-center shadow-md flex-shrink-0">
-              <FaServer className="text-white text-sm" />
+    <div className="min-h-screen bg-slate-50 dark:bg-[#070a0f]">
+
+      <header className="sticky top-0 z-40 bg-white/70 dark:bg-[#0a0e17]/80 backdrop-blur-xl border-b border-slate-200/60 dark:border-white/[0.06]">
+        <div className="flex items-center justify-between px-3 sm:px-5 h-12 sm:h-13">
+
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <div className="relative flex-shrink-0">
+              <div className="absolute inset-0 bg-sky-500/20 rounded-lg blur-sm" />
+              <div className="relative w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-sky-400 via-sky-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-sky-500/25">
+                <RiDashboardLine className="text-white text-sm sm:text-base" />
+              </div>
             </div>
-            <div>
-              <h1 className="text-sm sm:text-base font-black text-slate-800 dark:text-white leading-tight">Admin Dashboard</h1>
-              <p className="text-[10px] text-slate-500 dark:text-slate-400 hidden sm:block">Manage users, promos & system</p>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <h1 className="text-sm sm:text-[15px] font-bold text-slate-800 dark:text-white leading-none tracking-tight truncate">
+                  Admin
+                </h1>
+                <span className="hidden sm:flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-sky-50 dark:bg-sky-500/10 border border-sky-200 dark:border-sky-500/20 text-[10px] font-semibold text-sky-600 dark:text-sky-400 leading-none">
+                  <span className="w-1 h-1 rounded-full bg-sky-500 animate-pulse" />
+                  LIVE
+                </span>
+              </div>
+              <p className="hidden sm:block text-[10px] text-slate-400 dark:text-slate-500 mt-0.5 leading-none">Aichixia Control Panel</p>
             </div>
           </div>
-          <div className="flex items-center gap-1.5">
-            <button onClick={() => fetchAllData(true)} disabled={refreshing} className="p-1.5 sm:p-2 hover:bg-slate-100 dark:hover:bg-slate-700/50 rounded-lg transition-colors disabled:opacity-50">
-              <FiRefreshCw className={`text-sm sm:text-base text-slate-600 dark:text-slate-400 ${refreshing ? 'animate-spin' : ''}`} />
+
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => fetchAllData(true)}
+              disabled={refreshing}
+              className="group flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold text-slate-500 dark:text-slate-400 hover:text-sky-600 dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-500/10 transition-all duration-150 disabled:opacity-40"
+            >
+              <FiRefreshCw className={`text-xs flex-shrink-0 transition-transform duration-700 ${refreshing ? 'animate-spin' : 'group-hover:rotate-180'}`} />
+              <span className="hidden sm:inline">Refresh</span>
             </button>
+            <div className="w-px h-4 bg-slate-200 dark:bg-white/10 mx-0.5" />
             <ThemeToggle />
           </div>
         </div>
-      </header>
 
-      <div className="border-b border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg sticky top-[52px] sm:top-[60px] z-30">
-        <div className="flex w-full">
+        <div className="flex w-full overflow-x-auto scrollbar-none border-t border-slate-100 dark:border-white/[0.04]">
           {TABS.map(tab => {
             const Icon = tab.icon;
             const active = activeTab === tab.id;
@@ -689,16 +706,22 @@ export default function AdminDashboard() {
               <button
                 key={tab.id}
                 onClick={() => handleTabChange(tab.id)}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 sm:py-3 font-semibold transition-all duration-200 whitespace-nowrap text-[10px] sm:text-xs border-b-2 relative group ${active ? 'text-sky-600 dark:text-sky-400 border-sky-500' : 'text-slate-500 dark:text-slate-400 border-transparent hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/30'}`}
+                className={`relative flex-1 flex items-center justify-center gap-1.5 py-2 sm:py-2.5 font-semibold transition-all duration-200 whitespace-nowrap text-[10px] sm:text-[11px] min-w-[52px] group ${
+                  active
+                    ? 'text-sky-600 dark:text-sky-400'
+                    : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-50/80 dark:hover:bg-white/[0.03]'
+                }`}
               >
-                <Icon className={`text-xs sm:text-sm flex-shrink-0 transition-transform duration-200 ${active ? 'scale-110' : 'group-hover:scale-105'}`} />
+                <Icon className={`flex-shrink-0 transition-all duration-200 text-xs sm:text-[13px] ${active ? 'text-sky-500' : 'group-hover:scale-105'}`} />
                 <span className="hidden sm:inline">{tab.label}</span>
-                {active && <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-sky-500 mb-0.5" />}
+                {active && (
+                  <span className="absolute bottom-0 inset-x-0 h-0.5 bg-gradient-to-r from-sky-400 via-sky-500 to-blue-500 rounded-t-full" />
+                )}
               </button>
             );
           })}
         </div>
-      </div>
+      </header>
 
       <main className="p-3 sm:p-4 lg:p-6">
         <div className="max-w-7xl mx-auto">
@@ -808,110 +831,67 @@ export default function AdminDashboard() {
                           src={selectedUser.avatar_url}
                           alt={selectedUser.display_name || selectedUser.email}
                           className="w-14 h-14 rounded-2xl object-cover ring-2 ring-sky-400/40"
-                          style={{ boxShadow: '0 4px 20px rgba(56,189,248,0.25)' }}
-                          onError={e => {
-                            e.currentTarget.style.display = 'none';
-                            const fb = e.currentTarget.nextElementSibling as HTMLElement;
-                            if (fb) fb.style.display = 'flex';
-                          }}
                         />
-                      ) : null}
-                      <div
-                        className={`w-14 h-14 bg-gradient-to-br ${getPlanGradient(selectedUser.plan)} rounded-2xl flex items-center justify-center text-white font-black text-xl`}
-                        style={{ display: selectedUser.avatar_url ? 'none' : 'flex', boxShadow: '0 4px 20px rgba(56,189,248,0.35)' }}
-                      >
-                        {selectedUser.display_name?.[0]?.toUpperCase() || selectedUser.email[0].toUpperCase()}
-                      </div>
-                      {selectedUser.is_admin && (
-                        <div className="absolute -bottom-1.5 -right-1.5 flex items-center justify-center">
-                          <span className="absolute w-5 h-5 rounded-full bg-sky-400/40 animate-ping" style={{ animationDuration: '2s' }} />
-                          <div
-                            className="relative w-5 h-5 rounded-full bg-gradient-to-br from-sky-400 via-sky-500 to-blue-600 flex items-center justify-center border-[2.5px] border-white dark:border-slate-900"
-                            style={{ boxShadow: '0 0 0 1px rgba(14,165,233,0.3), 0 0 12px rgba(14,165,233,0.8), 0 2px 6px rgba(0,0,0,0.3)' }}
-                          >
-                            <FiCheck className="text-white" style={{ fontSize: 8.5, strokeWidth: 3.5 }} />
-                          </div>
+                      ) : (
+                        <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${getPlanGradient(selectedUser.plan)} flex items-center justify-center shadow-lg`}>
+                          <span className="text-white font-black text-xl">
+                            {(selectedUser.display_name || selectedUser.email).charAt(0).toUpperCase()}
+                          </span>
                         </div>
                       )}
-                    </div>
-
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
-                        <h3 className="text-sm font-black text-slate-900 dark:text-white truncate leading-tight">
-                          {selectedUser.display_name || selectedUser.email}
-                        </h3>
-                        {selectedUser.is_admin && (
-                          <span className="flex-shrink-0 relative flex items-center gap-1 pl-1 pr-2 py-0.5 rounded-full overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(14,165,233,0.15) 0%, rgba(59,130,246,0.15) 100%)', border: '1px solid rgba(14,165,233,0.35)', boxShadow: '0 0 12px rgba(14,165,233,0.2), inset 0 1px 0 rgba(255,255,255,0.1)' }}>
-                            <span className="relative w-3 h-3 rounded-full bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center flex-shrink-0" style={{ boxShadow: '0 0 8px rgba(14,165,233,0.8)' }}>
-                              <FiCheck className="text-white" style={{ fontSize: 6, strokeWidth: 3.5 }} />
-                            </span>
-                            <span className="text-[9px] font-black tracking-wide leading-none bg-gradient-to-r from-sky-500 to-blue-500 bg-clip-text text-transparent">ADMIN</span>
-                          </span>
-                        )}
+                      <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-lg bg-gradient-to-br ${getPlanGradient(selectedUser.plan)} flex items-center justify-center shadow-md`}>
+                        <PlanIcon className="text-white" style={{ fontSize: 10 }} />
                       </div>
-                      {selectedUser.display_name && (
-                        <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate mb-1">{selectedUser.email}</p>
-                      )}
-                      <span className={`inline-block text-[9px] font-bold px-2 py-0.5 rounded-full border ${getPlanBadge(selectedUser.plan)}`}>
-                        <PlanIcon className="inline mr-0.5" style={{ fontSize: 8 }} />
-                        {selectedUser.plan.charAt(0).toUpperCase() + selectedUser.plan.slice(1)} Plan
-                      </span>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-bold text-slate-800 dark:text-white leading-tight truncate max-w-[160px]">
+                        {selectedUser.display_name || 'No Name'}
+                      </p>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate max-w-[160px]">{selectedUser.email}</p>
+                      <div className={`inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-md border text-[10px] font-bold ${getPlanBadge(selectedUser.plan)}`}>
+                        <PlanIcon style={{ fontSize: 9 }} />
+                        {selectedUser.plan.charAt(0).toUpperCase() + selectedUser.plan.slice(1)}
+                      </div>
                     </div>
                   </div>
-
-                  <button
-                    onClick={closeUserDetail}
-                    className="flex-shrink-0 w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-sky-50 dark:hover:bg-sky-900/30 hover:text-sky-600 dark:hover:text-sky-400 flex items-center justify-center transition-all duration-150 hover:scale-110 active:scale-95"
-                  >
-                    <FiX className="text-slate-500 dark:text-slate-400" style={{ fontSize: 13 }} />
+                  <button onClick={closeUserDetail} className="flex-shrink-0 p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+                    <FiX className="text-sm text-slate-500 dark:text-slate-400" />
                   </button>
                 </div>
 
-                <div className="grid grid-cols-3 gap-1.5 mb-3">
+                <div className="grid grid-cols-3 gap-2 mb-3">
                   {[
-                    { label: 'Requests', value: userStats.totalRequests.toLocaleString(), color: 'text-sky-600 dark:text-sky-400', bg: 'bg-sky-50 dark:bg-sky-900/20 border-sky-100 dark:border-sky-800/50' },
-                    { label: 'Success',  value: userStats.successCount.toLocaleString(),  color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-100 dark:border-emerald-800/50' },
-                    { label: 'Errors',   value: userStats.errorCount.toLocaleString(),    color: 'text-red-500 dark:text-red-400', bg: 'bg-red-50 dark:bg-red-900/20 border-red-100 dark:border-red-800/50' },
-                  ].map(item => (
-                    <div key={item.label} className={`rounded-xl p-2.5 border ${item.bg}`}>
-                      <p className="text-[9px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-0.5">{item.label}</p>
-                      <p className={`text-sm font-black tabular-nums ${item.color}`}>{item.value}</p>
+                    { label: 'Requests', value: userStats.totalRequests.toLocaleString(), color: 'text-sky-600 dark:text-sky-400' },
+                    { label: 'Success', value: userStats.successCount.toLocaleString(), color: 'text-emerald-600 dark:text-emerald-400' },
+                    { label: 'Errors', value: userStats.errorCount.toLocaleString(), color: 'text-red-500 dark:text-red-400' },
+                  ].map(stat => (
+                    <div key={stat.label} className="bg-slate-50 dark:bg-slate-800/60 rounded-xl p-2.5 text-center border border-slate-100 dark:border-slate-700/50">
+                      <p className={`text-sm font-black ${stat.color}`}>{stat.value}</p>
+                      <p className="text-[9px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-0.5">{stat.label}</p>
                     </div>
                   ))}
                 </div>
 
                 <div className="space-y-1.5 mb-3">
-                  <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-sky-50/60 dark:bg-sky-900/20 border border-sky-100 dark:border-sky-800/40">
-                    <div className="w-5 h-5 rounded-lg bg-sky-100 dark:bg-sky-500/20 flex items-center justify-center flex-shrink-0">
-                      <FiKey className="text-sky-600 dark:text-sky-400" style={{ fontSize: 10 }} />
-                    </div>
-                    <div className="flex-1 flex items-center justify-between">
-                      <p className="text-[9px] font-semibold text-sky-500 dark:text-sky-500 uppercase tracking-wider">Active Keys</p>
-                      <p className="text-xs font-bold text-sky-700 dark:text-sky-300">{selectedUser.active_keys}</p>
-                    </div>
+                  <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40">
+                    <FiKey className="text-sky-500 flex-shrink-0" style={{ fontSize: 10 }} />
+                    <p className="text-[9px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex-1">Active Keys</p>
+                    <p className="text-xs font-bold text-slate-700 dark:text-slate-300">{selectedUser.active_keys}</p>
                   </div>
-
-                  <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-sky-50/40 dark:bg-sky-900/10 border border-sky-100 dark:border-sky-800/30">
-                    <div className="w-5 h-5 rounded-lg bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center flex-shrink-0">
-                      <FiCalendar className="text-blue-600 dark:text-blue-400" style={{ fontSize: 10 }} />
-                    </div>
-                    <div className="flex-1 flex items-center justify-between">
-                      <p className="text-[9px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Joined</p>
-                      <p className="text-xs font-bold text-slate-700 dark:text-slate-300">{new Date(selectedUser.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
-                    </div>
+                  <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40">
+                    <FiCalendar className="text-sky-500 flex-shrink-0" style={{ fontSize: 10 }} />
+                    <p className="text-[9px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex-1">Joined</p>
+                    <p className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                      {new Date(selectedUser.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </p>
                   </div>
-
                   {selectedUser.plan_expires_at && (
-                    <div className={`flex items-center gap-2.5 px-3 py-2 rounded-xl border ${isExpired ? 'bg-red-50/60 dark:bg-red-900/10 border-red-100 dark:border-red-800/30' : 'bg-emerald-50/60 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-800/30'}`}>
-                      <div className={`w-5 h-5 rounded-lg flex items-center justify-center flex-shrink-0 ${isExpired ? 'bg-red-100 dark:bg-red-500/20' : 'bg-emerald-100 dark:bg-emerald-500/20'}`}>
-                        <FiCheckCircle className={isExpired ? 'text-red-500' : 'text-emerald-500'} style={{ fontSize: 10 }} />
-                      </div>
-                      <div className="flex-1 flex items-center justify-between">
-                        <p className="text-[9px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Plan {isExpired ? 'Expired' : 'Expires'}</p>
-                        <p className={`text-xs font-bold ${isExpired ? 'text-red-500 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
-                          {new Date(selectedUser.plan_expires_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                        </p>
-                      </div>
+                    <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40">
+                      <FiCheckCircle className={isExpired ? 'text-red-500' : 'text-emerald-500'} style={{ fontSize: 10 }} />
+                      <p className="text-[9px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex-1">Plan {isExpired ? 'Expired' : 'Expires'}</p>
+                      <p className={`text-xs font-bold ${isExpired ? 'text-red-500 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                        {new Date(selectedUser.plan_expires_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      </p>
                     </div>
                   )}
                 </div>
