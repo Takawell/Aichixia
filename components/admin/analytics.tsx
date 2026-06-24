@@ -64,7 +64,7 @@ type CustomTooltipProps = {
 function ChartTooltip({ active, payload, label }: CustomTooltipProps) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 shadow-xl">
+    <div className="bg-white dark:bg-[#0a0e17] border border-slate-200 dark:border-white/[0.06] rounded-xl px-3 py-2 shadow-xl">
       <p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 mb-1">{label}</p>
       {payload.map((entry) => (
         <p key={entry.name} className="text-xs font-bold" style={{ color: entry.color }}>
@@ -204,7 +204,7 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
       <div className="space-y-4">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-3 animate-pulse">
+            <div key={i} className="rounded-xl border border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#0a0e17] p-3 animate-pulse">
               <div className="flex items-center gap-3">
                 <div className="w-7 h-7 rounded-lg bg-slate-200 dark:bg-slate-700 flex-shrink-0" />
                 <div className="flex-1">
@@ -215,7 +215,7 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
             </div>
           ))}
         </div>
-        <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 animate-pulse h-72" />
+        <div className="rounded-2xl border border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#0a0e17] p-5 animate-pulse h-72" />
       </div>
     );
   }
@@ -253,7 +253,7 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
       </div>
 
       <div className={`transition-all duration-700 delay-300 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 sm:p-5">
+        <div className="bg-white dark:bg-[#0a0e17] border border-slate-200 dark:border-white/[0.06] rounded-2xl p-4 sm:p-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
             <div className="flex items-center gap-2.5">
               <div className="p-1.5 bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800 rounded-lg">
@@ -265,7 +265,7 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <div className="flex items-center bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl p-1 gap-1">
+              <div className="flex items-center bg-slate-100 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.06] rounded-xl p-1 gap-1">
                 {(['7d', '30d'] as const).map(r => (
                   <button
                     key={r}
@@ -280,7 +280,7 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
                   </button>
                 ))}
               </div>
-              <div className="flex items-center bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl p-1 gap-1">
+              <div className="flex items-center bg-slate-100 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.06] rounded-xl p-1 gap-1">
                 {(['requests', 'tokens'] as const).map(t => (
                   <button
                     key={t}
@@ -324,7 +324,7 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
       </div>
 
       <div className={`grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 transition-all duration-700 delay-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 sm:p-5">
+        <div className="bg-white dark:bg-[#0a0e17] border border-slate-200 dark:border-white/[0.06] rounded-2xl p-4 sm:p-5">
           <div className="flex items-center gap-2.5 mb-4">
             <div className="p-1.5 bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-800 rounded-lg">
               <FiCpu className="text-violet-600 dark:text-violet-400 text-sm" />
@@ -352,7 +352,7 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
                         {m.count.toLocaleString()}
                       </span>
                     </div>
-                    <div className="h-1 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                    <div className="h-1 bg-slate-100 dark:bg-white/[0.06] rounded-full overflow-hidden">
                       <div
                         className="h-full rounded-full transition-all duration-1000 ease-out"
                         style={{ width: `${pct}%`, background: MODEL_COLORS[i % MODEL_COLORS.length], transitionDelay: `${i * 80 + 600}ms` }}
@@ -365,7 +365,7 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
           )}
         </div>
 
-        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 sm:p-5">
+        <div className="bg-white dark:bg-[#0a0e17] border border-slate-200 dark:border-white/[0.06] rounded-2xl p-4 sm:p-5">
           <div className="flex items-center gap-2.5 mb-4">
             <div className="p-1.5 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg">
               <FiActivity className="text-emerald-600 dark:text-emerald-400 text-sm" />
@@ -402,7 +402,7 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
                         </div>
                         <span className="text-xs font-black text-slate-700 dark:text-slate-300 tabular-nums">{item.value.toLocaleString()}</span>
                       </div>
-                      <div className="h-1 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                      <div className="h-1 bg-slate-100 dark:bg-white/[0.06] rounded-full overflow-hidden">
                         <div className="h-full rounded-full transition-all duration-1000 ease-out" style={{ width: `${pct}%`, background: item.color }} />
                       </div>
                     </div>
@@ -416,7 +416,7 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
 
       {errorData.length > 0 && (
         <div className={`transition-all duration-700 delay-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 sm:p-5">
+          <div className="bg-white dark:bg-[#0a0e17] border border-slate-200 dark:border-white/[0.06] rounded-2xl p-4 sm:p-5">
             <div className="flex items-center gap-2.5 mb-4">
               <div className="p-1.5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
                 <FiAlertCircle className="text-red-600 dark:text-red-400 text-sm" />
