@@ -69,12 +69,12 @@ export default function Users({ users, onViewUser, loading }: UsersProps) {
     return (
       <div className="space-y-3">
         {[1, 2, 3, 4].map(i => (
-          <div key={i} className="bg-white dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700/60 p-4 animate-pulse">
+          <div key={i} className="bg-white dark:bg-[#0a0e17] rounded-xl border border-slate-200 dark:border-white/[0.06] p-4 animate-pulse">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-sky-100 dark:bg-sky-900/30" />
               <div className="flex-1 space-y-2">
                 <div className="h-3.5 bg-sky-100 dark:bg-sky-900/30 rounded-full w-1/3" />
-                <div className="h-3 bg-slate-100 dark:bg-slate-700 rounded-full w-1/2" />
+                <div className="h-3 bg-slate-100 dark:bg-white/[0.06] rounded-full w-1/2" />
               </div>
             </div>
           </div>
@@ -88,7 +88,7 @@ export default function Users({ users, onViewUser, loading }: UsersProps) {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
         {[
           { label: 'Total Users', value: stats.total, icon: FiUsers, gradient: 'from-sky-500 to-blue-600', bg: 'from-sky-50 to-blue-50 dark:from-sky-900/20 dark:to-blue-900/20', border: 'border-sky-200 dark:border-sky-800/50', text: 'text-sky-700 dark:text-sky-300', sub: 'text-sky-600 dark:text-sky-400' },
-          { label: 'Free', value: stats.free, icon: FiUsers, gradient: 'from-slate-400 to-slate-500', bg: 'from-slate-50 to-slate-100 dark:from-slate-800/50 dark:to-slate-800/30', border: 'border-slate-200 dark:border-slate-700', text: 'text-slate-700 dark:text-slate-300', sub: 'text-slate-500 dark:text-slate-400' },
+          { label: 'Free', value: stats.free, icon: FiUsers, gradient: 'from-slate-400 to-slate-500', bg: 'from-slate-50 to-slate-100 dark:from-slate-800/50 dark:to-slate-800/30', border: 'border-slate-200 dark:border-white/[0.06]', text: 'text-slate-700 dark:text-slate-300', sub: 'text-slate-500 dark:text-slate-400' },
           { label: 'Pro', value: stats.pro, icon: RiVipDiamondLine, gradient: 'from-sky-500 to-blue-600', bg: 'from-sky-50 to-blue-50 dark:from-sky-900/20 dark:to-blue-900/20', border: 'border-sky-200 dark:border-sky-800/50', text: 'text-sky-700 dark:text-sky-300', sub: 'text-sky-600 dark:text-sky-400' },
           { label: 'Enterprise', value: stats.enterprise, icon: RiVipCrownLine, gradient: 'from-violet-500 to-purple-600', bg: 'from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20', border: 'border-violet-200 dark:border-violet-800/50', text: 'text-violet-700 dark:text-violet-300', sub: 'text-violet-600 dark:text-violet-400' },
         ].map(item => {
@@ -116,7 +116,7 @@ export default function Users({ users, onViewUser, loading }: UsersProps) {
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
             placeholder="Search by email or name..."
-            className="w-full pl-9 pr-9 py-2 sm:py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm text-slate-800 dark:text-white placeholder:text-slate-400 outline-none focus:border-sky-500 dark:focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all"
+            className="w-full pl-9 pr-9 py-2 sm:py-2.5 bg-white dark:bg-[#0a0e17] border border-slate-200 dark:border-white/[0.06] rounded-xl text-xs sm:text-sm text-slate-800 dark:text-white placeholder:text-slate-400 outline-none focus:border-sky-500 dark:focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all"
           />
           {searchTerm && (
             <button onClick={() => setSearchTerm('')} className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-600 hover:bg-sky-100 dark:hover:bg-sky-800 transition-colors">
@@ -130,7 +130,7 @@ export default function Users({ users, onViewUser, loading }: UsersProps) {
             <select
               value={filterPlan}
               onChange={e => setFilterPlan(e.target.value as any)}
-              className="w-full sm:w-auto pl-9 pr-8 py-2 sm:py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm text-slate-800 dark:text-white outline-none focus:border-sky-500 dark:focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 appearance-none cursor-pointer transition-all"
+              className="w-full sm:w-auto pl-9 pr-8 py-2 sm:py-2.5 bg-white dark:bg-[#0a0e17] border border-slate-200 dark:border-white/[0.06] rounded-xl text-xs sm:text-sm text-slate-800 dark:text-white outline-none focus:border-sky-500 dark:focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 appearance-none cursor-pointer transition-all"
             >
               <option value="all">All Plans</option>
               <option value="free">Free</option>
@@ -141,7 +141,7 @@ export default function Users({ users, onViewUser, loading }: UsersProps) {
           <select
             value={sortBy}
             onChange={e => setSortBy(e.target.value as any)}
-            className="px-3 py-2 sm:py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm text-slate-800 dark:text-white outline-none focus:border-sky-500 dark:focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 appearance-none cursor-pointer transition-all"
+            className="px-3 py-2 sm:py-2.5 bg-white dark:bg-[#0a0e17] border border-slate-200 dark:border-white/[0.06] rounded-xl text-xs sm:text-sm text-slate-800 dark:text-white outline-none focus:border-sky-500 dark:focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 appearance-none cursor-pointer transition-all"
           >
             <option value="newest">Newest</option>
             <option value="oldest">Oldest</option>
@@ -151,7 +151,7 @@ export default function Users({ users, onViewUser, loading }: UsersProps) {
       </div>
 
       {filteredUsers.length === 0 ? (
-        <div className="bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-200 dark:border-slate-700 p-8 sm:p-12 text-center">
+        <div className="bg-white dark:bg-[#0a0e17] rounded-2xl border border-slate-200 dark:border-white/[0.06] p-8 sm:p-12 text-center">
           <div className="w-12 h-12 bg-sky-50 dark:bg-sky-900/30 rounded-2xl flex items-center justify-center mx-auto mb-3">
             <FiUsers className="text-sky-400 text-xl" />
           </div>
@@ -168,7 +168,7 @@ export default function Users({ users, onViewUser, loading }: UsersProps) {
             return (
               <div
                 key={user.user_id}
-                className="group bg-white dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700/60 p-3 sm:p-4 hover:border-sky-300 dark:hover:border-sky-600/60 hover:shadow-md hover:shadow-sky-500/5 transition-all duration-200"
+                className="group bg-white dark:bg-[#0a0e17] rounded-xl border border-slate-200 dark:border-white/[0.06] p-3 sm:p-4 hover:border-sky-300 dark:hover:border-sky-600/60 hover:shadow-md hover:shadow-sky-500/5 transition-all duration-200"
               >
                 <div className="flex items-center gap-3">
                   <div className="relative flex-shrink-0">
