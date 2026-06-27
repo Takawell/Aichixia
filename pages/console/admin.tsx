@@ -493,37 +493,72 @@ export default function AdminDashboard() {
 
   if (accessDenied) {
     return (
-      <div style={{ position:'fixed', inset:0, display:'flex', alignItems:'center', justifyContent:'center', padding:16, background:'radial-gradient(ellipse at 50% 40%,rgba(239,68,68,0.07) 0%,transparent 70%),#09090b' }}>
+      <div style={{ position:'fixed',inset:0,display:'flex',alignItems:'center',justifyContent:'center',padding:16,background:'#060810',overflow:'hidden' }}>
         <style>{`
-          @keyframes adFadeUp{from{opacity:0;transform:translateY(20px) scale(0.97);}to{opacity:1;transform:translateY(0) scale(1);}}
-          @keyframes adPulse{0%,100%{opacity:.5;transform:scale(1);}50%{opacity:1;transform:scale(1.08);}}
-          @keyframes adOrbit{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
-          .ad-card{animation:adFadeUp 0.45s cubic-bezier(0.22,1,0.36,1) both;}
-          .ad-orbit{animation:adOrbit 12s linear infinite;}
-          .ad-pulse{animation:adPulse 2.5s ease-in-out infinite;}
-          .ad-btn{width:100%;padding:11px 20px;border-radius:12px;border:none;background:linear-gradient(135deg,#38bdf8,#3b82f6);color:#fff;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:-0.01em;transition:opacity 150ms,transform 150ms,box-shadow 200ms;box-shadow:0 4px 16px rgba(56,189,248,0.3);}
-          .ad-btn:hover{opacity:0.88;transform:translateY(-1px);box-shadow:0 6px 20px rgba(56,189,248,0.35);}
-          .ad-btn:active{transform:scale(0.98);}
+          @keyframes adCardIn{from{opacity:0;transform:translateY(28px) scale(0.95);}to{opacity:1;transform:translateY(0) scale(1);}}
+          @keyframes adSpinCW{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+          @keyframes adSpinCCW{from{transform:rotate(360deg);}to{transform:rotate(0deg);}}
+          @keyframes adAura{0%,100%{opacity:0.5;transform:translate(-50%,-50%) scale(1);}50%{opacity:1;transform:translate(-50%,-50%) scale(1.2);}}
+          @keyframes adRingPulse{0%{transform:scale(1);opacity:0.7;}100%{transform:scale(1.75);opacity:0;}}
+          @keyframes adScanLine{0%{top:0%;opacity:0;}8%{opacity:1;}92%{opacity:1;}100%{top:100%;opacity:0;}}
+          @keyframes adBtnShimmer{0%{left:-100%;}100%{left:200%;}}
+          @keyframes adErrIn{from{opacity:0;transform:scale(0.92) translateY(6px);}to{opacity:1;transform:scale(1) translateY(0);}}
+          .ad-card{animation:adCardIn 0.55s cubic-bezier(0.16,1,0.3,1) both;}
+          .ad-orbit-cw{animation:adSpinCW 14s linear infinite;}
+          .ad-orbit-ccw{animation:adSpinCCW 22s linear infinite;}
+          .ad-aura{position:absolute;top:50%;left:50%;animation:adAura 3.5s ease-in-out infinite;}
+          .ad-ring{animation:adRingPulse 2s ease-out infinite;}
+          .ad-ring2{animation:adRingPulse 2s ease-out infinite;animation-delay:0.5s;}
+          .ad-scan{animation:adScanLine 3s ease-in-out infinite;}
+          .ad-err-badge{animation:adErrIn 0.35s cubic-bezier(0.22,1,0.36,1) 0.25s both;}
+          .ad-btn{width:100%;padding:13px 20px;border-radius:14px;border:none;background:linear-gradient(135deg,#f87171,#ef4444,#dc2626);color:#fff;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:0.01em;position:relative;overflow:hidden;transition:opacity 180ms,transform 180ms,box-shadow 250ms;box-shadow:0 6px 24px rgba(248,113,113,0.3);}
+          .ad-btn::before{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent);transition:none;}
+          .ad-btn:hover::before{animation:adBtnShimmer 0.7s ease forwards;}
+          .ad-btn:hover{opacity:0.9;transform:translateY(-1.5px);box-shadow:0 8px 28px rgba(248,113,113,0.38);}
+          .ad-btn:active{transform:scale(0.975);}
         `}</style>
-        <div className="ad-card" style={{ background:'rgba(18,18,20,0.95)',backdropFilter:'blur(24px)',border:'1px solid rgba(239,68,68,0.18)',borderRadius:20,maxWidth:380,width:'100%',padding:'32px 28px',boxShadow:'0 24px 64px rgba(0,0,0,0.6),0 0 0 1px rgba(239,68,68,0.08)' }}>
+
+        <div style={{ position:'absolute',inset:0,overflow:'hidden',pointerEvents:'none' }}>
+          <div style={{ position:'absolute',inset:0,background:'radial-gradient(ellipse 65% 55% at 50% 40%,rgba(239,68,68,0.1) 0%,transparent 70%)' }} />
+          <div style={{ position:'absolute',inset:0,background:'radial-gradient(ellipse 40% 35% at 75% 75%,rgba(251,113,133,0.05) 0%,transparent 60%)' }} />
+          <div style={{ position:'absolute',inset:0,backgroundImage:'radial-gradient(circle,rgba(255,255,255,0.022) 1px,transparent 1px)',backgroundSize:'28px 28px',maskImage:'radial-gradient(ellipse 75% 65% at 50% 50%,black 30%,transparent 80%)' }} />
+        </div>
+
+        <div className="ad-card" style={{ background:'rgba(10,12,20,0.92)',backdropFilter:'blur(40px) saturate(150%)',border:'1px solid rgba(239,68,68,0.12)',borderRadius:24,maxWidth:340,width:'100%',padding:'32px 24px 24px',boxShadow:'0 40px 100px rgba(0,0,0,0.85),0 0 0 1px rgba(255,255,255,0.03),inset 0 1px 0 rgba(255,255,255,0.05)',position:'relative',overflow:'hidden' }}>
+
+          <div style={{ position:'absolute',top:0,left:0,right:0,height:'1px',background:'linear-gradient(90deg,transparent,rgba(248,113,113,0.5),rgba(239,68,68,0.4),transparent)' }} />
+          <div className="ad-scan" style={{ position:'absolute',left:0,right:0,height:'1px',background:'linear-gradient(90deg,transparent,rgba(248,113,113,0.2),transparent)',pointerEvents:'none' }} />
+
           <div style={{ display:'flex',justifyContent:'center',marginBottom:24 }}>
             <div style={{ position:'relative',width:72,height:72 }}>
-              <div className="ad-orbit" style={{ position:'absolute',inset:-6,borderRadius:'50%',border:'1px dashed rgba(239,68,68,0.25)' }} />
-              <div style={{ position:'absolute',inset:0,borderRadius:'50%',background:'rgba(239,68,68,0.08)',border:'1px solid rgba(239,68,68,0.2)',display:'flex',alignItems:'center',justifyContent:'center' }}>
-                <FiLock style={{ fontSize:28,color:'#f87171' }} />
+              <div className="ad-aura" style={{ width:140,height:140,borderRadius:'50%',background:'radial-gradient(circle,rgba(248,113,113,0.12) 0%,transparent 70%)' }} />
+              <svg style={{ position:'absolute',inset:-14,width:'calc(100% + 28px)',height:'calc(100% + 28px)' }} viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(248,113,113,0.2)" strokeWidth="0.8" strokeDasharray="4 3" style={{ transformOrigin:'50% 50%',animation:'adSpinCW 18s linear infinite' }} />
+              </svg>
+              <svg style={{ position:'absolute',inset:-8,width:'calc(100% + 16px)',height:'calc(100% + 16px)' }} viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(239,68,68,0.12)" strokeWidth="1" strokeDasharray="2 6" style={{ transformOrigin:'50% 50%',animation:'adSpinCCW 12s linear infinite' }} />
+              </svg>
+              <div className="ad-ring" style={{ position:'absolute',inset:-4,borderRadius:'50%',border:'1.5px solid rgba(248,113,113,0.35)' }} />
+              <div className="ad-ring2" style={{ position:'absolute',inset:-4,borderRadius:'50%',border:'1.5px solid rgba(248,113,113,0.2)' }} />
+              <div style={{ position:'absolute',inset:0,borderRadius:'50%',background:'linear-gradient(135deg,rgba(248,113,113,0.15),rgba(239,68,68,0.08))',border:'1.5px solid rgba(248,113,113,0.35)',display:'flex',alignItems:'center',justifyContent:'center',backdropFilter:'blur(8px)' }}>
+                <FiLock style={{ fontSize:26,color:'#f87171',filter:'drop-shadow(0 0 8px rgba(248,113,113,0.7))' }} />
               </div>
-              <div className="ad-pulse" style={{ position:'absolute',inset:-14,borderRadius:'50%',background:'rgba(239,68,68,0.06)' }} />
             </div>
           </div>
+
           <div style={{ textAlign:'center',marginBottom:20 }}>
-            <h2 style={{ fontSize:22,fontWeight:800,color:'#fff',letterSpacing:'-0.03em',marginBottom:8 }}>Access Denied</h2>
-            <p style={{ fontSize:13,color:'rgba(255,255,255,0.4)',lineHeight:1.6 }}>This area is restricted to administrators only.</p>
+            <h2 style={{ fontSize:19,fontWeight:800,letterSpacing:'-0.04em',marginBottom:6,color:'#f1f5f9',lineHeight:1.2 }}>Access Denied</h2>
+            <p style={{ fontSize:12,color:'rgba(255,255,255,0.3)',lineHeight:1.7,margin:0,fontWeight:400 }}>This area is restricted to administrators only.</p>
           </div>
-          <div style={{ padding:'12px 14px',borderRadius:12,marginBottom:20,background:'rgba(239,68,68,0.06)',border:'1px solid rgba(239,68,68,0.15)',display:'flex',alignItems:'flex-start',gap:10 }}>
-            <FiAlertCircle style={{ fontSize:13,color:'#f87171',flexShrink:0,marginTop:1 }} />
-            <p style={{ fontSize:12,color:'rgba(255,255,255,0.4)',margin:0,lineHeight:1.55 }}>If you believe this is an error, please contact your system administrator.</p>
+
+          <div className="ad-err-badge" style={{ padding:'11px 14px',borderRadius:12,marginBottom:20,background:'rgba(239,68,68,0.06)',border:'1px solid rgba(239,68,68,0.14)',display:'flex',alignItems:'flex-start',gap:10 }}>
+            <FiAlertCircle style={{ fontSize:13,color:'#f87171',flexShrink:0,marginTop:1,filter:'drop-shadow(0 0 4px rgba(248,113,113,0.5))' }} />
+            <p style={{ fontSize:12,color:'rgba(255,255,255,0.35)',margin:0,lineHeight:1.6 }}>If you believe this is an error, please contact your system administrator.</p>
           </div>
-          <button className="ad-btn" onClick={() => window.location.href='/console'}>Back to Console</button>
+
+          <button className="ad-btn" onClick={() => window.location.href='/console'}>
+            Back to Console
+          </button>
         </div>
       </div>
     );
