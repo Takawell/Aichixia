@@ -560,98 +560,220 @@ export default function AdminDashboard() {
       setPinVerifying(false);
       if (res.ok) {
         setPinSuccess(true);
-        setTimeout(() => { setPinVerified(true); setShowPinModal(false); }, 500);
+        setTimeout(() => { setPinVerified(true); setShowPinModal(false); }, 600);
       } else {
         setPinError(true); setPinShake(true); setPinDigits(['','','','','','']);
-        setTimeout(() => setPinShake(false), 500);
+        setTimeout(() => setPinShake(false), 600);
         setTimeout(() => { const el = document.getElementById('pin-0'); if (el) (el as HTMLInputElement).focus(); }, 50);
       }
     };
 
+    const filledCount = pinDigits.filter(Boolean).length;
+
     return (
-      <div style={{ position:'fixed',inset:0,display:'flex',alignItems:'center',justifyContent:'center',padding:'16px',background:'#07090f' }}>
+      <div style={{ position:'fixed',inset:0,display:'flex',alignItems:'center',justifyContent:'center',padding:'16px',background:'#060810',overflow:'hidden' }}>
         <style>{`
-          @keyframes pinBgPulse{0%,100%{opacity:.6;transform:scale(1);}50%{opacity:1;transform:scale(1.15);}}
-          @keyframes pinCardIn{from{opacity:0;transform:translateY(24px) scale(0.96);}to{opacity:1;transform:translateY(0) scale(1);}}
-          @keyframes pinShakeAnim{0%,100%{transform:translateX(0);}12%{transform:translateX(-10px);}25%{transform:translateX(10px);}37%{transform:translateX(-8px);}50%{transform:translateX(8px);}62%{transform:translateX(-5px);}75%{transform:translateX(5px);}87%{transform:translateX(-2px);}}
-          @keyframes pinOrbitA{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
-          @keyframes pinOrbitB{from{transform:rotate(360deg);}to{transform:rotate(0deg);}}
-          @keyframes pinSuccessScale{0%{transform:scale(0.5);opacity:0;}60%{transform:scale(1.2);}100%{transform:scale(1);opacity:1;}}
-          @keyframes pinErrIn{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
-          .pin-card-wrap{animation:pinCardIn 0.5s cubic-bezier(0.22,1,0.36,1) both;}
-          .pin-shake{animation:pinShakeAnim 0.5s cubic-bezier(0.36,0.07,0.19,0.97) both;}
-          .pin-orbit-a{animation:pinOrbitA 10s linear infinite;}
-          .pin-orbit-b{animation:pinOrbitB 16s linear infinite;}
-          .pin-bg-pulse{animation:pinBgPulse 3s ease-in-out infinite;}
-          .pin-success-icon{animation:pinSuccessScale 0.4s cubic-bezier(0.34,1.56,0.64,1) both;}
-          .pin-err-msg{animation:pinErrIn 0.2s ease both;}
-          .pin-cell{width:46px;height:56px;border-radius:14px;background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,255,255,0.09);font-size:24px;font-weight:800;color:#fff;text-align:center;outline:none;caret-color:transparent;-webkit-text-security:disc;transition:border-color 180ms,box-shadow 180ms,background 180ms,transform 120ms;}
-          .pin-cell:focus{border-color:#38bdf8;box-shadow:0 0 0 3px rgba(56,189,248,0.2),0 0 12px rgba(56,189,248,0.15);background:rgba(56,189,248,0.07);transform:scale(1.05);}
-          .pin-cell.filled{border-color:rgba(56,189,248,0.4);background:rgba(56,189,248,0.06);}
-          .pin-cell.err{border-color:rgba(248,113,113,0.55)!important;box-shadow:0 0 0 3px rgba(248,113,113,0.14)!important;background:rgba(248,113,113,0.07)!important;transform:scale(1)!important;}
-          .pin-cell.success-cell{border-color:rgba(52,211,153,0.55)!important;box-shadow:0 0 0 3px rgba(52,211,153,0.14)!important;background:rgba(52,211,153,0.07)!important;}
-          .pin-btn{width:100%;padding:13px;border-radius:14px;border:none;font-size:14px;font-weight:700;letter-spacing:-0.02em;cursor:pointer;position:relative;overflow:hidden;transition:opacity 150ms,transform 150ms,box-shadow 200ms;}
-          .pin-btn:not(:disabled):hover{opacity:0.88;transform:translateY(-1px);}
-          .pin-btn:not(:disabled):active{transform:scale(0.98);}
-          .pin-btn:disabled{opacity:0.3;cursor:not-allowed;}
-          .pin-back-btn{background:none;border:none;cursor:pointer;font-size:12px;color:rgba(255,255,255,0.28);transition:color 150ms;padding:0;}
-          .pin-back-btn:hover{color:rgba(255,255,255,0.6);}
-          @media(max-width:380px){.pin-cell{width:40px;height:50px;font-size:20px;border-radius:11px;}}
+          @keyframes pinCardIn{from{opacity:0;transform:translateY(32px) scale(0.94);}to{opacity:1;transform:translateY(0) scale(1);}}
+          @keyframes pinShakeAnim{0%,100%{transform:translateX(0);}10%{transform:translateX(-12px);}25%{transform:translateX(11px);}40%{transform:translateX(-8px);}55%{transform:translateX(7px);}70%{transform:translateX(-4px);}85%{transform:translateX(3px);}}
+          @keyframes pinSpinCW{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+          @keyframes pinSpinCCW{from{transform:rotate(360deg);}to{transform:rotate(0deg);}}
+          @keyframes pinSuccessPop{0%{transform:scale(0.3) rotate(-20deg);opacity:0;}55%{transform:scale(1.25) rotate(5deg);}80%{transform:scale(0.92) rotate(-2deg);}100%{transform:scale(1) rotate(0deg);opacity:1;}}
+          @keyframes pinErrIn{from{opacity:0;transform:translateY(-6px) scale(0.95);}to{opacity:1;transform:translateY(0) scale(1);}}
+          @keyframes pinGridIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+          @keyframes pinAura{0%,100%{opacity:0.5;transform:translate(-50%,-50%) scale(1);}50%{opacity:1;transform:translate(-50%,-50%) scale(1.18);}}
+          @keyframes pinScanLine{0%{top:0%;opacity:0;}10%{opacity:1;}90%{opacity:1;}100%{top:100%;opacity:0;}}
+          @keyframes pinBtnShimmer{0%{left:-100%;}100%{left:200%;}}
+          @keyframes pinDotPulse{0%,80%,100%{transform:scale(0.6);opacity:0.4;}40%{transform:scale(1);opacity:1;}}
+          @keyframes pinCellIn{from{opacity:0;transform:scale(0.7) translateY(8px);}to{opacity:1;transform:scale(1) translateY(0);}}
+          @keyframes pinRingPulse{0%{transform:scale(1);opacity:0.6;}100%{transform:scale(1.7);opacity:0;}}
+          .pin-card{animation:pinCardIn 0.55s cubic-bezier(0.16,1,0.3,1) both;}
+          .pin-shake{animation:pinShakeAnim 0.55s cubic-bezier(0.36,0.07,0.19,0.97) both;}
+          .pin-orbit-cw{animation:pinSpinCW 12s linear infinite;}
+          .pin-orbit-ccw{animation:pinSpinCCW 20s linear infinite;}
+          .pin-aura{position:absolute;top:50%;left:50%;animation:pinAura 3.5s ease-in-out infinite;}
+          .pin-scan{animation:pinScanLine 2.5s ease-in-out infinite;}
+          .pin-success-icon{animation:pinSuccessPop 0.5s cubic-bezier(0.34,1.56,0.64,1) both;}
+          .pin-err-msg{animation:pinErrIn 0.22s cubic-bezier(0.22,1,0.36,1) both;}
+          .pin-ring-pulse{animation:pinRingPulse 1.6s ease-out infinite;}
+          .pin-cell{
+            width:46px;height:58px;border-radius:14px;
+            background:rgba(255,255,255,0.04);
+            border:1.5px solid rgba(255,255,255,0.08);
+            font-size:0px;font-weight:800;color:transparent;
+            text-align:center;outline:none;caret-color:transparent;
+            transition:border-color 200ms,box-shadow 200ms,background 200ms,transform 150ms;
+            animation:pinCellIn 0.4s cubic-bezier(0.22,1,0.36,1) both;
+            position:relative;
+          }
+          .pin-cell:focus{
+            border-color:rgba(56,189,248,0.7);
+            box-shadow:0 0 0 3px rgba(56,189,248,0.15),0 0 20px rgba(56,189,248,0.2);
+            background:rgba(56,189,248,0.06);
+            transform:scale(1.08) translateY(-2px);
+          }
+          .pin-cell.filled{
+            border-color:rgba(56,189,248,0.5);
+            background:rgba(56,189,248,0.08);
+          }
+          .pin-cell.filled::after{
+            content:'';display:block;position:absolute;
+            top:50%;left:50%;transform:translate(-50%,-50%);
+            width:10px;height:10px;border-radius:50%;
+            background:linear-gradient(135deg,#38bdf8,#818cf8);
+            box-shadow:0 0 10px rgba(56,189,248,0.6);
+          }
+          .pin-cell.err{
+            border-color:rgba(248,113,113,0.65)!important;
+            box-shadow:0 0 0 3px rgba(248,113,113,0.12)!important;
+            background:rgba(248,113,113,0.06)!important;
+            transform:scale(1)!important;
+          }
+          .pin-cell.err.filled::after{background:linear-gradient(135deg,#f87171,#fb923c)!important;box-shadow:0 0 10px rgba(248,113,113,0.5)!important;}
+          .pin-cell.success-cell{
+            border-color:rgba(52,211,153,0.6)!important;
+            box-shadow:0 0 0 3px rgba(52,211,153,0.12)!important;
+            background:rgba(52,211,153,0.07)!important;
+          }
+          .pin-cell.success-cell.filled::after{background:linear-gradient(135deg,#34d399,#10b981)!important;box-shadow:0 0 10px rgba(52,211,153,0.5)!important;}
+          .pin-progress-bar{height:2px;background:linear-gradient(90deg,#38bdf8,#818cf8);border-radius:99px;transition:width 200ms cubic-bezier(0.22,1,0.36,1);}
+          .pin-btn{
+            width:100%;padding:14px;border-radius:14px;border:none;
+            font-size:13.5px;font-weight:700;letter-spacing:0.01em;
+            cursor:pointer;position:relative;overflow:hidden;
+            transition:opacity 180ms,transform 180ms,box-shadow 250ms,background 400ms;
+            color:#fff;
+          }
+          .pin-btn::before{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent);transition:none;}
+          .pin-btn:not(:disabled):hover::before{animation:pinBtnShimmer 0.7s ease forwards;}
+          .pin-btn:not(:disabled):hover{transform:translateY(-1.5px);opacity:0.93;}
+          .pin-btn:not(:disabled):active{transform:scale(0.975);}
+          .pin-btn:disabled{opacity:0.28;cursor:not-allowed;}
+          .pin-back-btn{background:none;border:none;cursor:pointer;font-size:11.5px;font-weight:500;color:rgba(255,255,255,0.22);transition:color 180ms;padding:0;letter-spacing:0.02em;}
+          .pin-back-btn:hover{color:rgba(255,255,255,0.55);}
+          .pin-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.4);display:inline-block;animation:pinDotPulse 1.2s ease-in-out infinite;}
+          @media(max-width:400px){
+            .pin-cell{width:40px;height:52px;border-radius:12px;}
+            .pin-cell.filled::after{width:8px;height:8px;}
+          }
+          @media(max-width:340px){
+            .pin-cell{width:35px;height:46px;border-radius:10px;}
+          }
         `}</style>
 
         <div style={{ position:'absolute',inset:0,overflow:'hidden',pointerEvents:'none' }}>
-          <div className="pin-bg-pulse" style={{ position:'absolute',top:'30%',left:'50%',transform:'translate(-50%,-50%)',width:500,height:500,borderRadius:'50%',background:pinSuccess?'radial-gradient(circle,rgba(52,211,153,0.08) 0%,transparent 70%)':pinError?'radial-gradient(circle,rgba(248,113,113,0.08) 0%,transparent 70%)':'radial-gradient(circle,rgba(56,189,248,0.07) 0%,transparent 70%)',transition:'background 400ms' }} />
+          <div style={{ position:'absolute',inset:0,background:'radial-gradient(ellipse 70% 60% at 50% 40%,rgba(14,165,233,0.09) 0%,transparent 70%)' }} />
+          <div style={{ position:'absolute',inset:0,background:'radial-gradient(ellipse 50% 40% at 80% 80%,rgba(129,140,248,0.06) 0%,transparent 60%)' }} />
+          <div style={{ position:'absolute',top:'20%',left:'15%',width:180,height:180,borderRadius:'50%',background:'rgba(56,189,248,0.04)',filter:'blur(50px)' }} />
+          <div style={{ position:'absolute',bottom:'15%',right:'10%',width:220,height:220,borderRadius:'50%',background:'rgba(129,140,248,0.04)',filter:'blur(60px)' }} />
+          <div style={{ position:'absolute',inset:0,backgroundImage:'radial-gradient(circle,rgba(255,255,255,0.025) 1px,transparent 1px)',backgroundSize:'28px 28px',maskImage:'radial-gradient(ellipse 80% 70% at 50% 50%,black 30%,transparent 80%)' }} />
         </div>
 
-        <div className="pin-card-wrap" style={{ background:'rgba(13,14,18,0.97)',backdropFilter:'blur(32px)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:24,maxWidth:360,width:'100%',padding:'36px 28px 28px',boxShadow:'0 32px 80px rgba(0,0,0,0.8),inset 0 1px 0 rgba(255,255,255,0.05)',position:'relative' }}>
-          <div style={{ display:'flex',justifyContent:'center',marginBottom:28 }}>
-            <div style={{ position:'relative',width:76,height:76 }}>
-              <div className="pin-bg-pulse" style={{ position:'absolute',inset:-20,borderRadius:'50%',background:pinSuccess?'rgba(52,211,153,0.07)':'rgba(56,189,248,0.07)',transition:'background 400ms' }} />
-              <div className="pin-orbit-a" style={{ position:'absolute',inset:-8,borderRadius:'50%',border:`1px dashed ${pinSuccess?'rgba(52,211,153,0.25)':'rgba(56,189,248,0.2)'}`,transition:'border-color 400ms' }} />
-              <div className="pin-orbit-b" style={{ position:'absolute',inset:-16,borderRadius:'50%',border:`1px solid ${pinSuccess?'rgba(52,211,153,0.1)':'rgba(56,189,248,0.08)'}`,transition:'border-color 400ms' }} />
-              <div style={{ position:'absolute',inset:0,borderRadius:'50%',background:pinSuccess?'rgba(52,211,153,0.1)':pinError?'rgba(248,113,113,0.1)':'rgba(56,189,248,0.08)',border:`1.5px solid ${pinSuccess?'rgba(52,211,153,0.3)':pinError?'rgba(248,113,113,0.3)':'rgba(56,189,248,0.2)'}`,display:'flex',alignItems:'center',justifyContent:'center',transition:'all 400ms' }}>
-                {pinSuccess ? <FiCheckCircle className="pin-success-icon" style={{ fontSize:30,color:'#34d399' }} /> : <FiShield style={{ fontSize:28,color:pinError?'#f87171':'#38bdf8',transition:'color 300ms' }} />}
+        <div className="pin-card" style={{ background:'rgba(10,12,20,0.92)',backdropFilter:'blur(40px) saturate(150%)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:24,maxWidth:340,width:'100%',padding:'32px 24px 24px',boxShadow:'0 40px 100px rgba(0,0,0,0.85),0 0 0 1px rgba(255,255,255,0.04),inset 0 1px 0 rgba(255,255,255,0.06)',position:'relative',overflow:'hidden' }}>
+
+          <div style={{ position:'absolute',top:0,left:0,right:0,height:'1px',background:'linear-gradient(90deg,transparent,rgba(56,189,248,0.4),rgba(129,140,248,0.4),transparent)' }} />
+
+          {!pinSuccess && !pinVerifying && (
+            <div className="pin-scan" style={{ position:'absolute',left:0,right:0,height:'1px',background:'linear-gradient(90deg,transparent,rgba(56,189,248,0.25),transparent)',pointerEvents:'none' }} />
+          )}
+
+          <div style={{ display:'flex',justifyContent:'center',marginBottom:24 }}>
+            <div style={{ position:'relative',width:72,height:72 }}>
+              <div className="pin-aura" style={{ width:130,height:130,borderRadius:'50%',background:pinSuccess?'radial-gradient(circle,rgba(52,211,153,0.12) 0%,transparent 70%)':pinError?'radial-gradient(circle,rgba(248,113,113,0.1) 0%,transparent 70%)':'radial-gradient(circle,rgba(56,189,248,0.1) 0%,transparent 70%)',transition:'background 500ms' }} />
+
+              <svg style={{ position:'absolute',inset:-14,width:'calc(100% + 28px)',height:'calc(100% + 28px)' }} viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="46" fill="none" stroke={pinSuccess?'rgba(52,211,153,0.18)':pinError?'rgba(248,113,113,0.18)':'rgba(56,189,248,0.15)'} strokeWidth="0.8" strokeDasharray="4 3" style={{ transformOrigin:'50% 50%',animation:'pinSpinCW 18s linear infinite',transition:'stroke 400ms' }} />
+              </svg>
+              <svg style={{ position:'absolute',inset:-8,width:'calc(100% + 16px)',height:'calc(100% + 16px)' }} viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="46" fill="none" stroke={pinSuccess?'rgba(52,211,153,0.1)':pinError?'rgba(248,113,113,0.1)':'rgba(129,140,248,0.12)'} strokeWidth="1" strokeDasharray="2 6" style={{ transformOrigin:'50% 50%',animation:'pinSpinCCW 12s linear infinite',transition:'stroke 400ms' }} />
+              </svg>
+
+              {pinSuccess && (
+                <>
+                  <div className="pin-ring-pulse" style={{ position:'absolute',inset:-4,borderRadius:'50%',border:'1.5px solid rgba(52,211,153,0.4)' }} />
+                  <div className="pin-ring-pulse" style={{ position:'absolute',inset:-4,borderRadius:'50%',border:'1.5px solid rgba(52,211,153,0.25)',animationDelay:'0.4s' }} />
+                </>
+              )}
+
+              <div style={{ position:'absolute',inset:0,borderRadius:'50%',background:pinSuccess?'linear-gradient(135deg,rgba(52,211,153,0.15),rgba(16,185,129,0.1))':pinError?'linear-gradient(135deg,rgba(248,113,113,0.15),rgba(239,68,68,0.1))':'linear-gradient(135deg,rgba(56,189,248,0.12),rgba(129,140,248,0.08))',border:`1.5px solid ${pinSuccess?'rgba(52,211,153,0.4)':pinError?'rgba(248,113,113,0.4)':'rgba(56,189,248,0.25)'}`,display:'flex',alignItems:'center',justifyContent:'center',backdropFilter:'blur(8px)',transition:'all 400ms' }}>
+                {pinSuccess
+                  ? <FiCheckCircle className="pin-success-icon" style={{ fontSize:28,color:'#34d399' }} />
+                  : <FiShield style={{ fontSize:26,color:pinError?'#f87171':'#38bdf8',transition:'color 300ms',filter:pinError?'drop-shadow(0 0 8px rgba(248,113,113,0.6))':'drop-shadow(0 0 8px rgba(56,189,248,0.5))' }} />
+                }
               </div>
             </div>
           </div>
 
-          <div style={{ textAlign:'center',marginBottom:28 }}>
-            <h2 style={{ fontSize:21,fontWeight:800,letterSpacing:'-0.03em',marginBottom:7,color:pinSuccess?'#34d399':'#fff',transition:'color 300ms' }}>
-              {pinSuccess ? 'Verified!' : 'Admin Verification'}
+          <div style={{ textAlign:'center',marginBottom:22 }}>
+            <h2 style={{ fontSize:19,fontWeight:800,letterSpacing:'-0.04em',marginBottom:6,color:pinSuccess?'#34d399':pinError?'#f87171':'#f1f5f9',transition:'color 350ms',lineHeight:1.2 }}>
+              {pinSuccess ? 'Access Granted' : 'Admin Verification'}
             </h2>
-            <p style={{ fontSize:12,color:'rgba(255,255,255,0.32)',lineHeight:1.65,margin:0 }}>
-              {pinSuccess ? 'Access granted. Loading dashboard...' : 'Enter your 6-digit admin PIN to continue'}
+            <p style={{ fontSize:12,color:'rgba(255,255,255,0.3)',lineHeight:1.7,margin:0,fontWeight:400 }}>
+              {pinSuccess ? 'Initializing secure dashboard...' : pinError ? 'Incorrect PIN — try again' : 'Enter your 6-digit admin PIN'}
             </p>
           </div>
 
-          <div className={pinShake ? 'pin-shake' : ''} style={{ display:'flex',gap:7,justifyContent:'center',marginBottom:18 }}>
+          <div style={{ marginBottom:6 }}>
+            <div style={{ display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:8 }}>
+              <span style={{ fontSize:10,color:'rgba(255,255,255,0.2)',fontWeight:600,letterSpacing:'0.08em',textTransform:'uppercase' }}>Security Code</span>
+              <span style={{ fontSize:10,color:pinError?'#f87171':filledCount===6?'#34d399':'rgba(255,255,255,0.2)',fontWeight:600,transition:'color 250ms' }}>{filledCount}/6</span>
+            </div>
+            <div style={{ marginBottom:4,height:2,background:'rgba(255,255,255,0.06)',borderRadius:99,overflow:'hidden' }}>
+              <div className="pin-progress-bar" style={{ width:`${(filledCount/6)*100}%`,background:pinSuccess?'linear-gradient(90deg,#34d399,#10b981)':pinError?'linear-gradient(90deg,#f87171,#fb923c)':'linear-gradient(90deg,#38bdf8,#818cf8)',transition:'background 400ms' }} />
+            </div>
+          </div>
+
+          <div className={pinShake ? 'pin-shake' : ''} style={{ display:'flex',gap:6,justifyContent:'center',marginBottom:16 }}>
             {pinDigits.map((d, i) => (
-              <input key={i} id={`pin-${i}`} type="password" inputMode="numeric" maxLength={1} value={d}
+              <input
+                key={i} id={`pin-${i}`} type="password" inputMode="numeric" maxLength={1} value={d}
                 disabled={pinVerifying || pinSuccess}
                 className={['pin-cell', d?'filled':'', pinError?'err':'', pinSuccess?'success-cell':''].filter(Boolean).join(' ')}
                 onChange={e => handlePinInput(i, e.target.value)}
                 onKeyDown={e => handlePinKey(i, e)}
-                autoFocus={i === 0} autoComplete="off" />
+                autoFocus={i === 0} autoComplete="off"
+                style={{ animationDelay:`${i * 0.06}s` }}
+              />
             ))}
           </div>
 
-          <div style={{ minHeight:22,marginBottom:16,textAlign:'center' }}>
-            {pinError && !pinVerifying && <p className="pin-err-msg" style={{ fontSize:12,color:'#f87171',margin:0 }}>Incorrect PIN. Please try again.</p>}
+          <div style={{ minHeight:20,marginBottom:14,textAlign:'center' }}>
+            {pinError && !pinVerifying && (
+              <p className="pin-err-msg" style={{ fontSize:11.5,color:'#f87171',margin:0,display:'flex',alignItems:'center',justifyContent:'center',gap:5,fontWeight:500 }}>
+                <FiAlertCircle style={{ fontSize:12,flexShrink:0 }} />
+                Incorrect PIN. Please try again.
+              </p>
+            )}
           </div>
 
-          <button className="pin-btn" disabled={pinDigits.join('').length < 6 || pinVerifying || pinSuccess}
+          <button
+            className="pin-btn"
+            disabled={filledCount < 6 || pinVerifying || pinSuccess}
             onClick={() => verifyPin(pinDigits.join(''))}
-            style={{ background:pinSuccess?'linear-gradient(135deg,#34d399,#10b981)':'linear-gradient(135deg,#38bdf8,#3b82f6)',color:'#fff',boxShadow:pinSuccess?'0 4px 16px rgba(52,211,153,0.3)':'0 4px 16px rgba(56,189,248,0.25)',transition:'background 400ms,box-shadow 400ms' }}>
+            style={{ background:pinSuccess?'linear-gradient(135deg,#34d399,#10b981,#059669)':pinError?'linear-gradient(135deg,#f87171,#ef4444)':'linear-gradient(135deg,#38bdf8,#818cf8,#3b82f6)',boxShadow:pinSuccess?'0 6px 24px rgba(52,211,153,0.35)':pinError?'0 6px 20px rgba(248,113,113,0.3)':'0 6px 24px rgba(56,189,248,0.3)',transition:'background 400ms,box-shadow 400ms' }}
+          >
             {pinVerifying ? (
-              <div style={{ display:'flex',alignItems:'center',justifyContent:'center',gap:8 }}>
-                <div style={{ width:14,height:14,borderRadius:'50%',border:'2px solid rgba(255,255,255,0.3)',borderTopColor:'#fff',animation:'pinOrbitA 0.7s linear infinite' }} />
-                Verifying...
-              </div>
-            ) : pinSuccess ? 'Access Granted ✓' : 'Verify PIN'}
+              <span style={{ display:'flex',alignItems:'center',justifyContent:'center',gap:10 }}>
+                <span className="pin-dot" style={{ animationDelay:'0ms' }} />
+                <span className="pin-dot" style={{ animationDelay:'180ms' }} />
+                <span className="pin-dot" style={{ animationDelay:'360ms' }} />
+              </span>
+            ) : pinSuccess ? (
+              <span style={{ display:'flex',alignItems:'center',justifyContent:'center',gap:7 }}>
+                <FiCheckCircle style={{ fontSize:14 }} />
+                Access Granted
+              </span>
+            ) : (
+              <span style={{ display:'flex',alignItems:'center',justifyContent:'center',gap:7 }}>
+                <FiShield style={{ fontSize:13 }} />
+                Verify PIN
+              </span>
+            )}
           </button>
 
-          <div style={{ textAlign:'center',marginTop:18 }}>
-            <button className="pin-back-btn" onClick={() => window.location.href='/console'}>← Back to Console</button>
+          <div style={{ textAlign:'center',marginTop:16 }}>
+            <button className="pin-back-btn" onClick={() => window.location.href='/console'}>
+              ← Back to Console
+            </button>
           </div>
         </div>
       </div>
