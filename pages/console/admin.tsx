@@ -493,71 +493,94 @@ export default function AdminDashboard() {
 
   if (accessDenied) {
     return (
-      <div style={{ position:'fixed',inset:0,display:'flex',alignItems:'center',justifyContent:'center',padding:16,background:'#060810',overflow:'hidden' }}>
+      <div style={{ position:'fixed',inset:0,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',background:'#04060d',overflow:'hidden' }}>
         <style>{`
-          @keyframes adCardIn{from{opacity:0;transform:translateY(28px) scale(0.95);}to{opacity:1;transform:translateY(0) scale(1);}}
+          @keyframes adFadeUp{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:translateY(0);}}
+          @keyframes adFadeIn{from{opacity:0;}to{opacity:1;}}
           @keyframes adSpinCW{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
           @keyframes adSpinCCW{from{transform:rotate(360deg);}to{transform:rotate(0deg);}}
-          @keyframes adAura{0%,100%{opacity:0.5;transform:translate(-50%,-50%) scale(1);}50%{opacity:1;transform:translate(-50%,-50%) scale(1.2);}}
-          @keyframes adRingPulse{0%{transform:scale(1);opacity:0.7;}100%{transform:scale(1.75);opacity:0;}}
-          @keyframes adScanLine{0%{top:0%;opacity:0;}8%{opacity:1;}92%{opacity:1;}100%{top:100%;opacity:0;}}
-          @keyframes adBtnShimmer{0%{left:-100%;}100%{left:200%;}}
-          @keyframes adErrIn{from{opacity:0;transform:scale(0.92) translateY(6px);}to{opacity:1;transform:scale(1) translateY(0);}}
-          .ad-card{animation:adCardIn 0.55s cubic-bezier(0.16,1,0.3,1) both;}
-          .ad-orbit-cw{animation:adSpinCW 14s linear infinite;}
-          .ad-orbit-ccw{animation:adSpinCCW 22s linear infinite;}
-          .ad-aura{position:absolute;top:50%;left:50%;animation:adAura 3.5s ease-in-out infinite;}
-          .ad-ring{animation:adRingPulse 2s ease-out infinite;}
-          .ad-ring2{animation:adRingPulse 2s ease-out infinite;animation-delay:0.5s;}
-          .ad-scan{animation:adScanLine 3s ease-in-out infinite;}
-          .ad-err-badge{animation:adErrIn 0.35s cubic-bezier(0.22,1,0.36,1) 0.25s both;}
-          .ad-btn{width:100%;padding:13px 20px;border-radius:14px;border:none;background:linear-gradient(135deg,#f87171,#ef4444,#dc2626);color:#fff;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:0.01em;position:relative;overflow:hidden;transition:opacity 180ms,transform 180ms,box-shadow 250ms;box-shadow:0 6px 24px rgba(248,113,113,0.3);}
-          .ad-btn::before{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent);transition:none;}
-          .ad-btn:hover::before{animation:adBtnShimmer 0.7s ease forwards;}
-          .ad-btn:hover{opacity:0.9;transform:translateY(-1.5px);box-shadow:0 8px 28px rgba(248,113,113,0.38);}
-          .ad-btn:active{transform:scale(0.975);}
+          @keyframes adPulseGlow{0%,100%{opacity:0.35;transform:translate(-50%,-50%) scale(1);}50%{opacity:0.7;transform:translate(-50%,-50%) scale(1.18);}}
+          @keyframes adRipple{0%{transform:scale(0.85);opacity:0.7;}100%{transform:scale(2.2);opacity:0;}}
+          @keyframes adIconFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
+          @keyframes adScanH{0%{top:-2px;opacity:0;}6%{opacity:1;}94%{opacity:0.8;}100%{top:100%;opacity:0;}}
+          @keyframes adNoiseFade{0%,100%{opacity:0.025;}50%{opacity:0.045;}}
+          @keyframes adShimmer{0%{left:-120%;}100%{left:120%;}}
+          @keyframes adChevron{0%,100%{transform:translateX(0);}50%{transform:translateX(3px);}}
+          .ad-layer0{animation:adFadeIn 0.6s ease both;}
+          .ad-layer1{animation:adFadeUp 0.55s cubic-bezier(0.16,1,0.3,1) 0.05s both;}
+          .ad-layer2{animation:adFadeUp 0.55s cubic-bezier(0.16,1,0.3,1) 0.13s both;}
+          .ad-layer3{animation:adFadeUp 0.55s cubic-bezier(0.16,1,0.3,1) 0.21s both;}
+          .ad-layer4{animation:adFadeUp 0.55s cubic-bezier(0.16,1,0.3,1) 0.29s both;}
+          .ad-layer5{animation:adFadeUp 0.55s cubic-bezier(0.16,1,0.3,1) 0.37s both;}
+          .ad-ripple{position:absolute;inset:0;border-radius:50%;border:1px solid rgba(248,113,113,0.35);}
+          .ad-ripple1{animation:adRipple 2.4s ease-out infinite;}
+          .ad-ripple2{animation:adRipple 2.4s ease-out infinite;animation-delay:0.8s;}
+          .ad-ripple3{animation:adRipple 2.4s ease-out infinite;animation-delay:1.6s;}
+          .ad-icon-float{animation:adIconFloat 4s ease-in-out infinite;}
+          .ad-scan{animation:adScanH 2.8s ease-in-out infinite;}
+          .ad-divider-line{height:1px;background:linear-gradient(90deg,transparent,rgba(248,113,113,0.25),transparent);}
+          .ad-tag{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:99px;border:1px solid rgba(248,113,113,0.2);background:rgba(248,113,113,0.06);font-size:10px;font-weight:700;color:rgba(248,113,113,0.8);letter-spacing:0.08em;text-transform:uppercase;}
+          .ad-btn{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:99px;border:1px solid rgba(248,113,113,0.3);background:transparent;color:rgba(248,113,113,0.85);font-size:12.5px;font-weight:600;cursor:pointer;letter-spacing:0.01em;position:relative;overflow:hidden;transition:color 200ms,border-color 200ms,box-shadow 250ms,transform 180ms;backdrop-filter:blur(8px);}
+          .ad-btn::before{content:'';position:absolute;inset:0;background:rgba(248,113,113,0.08);opacity:0;transition:opacity 200ms;}
+          .ad-btn::after{content:'';position:absolute;top:0;left:-120%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent);}
+          .ad-btn:hover::before{opacity:1;}
+          .ad-btn:hover::after{animation:adShimmer 0.65s ease forwards;}
+          .ad-btn:hover{color:#f87171;border-color:rgba(248,113,113,0.5);box-shadow:0 0 20px rgba(248,113,113,0.15),0 4px 16px rgba(0,0,0,0.3);transform:translateY(-1px);}
+          .ad-btn:active{transform:scale(0.97);}
+          .ad-chevron{animation:adChevron 1.4s ease-in-out infinite;}
+          .ad-noise{position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:180px;animation:adNoiseFade 4s ease-in-out infinite;pointer-events:none;mix-blend-mode:overlay;}
         `}</style>
 
-        <div style={{ position:'absolute',inset:0,overflow:'hidden',pointerEvents:'none' }}>
-          <div style={{ position:'absolute',inset:0,background:'radial-gradient(ellipse 65% 55% at 50% 40%,rgba(239,68,68,0.1) 0%,transparent 70%)' }} />
-          <div style={{ position:'absolute',inset:0,background:'radial-gradient(ellipse 40% 35% at 75% 75%,rgba(251,113,133,0.05) 0%,transparent 60%)' }} />
-          <div style={{ position:'absolute',inset:0,backgroundImage:'radial-gradient(circle,rgba(255,255,255,0.022) 1px,transparent 1px)',backgroundSize:'28px 28px',maskImage:'radial-gradient(ellipse 75% 65% at 50% 50%,black 30%,transparent 80%)' }} />
+        <div style={{ position:'absolute',inset:0,pointerEvents:'none' }}>
+          <div style={{ position:'absolute',inset:0,background:'radial-gradient(ellipse 70% 60% at 50% 45%,rgba(239,68,68,0.12) 0%,rgba(239,68,68,0.04) 40%,transparent 70%)' }} />
+          <div style={{ position:'absolute',inset:0,background:'radial-gradient(ellipse 40% 30% at 20% 80%,rgba(251,113,133,0.05) 0%,transparent 60%)' }} />
+          <div style={{ position:'absolute',inset:0,background:'radial-gradient(ellipse 35% 25% at 85% 15%,rgba(239,68,68,0.04) 0%,transparent 55%)' }} />
+          <div style={{ position:'absolute',inset:0,backgroundImage:'linear-gradient(rgba(248,113,113,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(248,113,113,0.03) 1px,transparent 1px)',backgroundSize:'60px 60px',maskImage:'radial-gradient(ellipse 80% 70% at 50% 50%,black 20%,transparent 80%)' }} />
+          <div className="ad-noise" style={{ opacity:0.03 }} />
+          <div className="ad-scan" style={{ position:'absolute',left:0,right:0,height:'2px',background:'linear-gradient(90deg,transparent 0%,rgba(248,113,113,0.0) 20%,rgba(248,113,113,0.15) 50%,rgba(248,113,113,0.0) 80%,transparent 100%)',pointerEvents:'none' }} />
         </div>
 
-        <div className="ad-card" style={{ background:'rgba(10,12,20,0.92)',backdropFilter:'blur(40px) saturate(150%)',border:'1px solid rgba(239,68,68,0.12)',borderRadius:24,maxWidth:340,width:'100%',padding:'32px 24px 24px',boxShadow:'0 40px 100px rgba(0,0,0,0.85),0 0 0 1px rgba(255,255,255,0.03),inset 0 1px 0 rgba(255,255,255,0.05)',position:'relative',overflow:'hidden' }}>
+        <div style={{ position:'relative',zIndex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:0,padding:'0 24px',maxWidth:420,width:'100%',textAlign:'center' }}>
 
-          <div style={{ position:'absolute',top:0,left:0,right:0,height:'1px',background:'linear-gradient(90deg,transparent,rgba(248,113,113,0.5),rgba(239,68,68,0.4),transparent)' }} />
-          <div className="ad-scan" style={{ position:'absolute',left:0,right:0,height:'1px',background:'linear-gradient(90deg,transparent,rgba(248,113,113,0.2),transparent)',pointerEvents:'none' }} />
-
-          <div style={{ display:'flex',justifyContent:'center',marginBottom:24 }}>
-            <div style={{ position:'relative',width:72,height:72 }}>
-              <div className="ad-aura" style={{ width:140,height:140,borderRadius:'50%',background:'radial-gradient(circle,rgba(248,113,113,0.12) 0%,transparent 70%)' }} />
-              <svg style={{ position:'absolute',inset:-14,width:'calc(100% + 28px)',height:'calc(100% + 28px)' }} viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(248,113,113,0.2)" strokeWidth="0.8" strokeDasharray="4 3" style={{ transformOrigin:'50% 50%',animation:'adSpinCW 18s linear infinite' }} />
-              </svg>
-              <svg style={{ position:'absolute',inset:-8,width:'calc(100% + 16px)',height:'calc(100% + 16px)' }} viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(239,68,68,0.12)" strokeWidth="1" strokeDasharray="2 6" style={{ transformOrigin:'50% 50%',animation:'adSpinCCW 12s linear infinite' }} />
-              </svg>
-              <div className="ad-ring" style={{ position:'absolute',inset:-4,borderRadius:'50%',border:'1.5px solid rgba(248,113,113,0.35)' }} />
-              <div className="ad-ring2" style={{ position:'absolute',inset:-4,borderRadius:'50%',border:'1.5px solid rgba(248,113,113,0.2)' }} />
-              <div style={{ position:'absolute',inset:0,borderRadius:'50%',background:'linear-gradient(135deg,rgba(248,113,113,0.15),rgba(239,68,68,0.08))',border:'1.5px solid rgba(248,113,113,0.35)',display:'flex',alignItems:'center',justifyContent:'center',backdropFilter:'blur(8px)' }}>
-                <FiLock style={{ fontSize:26,color:'#f87171',filter:'drop-shadow(0 0 8px rgba(248,113,113,0.7))' }} />
-              </div>
+          <div className="ad-layer1" style={{ position:'relative',width:80,height:80,marginBottom:32 }}>
+            <div style={{ position:'absolute',top:'50%',left:'50%',width:200,height:200,transform:'translate(-50%,-50%)',borderRadius:'50%',background:'radial-gradient(circle,rgba(248,113,113,0.14) 0%,transparent 65%)',animation:'adPulseGlow 3.5s ease-in-out infinite' }} />
+            <div className="ad-ripple ad-ripple1" />
+            <div className="ad-ripple ad-ripple2" />
+            <div className="ad-ripple ad-ripple3" />
+            <svg style={{ position:'absolute',inset:-12,width:'calc(100% + 24px)',height:'calc(100% + 24px)' }} viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(248,113,113,0.18)" strokeWidth="0.7" strokeDasharray="5 4" style={{ transformOrigin:'50% 50%',animation:'adSpinCW 20s linear infinite' }} />
+            </svg>
+            <svg style={{ position:'absolute',inset:-6,width:'calc(100% + 12px)',height:'calc(100% + 12px)' }} viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(239,68,68,0.1)" strokeWidth="1" strokeDasharray="2 7" style={{ transformOrigin:'50% 50%',animation:'adSpinCCW 14s linear infinite' }} />
+            </svg>
+            <div className="ad-icon-float" style={{ position:'absolute',inset:0,borderRadius:'50%',background:'rgba(248,113,113,0.07)',border:'1px solid rgba(248,113,113,0.2)',display:'flex',alignItems:'center',justifyContent:'center' }}>
+              <FiLock style={{ fontSize:28,color:'#f87171',filter:'drop-shadow(0 0 12px rgba(248,113,113,0.8)) drop-shadow(0 0 4px rgba(248,113,113,0.5))' }} />
             </div>
           </div>
 
-          <div style={{ textAlign:'center',marginBottom:20 }}>
-            <h2 style={{ fontSize:19,fontWeight:800,letterSpacing:'-0.04em',marginBottom:6,color:'#f1f5f9',lineHeight:1.2 }}>Access Denied</h2>
-            <p style={{ fontSize:12,color:'rgba(255,255,255,0.3)',lineHeight:1.7,margin:0,fontWeight:400 }}>This area is restricted to administrators only.</p>
+          <div className="ad-layer2 ad-tag" style={{ marginBottom:16 }}>
+            <FiShield style={{ fontSize:9 }} />
+            Restricted Area
           </div>
 
-          <div className="ad-err-badge" style={{ padding:'11px 14px',borderRadius:12,marginBottom:20,background:'rgba(239,68,68,0.06)',border:'1px solid rgba(239,68,68,0.14)',display:'flex',alignItems:'flex-start',gap:10 }}>
-            <FiAlertCircle style={{ fontSize:13,color:'#f87171',flexShrink:0,marginTop:1,filter:'drop-shadow(0 0 4px rgba(248,113,113,0.5))' }} />
-            <p style={{ fontSize:12,color:'rgba(255,255,255,0.35)',margin:0,lineHeight:1.6 }}>If you believe this is an error, please contact your system administrator.</p>
-          </div>
+          <h1 className="ad-layer3" style={{ fontSize:'clamp(28px,6vw,42px)',fontWeight:900,letterSpacing:'-0.05em',color:'#fff',lineHeight:1.05,marginBottom:12,textShadow:'0 0 60px rgba(248,113,113,0.2)' }}>
+            Access<br />
+            <span style={{ background:'linear-gradient(135deg,#f87171,#fca5a5)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',backgroundClip:'text' }}>Denied</span>
+          </h1>
 
-          <button className="ad-btn" onClick={() => window.location.href='/console'}>
-            Back to Console
+          <p className="ad-layer4" style={{ fontSize:13,color:'rgba(255,255,255,0.32)',lineHeight:1.75,marginBottom:8,maxWidth:280,fontWeight:400 }}>
+            This area is restricted to administrators only.
+          </p>
+
+          <p className="ad-layer4" style={{ fontSize:11.5,color:'rgba(248,113,113,0.45)',lineHeight:1.65,marginBottom:32,maxWidth:260,fontWeight:400 }}>
+            If you believe this is an error, contact your system administrator.
+          </p>
+
+          <div className="ad-layer5 ad-divider-line" style={{ width:48,marginBottom:32 }} />
+
+          <button className="ad-layer5 ad-btn" onClick={() => window.location.href='/console'}>
+            <span>Back to Console</span>
+            <span className="ad-chevron" style={{ fontSize:13,color:'inherit' }}>›</span>
           </button>
         </div>
       </div>
