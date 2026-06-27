@@ -599,11 +599,10 @@ export default function AdminDashboard() {
             width:46px;height:58px;border-radius:14px;
             background:rgba(255,255,255,0.04);
             border:1.5px solid rgba(255,255,255,0.08);
-            font-size:0px;font-weight:800;color:transparent;
+            font-size:22px;font-weight:800;color:#38bdf8;
             text-align:center;outline:none;caret-color:transparent;
             transition:border-color 200ms,box-shadow 200ms,background 200ms,transform 150ms;
             animation:pinCellIn 0.4s cubic-bezier(0.22,1,0.36,1) both;
-            position:relative;
           }
           .pin-cell:focus{
             border-color:rgba(56,189,248,0.7);
@@ -614,27 +613,24 @@ export default function AdminDashboard() {
           .pin-cell.filled{
             border-color:rgba(56,189,248,0.5);
             background:rgba(56,189,248,0.08);
-          }
-          .pin-cell.filled::after{
-            content:'';display:block;position:absolute;
-            top:50%;left:50%;transform:translate(-50%,-50%);
-            width:10px;height:10px;border-radius:50%;
-            background:linear-gradient(135deg,#38bdf8,#818cf8);
-            box-shadow:0 0 10px rgba(56,189,248,0.6);
+            color:#38bdf8;
+            text-shadow:0 0 10px rgba(56,189,248,0.6);
           }
           .pin-cell.err{
             border-color:rgba(248,113,113,0.65)!important;
             box-shadow:0 0 0 3px rgba(248,113,113,0.12)!important;
             background:rgba(248,113,113,0.06)!important;
+            color:#f87171!important;
+            text-shadow:0 0 10px rgba(248,113,113,0.5)!important;
             transform:scale(1)!important;
           }
-          .pin-cell.err.filled::after{background:linear-gradient(135deg,#f87171,#fb923c)!important;box-shadow:0 0 10px rgba(248,113,113,0.5)!important;}
           .pin-cell.success-cell{
             border-color:rgba(52,211,153,0.6)!important;
             box-shadow:0 0 0 3px rgba(52,211,153,0.12)!important;
             background:rgba(52,211,153,0.07)!important;
+            color:#34d399!important;
+            text-shadow:0 0 10px rgba(52,211,153,0.5)!important;
           }
-          .pin-cell.success-cell.filled::after{background:linear-gradient(135deg,#34d399,#10b981)!important;box-shadow:0 0 10px rgba(52,211,153,0.5)!important;}
           .pin-progress-bar{height:2px;background:linear-gradient(90deg,#38bdf8,#818cf8);border-radius:99px;transition:width 200ms cubic-bezier(0.22,1,0.36,1);}
           .pin-btn{
             width:100%;padding:14px;border-radius:14px;border:none;
@@ -653,7 +649,6 @@ export default function AdminDashboard() {
           .pin-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.4);display:inline-block;animation:pinDotPulse 1.2s ease-in-out infinite;}
           @media(max-width:400px){
             .pin-cell{width:40px;height:52px;border-radius:12px;}
-            .pin-cell.filled::after{width:8px;height:8px;}
           }
           @media(max-width:340px){
             .pin-cell{width:35px;height:46px;border-radius:10px;}
