@@ -69,7 +69,7 @@ const IMAGE_MODELS: AnyModel[] = [
 
 const TTS_MODELS: AnyModel[] = [
   { id: 'lindsay-tts', name: 'Lindsay TTS', provider: 'Typecast', icon: SiLapce, color: 'from-rose-500 to-pink-500', pricing: 'Standard', context: '—', type: 'tts', endpoint: `${base}/api/v1/audio/speech` },
-  { id: 'starling-tts', name: 'Starling TTS', provider: 'Aichiverse', icon: SiSecurityscorecard, color: 'from-violet-500 to-purple-500', pricing: 'Standard', context: '—', type: 'tts', endpoint: `${base}/api/v1/audio/speech` },
+  { id: 'starling-tts', name: 'Starling TTS', provider: 'Typecast', icon: SiSecurityscorecard, color: 'from-violet-500 to-purple-500', pricing: 'Standard', context: '—', type: 'tts', endpoint: `${base}/api/v1/audio/speech` },
 ];
 
 const STT_MODELS: AnyModel[] = [
