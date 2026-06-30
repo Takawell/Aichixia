@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { supabase } from '@/lib/supabase';
-import { FiActivity, FiGift, FiCalendar, FiUsers, FiRefreshCw, FiX, FiCheckCircle, FiAlertCircle, FiLock, FiBarChart2, FiEye, FiShield, FiDatabase, FiKey, FiCheck, FiTrendingUp, FiEdit2, FiSave, FiCpu, FiZap } from 'react-icons/fi';
+import { FiActivity, FiGift, FiCalendar, FiUsers, FiRefreshCw, FiX, FiCheckCircle, FiAlertCircle, FiLock, FiBarChart2, FiEye, FiShield, FiDatabase, FiKey, FiCheck, FiTrendingUp, FiEdit2, FiSave, FiCpu, FiZap, FiCopy, FiChevronRight } from 'react-icons/fi';
 import { RiVipDiamondLine, RiVipCrownLine } from 'react-icons/ri';
 import { DiSwift } from 'react-icons/di';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -43,6 +43,17 @@ type User = {
   is_admin: boolean;
   active_keys: number;
   created_at: string;
+};
+
+type ApiKey = {
+  id: string;
+  name: string;
+  key_prefix: string;
+  rate_limit: number;
+  requests_today: number;
+  is_active: boolean;
+  created_at: string;
+  last_used_at: string | null;
 };
 
 type DailyUsage = {
@@ -147,7 +158,12 @@ export default function AdminDashboard() {
   const [newPromo, setNewPromo] = useState({ code: '', plan_type: 'pro', duration_days: 30, max_uses: 100 });
   const [editUser, setEditUser] = useState({ plan: 'free', plan_expires_at: '' });
   const [activeChartLine, setActiveChartLine] = useState<ChartLine>('requests');
+  const [showKeysModal, setShowKeysModal] = useState(false);
+  const [keysModalVisible, setKeysModalVisible] = useState(false);
+  const [userKeys, setUserKeys] = useState<ApiKey[]>([]);
+  const [keysLoading, setKeysLoading] = useState(false);
   const userDetailRef = useRef<HTMLDivElement>(null);
+  const keysModalRef = useRef<HTMLDivElement>(null);
 
   const openUserDetail = (user: User) => {
     setSelectedUser(user);
@@ -162,6 +178,31 @@ export default function AdminDashboard() {
     setTimeout(() => { setShowUserDetailModal(false); setSelectedUser(null); }, 300);
   };
 
+  const openKeysModal = async (user: User) => {
+    setUserKeys([]);
+    setShowKeysModal(true);
+    requestAnimationFrame(() => requestAnimationFrame(() => setKeysModalVisible(true)));
+    setKeysLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const res = await fetch(`/api/console/admin?type=user-keys&user_id=${user.user_id}`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      const data = await res.json();
+      setUserKeys(data.keys || []);
+    } catch {
+      showToast('Failed to load API keys', 'error');
+    } finally {
+      setKeysLoading(false);
+    }
+  };
+
+  const closeKeysModal = () => {
+    setKeysModalVisible(false);
+    setTimeout(() => { setShowKeysModal(false); setUserKeys([]); }, 300);
+  };
+
   useEffect(() => {
     if (!showUserDetailModal) return;
     const handler = (e: MouseEvent) => {
@@ -170,6 +211,15 @@ export default function AdminDashboard() {
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, [showUserDetailModal]);
+
+  useEffect(() => {
+    if (!showKeysModal) return;
+    const handler = (e: MouseEvent) => {
+      if (keysModalRef.current && !keysModalRef.current.contains(e.target as Node)) closeKeysModal();
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [showKeysModal]);
 
   useEffect(() => {
     const tab = router.query.tab as TabType;
@@ -1038,11 +1088,15 @@ export default function AdminDashboard() {
                 </div>
 
                 <div className="space-y-1.5 mb-3">
-                  <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40">
+                  <button
+                    onClick={() => openKeysModal(selectedUser)}
+                    className="w-full flex items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40 hover:bg-sky-50 dark:hover:bg-sky-900/20 hover:border-sky-200 dark:hover:border-sky-800/60 transition-all duration-150 group"
+                  >
                     <FiKey className="text-sky-500 flex-shrink-0" style={{ fontSize: 10 }} />
-                    <p className="text-[9px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex-1">Active Keys</p>
+                    <p className="text-[9px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex-1 text-left">Active Keys</p>
                     <p className="text-xs font-bold text-slate-700 dark:text-slate-300">{selectedUser.active_keys}</p>
-                  </div>
+                    <FiChevronRight className="text-slate-300 dark:text-slate-600 group-hover:text-sky-400 dark:group-hover:text-sky-500 transition-colors" style={{ fontSize: 10 }} />
+                  </button>
                   <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/40">
                     <FiCalendar className="text-sky-500 flex-shrink-0" style={{ fontSize: 10 }} />
                     <p className="text-[9px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex-1">Joined</p>
@@ -1182,6 +1236,212 @@ export default function AdminDashboard() {
               @media(max-width:640px) {
                 @keyframes udModalIn { from{opacity:0;transform:translateY(100%);} to{opacity:1;transform:translateY(0);} }
                 @keyframes udModalOut { from{opacity:1;transform:translateY(0);} to{opacity:0;transform:translateY(60px);} }
+              }
+            `}</style>
+          </div>
+        );
+      })()}
+
+      {showKeysModal && selectedUser && (() => {
+        const getRateLimitColor = (used: number, limit: number) => {
+          const pct = limit > 0 ? (used / limit) * 100 : 0;
+          if (pct >= 90) return { bar: '#f87171', text: 'text-red-500 dark:text-red-400', bg: 'bg-red-500' };
+          if (pct >= 60) return { bar: '#fb923c', text: 'text-orange-500 dark:text-orange-400', bg: 'bg-orange-500' };
+          return { bar: '#0ea5e9', text: 'text-sky-600 dark:text-sky-400', bg: 'bg-sky-500' };
+        };
+
+        return (
+          <div
+            className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-0 sm:p-4"
+            style={{ animation: 'kmBgIn 0.2s ease both' }}
+          >
+            <div className="absolute inset-0 bg-black/70 backdrop-blur-md" onClick={closeKeysModal} />
+
+            <div
+              ref={keysModalRef}
+              className="relative w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl overflow-hidden"
+              style={{
+                animation: keysModalVisible
+                  ? 'kmIn 0.35s cubic-bezier(0.22,1,0.36,1) both'
+                  : 'kmOut 0.25s cubic-bezier(0.4,0,1,1) both',
+                maxHeight: '88vh',
+                background: 'rgba(10,14,23,0.96)',
+                border: '1px solid rgba(14,165,233,0.15)',
+                boxShadow: '0 40px 80px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.04), inset 0 1px 0 rgba(255,255,255,0.06)',
+                backdropFilter: 'blur(40px) saturate(160%)',
+              }}
+            >
+              <div style={{ position:'absolute',top:0,left:0,right:0,height:'1px',background:'linear-gradient(90deg,transparent,rgba(14,165,233,0.5),rgba(56,189,248,0.4),transparent)' }} />
+              <div style={{ position:'absolute',inset:0,background:'radial-gradient(ellipse 60% 40% at 50% 0%,rgba(14,165,233,0.07) 0%,transparent 70%)',pointerEvents:'none' }} />
+
+              <div className="relative px-4 sm:px-5 pt-5 pb-3">
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center" style={{ boxShadow:'0 0 16px rgba(14,165,233,0.15)' }}>
+                      <FiKey className="text-sky-400" style={{ fontSize:13 }} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-white leading-tight">API Keys</p>
+                      <p className="text-[10px] text-slate-500 leading-tight truncate max-w-[180px]">{selectedUser.display_name || selectedUser.email}</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={closeKeysModal}
+                    className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
+                    style={{ background:'rgba(255,255,255,0.05)',border:'1px solid rgba(255,255,255,0.08)' }}
+                    onMouseEnter={e => (e.currentTarget.style.background='rgba(255,255,255,0.09)')}
+                    onMouseLeave={e => (e.currentTarget.style.background='rgba(255,255,255,0.05)')}
+                  >
+                    <FiX style={{ fontSize:12,color:'rgba(255,255,255,0.5)' }} />
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-1.5 mb-4 mt-3">
+                  <div className="h-px flex-1" style={{ background:'linear-gradient(90deg,rgba(14,165,233,0.3),transparent)' }} />
+                  <span style={{ fontSize:9,color:'rgba(14,165,233,0.5)',fontWeight:700,letterSpacing:'0.1em',textTransform:'uppercase' }}>
+                    {keysLoading ? 'Loading...' : `${userKeys.length} key${userKeys.length !== 1 ? 's' : ''}`}
+                  </span>
+                  <div className="h-px flex-1" style={{ background:'linear-gradient(90deg,transparent,rgba(14,165,233,0.3))' }} />
+                </div>
+
+                <div className="overflow-y-auto space-y-2.5" style={{ maxHeight:'60vh' }}>
+                  {keysLoading ? (
+                    <div className="space-y-2.5">
+                      {[1, 2, 3].map(i => (
+                        <div key={i} className="rounded-xl p-3.5 animate-pulse" style={{ background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.06)' }}>
+                          <div className="flex items-center gap-3 mb-3">
+                            <div className="w-8 h-8 rounded-lg" style={{ background:'rgba(14,165,233,0.08)' }} />
+                            <div className="flex-1 space-y-1.5">
+                              <div className="h-3 rounded-full w-1/3" style={{ background:'rgba(255,255,255,0.07)' }} />
+                              <div className="h-2.5 rounded-full w-1/2" style={{ background:'rgba(255,255,255,0.04)' }} />
+                            </div>
+                          </div>
+                          <div className="h-1.5 rounded-full" style={{ background:'rgba(255,255,255,0.04)' }} />
+                        </div>
+                      ))}
+                    </div>
+                  ) : userKeys.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-10 gap-3">
+                      <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background:'rgba(14,165,233,0.06)',border:'1px solid rgba(14,165,233,0.12)' }}>
+                        <FiKey style={{ fontSize:18,color:'rgba(14,165,233,0.4)' }} />
+                      </div>
+                      <div className="text-center">
+                        <p className="text-xs font-semibold text-slate-400 mb-0.5">No API Keys</p>
+                        <p style={{ fontSize:11,color:'rgba(255,255,255,0.2)' }}>This user has no active keys</p>
+                      </div>
+                    </div>
+                  ) : (
+                    userKeys.map((key, idx) => {
+                      const pct = key.rate_limit > 0 ? Math.min((key.requests_today / key.rate_limit) * 100, 100) : 0;
+                      const colors = getRateLimitColor(key.requests_today, key.rate_limit);
+                      return (
+                        <div
+                          key={key.id}
+                          className="group rounded-xl p-3.5 transition-all duration-200"
+                          style={{
+                            background:'rgba(255,255,255,0.03)',
+                            border:'1px solid rgba(255,255,255,0.07)',
+                            animation:`kmItemIn 0.3s cubic-bezier(0.22,1,0.36,1) ${idx * 0.05}s both`,
+                          }}
+                          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background='rgba(14,165,233,0.05)'; (e.currentTarget as HTMLElement).style.borderColor='rgba(14,165,233,0.18)'; }}
+                          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background='rgba(255,255,255,0.03)'; (e.currentTarget as HTMLElement).style.borderColor='rgba(255,255,255,0.07)'; }}
+                        >
+                          <div className="flex items-start gap-3 mb-3">
+                            <div className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center" style={{ background:'rgba(14,165,233,0.08)',border:'1px solid rgba(14,165,233,0.15)' }}>
+                              <FiKey style={{ fontSize:12,color:'#38bdf8' }} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-0.5">
+                                <p className="text-xs font-bold text-white truncate">{key.name || 'Unnamed Key'}</p>
+                                <span
+                                  className="flex-shrink-0 px-1.5 py-0.5 rounded-full text-[8px] font-bold"
+                                  style={{
+                                    background: key.is_active ? 'rgba(52,211,153,0.1)' : 'rgba(248,113,113,0.1)',
+                                    border: `1px solid ${key.is_active ? 'rgba(52,211,153,0.25)' : 'rgba(248,113,113,0.25)'}`,
+                                    color: key.is_active ? '#34d399' : '#f87171',
+                                    letterSpacing: '0.06em',
+                                    textTransform: 'uppercase',
+                                  }}
+                                >
+                                  {key.is_active ? 'Active' : 'Inactive'}
+                                </span>
+                              </div>
+                              <p className="font-mono text-[9px] truncate" style={{ color:'rgba(255,255,255,0.25)' }}>
+                                {key.key_prefix}••••••••••••
+                              </p>
+                            </div>
+                            <button
+                              onClick={() => copyToClipboard(key.key_prefix, key.id)}
+                              className="flex-shrink-0 w-6 h-6 rounded-md flex items-center justify-center transition-all duration-150"
+                              style={{ background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.07)' }}
+                              onMouseEnter={e => (e.currentTarget.style.background='rgba(14,165,233,0.1)')}
+                              onMouseLeave={e => (e.currentTarget.style.background='rgba(255,255,255,0.04)')}
+                            >
+                              {copiedCode === key.id
+                                ? <FiCheck style={{ fontSize:9,color:'#34d399' }} />
+                                : <FiCopy style={{ fontSize:9,color:'rgba(255,255,255,0.3)' }} />
+                              }
+                            </button>
+                          </div>
+
+                          <div className="mb-2">
+                            <div className="flex items-center justify-between mb-1.5">
+                              <span style={{ fontSize:9,color:'rgba(255,255,255,0.25)',fontWeight:600,letterSpacing:'0.08em',textTransform:'uppercase' }}>Rate Limit Today</span>
+                              <span className={`text-[10px] font-bold tabular-nums ${colors.text}`}>
+                                {key.requests_today.toLocaleString()} / {key.rate_limit.toLocaleString()}
+                              </span>
+                            </div>
+                            <div className="relative h-1.5 rounded-full overflow-hidden" style={{ background:'rgba(255,255,255,0.06)' }}>
+                              <div
+                                className="absolute inset-y-0 left-0 rounded-full transition-all duration-500"
+                                style={{ width:`${pct}%`,background:`linear-gradient(90deg,${colors.bar}cc,${colors.bar})`,boxShadow:`0 0 8px ${colors.bar}50` }}
+                              />
+                            </div>
+                            <div className="flex items-center justify-between mt-1">
+                              <span style={{ fontSize:8,color:'rgba(255,255,255,0.18)' }}>
+                                {key.last_used_at
+                                  ? `Last used ${new Date(key.last_used_at).toLocaleDateString('en-US', { month:'short', day:'numeric' })}`
+                                  : 'Never used'
+                                }
+                              </span>
+                              <span style={{ fontSize:8,fontWeight:700,color:colors.bar }}>{Math.round(pct)}%</span>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-1.5 pt-2" style={{ borderTop:'1px solid rgba(255,255,255,0.05)' }}>
+                            <FiCalendar style={{ fontSize:8,color:'rgba(255,255,255,0.2)',flexShrink:0 }} />
+                            <span style={{ fontSize:9,color:'rgba(255,255,255,0.2)' }}>
+                              Created {new Date(key.created_at).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' })}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+
+                <div className="mt-4 pt-3" style={{ borderTop:'1px solid rgba(255,255,255,0.06)' }}>
+                  <button
+                    onClick={closeKeysModal}
+                    className="w-full py-2.5 rounded-xl text-xs font-semibold transition-all duration-150"
+                    style={{ background:'rgba(255,255,255,0.05)',border:'1px solid rgba(255,255,255,0.08)',color:'rgba(255,255,255,0.5)' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background='rgba(255,255,255,0.08)'; (e.currentTarget as HTMLElement).style.color='rgba(255,255,255,0.7)'; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background='rgba(255,255,255,0.05)'; (e.currentTarget as HTMLElement).style.color='rgba(255,255,255,0.5)'; }}
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <style jsx>{`
+              @keyframes kmBgIn { from{opacity:0;} to{opacity:1;} }
+              @keyframes kmIn { from{opacity:0;transform:translateY(24px) scale(0.96);} to{opacity:1;transform:translateY(0) scale(1);} }
+              @keyframes kmOut { from{opacity:1;transform:translateY(0) scale(1);} to{opacity:0;transform:translateY(16px) scale(0.97);} }
+              @keyframes kmItemIn { from{opacity:0;transform:translateY(8px);} to{opacity:1;transform:translateY(0);} }
+              @media(max-width:640px) {
+                @keyframes kmIn { from{opacity:0;transform:translateY(100%);} to{opacity:1;transform:translateY(0);} }
+                @keyframes kmOut { from{opacity:1;transform:translateY(0);} to{opacity:0;transform:translateY(60px);} }
               }
             `}</style>
           </div>
