@@ -98,6 +98,48 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           return res.status(200).json({ users: usersWithDetails });
         }
 
+        if (type === 'user-keys') {
+          const { user_id } = req.query;
+
+          if (!user_id || typeof user_id !== 'string') {
+            return res.status(400).json({ error: 'user_id is required' });
+          }
+
+          const { data: keys, error } = await supabaseAdmin
+            .from('api_keys')
+            .select('id, name, prefix, rate_limit, requests_used, is_active, created_at, last_reset_at')
+            .eq('user_id', user_id)
+            .order('created_at', { ascending: false });
+
+          if (error) throw error;
+
+          const today = new Date().toISOString().split('T')[0];
+
+          const keysWithUsage = await Promise.all(
+            (keys || []).map(async (key: any) => {
+              const { data: usage } = await supabaseAdmin
+                .from('daily_usage')
+                .select('requests_count')
+                .eq('api_key_id', key.id)
+                .eq('date', today)
+                .maybeSingle();
+
+              return {
+                id: key.id,
+                name: key.name,
+                key_prefix: key.prefix,
+                rate_limit: key.rate_limit,
+                requests_today: usage?.requests_count || 0,
+                is_active: key.is_active,
+                created_at: key.created_at,
+                last_used_at: key.last_reset_at,
+              };
+            })
+          );
+
+          return res.status(200).json({ keys: keysWithUsage });
+        }
+
         return res.status(400).json({ error: 'Invalid type parameter' });
       } catch (error: any) {
         console.error('GET Admin Error:', error);
