@@ -24,21 +24,21 @@ type SettingsProps = {
 const PLAN_CONFIG = {
   free: {
     name: 'Free',
-    limit: '100',
+    limit: '1000',
     color: 'sky',
     gradient: 'from-sky-500 to-blue-500',
     features: ['100 requests/day', 'Basic models', 'Community support'],
   },
   pro: {
     name: 'Pro',
-    limit: '400',
+    limit: '4000',
     color: 'purple',
     gradient: 'from-purple-500 to-pink-500',
     features: ['400 requests/day', 'All models', 'Priority support', 'Advanced features'],
   },
   enterprise: {
     name: 'Enterprise',
-    limit: '800',
+    limit: '8000',
     color: 'rose',
     gradient: 'from-rose-500 to-red-500',
     features: ['800 requests/day', 'All models', 'Dedicated support', 'Custom solutions'],
