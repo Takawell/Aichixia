@@ -980,8 +980,8 @@ export default function AdminDashboard() {
                 <label className="block text-[10px] sm:text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Plan Type</label>
                 <select value={newPromo.plan_type} onChange={e => setNewPromo({ ...newPromo, plan_type: e.target.value })}
                   className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-xs sm:text-sm text-slate-800 dark:text-white outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all">
-                  <option value="pro">Pro (400 req/day)</option>
-                  <option value="enterprise">Enterprise (800 req/day)</option>
+                  <option value="pro">Pro (4000 req/day)</option>
+                  <option value="enterprise">Enterprise (8000 req/day)</option>
                 </select>
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -1185,9 +1185,9 @@ export default function AdminDashboard() {
                         onChange={e => setEditUser({ ...editUser, plan: e.target.value })}
                         className="w-full px-3 py-2 bg-sky-50/60 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800/50 rounded-xl text-xs text-slate-800 dark:text-white outline-none focus:border-sky-500 dark:focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all"
                       >
-                        <option value="free">Free (100 req/day)</option>
-                        <option value="pro">Pro (400 req/day)</option>
-                        <option value="enterprise">Enterprise (800 req/day)</option>
+                        <option value="free">Free (1000 req/day)</option>
+                        <option value="pro">Pro (4000 req/day)</option>
+                        <option value="enterprise">Enterprise (8000 req/day)</option>
                       </select>
                     </div>
                     <div>
