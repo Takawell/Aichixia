@@ -242,6 +242,27 @@ export async function createApiKey(userId: string, name: string) {
   return data;
 }
 
+export async function syncUserKeysRateLimit(userId: string) {
+  const supabaseAdmin = getServiceSupabase();
+
+  const { data: settings } = await supabaseAdmin
+    .from('user_settings')
+    .select('plan')
+    .eq('user_id', userId)
+    .single();
+
+  const userPlan = settings?.plan || 'free';
+  const rateLimit = userPlan === 'enterprise' ? 8000 : userPlan === 'pro' ? 4000 : 1000;
+
+  const { error } = await supabaseAdmin
+    .from('api_keys')
+    .update({ rate_limit: rateLimit })
+    .eq('user_id', userId)
+    .eq('is_active', true);
+
+  return !error;
+}
+
 export async function revokeApiKey(userId: string, keyId: string) {
   const supabaseAdmin = getServiceSupabase();
 
