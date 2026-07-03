@@ -1,5 +1,3 @@
-import { ProxyAgent } from "undici";
-
 export type Role = "user" | "assistant" | "system" | "tool";
 
 export type ChatMessage = {
@@ -11,7 +9,6 @@ export type ChatMessage = {
 
 const OPUS_BASE_URL = process.env.OPUS_BASE_URL;
 const OPUS_MODEL = process.env.OPUS_MODEL || "anthropic/claude-opus-4.8";
-const PROXIES = process.env.PROXIES ? process.env.PROXIES.split(",") : [];
 
 export class OpusError extends Error {
   constructor(message: string) {
@@ -70,16 +67,9 @@ export async function chatOpus(
   url.searchParams.set("prompt", prompt);
   url.searchParams.set("model", opts?.model ?? OPUS_MODEL);
 
-  const fetchOptions: RequestInit = {
+  const response = await fetch(url.toString(), {
     method: "POST",
-  };
-
-  if (PROXIES.length > 0) {
-    const randomProxy = PROXIES[Math.floor(Math.random() * PROXIES.length)];
-    (fetchOptions as any).dispatcher = new ProxyAgent(randomProxy);
-  }
-
-  const response = await fetch(url.toString(), fetchOptions);
+  });
 
   if (response.status === 429) {
     throw new OpusRateLimitError("Opus proxy rate limit exceeded.");
