@@ -45,7 +45,7 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "deepseek-v3.2": { fn: chatDeepSeek, provider: "deepseek" },
   "deepseek-v4-flash": { fn: chatDeepSeekV, provider: "deepseek-v" },
   "gpt-5-mini": { fn: chatOpenAI, provider: "openai" },
-  "claude-opus-4.5": { fn: chatClaude, provider: "claude" },
+  "claude-sonnet-4.6": { fn: chatClaude, provider: "claude" },
   "claude-opus-4.8": { fn: chatOpus, provider: "opus" },
   "gemini-3-flash": { fn: chatGemini, provider: "gemini" },
   "kimi-k2.6": { fn: chatKimi, provider: "kimi" },
