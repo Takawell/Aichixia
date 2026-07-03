@@ -7,6 +7,7 @@ import { chatKimi, KimiRateLimitError, KimiQuotaError } from "@/lib/kimi";
 import { chatGlm, GlmRateLimitError, GlmQuotaError } from "@/lib/glm";
 import { chatGPT, GPTRateLimitError, GPTQuotaError } from "@/lib/gpt";
 import { chatClaude, ClaudeRateLimitError, ClaudeQuotaError } from "@/lib/claude";
+import { chatOpus, OpusRateLimitError, OpusQuotaError } from "@/lib/opus";
 import { chatCohere, CohereRateLimitError, CohereQuotaError } from "@/lib/cohere";
 import { chatDeepSeek, DeepSeekRateLimitError, DeepSeekQuotaError } from "@/lib/deepseek";
 import { chatDeepSeekV, DeepSeekVRateLimitError, DeepSeekVQuotaError } from "@/lib/deepseek-v";
@@ -43,7 +44,8 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "deepseek-v3.2": { fn: chatDeepSeek, provider: "deepseek" },
   "deepseek-v3.1": { fn: chatDeepSeekV, provider: "deepseek-v" },
   "gpt-5-mini": { fn: chatOpenAI, provider: "openai" },
-  "claude-opus-4.5": { fn: chatClaude, provider: "claude" },
+  "claude-sonnet-4.6": { fn: chatClaude, provider: "claude" },
+  "claude-opus-4.8": { fn: chatOpus, provider: "opus" },
   "gemini-3-flash": { fn: chatGemini, provider: "gemini" },
   "kimi-k2.5": { fn: chatKimi, provider: "kimi" },
   "glm-4.7": { fn: chatGlm, provider: "glm" },
@@ -65,7 +67,7 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "aichixia-flash": { fn: chatAichixia, provider: "aichixia" },
 };
 
-const LOCKED_MODELS_PRO = ['deepseek-v3.2', 'minimax-m2.7', 'qwen3-235b', 'claude-opus-4.5', 'glm-4.7', 'aichixia-flash', 'grok-4-fast', 'kimi-k2.5'];
+const LOCKED_MODELS_PRO = ['deepseek-v3.2', 'minimax-m2.7', 'qwen3-235b', 'claude-sonnet-4.6', 'glm-4.7', 'aichixia-flash', 'grok-4-fast', 'kimi-k2.5'];
 
 const RATE_LIMIT_ERRORS = [
   OpenAIRateLimitError, KimiRateLimitError, GlmRateLimitError, GPTRateLimitError,
@@ -73,7 +75,7 @@ const RATE_LIMIT_ERRORS = [
   QwenRateLimitError, QwenV2RateLimitError, GptOssRateLimitError, CompoundRateLimitError,
   LlamaRateLimitError, MistralRateLimitError, MimoRateLimitError, PhiRateLimitError,
   MinimaxRateLimitError, GrokRateLimitError, GrokFastRateLimitError, ZhipuRateLimitError,
-  AichixiaRateLimitError, CopilotRateLimitError,
+  AichixiaRateLimitError, CopilotRateLimitError, OpusRateLimitError,
 ];
 
 const QUOTA_ERRORS = [
@@ -82,7 +84,7 @@ const QUOTA_ERRORS = [
   QwenQuotaError, QwenV2QuotaError, GptOssQuotaError, CompoundQuotaError,
   LlamaQuotaError, MistralQuotaError, MimoQuotaError, PhiQuotaError,
   MinimaxQuotaError, GrokQuotaError, GrokFastQuotaError, ZhipuQuotaError,
-  AichixiaQuotaError, CopilotQuotaError,
+  AichixiaQuotaError, CopilotQuotaError, OpusQuotaError,
 ];
 
 function isRateLimitError(error: any): boolean {
