@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { FiCopy, FiCheck, FiLock, FiZap, FiCpu, FiTrendingUp, FiDollarSign, FiSearch, FiStar, FiInfo, FiImage, FiX, FiExternalLink, FiMic } from 'react-icons/fi';
-import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiAirbrake, SiMaze, SiXiaomi, SiFlux, SiImagedotsc, SiSecurityscorecard, SiLapce, SiGithubcopilot } from 'react-icons/si';
+import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiAirbrake, SiMaze, SiXiaomi, SiFlux, SiImagedotsc, SiSecurityscorecard, SiLapce, SiGithubcopilot, SiAudiomack, SiSoundcloud } from 'react-icons/si';
 import { GiSpermWhale, GiPowerLightning, GiClover, GiFire, GiWormMouth, } from 'react-icons/gi';
 import { TbSquareLetterZ, TbLetterM } from 'react-icons/tb';
 import { TiVendorMicrosoft } from "react-icons/ti";
@@ -17,6 +17,14 @@ type ModelProps = {
   settings: UserSettings | null;
   onCopy: (text: string, id: string) => void;
   copiedKey: string | null;
+};
+
+const LANGUAGE_FLAGS: Record<string, string> = {
+  eng: '🇺🇸',
+  kor: '🇰🇷',
+  jpn: '🇯🇵',
+  cmn: '🇨🇳',
+  spa: '🇪🇸',
 };
 
 const AVAILABLE_MODELS = [
@@ -450,6 +458,7 @@ const AVAILABLE_MODELS = [
     contextWindow: '2K chars',
     pricing: 'Standard',
     features: ['Emotional', 'Natural', 'Multi-language'],
+    languages: ['eng', 'kor', 'jpn', 'cmn', 'spa'],
     endpoint: 'https://www.aichixia.xyz/api/v1/audio/speech',
   },
   {
@@ -464,6 +473,37 @@ const AVAILABLE_MODELS = [
     contextWindow: '2K chars',
     pricing: 'Premium',
     features: ['Premium', 'Prosody', 'Enhanced'],
+    languages: ['eng', 'kor', 'jpn', 'cmn', 'spa'],
+    endpoint: 'https://www.aichixia.xyz/api/v1/audio/speech',
+  },
+  {
+    id: 'miu-tts',
+    name: 'Miu Kobayashi TTS',
+    icon: SiAudiomack,
+    color: 'from-fuchsia-500 to-pink-600',
+    category: 'Text-to-Speech',
+    description: 'Expressive voice actor model with vivid emotional range',
+    speed: 4,
+    quality: 5,
+    contextWindow: '2K chars',
+    pricing: 'Standard',
+    features: ['Expressive', 'Character voice', 'Multi-language'],
+    languages: ['eng', 'kor', 'jpn', 'cmn', 'spa'],
+    endpoint: 'https://www.aichixia.xyz/api/v1/audio/speech',
+  },
+  {
+    id: 'catherine-tts',
+    name: 'Catherine TTS',
+    icon: SiSoundcloud,
+    color: 'from-sky-500 to-indigo-500',
+    category: 'Text-to-Speech',
+    description: 'Warm, polished voice actor model for professional narration',
+    speed: 4,
+    quality: 5,
+    contextWindow: '2K chars',
+    pricing: 'Standard',
+    features: ['Professional', 'Warm tone', 'Multi-language'],
+    languages: ['eng', 'kor', 'jpn', 'cmn', 'spa'],
     endpoint: 'https://www.aichixia.xyz/api/v1/audio/speech',
   },
   {
@@ -845,6 +885,23 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
                   ))}
                 </div>
               </div>
+
+              {(activeModal as any).languages && (
+                <div className="mb-5">
+                  <p className="text-[9px] uppercase tracking-widest font-semibold text-zinc-400 dark:text-zinc-500 mb-2">Supported Languages</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {(activeModal as any).languages.map((lang: string) => (
+                      <span
+                        key={lang}
+                        className="flex items-center gap-1 text-[10px] px-2 py-1 bg-violet-50 dark:bg-violet-900/20 text-violet-700 dark:text-violet-400 rounded-lg border border-violet-200 dark:border-violet-800 font-medium uppercase"
+                      >
+                        <span>{LANGUAGE_FLAGS[lang] ?? '🌐'}</span>
+                        {lang}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
                 <p className="text-[9px] uppercase tracking-widest font-semibold text-zinc-400 dark:text-zinc-500 mb-2">Endpoint</p>
