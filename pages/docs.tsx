@@ -86,7 +86,7 @@ export default function Docs() {
           model: 'gpt-5-mini',
           max_tokens: 4096,
           messages: [
-            { role: 'system', content: 'You are a helpful API assistant for Aichixia, an AI API aggregation platform. Help users integrate and use the Aichixia API. Keep answers concise and clear. Aichixia base URL: https://www.aichixia.xyz. Auth: Bearer token or x-api-key header.\n\nEndpoints:\n- Chat (OpenAI-compat): POST /api/v1/chat/completions\n- Messages (Anthropic-compat): POST /api/v1/messages\n- Image generation: POST /api/v1/images/generations\n- TTS: POST /api/v1/audio/speech\n- STT Transcription: POST /api/v1/audio/transcriptions\n- STT Translation: POST /api/v1/audio/translations\n\nText models (free): gpt-5-mini, gpt-5.2, gpt-oss-120b, gemini-3-flash, grok-3, deepseek-v3.1, mistral-large-3-675b-instruct, glm-4.7-flash, kimi-k2.5, qwen3-coder-480b, llama-3.3-70b, mimo-v2-flash, groq-compound, cohere-command-a\nText models (pro): claude-opus-4.5, grok-4-fast, deepseek-v3.2, glm-4.7, qwen3-235b, minimax-m2.7, aichixia-flash\nVision models: gemini-3-flash, gpt-5.2, aichixia-flash, grok-4-fast\nImage generation models: flux-2-dev, lucid-origin, phoenix-1.0, nano-image\nTTS models: starling-tts, lindsay-tts\nSTT models: whisper-large-v3 (max accuracy), whisper-large-v3-turbo (max speed 216x real-time)\n\nPlans: Free=100 req/day, Pro=400 req/day, Enterprise=800 req/day.\nContact: contact@aichixia.xyz | Telegram community: https://t.me/AichixiaAPI\nDo not use tool calling or function calling. Use code examples when relevant.' },
+            { role: 'system', content: 'You are a helpful API assistant for Aichixia, an AI API aggregation platform. Help users integrate and use the Aichixia API. Keep answers concise and clear. Aichixia base URL: https://www.aichixia.xyz. Auth: Bearer token or x-api-key header.\n\nEndpoints:\n- Chat (OpenAI-compat): POST /api/v1/chat/completions\n- Messages (Anthropic-compat): POST /api/v1/messages\n- Image generation: POST /api/v1/images/generations\n- TTS: POST /api/v1/audio/speech\n- STT Transcription: POST /api/v1/audio/transcriptions\n- STT Translation: POST /api/v1/audio/translations\n\nText models (free): gpt-5-mini, gpt-5.2, gpt-oss-120b, gemini-3-flash, grok-3, deepseek-v3.1, mistral-large-3-675b-instruct, glm-4.7-flash, kimi-k2.5, qwen3-coder-480b, llama-3.3-70b, mimo-v2-flash, groq-compound, cohere-command-a\nText models (pro): claude-opus-4.5, grok-4-fast, deepseek-v3.2, glm-4.7, qwen3-235b, minimax-m2.7, aichixia-flash\nVision models: gemini-3-flash, gpt-5.2, aichixia-flash, grok-4-fast\nImage generation models: flux-2-dev, lucid-origin, phoenix-1.0, nano-image\nTTS models: starling-tts, lindsay-tts, miu-tts, catherine-tts (all support language codes: eng, kor, jpn, cmn, spa)\nSTT models: whisper-large-v3 (max accuracy), whisper-large-v3-turbo (max speed 216x real-time)\n\nPlans: Free=100 req/day, Pro=400 req/day, Enterprise=800 req/day.\nContact: contact@aichixia.xyz | Telegram community: https://t.me/AichixiaAPI\nDo not use tool calling or function calling. Use code examples when relevant.' },
             ...newMessages.map(m => ({ role: m.role, content: m.content })),
           ],
         }),
@@ -263,6 +263,7 @@ print(image_base64)`,
   body: JSON.stringify({
     model: 'starling-tts',
     input: 'Hello, this is a text to speech demo',
+    language: 'eng',
     emotion: 'normal',
     volume: 100,
     pitch: 0,
@@ -286,6 +287,7 @@ response = requests.post(
     json={
         'model': 'starling-tts',
         'input': 'Hello, this is a text to speech demo',
+        'language': 'eng',
         'emotion': 'normal',
         'volume': 100,
         'pitch': 0,
@@ -303,6 +305,7 @@ print(data['audio_url'])`,
   -d '{
     "model": "starling-tts",
     "input": "Hello, this is a text to speech demo",
+    "language": "eng",
     "emotion": "normal",
     "volume": 100,
     "pitch": 0,
@@ -690,7 +693,7 @@ console.log(data.text);`,
                       <FaBolt className="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
                       <div>
                         <h4 className="text-sm font-bold text-blue-900 dark:text-blue-100 mb-1">Endpoint</h4>
-                        <code className="text-xs text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded">POST {base}/api/v1/chat/completions</code>
+                        <code className="text-xs text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded break-all inline-block max-w-full">POST {base}/api/v1/chat/completions</code>
                         <p className="text-xs text-blue-700 dark:text-blue-300 mt-1.5">Fully OpenAI-compatible. Set <code className="bg-blue-100 dark:bg-blue-900/30 px-1 rounded">baseURL: "{base}/api/v1"</code> in any OpenAI SDK.</p>
                       </div>
                     </div>
@@ -828,7 +831,7 @@ console.log(data.text);`,
                       <FaBolt className="w-4 h-4 text-orange-600 dark:text-orange-400 mt-0.5 flex-shrink-0" />
                       <div>
                         <h4 className="text-sm font-bold text-orange-900 dark:text-orange-100 mb-1">Endpoint</h4>
-                        <code className="text-xs text-orange-700 dark:text-orange-300 bg-orange-100 dark:bg-orange-900/30 px-2 py-1 rounded">POST {base}/api/v1/messages</code>
+                        <code className="text-xs text-orange-700 dark:text-orange-300 bg-orange-100 dark:bg-orange-900/30 px-2 py-1 rounded break-all inline-block max-w-full">POST {base}/api/v1/messages</code>
                         <p className="text-xs text-orange-700 dark:text-orange-300 mt-1.5">Set <code className="bg-orange-100 dark:bg-orange-900/30 px-1 rounded">baseURL: "{base}/api/v1"</code> in the Anthropic SDK constructor.</p>
                       </div>
                     </div>
@@ -938,7 +941,7 @@ console.log(data.text);`,
                       <FaImage className="w-4 h-4 text-pink-600 dark:text-pink-400 mt-0.5 flex-shrink-0" />
                       <div>
                         <h4 className="text-sm font-bold text-pink-900 dark:text-pink-100 mb-1">Endpoint</h4>
-                        <code className="text-xs text-pink-700 dark:text-pink-300 bg-pink-100 dark:bg-pink-900/30 px-2 py-1 rounded">POST {base}/api/v1/images/generations</code>
+                        <code className="text-xs text-pink-700 dark:text-pink-300 bg-pink-100 dark:bg-pink-900/30 px-2 py-1 rounded break-all inline-block max-w-full">POST {base}/api/v1/images/generations</code>
                         <p className="text-xs text-pink-700 dark:text-pink-300 mt-1.5">Response returns base64-encoded image in <code className="bg-pink-100 dark:bg-pink-900/30 px-1 rounded">data[0].b64_json</code></p>
                       </div>
                     </div>
@@ -1023,7 +1026,7 @@ console.log(data.text);`,
                   <div>
                     <h2 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white mb-3">Text-to-Speech API</h2>
                     <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400">
-                      Convert text to natural-sounding speech with emotional control using Starling TTS and Lindsay TTS.
+                      Convert text to natural-sounding speech with emotional control using Starling TTS, Lindsay TTS, Miu Kobayashi TTS, and Catherine TTS.
                     </p>
                   </div>
 
@@ -1032,7 +1035,7 @@ console.log(data.text);`,
                       <FaMicrophone className="w-4 h-4 text-violet-600 dark:text-violet-400 mt-0.5 flex-shrink-0" />
                       <div>
                         <h4 className="text-sm font-bold text-violet-900 dark:text-violet-100 mb-1">Endpoint</h4>
-                        <code className="text-xs text-violet-700 dark:text-violet-300 bg-violet-100 dark:bg-violet-900/30 px-2 py-1 rounded">POST {base}/api/v1/audio/speech</code>
+                        <code className="text-xs text-violet-700 dark:text-violet-300 bg-violet-100 dark:bg-violet-900/30 px-2 py-1 rounded break-all inline-block max-w-full">POST {base}/api/v1/audio/speech</code>
                         <p className="text-xs text-violet-700 dark:text-violet-300 mt-1.5">Returns audio as data URI in <code className="bg-violet-100 dark:bg-violet-900/30 px-1 rounded">audio_url</code> and raw base64 in <code className="bg-violet-100 dark:bg-violet-900/30 px-1 rounded">audio</code></p>
                       </div>
                     </div>
@@ -1045,7 +1048,7 @@ console.log(data.text);`,
                     </button>
                     {expandedSection === 'tts-request' && (
                       <div className="p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
-                        <Param name="model" required type="string" desc="TTS model ID: starling-tts or lindsay-tts" />
+                        <Param name="model" required type="string" desc="TTS model ID: starling-tts, lindsay-tts, miu-tts, or catherine-tts" />
                         <Param name="input" required type="string" desc="The text to convert to speech. Max 2000 characters." />
                         <Param name="emotion" type="string" desc="Emotional tone: normal, happy, sad, angry, fearful, disgusted, surprised. Default: normal" />
                         <Param name="volume" type="number" desc="Output volume 0–200. Default: 100" />
@@ -1053,7 +1056,7 @@ console.log(data.text);`,
                         <Param name="tempo" type="number" desc="Speed multiplier 0.5–2.0. Default: 1" />
                         <Param name="response_format" type="string" desc="Audio format: mp3 or wav. Default: mp3" />
                         <Param name="emotion_intensity" type="number" desc="Emotion intensity 0–2. Default: 1" />
-                        <Param name="language" type="string" desc="Language code. Default: eng" />
+                        <Param name="language" type="string" desc="Language code: eng, kor, jpn, cmn, or spa. Default: eng" />
                         <Param name="seed" type="number" desc="Random seed for reproducibility. Optional." />
                       </div>
                     )}
@@ -1087,18 +1090,44 @@ console.log(data.text);`,
                     </button>
                     {expandedSection === 'tts-models' && (
                       <div className="p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
-                        <div className="space-y-2">
+                        <div className="grid sm:grid-cols-2 gap-2">
                           {[
                             { id: 'starling-tts', name: 'Starling TTS', provider: 'Typecast', desc: 'Natural voice with emotional control. Standard quality.' },
                             { id: 'lindsay-tts', name: 'Lindsay TTS', provider: 'Typecast', desc: 'Premium voice with enhanced prosody and clarity.' },
+                            { id: 'miu-tts', name: 'Miu Kobayashi TTS', provider: 'Typecast', desc: 'Expressive voice actor model with vivid emotional range.' },
+                            { id: 'catherine-tts', name: 'Catherine TTS', provider: 'Typecast', desc: 'Warm, polished voice for professional narration.' },
                           ].map(({ id, name, provider, desc }) => (
                             <div key={id} className="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
-                              <div className="flex items-center justify-between mb-1">
-                                <p className="text-xs font-semibold text-zinc-900 dark:text-white">{name}</p>
-                                <span className="text-[9px] text-zinc-400 dark:text-zinc-500">{provider}</span>
+                              <div className="flex items-center justify-between mb-1 gap-2">
+                                <p className="text-xs font-semibold text-zinc-900 dark:text-white truncate">{name}</p>
+                                <span className="text-[9px] text-zinc-400 dark:text-zinc-500 flex-shrink-0">{provider}</span>
                               </div>
-                              <code className="text-[10px] text-violet-600 dark:text-violet-400 font-mono">{id}</code>
+                              <code className="text-[10px] text-violet-600 dark:text-violet-400 font-mono break-all">{id}</code>
                               <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mt-0.5">{desc}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    <button onClick={() => toggleSection('tts-languages')} className="w-full flex items-center justify-between p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
+                      <h3 className="text-base font-bold text-zinc-900 dark:text-white">Supported Languages</h3>
+                      <FaChevronRight className={`w-4 h-4 text-zinc-400 transition-transform duration-200 ${expandedSection === 'tts-languages' ? 'rotate-90' : ''}`} />
+                    </button>
+                    {expandedSection === 'tts-languages' && (
+                      <div className="p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+                        <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-3">All TTS models support the same set of language codes for the <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">language</code> parameter.</p>
+                        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                          {[
+                            { code: 'eng', label: 'English', flag: '🇺🇸' },
+                            { code: 'kor', label: 'Korean', flag: '🇰🇷' },
+                            { code: 'jpn', label: 'Japanese', flag: '🇯🇵' },
+                            { code: 'cmn', label: 'Mandarin', flag: '🇨🇳' },
+                            { code: 'spa', label: 'Spanish', flag: '🇪🇸' },
+                          ].map(({ code, label, flag }) => (
+                            <div key={code} className="flex flex-col items-center gap-1 p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
+                              <span className="text-base leading-none">{flag}</span>
+                              <code className="text-[10px] font-mono text-violet-600 dark:text-violet-400">{code}</code>
+                              <span className="text-[9px] text-zinc-500 dark:text-zinc-400">{label}</span>
                             </div>
                           ))}
                         </div>
@@ -1127,7 +1156,7 @@ console.log(data.text);`,
                         <FaCloudUploadAlt className="w-4 h-4 text-teal-600 dark:text-teal-400 mt-0.5 flex-shrink-0" />
                         <div>
                           <h4 className="text-sm font-bold text-teal-900 dark:text-teal-100 mb-1">Transcriptions</h4>
-                          <code className="text-xs text-teal-700 dark:text-teal-300 bg-teal-100 dark:bg-teal-900/30 px-2 py-1 rounded">POST {base}/api/v1/audio/transcriptions</code>
+                          <code className="text-xs text-teal-700 dark:text-teal-300 bg-teal-100 dark:bg-teal-900/30 px-2 py-1 rounded break-all inline-block max-w-full">POST {base}/api/v1/audio/transcriptions</code>
                           <p className="text-xs text-teal-700 dark:text-teal-300 mt-1.5">Transcribes audio into the original language of the recording.</p>
                         </div>
                       </div>
@@ -1137,7 +1166,7 @@ console.log(data.text);`,
                         <FaGlobe className="w-4 h-4 text-emerald-600 dark:text-emerald-400 mt-0.5 flex-shrink-0" />
                         <div>
                           <h4 className="text-sm font-bold text-emerald-900 dark:text-emerald-100 mb-1">Translations</h4>
-                          <code className="text-xs text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-900/30 px-2 py-1 rounded">POST {base}/api/v1/audio/translations</code>
+                          <code className="text-xs text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-900/30 px-2 py-1 rounded break-all inline-block max-w-full">POST {base}/api/v1/audio/translations</code>
                           <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-1.5">Transcribes and translates audio to English, regardless of source language.</p>
                         </div>
                       </div>
