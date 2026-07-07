@@ -893,7 +893,7 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
                     {(activeModal as any).languages.map((lang: string) => (
                       <span
                         key={lang}
-                        className="flex items-center gap-1 text-[10px] px-2 py-1 bg-violet-50 dark:bg-violet-900/20 text-violet-700 dark:text-violet-400 rounded-lg border border-violet-200 dark:border-violet-800 font-medium uppercase"
+                        className="flex items-center gap-1 text-[10px] px-2 py-1 bg-sky-50 dark:bg-sky-900/20 text-sky-700 dark:text-sky-400 rounded-lg border border-sky-200 dark:border-sky-800 font-medium uppercase"
                       >
                         <span>{LANGUAGE_FLAGS[lang] ?? '🌐'}</span>
                         {lang}
