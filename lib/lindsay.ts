@@ -11,11 +11,13 @@ export type EmotionPreset = "normal" | "happy" | "sad" | "angry" | "fearful" | "
 
 export type AudioFormat = "wav" | "mp3";
 
+export type SupportedLanguage = "eng" | "kor" | "jpn" | "cmn" | "spa";
+
 export type TTSConfig = {
   text: string;
   voiceId?: string;
   model?: string;
-  language?: string;
+  language?: SupportedLanguage | string;
   emotion?: EmotionPreset;
   emotionIntensity?: number;
   volume?: number;
