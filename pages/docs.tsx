@@ -86,7 +86,7 @@ export default function Docs() {
           model: 'gpt-5-mini',
           max_tokens: 4096,
           messages: [
-            { role: 'system', content: 'You are a helpful API assistant for Aichixia, an AI API aggregation platform. Help users integrate and use the Aichixia API. Keep answers concise and clear. Aichixia base URL: https://www.aichixia.xyz. Auth: Bearer token or x-api-key header.\n\nEndpoints:\n- Chat (OpenAI-compat): POST /api/v1/chat/completions\n- Messages (Anthropic-compat): POST /api/v1/messages\n- Image generation: POST /api/v1/images/generations\n- TTS: POST /api/v1/audio/speech\n- STT Transcription: POST /api/v1/audio/transcriptions\n- STT Translation: POST /api/v1/audio/translations\n\nText models (free): gpt-5-mini, gpt-5.2, gpt-oss-120b, gemini-3-flash, grok-3, deepseek-v3.1, mistral-large-3-675b-instruct, glm-4.7-flash, kimi-k2.5, qwen3-coder-480b, llama-3.3-70b, mimo-v2-flash, groq-compound, cohere-command-a\nText models (pro): claude-opus-4.5, grok-4-fast, deepseek-v3.2, glm-4.7, qwen3-235b, minimax-m2.7, aichixia-flash\nVision models: gemini-3-flash, gpt-5.2, aichixia-flash, grok-4-fast\nImage generation models: flux-2-dev, lucid-origin, phoenix-1.0, nano-image\nTTS models: starling-tts, lindsay-tts, miu-tts, catherine-tts (all support language codes: eng, kor, jpn, cmn, spa)\nSTT models: whisper-large-v3 (max accuracy), whisper-large-v3-turbo (max speed 216x real-time)\n\nPlans: Free=100 req/day, Pro=400 req/day, Enterprise=800 req/day.\nContact: contact@aichixia.xyz | Telegram community: https://t.me/AichixiaAPI\nDo not use tool calling or function calling. Use code examples when relevant.' },
+            { role: 'system', content: 'You are a helpful API assistant for Aichixia, an AI API aggregation platform. Help users integrate and use the Aichixia API. Keep answers concise and clear. Aichixia base URL: https://www.aichixia.xyz. Auth: Bearer token or x-api-key header.\n\nEndpoints:\n- Chat (OpenAI-compat): POST /api/v1/chat/completions\n- Messages (Anthropic-compat): POST /api/v1/messages\n- Image generation: POST /api/v1/images/generations\n- TTS: POST /api/v1/audio/speech\n- STT Transcription: POST /api/v1/audio/transcriptions\n- STT Translation: POST /api/v1/audio/translations\n\nText models (free): gpt-5-mini, gpt-5.2, gpt-oss-120b, gemini-3-flash, grok-3, deepseek-v3.1, mistral-large-3-675b-instruct, glm-4.7-flash, kimi-k2.5, qwen3-coder-480b, llama-3.3-70b, mimo-v2-flash, groq-compound, cohere-command-a\nText models (pro): claude-opus-4.5, grok-4-fast, deepseek-v3.2, glm-4.7, qwen3-235b, minimax-m2.7, aichixia-flash\nVision models: gemini-3-flash, gpt-5.2, aichixia-flash, grok-4-fast\nImage generation models: flux-2-dev, lucid-origin, phoenix-1.0, nano-image\nTTS models: starling-tts, lindsay-tts, miu-tts, catherine-tts (all support language codes: eng, kor, jpn, cmn, spa)\nSTT models: whisper-large-v3 (max accuracy), whisper-large-v3-turbo (max speed 216x real-time)\n\nPlans: Free=1000 req/day, Pro=4000 req/day, Enterprise=custom (contact sales team via email).\nContact: contact@aichixia.xyz | Telegram community: https://t.me/AichixiaAPI\nDo not use tool calling or function calling. Use code examples when relevant.' },
             ...newMessages.map(m => ({ role: m.role, content: m.content })),
           ],
         }),
@@ -1423,52 +1423,52 @@ console.log(data.text);`,
             <div
               className={`relative flex flex-col overflow-hidden ${assistantVisible ? 'assist-modal-in' : 'assist-modal-out'}`}
               style={{
-                width: 'min(360px, calc(100vw - 32px))',
-                height: 'min(580px, calc(100vh - 90px))',
-                borderRadius: 24,
+                width: 'min(380px, calc(100vw - 32px))',
+                height: 'min(600px, calc(100vh - 90px))',
+                borderRadius: 26,
                 background: isDark
-                  ? 'linear-gradient(145deg,#18181b,#0f0f12)'
-                  : 'linear-gradient(145deg,#ffffff,#faf5ff)',
-                border: isDark ? '1px solid rgba(14,165,233,0.18)' : '1px solid rgba(14,165,233,0.12)',
+                  ? 'linear-gradient(155deg,#191a1f,#0d0e11)'
+                  : 'linear-gradient(155deg,#ffffff,#f8faff)',
+                border: isDark ? '1px solid rgba(99,102,241,0.2)' : '1px solid rgba(99,102,241,0.14)',
                 boxShadow: isDark
-                  ? '0 24px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(14,165,233,0.08), inset 0 1px 0 rgba(255,255,255,0.04)'
-                  : '0 24px 60px rgba(14,165,233,0.12), 0 8px 24px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.9)',
+                  ? '0 28px 70px rgba(0,0,0,0.65), 0 0 0 1px rgba(56,189,248,0.06), inset 0 1px 0 rgba(255,255,255,0.05)'
+                  : '0 28px 70px rgba(37,99,235,0.14), 0 10px 28px rgba(0,0,0,0.07), inset 0 1px 0 rgba(255,255,255,0.9)',
               }}
             >
               <div
-                className="absolute inset-x-0 top-0 h-40 pointer-events-none"
+                className="absolute inset-x-0 top-0 h-44 pointer-events-none"
                 style={{
                   background: isDark
-                    ? 'radial-gradient(ellipse at 50% 0%,rgba(14,165,233,0.1) 0%,transparent 70%)'
-                    : 'radial-gradient(ellipse at 50% 0%,rgba(14,165,233,0.07) 0%,transparent 70%)',
+                    ? 'radial-gradient(ellipse at 50% 0%,rgba(99,102,241,0.14) 0%,transparent 70%)'
+                    : 'radial-gradient(ellipse at 50% 0%,rgba(99,102,241,0.08) 0%,transparent 70%)',
                 }}
               />
               <div className="absolute top-3 right-8 w-1 h-1 rounded-full bg-sky-400 assist-sparkle-1" style={{ boxShadow: '0 0 4px rgba(14,165,233,0.8)' }} />
-              <div className="absolute top-6 right-16 w-1.5 h-1.5 rounded-full bg-blue-400 assist-sparkle-2" style={{ boxShadow: '0 0 4px rgba(56,189,248,0.8)' }} />
-              <div className="absolute top-2 right-24 w-1 h-1 rounded-full bg-blue-400 assist-sparkle-3" style={{ boxShadow: '0 0 4px rgba(96,165,250,0.8)' }} />
+              <div className="absolute top-6 right-16 w-1.5 h-1.5 rounded-full bg-indigo-400 assist-sparkle-2" style={{ boxShadow: '0 0 4px rgba(99,102,241,0.8)' }} />
+              <div className="absolute top-2 right-24 w-1 h-1 rounded-full bg-purple-400 assist-sparkle-3" style={{ boxShadow: '0 0 4px rgba(168,85,247,0.8)' }} />
 
-              <div className="relative z-10 flex items-center justify-between px-4 py-3 flex-shrink-0" style={{ borderBottom: isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(14,165,233,0.08)' }}>
+              <div className="relative z-10 flex items-center justify-between px-4 py-3.5 flex-shrink-0" style={{ borderBottom: isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(99,102,241,0.08)' }}>
                 <div className="flex items-center gap-3">
                   <div className="relative flex-shrink-0 assist-float">
                     <img
                       src="/my.png"
                       alt="Assistant"
                       className="w-9 h-9 rounded-2xl object-cover"
-                      style={{ border: isDark ? '2px solid rgba(14,165,233,0.35)' : '2px solid rgba(14,165,233,0.25)', boxShadow: '0 0 12px rgba(14,165,233,0.25)' }}
+                      style={{ border: isDark ? '2px solid rgba(99,102,241,0.4)' : '2px solid rgba(99,102,241,0.25)', boxShadow: '0 0 14px rgba(99,102,241,0.3)' }}
                       onError={e => {
                         e.currentTarget.style.display = 'none';
                         const fb = e.currentTarget.nextElementSibling as HTMLElement;
                         if (fb) fb.style.display = 'flex';
                       }}
                     />
-                    <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-sky-500 to-blue-600 items-center justify-center" style={{ display: 'none', boxShadow: '0 0 12px rgba(14,165,233,0.35)' }}>
+                    <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-sky-500 via-blue-600 to-indigo-600 items-center justify-center" style={{ display: 'none', boxShadow: '0 0 14px rgba(99,102,241,0.4)' }}>
                       <SiGooglegemini className="text-white text-base" />
                     </div>
-                    <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 rounded-full border-2 z-10" style={{ borderColor: isDark ? '#0f0f12' : '#ffffff', boxShadow: '0 0 6px rgba(52,211,153,0.7)' }} />
+                    <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 rounded-full border-2 z-10" style={{ borderColor: isDark ? '#0d0e11' : '#ffffff', boxShadow: '0 0 6px rgba(52,211,153,0.7)' }} />
                   </div>
                   <div>
-                    <p className="text-xs font-black leading-tight" style={{ color: isDark ? '#f0f9ff' : '#0f172a' }}>Aichixia Assistant</p>
-                    <p className="text-[9px]" style={{ color: isDark ? 'rgba(125,211,252,0.6)' : 'rgba(14,165,233,0.45)' }}>Always online · Powered by Aichixia</p>
+                    <p className="text-xs font-black leading-tight bg-clip-text text-transparent" style={{ backgroundImage: isDark ? 'linear-gradient(90deg,#f0f9ff,#c7d2fe)' : 'linear-gradient(90deg,#0f172a,#4338ca)' }}>Aichixia Assistant</p>
+                    <p className="text-[9px]" style={{ color: isDark ? 'rgba(165,180,252,0.6)' : 'rgba(99,102,241,0.5)' }}>Always online · Powered by Aichixia</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
@@ -1678,24 +1678,32 @@ console.log(data.text);`,
           <button
             onClick={assistantOpen ? closeAssistant : openAssistant}
             className="relative assist-btn-in group"
-            style={{ width: 44, height: 44 }}
+            style={{ width: 52, height: 52 }}
             aria-label="Open Aichixia Assistant"
           >
             {assistantPulse && !assistantOpen && (
               <>
-                <span className="absolute inset-0 rounded-full bg-sky-500" style={{ animation: 'pulseRing 2s ease-out infinite', opacity: 0.4 }} />
-                <span className="absolute inset-0 rounded-full bg-blue-400" style={{ animation: 'pulseRing 2s ease-out infinite 0.7s', opacity: 0.25 }} />
+                <span className="absolute inset-0 rounded-full bg-sky-500" style={{ animation: 'pulseRing 2.2s ease-out infinite', opacity: 0.35 }} />
+                <span className="absolute inset-0 rounded-full bg-blue-400" style={{ animation: 'pulseRing 2.2s ease-out infinite 0.8s', opacity: 0.2 }} />
               </>
             )}
             <div
-              className="relative w-full h-full rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-110 active:scale-95 overflow-hidden"
-              style={{ background: 'linear-gradient(135deg,#0ea5e9,#2563eb)', boxShadow: '0 4px 14px rgba(14,165,233,0.45), 0 2px 4px rgba(0,0,0,0.2)' }}
+              className="absolute -inset-[3px] rounded-full opacity-70 group-hover:opacity-100 transition-opacity duration-300"
+              style={{ background: 'linear-gradient(135deg,#38bdf8,#6366f1,#a855f7)', filter: 'blur(6px)' }}
+            />
+            <div
+              className="relative w-full h-full rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-[1.08] active:scale-95 overflow-hidden"
+              style={{
+                background: 'linear-gradient(140deg,#0ea5e9 0%,#2563eb 55%,#4f46e5 100%)',
+                boxShadow: '0 8px 24px rgba(37,99,235,0.4), 0 2px 6px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.25)',
+                border: '1px solid rgba(255,255,255,0.18)',
+              }}
             >
               <span className="assist-shimmer" />
-              <div className="relative z-10 flex items-center justify-center">
+              <div className="relative z-10 flex items-center justify-center transition-transform duration-300" style={{ transform: assistantOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>
                 {assistantOpen
-                  ? <FiChevronDown className="text-white" style={{ fontSize: 16 }} />
-                  : <SiGooglegemini className="text-white" style={{ fontSize: 18 }} />
+                  ? <FiChevronDown className="text-white" style={{ fontSize: 19 }} />
+                  : <SiGooglegemini className="text-white" style={{ fontSize: 20 }} />
                 }
               </div>
             </div>
