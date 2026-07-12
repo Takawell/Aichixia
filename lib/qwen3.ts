@@ -24,7 +24,7 @@ if (!TAVILY_API_KEY) {
 
 const client = new OpenAI({
   apiKey: CEREBRAS_API_KEY,
-  baseURL: "https://api.cerebras.ai/v1",
+  baseURL: "https://api.groq.com/openai/v1",
 });
 
 const tavilyClient = TAVILY_API_KEY ? tavily({ apiKey: TAVILY_API_KEY }) : null;
