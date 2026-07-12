@@ -52,7 +52,7 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "glm-4.7": { fn: chatGlm, provider: "glm" },
   "gpt-5.2": { fn: chatGPT, provider: "gpt" },
   "mistral-large-3-675b-instruct": { fn: chatMistral, provider: "mistral" },
-  "qwen3-235b": { fn: chatQwenV2, provider: "qwen3" },
+  "qwen3.6-27b": { fn: chatQwenV2, provider: "qwen3" },
   "qwen3-coder-480b": { fn: chatQwen, provider: "qwen" },
   "minimax-m2.7": { fn: chatMinimax, provider: "minimax" },
   "llama-3.3-70b": { fn: chatLlama, provider: "llama" },
@@ -69,7 +69,7 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "aichixia-flash": { fn: chatAichixia, provider: "aichixia" },
 };
 
-const LOCKED_MODELS_PRO = ['deepseek-v3.2', 'qwen3-235b', 'minimax-m2.7', 'claude-sonnet-4.6', 'glm-4.7', 'aichixia-flash', 'grok-4-fast', 'kimi-k2.5'];
+const LOCKED_MODELS_PRO = ['deepseek-v3.2', 'qwen3-coder-480b', 'minimax-m2.7', 'claude-sonnet-4.6', 'glm-4.7', 'aichixia-flash', 'grok-4-fast', 'kimi-k2.6'];
 
 const RATE_LIMIT_ERRORS = [
   OpenAIRateLimitError, KimiRateLimitError, GlmRateLimitError, GPTRateLimitError,
