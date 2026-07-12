@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { FiCopy, FiCheck, FiLock, FiZap, FiCpu, FiTrendingUp, FiDollarSign, FiSearch, FiStar, FiInfo, FiImage, FiX, FiExternalLink, FiMic } from 'react-icons/fi';
-import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiAirbrake, SiMaze, SiXiaomi, SiFlux, SiImagedotsc, SiSecurityscorecard, SiLapce, SiGithubcopilot, SiAudiomack, SiSoundcloud } from 'react-icons/si';
+import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiAirbrake, SiMaze, SiXiaomi, SiFlux, SiImagedotsc, SiSecurityscorecard, SiLapce, SiGithubcopilot, SiAudiomack, SiSoundcloud, SiSpotify, SiVorondesign } from 'react-icons/si';
 import { GiSpermWhale, GiPowerLightning, GiClover, GiFire, GiWormMouth, } from 'react-icons/gi';
 import { TbSquareLetterZ, TbLetterM } from 'react-icons/tb';
 import { TiVendorMicrosoft } from "react-icons/ti";
@@ -503,6 +503,36 @@ const AVAILABLE_MODELS = [
     contextWindow: '2K chars',
     pricing: 'Standard',
     features: ['Professional', 'Warm tone', 'Multi-language'],
+    languages: ['eng', 'kor', 'jpn', 'cmn', 'spa'],
+    endpoint: 'https://www.aichixia.xyz/api/v1/audio/speech',
+  },
+  {
+    id: 'nana-tts',
+    name: 'Nana TTS',
+    icon: SiSpotify,
+    color: 'from-emerald-500 to-teal-500',
+    category: 'Text-to-Speech',
+    description: 'Bright, energetic voice actor model with lively delivery',
+    speed: 4,
+    quality: 5,
+    contextWindow: '2K chars',
+    pricing: 'Standard',
+    features: ['Energetic', 'Character voice', 'Multi-language'],
+    languages: ['eng', 'kor', 'jpn', 'cmn', 'spa'],
+    endpoint: 'https://www.aichixia.xyz/api/v1/audio/speech',
+  },
+  {
+    id: 'stephanie-tts',
+    name: 'Stephanie TTS',
+    icon: SiVorondesign,
+    color: 'from-amber-500 to-orange-500',
+    category: 'Text-to-Speech',
+    description: 'Confident, articulate voice actor model for versatile use',
+    speed: 4,
+    quality: 5,
+    contextWindow: '2K chars',
+    pricing: 'Standard',
+    features: ['Articulate', 'Confident tone', 'Multi-language'],
     languages: ['eng', 'kor', 'jpn', 'cmn', 'spa'],
     endpoint: 'https://www.aichixia.xyz/api/v1/audio/speech',
   },
