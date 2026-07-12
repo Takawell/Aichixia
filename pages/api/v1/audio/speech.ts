@@ -3,6 +3,8 @@ import { generateSpeech as generateStarling, StarlingError, StarlingRateLimitErr
 import { generateSpeech as generateLindsay, LindsayError, LindsayRateLimitError, LindsayQuotaError } from "@/lib/lindsay";
 import { generateSpeech as generateMiu, MiuError, MiuRateLimitError, MiuQuotaError } from "@/lib/miu";
 import { generateSpeech as generateCatherine, CatherineError, CatherineRateLimitError, CatherineQuotaError } from "@/lib/catherine";
+import { generateSpeech as generateNana, NanaError, NanaRateLimitError, NanaQuotaError } from "@/lib/nana";
+import { generateSpeech as generateStephanie, StephanieError, StephanieRateLimitError, StephanieQuotaError } from "@/lib/stephanie";
 import { logRequest, incrementUsage, updateDailyUsage, verifyApiKey } from "@/lib/console-utils";
 
 export const config = {
@@ -13,11 +15,13 @@ export const config = {
   },
 };
 
-const VOICE_MODEL_MAP: Record<string, "starling" | "lindsay" | "miu" | "catherine"> = {
+const VOICE_MODEL_MAP: Record<string, "starling" | "lindsay" | "miu" | "catherine" | "nana" | "stephanie"> = {
   "starling-tts": "starling",
   "lindsay-tts": "lindsay",
   "miu-tts": "miu",
   "catherine-tts": "catherine",
+  "nana-tts": "nana",
+  "stephanie-tts": "stephanie",
 };
 
 const DEFAULT_MODEL = "starling-tts";
@@ -111,6 +115,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       ? await generateMiu(ttsConfig)
       : provider === "catherine"
       ? await generateCatherine(ttsConfig)
+      : provider === "nana"
+      ? await generateNana(ttsConfig)
+      : provider === "stephanie"
+      ? await generateStephanie(ttsConfig)
       : await generateStarling(ttsConfig);
 
     if (!result.success) {
@@ -160,8 +168,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   } catch (error: any) {
     const latency = Date.now() - startTime;
 
-    const isRateLimit = error instanceof StarlingRateLimitError || error instanceof LindsayRateLimitError || error instanceof MiuRateLimitError || error instanceof CatherineRateLimitError;
-    const isQuota = error instanceof StarlingQuotaError || error instanceof LindsayQuotaError || error instanceof MiuQuotaError || error instanceof CatherineQuotaError;
+    const isRateLimit = error instanceof StarlingRateLimitError || error instanceof LindsayRateLimitError || error instanceof MiuRateLimitError || error instanceof CatherineRateLimitError || error instanceof NanaRateLimitError || error instanceof StephanieRateLimitError;
+    const isQuota = error instanceof StarlingQuotaError || error instanceof LindsayQuotaError || error instanceof MiuQuotaError || error instanceof CatherineQuotaError || error instanceof NanaQuotaError || error instanceof StephanieQuotaError;
     const status = isRateLimit ? 429 : isQuota ? 402 : 500;
 
     await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, false);
@@ -184,7 +192,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (isQuota) {
       return res.status(402).json({ error: { message: "Monthly credit quota exceeded.", type: "insufficient_quota", code: "insufficient_quota" } });
     }
-    if (error instanceof StarlingError || error instanceof LindsayError || error instanceof MiuError || error instanceof CatherineError) {
+    if (error instanceof StarlingError || error instanceof LindsayError || error instanceof MiuError || error instanceof CatherineError || error instanceof NanaError || error instanceof StephanieError) {
       return res.status(400).json({ error: { message: error.message, type: "invalid_request_error", code: null } });
     }
 
