@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { FiPlay, FiCopy, FiCheck, FiChevronDown, FiZap, FiCode, FiTerminal, FiSettings, FiClock, FiCpu, FiAlertCircle, FiRotateCcw, FiEye, FiEyeOff, FiImage, FiVolume2, FiDownload, FiPause, FiX, FiUpload, FiMaximize2, FiMinimize2, FiLayout, FiMinus, FiSmile, FiFrown, FiAlertTriangle, FiThumbsDown, FiBell, FiActivity, FiFastForward, FiSliders, FiMonitor, FiLayers, FiTarget, FiHash, FiXCircle, FiMic, FiGlobe, FiFileText, FiDatabase, FiTrash2, FiMessageSquare } from 'react-icons/fi';
-import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiAirbrake, SiFlux, SiLapce, SiSecurityscorecard, SiDigikeyelectronics, SiMatternet, SiMaze, SiImagedotsc, SiGithubcopilot, SiAudiomack, SiSoundcloud } from 'react-icons/si';
+import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiAirbrake, SiFlux, SiLapce, SiSecurityscorecard, SiDigikeyelectronics, SiMatternet, SiMaze, SiImagedotsc, SiGithubcopilot, SiAudiomack, SiSoundcloud, SiSpotify, SiVorondesign } from 'react-icons/si';
 import { GiSpermWhale, GiPowerLightning, GiClover, GiCloverSpiked, GiFire, GiWormMouth } from 'react-icons/gi';
 import { TbSquareLetterZ, TbLetterM } from 'react-icons/tb';
 import { TiVendorMicrosoft } from "react-icons/ti";
@@ -73,6 +73,8 @@ const TTS_MODELS: AnyModel[] = [
   { id: 'starling-tts', name: 'Starling TTS', provider: 'Typecast', icon: SiSecurityscorecard, color: 'from-violet-500 to-purple-500', pricing: 'Standard', context: '—', type: 'tts', endpoint: `${base}/api/v1/audio/speech` },
   { id: 'miu-tts', name: 'Miu Kobayashi TTS', provider: 'Typecast', icon: SiAudiomack, color: 'from-fuchsia-500 to-pink-600', pricing: 'Standard', context: '—', type: 'tts', endpoint: `${base}/api/v1/audio/speech` },
   { id: 'catherine-tts', name: 'Catherine TTS', provider: 'Typecast', icon: SiSoundcloud, color: 'from-sky-500 to-indigo-500', pricing: 'Standard', context: '—', type: 'tts', endpoint: `${base}/api/v1/audio/speech` },
+  { id: 'nana-tts', name: 'Nana TTS', provider: 'Typecast', icon: SiSpotify, color: 'from-emerald-500 to-teal-500', pricing: 'Standard', context: '—', type: 'tts', endpoint: `${base}/api/v1/audio/speech` },
+  { id: 'stephanie-tts', name: 'Stephanie TTS', provider: 'Typecast', icon: SiVorondesign, color: 'from-amber-500 to-orange-500', pricing: 'Standard', context: '—', type: 'tts', endpoint: `${base}/api/v1/audio/speech` },
 ];
 
 const STT_MODELS: AnyModel[] = [
