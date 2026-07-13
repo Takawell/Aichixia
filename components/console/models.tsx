@@ -638,11 +638,8 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
 
   return (
     <div className="space-y-3 sm:space-y-4">
-      <div className="relative bg-white/60 dark:bg-zinc-900/40 backdrop-blur-2xl backdrop-saturate-150 rounded-2xl border border-white/40 dark:border-white/10 shadow-xl shadow-black/5 dark:shadow-black/20 p-3 sm:p-4 overflow-hidden">
-        <div className="pointer-events-none absolute -top-24 -right-24 w-48 h-48 sm:w-64 sm:h-64 bg-sky-400/20 rounded-full blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-24 -left-24 w-48 h-48 sm:w-64 sm:h-64 bg-purple-400/10 rounded-full blur-3xl" />
-
-        <div className="relative flex flex-col gap-3 sm:gap-4 mb-4 sm:mb-5">
+      <div className="bg-white/80 dark:bg-zinc-950 backdrop-blur-lg rounded-xl border border-zinc-200 dark:border-zinc-800 p-3 sm:p-4">
+        <div className="flex flex-col gap-3 sm:gap-4 mb-4 sm:mb-5">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3">
             <div>
               <h3 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white">Available Models</h3>
@@ -657,7 +654,7 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
                 value={modelSearch}
                 onChange={(e) => setModelSearch(e.target.value)}
                 placeholder="Search models..."
-                className="w-full pl-8 pr-3 py-1.5 sm:py-2 bg-white/50 dark:bg-white/5 backdrop-blur-md border border-white/60 dark:border-white/10 rounded-xl text-xs sm:text-sm text-zinc-900 dark:text-white outline-none focus:border-sky-400/60 focus:bg-white/70 dark:focus:bg-white/10 transition-all shadow-sm"
+                className="w-full pl-8 pr-3 py-1.5 sm:py-2 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-300 dark:border-zinc-700 rounded-lg text-xs sm:text-sm text-zinc-900 dark:text-white outline-none focus:border-sky-500 transition-colors"
               />
             </div>
           </div>
@@ -669,10 +666,10 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
-                  className={`flex items-center gap-1 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl font-semibold text-[10px] sm:text-xs whitespace-nowrap transition-all backdrop-blur-md border ${
+                  className={`flex items-center gap-1 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg font-semibold text-[10px] sm:text-xs whitespace-nowrap transition-all ${
                     selectedCategory === cat
-                      ? 'bg-gradient-to-r from-sky-400/90 to-blue-500/90 text-white shadow-lg shadow-sky-400/30 border-white/30'
-                      : 'bg-white/40 dark:bg-white/5 text-zinc-600 dark:text-zinc-400 border-white/50 dark:border-white/10 hover:bg-white/60 dark:hover:bg-white/10'
+                      ? 'bg-gradient-to-r from-sky-400 to-blue-500 text-white shadow-lg shadow-sky-400/30'
+                      : 'bg-zinc-100 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800'
                   }`}
                 >
                   {Icon && <Icon size={12} />}
@@ -683,10 +680,10 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
           </div>
         </div>
 
-        <div className="relative space-y-6 sm:space-y-8">
+        <div className="space-y-6 sm:space-y-8">
           {Object.keys(groupedModels).length === 0 ? (
             <div className="text-center py-8 sm:py-12">
-              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/40 dark:bg-white/5 backdrop-blur-md border border-white/50 dark:border-white/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
                 <FiSearch className="text-xl sm:text-3xl text-zinc-400" />
               </div>
               <p className="text-sm sm:text-base text-zinc-500 dark:text-zinc-400 font-medium">No models found</p>
@@ -699,12 +696,12 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
                 <div key={category}>
                   <div className="flex items-center gap-2 mb-3 sm:mb-4">
                     {CategoryIcon && (
-                      <div className="p-1.5 bg-gradient-to-br from-sky-400 to-blue-500 rounded-lg shadow-lg shadow-sky-400/30">
+                      <div className="p-1.5 bg-gradient-to-br from-sky-400 to-blue-500 rounded-lg shadow-lg">
                         <CategoryIcon className="text-white text-xs" />
                       </div>
                     )}
                     <h4 className="text-xs sm:text-sm font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider">{category}</h4>
-                    <div className="flex-1 h-px bg-gradient-to-r from-zinc-300/60 dark:from-zinc-700/60 to-transparent" />
+                    <div className="flex-1 h-px bg-gradient-to-r from-zinc-200 dark:from-zinc-700 to-transparent" />
                     <span className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 font-medium">{models.length} models</span>
                   </div>
 
@@ -717,15 +714,15 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
                       return (
                         <div
                           key={model.id}
-                          className={`group relative rounded-xl sm:rounded-2xl backdrop-blur-xl transition-all duration-300 overflow-hidden ${
+                          className={`group relative rounded-lg sm:rounded-xl transition-all duration-300 ${
                             locked
-                              ? 'bg-white/25 dark:bg-white/[0.03] border border-white/30 dark:border-white/5'
-                              : 'bg-white/50 dark:bg-white/[0.06] border border-white/60 dark:border-white/10 hover:border-sky-300/70 dark:hover:border-sky-400/40 hover:shadow-xl hover:shadow-sky-400/10 dark:hover:shadow-sky-400/10 hover:-translate-y-0.5 hover:bg-white/70 dark:hover:bg-white/[0.09]'
+                              ? 'bg-zinc-50/50 dark:bg-zinc-900/30 border border-zinc-200 dark:border-zinc-800'
+                              : 'bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 hover:border-sky-400 dark:hover:border-sky-500 hover:shadow-xl hover:shadow-sky-400/10 dark:hover:shadow-sky-400/20 hover:-translate-y-0.5'
                           }`}
                         >
                           {locked && (
-                            <div className="absolute inset-0 bg-white/10 dark:bg-black/20 rounded-xl sm:rounded-2xl backdrop-blur-[3px] z-10 flex items-center justify-center">
-                              <div className="bg-white/80 dark:bg-zinc-800/80 backdrop-blur-md px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl border border-orange-400/60 shadow-lg">
+                            <div className="absolute inset-0 bg-zinc-900/5 dark:bg-zinc-900/20 rounded-lg sm:rounded-xl backdrop-blur-[2px] z-10 flex items-center justify-center">
+                              <div className="bg-white/95 dark:bg-zinc-800/95 backdrop-blur-sm px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-md sm:rounded-lg border border-orange-500 shadow-lg">
                                 <div className="flex items-center gap-1.5 sm:gap-2">
                                   <FiLock className="text-orange-500 text-xs sm:text-sm" />
                                   <span className="text-[10px] sm:text-xs font-bold text-zinc-900 dark:text-white">
@@ -746,19 +743,19 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
                                   <h5 className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-white truncate">{model.name}</h5>
                                   {locked && <FiLock className="text-orange-400 text-[10px] flex-shrink-0" />}
                                   {(model as any).limited && !locked && (
-                                    <span className="text-[8px] px-1.5 py-0.5 bg-amber-100/80 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-300/70 dark:border-amber-700 rounded-full font-bold flex-shrink-0">
+                                    <span className="text-[8px] px-1.5 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-700 rounded-full font-bold flex-shrink-0">
                                       LIMITED
                                     </span>
                                   )}
                                 </div>
-                                <code className="text-[9px] sm:text-[10px] text-zinc-500 dark:text-zinc-400 font-mono bg-white/50 dark:bg-black/20 px-1.5 py-0.5 rounded block truncate">
+                                <code className="text-[9px] sm:text-[10px] text-zinc-500 dark:text-zinc-400 font-mono bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded block truncate">
                                   {displayValue}
                                 </code>
                               </div>
                               <button
                                 onClick={() => onCopy(getCopyValue(model), model.id)}
                                 disabled={locked}
-                                className="p-1 sm:p-1.5 hover:bg-white/60 dark:hover:bg-white/10 rounded-lg transition-colors flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
+                                className="p-1 sm:p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md transition-colors flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
                               >
                                 {copiedKey === model.id ? (
                                   <FiCheck className="text-green-500 text-xs sm:text-sm" />
@@ -773,7 +770,7 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
                             </p>
 
                             <div className="grid grid-cols-2 gap-1.5 sm:gap-2 mb-2.5 sm:mb-3">
-                              <div className="flex items-center gap-1.5 sm:gap-2 px-2 py-1.5 sm:px-2.5 sm:py-2 bg-white/40 dark:bg-white/5 backdrop-blur-sm rounded-lg border border-white/50 dark:border-white/10">
+                              <div className="flex items-center gap-1.5 sm:gap-2 px-2 py-1.5 sm:px-2.5 sm:py-2 bg-zinc-50 dark:bg-zinc-900/50 rounded-md sm:rounded-lg border border-zinc-200 dark:border-zinc-800">
                                 <FiZap className="text-[10px] sm:text-xs text-sky-500 dark:text-sky-400 flex-shrink-0" />
                                 <div className="flex-1 min-w-0">
                                   <p className="text-[8px] sm:text-[9px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wide font-semibold mb-0.5">Speed</p>
@@ -781,7 +778,7 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
                                 </div>
                               </div>
 
-                              <div className="flex items-center gap-1.5 sm:gap-2 px-2 py-1.5 sm:px-2.5 sm:py-2 bg-white/40 dark:bg-white/5 backdrop-blur-sm rounded-lg border border-white/50 dark:border-white/10">
+                              <div className="flex items-center gap-1.5 sm:gap-2 px-2 py-1.5 sm:px-2.5 sm:py-2 bg-zinc-50 dark:bg-zinc-900/50 rounded-md sm:rounded-lg border border-zinc-200 dark:border-zinc-800">
                                 <FiTrendingUp className="text-[10px] sm:text-xs text-purple-500 dark:text-purple-400 flex-shrink-0" />
                                 <div className="flex-1 min-w-0">
                                   <p className="text-[8px] sm:text-[9px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wide font-semibold mb-0.5">Quality</p>
@@ -789,7 +786,7 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
                                 </div>
                               </div>
 
-                              <div className="flex items-center gap-1.5 sm:gap-2 px-2 py-1.5 sm:px-2.5 sm:py-2 bg-white/40 dark:bg-white/5 backdrop-blur-sm rounded-lg border border-white/50 dark:border-white/10">
+                              <div className="flex items-center gap-1.5 sm:gap-2 px-2 py-1.5 sm:px-2.5 sm:py-2 bg-zinc-50 dark:bg-zinc-900/50 rounded-md sm:rounded-lg border border-zinc-200 dark:border-zinc-800">
                                 <FiCpu className="text-[10px] sm:text-xs text-blue-500 dark:text-blue-400 flex-shrink-0" />
                                 <div className="flex-1 min-w-0">
                                   <p className="text-[8px] sm:text-[9px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wide font-semibold mb-0.5">Context</p>
@@ -799,7 +796,7 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
                                 </div>
                               </div>
 
-                              <div className={`flex items-center gap-1.5 sm:gap-2 px-2 py-1.5 sm:px-2.5 sm:py-2 rounded-lg border backdrop-blur-sm ${pricingConfig.color}`}>
+                              <div className={`flex items-center gap-1.5 sm:gap-2 px-2 py-1.5 sm:px-2.5 sm:py-2 rounded-md sm:rounded-lg border ${pricingConfig.color}`}>
                                 <FiDollarSign className="text-[10px] sm:text-xs flex-shrink-0" />
                                 <div className="flex-1 min-w-0">
                                   <p className="text-[8px] sm:text-[9px] opacity-70 uppercase tracking-wide font-semibold mb-0.5">Pricing</p>
@@ -814,7 +811,7 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
                               {model.features.map((feature, idx) => (
                                 <span
                                   key={idx}
-                                  className="text-[8px] sm:text-[9px] px-1.5 py-0.5 bg-sky-50/70 dark:bg-sky-900/20 text-sky-700 dark:text-sky-400 rounded-full border border-sky-200/70 dark:border-sky-800 font-medium backdrop-blur-sm"
+                                  className="text-[8px] sm:text-[9px] px-1.5 py-0.5 bg-sky-50 dark:bg-sky-900/20 text-sky-700 dark:text-sky-400 rounded-full border border-sky-200 dark:border-sky-800 font-medium"
                                 >
                                   {feature}
                                 </span>
@@ -822,13 +819,13 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
                             </div>
                           </div>
 
-                          <div className="px-3 sm:px-4 pb-3 sm:pb-4 pt-0 flex items-center justify-between border-t border-white/40 dark:border-white/5 mt-0">
+                          <div className="px-3 sm:px-4 pb-3 sm:pb-4 pt-0 flex items-center justify-between border-t border-zinc-100 dark:border-zinc-800/60 mt-0">
                             <span className="text-[9px] text-zinc-400 dark:text-zinc-600 font-mono truncate mr-2">
                               {model.endpoint.replace('https://www.aichixia.xyz', '')}
                             </span>
                             <button
                               onClick={() => setActiveModal(model)}
-                              className="flex items-center gap-1 px-2 py-1 rounded-lg text-[9px] sm:text-[10px] font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-white/10 border border-transparent hover:border-white/50 dark:hover:border-white/10 transition-all duration-150 flex-shrink-0"
+                              className="flex items-center gap-1 px-2 py-1 rounded-lg text-[9px] sm:text-[10px] font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-transparent hover:border-zinc-200 dark:hover:border-zinc-700 transition-all duration-150 flex-shrink-0"
                             >
                               <FiInfo className="w-3 h-3" />
                               Details
@@ -850,9 +847,9 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
           className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 transition-all duration-200"
           onClick={() => setActiveModal(null)}
         >
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-md" />
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
           <div
-            className="relative w-full sm:max-w-lg max-h-[90vh] overflow-y-auto bg-white/70 dark:bg-zinc-900/60 backdrop-blur-2xl backdrop-saturate-150 border border-white/50 dark:border-white/10 rounded-t-2xl sm:rounded-2xl shadow-2xl shadow-black/20 transition-all duration-300"
+            className="relative w-full sm:max-w-lg bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-t-2xl sm:rounded-2xl shadow-2xl transition-all duration-300"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="p-5 sm:p-6">
@@ -865,7 +862,7 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
                     <div className="flex items-center gap-2">
                       <h3 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white">{activeModal.name}</h3>
                       {(activeModal as any).limited && (
-                        <span className="text-[8px] px-1.5 py-0.5 bg-amber-100/80 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-300/70 dark:border-amber-700 rounded-full font-bold">
+                        <span className="text-[8px] px-1.5 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-700 rounded-full font-bold">
                           LIMITED
                         </span>
                       )}
@@ -875,31 +872,31 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
                 </div>
                 <button
                   onClick={() => setActiveModal(null)}
-                  className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 hover:bg-white/60 dark:hover:bg-white/10 transition-all duration-150"
+                  className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-all duration-150"
                 >
                   <FiX className="w-4 h-4" />
                 </button>
               </div>
 
-              <div className="h-px bg-white/40 dark:bg-white/10 mb-4" />
+              <div className="h-px bg-zinc-100 dark:bg-zinc-800 mb-4" />
               <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed mb-5">
                 {activeModal.description}
               </p>
 
               <div className="grid grid-cols-2 gap-2.5 mb-5">
-                <div className="p-3 rounded-xl bg-white/40 dark:bg-white/5 backdrop-blur-sm border border-white/50 dark:border-white/10">
+                <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
                   <p className="text-[9px] uppercase tracking-widest font-semibold text-zinc-400 dark:text-zinc-500 mb-1">Context Window</p>
                   <p className="text-xs sm:text-sm font-bold text-zinc-800 dark:text-zinc-200">{activeModal.contextWindow}</p>
                 </div>
-                <div className="p-3 rounded-xl bg-white/40 dark:bg-white/5 backdrop-blur-sm border border-white/50 dark:border-white/10">
+                <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
                   <p className="text-[9px] uppercase tracking-widest font-semibold text-zinc-400 dark:text-zinc-500 mb-1">Pricing Tier</p>
                   <p className="text-xs sm:text-sm font-bold text-zinc-800 dark:text-zinc-200">{activeModal.pricing}</p>
                 </div>
-                <div className="p-3 rounded-xl bg-white/40 dark:bg-white/5 backdrop-blur-sm border border-white/50 dark:border-white/10">
+                <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
                   <p className="text-[9px] uppercase tracking-widest font-semibold text-zinc-400 dark:text-zinc-500 mb-1.5">Speed</p>
                   <SpeedIndicator level={activeModal.speed} />
                 </div>
-                <div className="p-3 rounded-xl bg-white/40 dark:bg-white/5 backdrop-blur-sm border border-white/50 dark:border-white/10">
+                <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
                   <p className="text-[9px] uppercase tracking-widest font-semibold text-zinc-400 dark:text-zinc-500 mb-1.5">Quality</p>
                   <QualityIndicator level={activeModal.quality} />
                 </div>
@@ -911,7 +908,7 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
                   {activeModal.features.map((feature: string, idx: number) => (
                     <span
                       key={idx}
-                      className="text-[10px] px-2 py-1 bg-sky-50/70 dark:bg-sky-900/20 text-sky-700 dark:text-sky-400 rounded-lg border border-sky-200/70 dark:border-sky-800 font-medium backdrop-blur-sm"
+                      className="text-[10px] px-2 py-1 bg-sky-50 dark:bg-sky-900/20 text-sky-700 dark:text-sky-400 rounded-lg border border-sky-200 dark:border-sky-800 font-medium"
                     >
                       {feature}
                     </span>
@@ -926,7 +923,7 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
                     {(activeModal as any).languages.map((lang: string) => (
                       <span
                         key={lang}
-                        className="flex items-center gap-1 text-[10px] px-2 py-1 bg-sky-50/70 dark:bg-sky-900/20 text-sky-700 dark:text-sky-400 rounded-lg border border-sky-200/70 dark:border-sky-800 font-medium uppercase backdrop-blur-sm"
+                        className="flex items-center gap-1 text-[10px] px-2 py-1 bg-sky-50 dark:bg-sky-900/20 text-sky-700 dark:text-sky-400 rounded-lg border border-sky-200 dark:border-sky-800 font-medium uppercase"
                       >
                         <span>{LANGUAGE_FLAGS[lang] ?? '🌐'}</span>
                         {lang}
@@ -936,7 +933,7 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
                 </div>
               )}
 
-              <div className="p-3 rounded-xl bg-white/40 dark:bg-white/5 backdrop-blur-sm border border-white/50 dark:border-white/10">
+              <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
                 <p className="text-[9px] uppercase tracking-widest font-semibold text-zinc-400 dark:text-zinc-500 mb-2">Endpoint</p>
                 <div className="flex items-center gap-2 mb-2">
                   <code className="flex-1 text-[10px] sm:text-xs font-mono text-zinc-700 dark:text-zinc-300 break-all leading-relaxed">
@@ -962,7 +959,7 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
                   </code>
                   <button
                     onClick={() => onCopy(activeModal.id, activeModal.id + '-modal')}
-                    className="p-1.5 rounded-lg hover:bg-white/60 dark:hover:bg-white/10 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-all flex-shrink-0"
+                    className="p-1.5 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-all flex-shrink-0"
                   >
                     {copiedKey === activeModal.id + '-modal' ? <FiCheck className="w-3.5 h-3.5 text-emerald-500" /> : <FiCopy className="w-3.5 h-3.5" />}
                   </button>
