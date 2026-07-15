@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { FiCopy, FiCheck, FiLock, FiZap, FiCpu, FiTrendingUp, FiDollarSign, FiSearch, FiStar, FiInfo, FiImage, FiX, FiExternalLink, FiMic } from 'react-icons/fi';
-import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiAirbrake, SiMaze, SiXiaomi, SiFlux, SiImagedotsc, SiSecurityscorecard, SiLapce, SiGithubcopilot, SiAudiomack, SiSoundcloud, SiSpotify, SiVorondesign, SiNvidia } from 'react-icons/si';
+import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiAirbrake, SiMaze, SiXiaomi, SiFlux, SiImagedotsc, SiSecurityscorecard, SiLapce, SiGithubcopilot, SiAudiomack, SiSoundcloud, SiSpotify, SiVorondesign } from 'react-icons/si';
 import { GiSpermWhale, GiPowerLightning, GiClover, GiFire, } from 'react-icons/gi';
+import { DiBower } from 'react-icons/di';
 import { TbSquareLetterZ, TbLetterM } from 'react-icons/tb';
 import { TiVendorMicrosoft } from "react-icons/ti";
 import { HiSpeakerWave } from 'react-icons/hi2';
@@ -234,29 +235,29 @@ const AVAILABLE_MODELS = [
   {
     id: 'step-3.7-flash',
     name: 'Step 3.7 Flash',
-    icon: SiNvidia,
-    color: 'from-green-500 to-lime-500',
+    icon: DiBower,
+    color: 'from-blue-500 to-blue-700',
     category: 'Text Generation',
-    description: 'StepFun fast reasoning model hosted on NVIDIA infrastructure',
+    description: 'StepFun vision-language model with native multimodal, agentic, and coding capabilities.',
     speed: 5,
     quality: 4,
-    contextWindow: '128K tokens',
+    contextWindow: '256K tokens',
     pricing: 'Standard',
-    features: ['Fast inference', 'Reasoning', 'NVIDIA-hosted'],
+    features: ['Multimodal', 'Agentic', 'Coding'],
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
     id: 'nemotron-3-ultra-550b-a55b',
     name: 'Nemotron 3 Ultra 550B',
-    icon: SiNvidia,
-    color: 'from-emerald-600 to-green-600',
+    icon: DiBower,
+    color: 'from-blue-500 to-blue-700',
     category: 'Text Generation',
-    description: 'NVIDIA large-scale mixture-of-experts model for complex reasoning',
+    description: 'Large-scale mixture-of-experts model for complex reasoning',
     speed: 3,
     quality: 5,
-    contextWindow: '128K tokens',
+    contextWindow: '256K tokens',
     pricing: 'Premium',
-    features: ['Advanced reasoning', 'Mixture-of-experts', 'NVIDIA-hosted'],
+    features: ['Advanced reasoning', 'Mixture-of-experts'],
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
