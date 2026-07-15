@@ -9,7 +9,7 @@ import { FaXTwitter } from 'react-icons/fa6';
 
 const base = 'https://www.aichixia.xyz';
 
-const VISION_MODEL_IDS = new Set(['gpt-5.2', 'kimi-k2.6', 'gemini-3-flash', 'aichixia-flash', 'grok-4-fast', 'phi-4-multimodal-instruct', 'qwen3.6-27b']);
+const VISION_MODEL_IDS = new Set(['gpt-5.2', 'kimi-k2.6', 'gemini-3-flash', 'aichixia-flash', 'grok-4-fast', 'phi-4-multimodal-instruct', 'qwen3.6-27b', 'step-3.7-flash']);
 
 type ModelType = 'text' | 'image' | 'tts' | 'stt';
 
