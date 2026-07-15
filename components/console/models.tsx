@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { FiCopy, FiCheck, FiLock, FiZap, FiCpu, FiTrendingUp, FiDollarSign, FiSearch, FiStar, FiInfo, FiImage, FiX, FiExternalLink, FiMic } from 'react-icons/fi';
-import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiAirbrake, SiMaze, SiXiaomi, SiFlux, SiImagedotsc, SiSecurityscorecard, SiLapce, SiGithubcopilot, SiAudiomack, SiSoundcloud, SiSpotify, SiVorondesign, SiNvidia } from 'react-icons/si';
+import { SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiAirbrake, SiMaze, SiXiaomi, SiFlux, SiImagedotsc, SiSecurityscorecard, SiLapce, SiGithubcopilot, SiAudiomack, SiSoundcloud, SiSpotify, SiVorondesign, SiNvidia } from 'react-icons/si';
+import { RiOpenaiFill } from 'react-icons/ri';
 import { GiSpermWhale, GiPowerLightning, GiClover, GiFire, } from 'react-icons/gi';
 import { DiBower } from 'react-icons/di';
 import { TbSquareLetterZ, TbLetterM } from 'react-icons/tb';
@@ -32,7 +33,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'gpt-5-mini',
     name: 'GPT-5 Mini',
-    icon: SiOpenai,
+    icon: RiOpenaiFill,
     color: 'from-emerald-600 to-green-600',
     category: 'Text Generation',
     description: 'Balanced performance for general tasks',
@@ -321,7 +322,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'gpt-oss-120b',
     name: 'GPT-OSS 120B',
-    icon: SiOpenai,
+    icon: RiOpenaiFill,
     color: 'from-pink-600 to-rose-600',
     category: 'Text Generation',
     description: 'Large open-source with browser search',
@@ -392,7 +393,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'gpt-5.2',
     name: 'GPT-5.2',
-    icon: SiOpenai,
+    icon: RiOpenaiFill,
     color: 'from-green-500 to-emerald-600',
     category: 'Text Generation',
     limited: true,
@@ -554,7 +555,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'whisper-large-v3',
     name: 'Whisper Large V3',
-    icon: SiOpenai,
+    icon: RiOpenaiFill,
     color: 'from-teal-500 to-emerald-600',
     category: 'Speech-to-Text',
     description: 'High-accuracy multilingual transcription and translation powered by Groq. Supports 99+ languages with verbose JSON output including segments and timestamps.',
@@ -568,7 +569,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'whisper-large-v3-turbo',
     name: 'Whisper V3 Turbo',
-    icon: SiOpenai,
+    icon: RiOpenaiFill,
     color: 'from-emerald-500 to-teal-400',
     category: 'Speech-to-Text',
     description: 'Faster variant of Whisper Large V3 with near-identical accuracy. Optimized for low-latency transcription at reduced cost.',
