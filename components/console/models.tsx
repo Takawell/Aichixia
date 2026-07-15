@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { FiCopy, FiCheck, FiLock, FiZap, FiCpu, FiTrendingUp, FiDollarSign, FiSearch, FiStar, FiInfo, FiImage, FiX, FiExternalLink, FiMic } from 'react-icons/fi';
-import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiAirbrake, SiMaze, SiXiaomi, SiFlux, SiImagedotsc, SiSecurityscorecard, SiLapce, SiGithubcopilot, SiAudiomack, SiSoundcloud, SiSpotify, SiVorondesign } from 'react-icons/si';
-import { GiSpermWhale, GiPowerLightning, GiClover, GiFire, GiWormMouth, } from 'react-icons/gi';
+import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiAirbrake, SiMaze, SiXiaomi, SiFlux, SiImagedotsc, SiSecurityscorecard, SiLapce, SiGithubcopilot, SiAudiomack, SiSoundcloud, SiSpotify, SiVorondesign, SiNvidia } from 'react-icons/si';
+import { GiSpermWhale, GiPowerLightning, GiClover, GiFire, } from 'react-icons/gi';
 import { TbSquareLetterZ, TbLetterM } from 'react-icons/tb';
 import { TiVendorMicrosoft } from "react-icons/ti";
 import { HiSpeakerWave } from 'react-icons/hi2';
@@ -85,20 +85,6 @@ const AVAILABLE_MODELS = [
     contextWindow: '128K tokens',
     pricing: 'Premium',
     features: ['Advanced reasoning', 'Superior coding', 'Complex tasks'],
-    endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
-  },
-  {
-    id: 'wormgpt-v4',
-    name: 'WormGPT V4',
-    icon: GiWormMouth,
-    color: 'from-zinc-700 to-slate-900',
-    category: 'Text Generation',
-    description: "High-performance uncensored model built for unrestricted creative freedom and research.",
-    speed: 4,
-    quality: 5,
-    contextWindow: '131K tokens',
-    pricing: 'Standard',
-    features: ['Uncensored AI', 'Privacy-first', 'Deep reasoning'],
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
@@ -243,6 +229,34 @@ const AVAILABLE_MODELS = [
     contextWindow: '128K tokens',
     pricing: 'Budget',
     features: ['Web search', 'Document analysis', 'Multilingual'],
+    endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
+  },
+  {
+    id: 'step-3.7-flash',
+    name: 'Step 3.7 Flash',
+    icon: SiNvidia,
+    color: 'from-green-500 to-lime-500',
+    category: 'Text Generation',
+    description: 'StepFun fast reasoning model hosted on NVIDIA infrastructure',
+    speed: 5,
+    quality: 4,
+    contextWindow: '128K tokens',
+    pricing: 'Standard',
+    features: ['Fast inference', 'Reasoning', 'NVIDIA-hosted'],
+    endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
+  },
+  {
+    id: 'nemotron-3-ultra-550b-a55b',
+    name: 'Nemotron 3 Ultra 550B',
+    icon: SiNvidia,
+    color: 'from-emerald-600 to-green-600',
+    category: 'Text Generation',
+    description: 'NVIDIA large-scale mixture-of-experts model for complex reasoning',
+    speed: 3,
+    quality: 5,
+    contextWindow: '128K tokens',
+    pricing: 'Premium',
+    features: ['Advanced reasoning', 'Mixture-of-experts', 'NVIDIA-hosted'],
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
