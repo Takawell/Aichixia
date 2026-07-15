@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { FiPlay, FiCopy, FiCheck, FiChevronDown, FiZap, FiCode, FiTerminal, FiSettings, FiClock, FiCpu, FiAlertCircle, FiRotateCcw, FiEye, FiEyeOff, FiImage, FiVolume2, FiDownload, FiPause, FiX, FiUpload, FiMaximize2, FiMinimize2, FiLayout, FiMinus, FiSmile, FiFrown, FiAlertTriangle, FiThumbsDown, FiBell, FiActivity, FiFastForward, FiSliders, FiMonitor, FiLayers, FiTarget, FiHash, FiXCircle, FiMic, FiGlobe, FiFileText, FiDatabase, FiTrash2, FiMessageSquare } from 'react-icons/fi';
-import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiAirbrake, SiFlux, SiLapce, SiSecurityscorecard, SiDigikeyelectronics, SiMatternet, SiMaze, SiImagedotsc, SiGithubcopilot, SiAudiomack, SiSoundcloud, SiSpotify, SiVorondesign } from 'react-icons/si';
-import { GiSpermWhale, GiPowerLightning, GiClover, GiCloverSpiked, GiFire, GiWormMouth } from 'react-icons/gi';
+import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiAirbrake, SiFlux, SiLapce, SiSecurityscorecard, SiDigikeyelectronics, SiMatternet, SiMaze, SiImagedotsc, SiGithubcopilot, SiAudiomack, SiSoundcloud, SiSpotify, SiVorondesign, SiNvidia } from 'react-icons/si';
+import { GiSpermWhale, GiPowerLightning, GiClover, GiCloverSpiked, GiFire } from 'react-icons/gi';
+import { DiBower } from 'react-icons/di';
 import { TbSquareLetterZ, TbLetterM } from 'react-icons/tb';
 import { TiVendorMicrosoft } from "react-icons/ti";
 import { FaXTwitter } from 'react-icons/fa6';
@@ -42,7 +43,6 @@ const TEXT_MODELS: AnyModel[] = [
   { id: 'claude-sonnet-4.6', name: 'Claude Sonnet 4.6', provider: 'Anthropic', icon: SiAnthropic, color: 'from-orange-500 to-amber-600', pricing: 'Premium', context: '1M', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
   { id: 'claude-opus-4.8', name: 'Claude Opus 4.8', provider: 'Anthropic', icon: SiAnthropic, color: 'from-orange-500 to-amber-600', pricing: 'Premium', context: '1M', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'gemini-3-flash', name: 'Gemini 3 Flash', provider: 'Google', icon: SiGooglegemini, color: 'from-indigo-500 to-purple-600', pricing: 'Budget', context: '1M', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'wormgpt-v4', name: 'WormGPT V4', provider: 'Laste', icon: GiWormMouth, color: 'from-zinc-700 to-slate-900', pricing: 'Standard', context: '131K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'phi-4-multimodal-instruct', name: 'Phi 4 Multimodal', provider: 'microsoft', icon: TiVendorMicrosoft, color: 'from-cyan-500 to-blue-700', pricing: 'Budget', context: '128k', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'grok-3', name: 'Grok 3', provider: 'xAI', icon: FaXTwitter, color: 'from-slate-600 to-zinc-700', pricing: 'Premium', context: '1M', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'glm-4.7', name: 'GLM 4.7', provider: 'Zhipu', icon: TbSquareLetterZ, color: 'from-blue-700 to-indigo-800', pricing: 'Premium', context: '200K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
@@ -58,6 +58,8 @@ const TEXT_MODELS: AnyModel[] = [
   { id: 'cohere-command-a', name: 'Cohere Command A', provider: 'Cohere', icon: GiClover, color: 'from-emerald-600 to-teal-600', pricing: 'Standard', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'grok-4-fast', name: 'Grok 4 Fast', provider: 'xAI', icon: FaXTwitter, color: 'from-zinc-700 to-slate-900', pricing: 'Premium', context: '2M', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
   { id: 'copilot', name: 'Microsoft Copilot', provider: 'Microsoft', icon: SiGithubcopilot, color: 'from-blue-500 to-cyan-500', pricing: 'Budget', context: '128K', type: 'text', endpoint: `${base}/api/v1/chat/completions` }, 
+  { id: 'step-3.7-flash', name: 'Step 3.7 Flash', provider: 'StepFun', icon: DiBower, color: 'from-blue-500 to-blue-700', pricing: 'Standard', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'nemotron-3-ultra-550b-a55b', name: 'Nemotron 3 Ultra 550B', provider: 'NVIDIA', icon: SiNvidia, color: 'from-emerald-600 to-green-600', pricing: 'Premium', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'gpt-5.2', name: 'GPT-5.2', provider: 'OpenAI', icon: SiOpenai, color: 'from-green-500 to-emerald-600', pricing: 'Standard', context: '400K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, limited: true },
 ];
 
