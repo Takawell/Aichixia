@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { FiCopy, FiCheck, FiLock, FiZap, FiCpu, FiTrendingUp, FiDollarSign, FiSearch, FiStar, FiInfo, FiImage, FiX, FiExternalLink, FiMic } from 'react-icons/fi';
-import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiAirbrake, SiMaze, SiXiaomi, SiFlux, SiImagedotsc, SiSecurityscorecard, SiLapce, SiGithubcopilot, SiAudiomack, SiSoundcloud, SiSpotify, SiVorondesign } from 'react-icons/si';
+import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiAirbrake, SiMaze, SiXiaomi, SiFlux, SiImagedotsc, SiSecurityscorecard, SiLapce, SiGithubcopilot, SiAudiomack, SiSoundcloud, SiSpotify, SiVorondesign, SiNvidia } from 'react-icons/si';
 import { GiSpermWhale, GiPowerLightning, GiClover, GiFire, } from 'react-icons/gi';
 import { DiBower } from 'react-icons/di';
 import { TbSquareLetterZ, TbLetterM } from 'react-icons/tb';
@@ -249,15 +249,15 @@ const AVAILABLE_MODELS = [
   {
     id: 'nemotron-3-ultra-550b-a55b',
     name: 'Nemotron 3 Ultra 550B',
-    icon: DiBower,
-    color: 'from-blue-500 to-blue-700',
+    icon: SiNvidia,
+    color: 'from-emerald-600 to-green-600',
     category: 'Text Generation',
     description: 'Large-scale mixture-of-experts model for complex reasoning',
     speed: 3,
     quality: 5,
     contextWindow: '256K tokens',
     pricing: 'Premium',
-    features: ['Advanced reasoning', 'Mixture-of-experts'],
+    features: ['Advanced reasoning', 'Mixture-of-experts', 'NVIDIA-hosted'],
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
