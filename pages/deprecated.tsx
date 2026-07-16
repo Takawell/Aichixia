@@ -1,7 +1,8 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/router';
-import { FiArrowLeft, FiClock, FiAlertTriangle, FiArrowUpRight, FiX, FiSearch, FiArchive } from 'react-icons/fi';
+import { FiArrowLeft, FiClock, FiAlertTriangle, FiArrowUpRight, FiX, FiArchive, FiInfo, FiHash, FiCalendar } from 'react-icons/fi';
 import { SiAnthropic, SiAlibabacloud, SiMaze, SiDigikeyelectronics, SiAirbrake } from 'react-icons/si';
+import { RiOpenaiFill } from 'react-icons/ri';
 import { TbLetterM } from 'react-icons/tb';
 import { GiSpermWhale, GiWormMouth } from 'react-icons/gi';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -13,33 +14,40 @@ type DeprecatedModel = {
   icon: any;
   replacement?: string;
   reason: string;
+  removedOn: string;
   color: string;
 };
 
 const deprecatedModels: DeprecatedModel[] = [
-  { id: 'claude-opus-4-5', name: 'Claude Opus 4.5', provider: 'Anthropic', icon: SiAnthropic, replacement: 'Claude Opus 4.8', reason: 'Superseded by a newer, more capable version', color: 'from-orange-500 to-amber-600' },
-  { id: 'qwen3-235b', name: 'Qwen3 235B', provider: 'Alibaba', icon: SiAlibabacloud, reason: 'No longer maintained on this platform', color: 'from-purple-500 to-pink-500' },
-  { id: 'minimax-m2-1', name: 'MiniMax M2.1', provider: 'MiniMax', icon: SiMaze, reason: 'No longer maintained on this platform', color: 'from-cyan-600 to-blue-600' },
-  { id: 'kimi-k2', name: 'Kimi K2', provider: 'Moonshot AI', icon: SiDigikeyelectronics, reason: 'No longer maintained on this platform', color: 'from-blue-600 to-cyan-600' },
-  { id: 'mistral-3-1', name: 'Mistral 3.1', provider: 'Mistral AI', icon: TbLetterM, reason: 'No longer maintained on this platform', color: 'from-orange-500 to-amber-600' },
-  { id: 'deepseek-v3-1', name: 'DeepSeek V3.1', provider: 'DeepSeek', icon: GiSpermWhale, reason: 'No longer maintained on this platform', color: 'from-cyan-600 to-blue-600' },
-  { id: 'aichixia-411b', name: 'Aichixia 411B', provider: 'Aichixia', icon: SiAirbrake, replacement: 'Aichixia 114B', reason: 'Replaced by a lighter, more multimodal and agentic version', color: 'from-blue-600 via-blue-800 to-slate-900' },
-  { id: 'wormgpt-v4', name: 'WormGPT V4', provider: 'Third-party', icon: GiWormMouth, reason: 'No longer maintained on this platform', color: 'from-lime-600 to-emerald-700' },
+  { id: 'claude-opus-4-5', name: 'Claude Opus 4.5', provider: 'Anthropic', icon: SiAnthropic, replacement: 'Claude Opus 4.8', reason: 'Claude Opus 4.5 has been retired now that Claude Opus 4.8 is available, bringing stronger reasoning, better long-context handling, and improved coding accuracy in the same tier.', removedOn: 'June 9, 2026', color: 'from-orange-500 to-amber-600' },
+  { id: 'claude-haiku-4-5', name: 'Claude Haiku 4.5', provider: 'Anthropic', icon: SiAnthropic, reason: 'This lightweight Claude tier has been sunset on this platform as usage shifted toward the larger, more capable Claude models available today.', removedOn: 'May 18, 2026', color: 'from-orange-400 to-amber-500' },
+  { id: 'qwen3-235b', name: 'Qwen3 235B', provider: 'Alibaba', icon: SiAlibabacloud, reason: 'Qwen3 235B is no longer maintained on this platform following a shift toward newer, more efficient Qwen releases.', removedOn: 'April 2, 2026', color: 'from-purple-500 to-pink-500' },
+  { id: 'minimax-m2-1', name: 'MiniMax M2.1', provider: 'MiniMax', icon: SiMaze, reason: 'MiniMax M2.1 has reached end of life on this platform as newer MiniMax releases offer better tool-calling and reasoning performance.', removedOn: 'March 14, 2026', color: 'from-cyan-600 to-blue-600' },
+  { id: 'kimi-k2', name: 'Kimi K2', provider: 'Moonshot AI', icon: SiDigikeyelectronics, reason: 'Kimi K2 has been retired on this platform in favor of newer Kimi releases with stronger long-context and tool-use capabilities.', removedOn: 'February 27, 2026', color: 'from-blue-600 to-cyan-600' },
+  { id: 'mistral-3-1', name: 'Mistral 3.1', provider: 'Mistral AI', icon: TbLetterM, reason: 'Mistral 3.1 is no longer maintained on this platform as newer Mistral models provide better multilingual reasoning at similar cost.', removedOn: 'February 5, 2026', color: 'from-orange-500 to-amber-600' },
+  { id: 'deepseek-v3-1', name: 'DeepSeek V3.1', provider: 'DeepSeek', icon: GiSpermWhale, reason: 'DeepSeek V3.1 has been phased out on this platform following the release of newer DeepSeek models with improved reasoning and coding depth.', removedOn: 'January 21, 2026', color: 'from-cyan-600 to-blue-600' },
+  { id: 'aichixia-411b', name: 'Aichixia 411B', provider: 'Aichixia', icon: SiAirbrake, replacement: 'Aichixia 114B', reason: 'Aichixia 411B has been retired in favor of Aichixia 114B, a lighter model that delivers stronger multimodal understanding and more reliable agentic behavior at lower latency.', removedOn: 'July 3, 2026', color: 'from-blue-600 via-blue-800 to-slate-900' },
+  { id: 'wormgpt-v4', name: 'WormGPT V4', provider: 'Third-party', icon: GiWormMouth, reason: 'WormGPT V4 has been removed from this platform and is no longer supported or maintained.', removedOn: 'January 9, 2026', color: 'from-lime-600 to-emerald-700' },
+  { id: 'gpt-4-mini', name: 'GPT-4 Mini', provider: 'OpenAI', icon: RiOpenaiFill, reason: 'GPT-4 Mini has been sunset on this platform as newer, more capable and more cost-efficient OpenAI models have taken its place.', removedOn: 'December 12, 2025', color: 'from-emerald-600 to-green-600' },
 ];
 
 export default function DeprecatedModels() {
   const router = useRouter();
   const [dismissed, setDismissed] = useState(false);
-  const [query, setQuery] = useState('');
-  const [hovered, setHovered] = useState<string | null>(null);
+  const [selected, setSelected] = useState<DeprecatedModel | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return deprecatedModels;
-    return deprecatedModels.filter(
-      (m) => m.name.toLowerCase().includes(q) || m.provider.toLowerCase().includes(q)
-    );
-  }, [query]);
+  const openModal = (model: DeprecatedModel) => {
+    setSelected(model);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => setModalVisible(true));
+    });
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+    setTimeout(() => setSelected(null), 250);
+  };
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 transition-colors duration-300 relative overflow-hidden">
@@ -84,16 +92,6 @@ export default function DeprecatedModels() {
           </p>
         </div>
 
-        <div className="relative mb-5 sm:mb-6">
-          <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 dark:text-zinc-500" style={{ fontSize: 14 }} />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search deprecated models..."
-            className="w-full pl-10 pr-4 py-2.5 sm:py-3 rounded-2xl bg-white/70 dark:bg-zinc-900/60 backdrop-blur-md border border-zinc-200/70 dark:border-zinc-800/70 text-xs sm:text-sm font-medium text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-sky-400/40 focus:border-sky-300 dark:focus:border-sky-700 transition-all duration-200 shadow-sm"
-          />
-        </div>
-
         {!dismissed && (
           <div className="relative mb-5 sm:mb-6 rounded-2xl overflow-hidden border border-amber-200/60 dark:border-amber-500/20 bg-gradient-to-r from-amber-50/70 to-orange-50/50 dark:from-amber-500/[0.06] dark:to-orange-500/[0.04] backdrop-blur-sm shadow-sm">
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-shimmer-pass pointer-events-none" />
@@ -120,20 +118,15 @@ export default function DeprecatedModels() {
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-          {filtered.map((model, i) => {
+          {deprecatedModels.map((model, i) => {
             const Icon = model.icon;
-            const isHovered = hovered === model.id;
             return (
               <div
                 key={model.id}
-                onMouseEnter={() => setHovered(model.id)}
-                onMouseLeave={() => setHovered(null)}
                 className="group relative rounded-2xl border border-zinc-200/70 dark:border-zinc-800/70 bg-white/60 dark:bg-zinc-900/50 backdrop-blur-md p-4 sm:p-5 transition-all duration-300 hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-xl hover:shadow-zinc-200/50 dark:hover:shadow-black/30 hover:-translate-y-1 animate-in fade-in slide-in-from-bottom-2"
-                style={{ animationDelay: `${i * 70}ms`, animationDuration: '400ms', animationFillMode: 'backwards' }}
+                style={{ animationDelay: `${i * 60}ms`, animationDuration: '400ms', animationFillMode: 'backwards' }}
               >
-                <div
-                  className={`absolute -inset-px rounded-2xl bg-gradient-to-br ${model.color} opacity-0 group-hover:opacity-[0.06] transition-opacity duration-500 pointer-events-none`}
-                />
+                <div className={`absolute -inset-px rounded-2xl bg-gradient-to-br ${model.color} opacity-0 group-hover:opacity-[0.06] transition-opacity duration-500 pointer-events-none`} />
 
                 <div className="absolute top-3 right-3 flex items-center gap-1 px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200/60 dark:border-zinc-700/60">
                   <span className="w-1.5 h-1.5 rounded-full bg-zinc-400 dark:bg-zinc-500" />
@@ -141,9 +134,10 @@ export default function DeprecatedModels() {
                 </div>
 
                 <div
-                  className={`relative w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br ${model.color} flex items-center justify-center mb-3 transition-all duration-500 ${isHovered ? 'scale-110 rotate-3' : 'scale-100'}`}
-                  style={{ boxShadow: isHovered ? '0 8px 24px -6px rgba(0,0,0,0.35)' : '0 2px 8px -2px rgba(0,0,0,0.2)' }}
+                  className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br flex items-center justify-center mb-3 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3"
+                  style={{ boxShadow: '0 2px 8px -2px rgba(0,0,0,0.2)' }}
                 >
+                  <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${model.color}`} />
                   <div className="absolute inset-0 rounded-2xl bg-zinc-900/10 dark:bg-black/20" />
                   <Icon className="relative text-white" style={{ fontSize: 18 }} />
                 </div>
@@ -155,32 +149,22 @@ export default function DeprecatedModels() {
                   {model.provider}
                 </p>
 
-                <p className="text-[11px] sm:text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed mb-3">
+                <p className="text-[11px] sm:text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed mb-3 line-clamp-2">
                   {model.reason}
                 </p>
 
-                {model.replacement && (
-                  <div className="flex items-center gap-1.5 px-2.5 py-2 rounded-xl bg-sky-50 dark:bg-sky-500/10 border border-sky-200/60 dark:border-sky-500/20 group-hover:border-sky-300 dark:group-hover:border-sky-500/40 transition-colors duration-300">
-                    <FiArrowUpRight className="text-sky-500 flex-shrink-0 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300" style={{ fontSize: 12 }} />
-                    <span className="text-[11px] sm:text-xs font-semibold text-sky-700 dark:text-sky-400 truncate">
-                      Use {model.replacement} instead
-                    </span>
-                  </div>
-                )}
+                <button
+                  onClick={() => openModal(model)}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-zinc-100 dark:bg-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-700 border border-zinc-200/60 dark:border-zinc-700/60 text-[11px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-300 transition-all duration-200 active:scale-95 group/btn"
+                >
+                  <FiInfo style={{ fontSize: 12 }} />
+                  <span>Details</span>
+                  <FiArrowUpRight className="transition-transform duration-200 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" style={{ fontSize: 11 }} />
+                </button>
               </div>
             );
           })}
         </div>
-
-        {filtered.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-14 text-center">
-            <div className="w-12 h-12 rounded-2xl bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center mb-3">
-              <FiSearch className="text-zinc-400 dark:text-zinc-600" style={{ fontSize: 18 }} />
-            </div>
-            <p className="text-sm font-semibold text-zinc-600 dark:text-zinc-400">No matching models</p>
-            <p className="text-xs text-zinc-400 dark:text-zinc-600 mt-0.5">Try a different search term</p>
-          </div>
-        )}
 
         <div className="mt-8 sm:mt-10 text-center">
           <p className="text-[11px] sm:text-xs text-zinc-400 dark:text-zinc-600">
@@ -188,6 +172,83 @@ export default function DeprecatedModels() {
           </p>
         </div>
       </main>
+
+      {selected && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+          <div
+            onClick={closeModal}
+            className={`absolute inset-0 bg-zinc-900/40 dark:bg-black/60 backdrop-blur-sm transition-opacity duration-250 ${modalVisible ? 'opacity-100' : 'opacity-0'}`}
+          />
+          <div
+            className={`relative w-full sm:max-w-sm rounded-t-3xl sm:rounded-3xl bg-white/90 dark:bg-zinc-900/90 backdrop-blur-2xl border border-zinc-200/70 dark:border-zinc-800/70 shadow-2xl p-5 sm:p-6 transition-all duration-300 ${modalVisible ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-6 sm:translate-y-2 opacity-0 scale-[0.98]'}`}
+          >
+            <button
+              onClick={closeModal}
+              className="absolute top-4 right-4 w-7 h-7 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 flex items-center justify-center transition-all duration-150 hover:scale-110 active:scale-95"
+            >
+              <FiX className="text-zinc-500 dark:text-zinc-400" style={{ fontSize: 13 }} />
+            </button>
+
+            <div className="flex items-center gap-3 mb-4">
+              <div className="relative w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ boxShadow: '0 6px 20px -4px rgba(0,0,0,0.25)' }}>
+                <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${selected.color}`} />
+                <div className="absolute inset-0 rounded-2xl bg-zinc-900/10 dark:bg-black/20" />
+                <selected.icon className="relative text-white" style={{ fontSize: 22 }} />
+              </div>
+              <div className="min-w-0">
+                <h3 className="text-base sm:text-lg font-black text-zinc-900 dark:text-white truncate">
+                  {selected.name}
+                </h3>
+                <p className="text-xs font-semibold text-zinc-400 dark:text-zinc-500">{selected.provider}</p>
+              </div>
+            </div>
+
+            <div className="space-y-2 mb-4">
+              <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-100 dark:border-zinc-800/60">
+                <div className="w-6 h-6 rounded-lg bg-sky-100 dark:bg-sky-500/15 flex items-center justify-center flex-shrink-0">
+                  <FiHash className="text-sky-600 dark:text-sky-400" style={{ fontSize: 11 }} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[9px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider leading-none mb-0.5">Model ID</p>
+                  <p className="text-xs font-mono font-semibold text-zinc-900 dark:text-white truncate">{selected.id}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-100 dark:border-zinc-800/60">
+                <div className="w-6 h-6 rounded-lg bg-amber-100 dark:bg-amber-500/15 flex items-center justify-center flex-shrink-0">
+                  <FiCalendar className="text-amber-600 dark:text-amber-400" style={{ fontSize: 11 }} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[9px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider leading-none mb-0.5">Removed On</p>
+                  <p className="text-xs font-semibold text-zinc-900 dark:text-white truncate">{selected.removedOn}</p>
+                </div>
+              </div>
+            </div>
+
+            <p className="text-xs sm:text-[13px] text-zinc-600 dark:text-zinc-400 leading-relaxed mb-5">
+              {selected.reason}
+            </p>
+
+            {selected.replacement ? (
+              <button
+                onClick={closeModal}
+                className="relative w-full flex items-center justify-between px-4 py-3 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-semibold text-xs shadow-lg overflow-hidden transition-all duration-200 hover:shadow-sky-500/30 hover:shadow-xl active:scale-[0.98] group"
+                style={{ boxShadow: '0 4px 16px rgba(14,165,233,0.35)' }}
+              >
+                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                  <div className="absolute inset-y-0 w-1/3 bg-white/20 skew-x-[-15deg] animate-shimmer-pass" />
+                </div>
+                <span className="relative">Use {selected.replacement} instead</span>
+                <FiArrowUpRight className="relative transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" style={{ fontSize: 13 }} />
+              </button>
+            ) : (
+              <div className="w-full px-4 py-3 rounded-xl bg-zinc-100 dark:bg-zinc-800/60 border border-zinc-200/60 dark:border-zinc-700/60 text-center">
+                <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">No direct replacement available</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       <style jsx global>{`
         @keyframes float-slow {
