@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Link from 'next/link';
 import { FiCopy, FiCheck, FiLock, FiZap, FiCpu, FiTrendingUp, FiDollarSign, FiSearch, FiStar, FiInfo, FiImage, FiX, FiExternalLink, FiMic } from 'react-icons/fi';
 import { SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiAirbrake, SiMaze, SiXiaomi, SiFlux, SiImagedotsc, SiSecurityscorecard, SiLapce, SiGithubcopilot, SiAudiomack, SiSoundcloud, SiSpotify, SiVorondesign, SiNvidia } from 'react-icons/si';
 import { RiOpenaiFill } from 'react-icons/ri';
@@ -856,6 +857,18 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
             })
           )}
         </div>
+      </div>
+
+      <div className="mt-6 sm:mt-8 text-center">
+        <p className="text-[11px] sm:text-xs text-zinc-400 dark:text-zinc-600">
+          Looking for older models?{' '}
+          <Link
+            href="/deprecated"
+            className="text-sky-500 hover:text-sky-600 dark:hover:text-sky-400 font-semibold transition-colors duration-150"
+          >
+            See the list of deprecated models
+          </Link>
+        </p>
       </div>
 
       {activeModal && (
