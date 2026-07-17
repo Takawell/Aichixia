@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { FiPlay, FiCopy, FiCheck, FiChevronDown, FiZap, FiCode, FiTerminal, FiSettings, FiClock, FiCpu, FiAlertCircle, FiRotateCcw, FiEye, FiEyeOff, FiImage, FiVolume2, FiDownload, FiPause, FiX, FiUpload, FiMaximize2, FiMinimize2, FiLayout, FiMinus, FiSmile, FiFrown, FiAlertTriangle, FiThumbsDown, FiBell, FiActivity, FiFastForward, FiSliders, FiMonitor, FiLayers, FiTarget, FiHash, FiXCircle, FiMic, FiGlobe, FiFileText, FiDatabase, FiTrash2, FiMessageSquare } from 'react-icons/fi';
-import { SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiAirbrake, SiFlux, SiLapce, SiSecurityscorecard, SiDigikeyelectronics, SiMatternet, SiMaze, SiImagedotsc, SiGithubcopilot, SiAudiomack, SiSoundcloud, SiSpotify, SiVorondesign, SiNvidia } from 'react-icons/si';
+import { SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiAirbrake, SiFlux, SiLapce, SiSecurityscorecard, SiDigikeyelectronics, SiMatternet, SiMaze, SiImagedotsc, SiGithubcopilot, SiAudiomack, SiSoundcloud, SiSpotify, SiVorondesign, SiNvidia, SiElevenlabs } from 'react-icons/si';
 import { RiOpenaiFill } from 'react-icons/ri';
 import { GiSpermWhale, GiPowerLightning, GiClover, GiCloverSpiked, GiFire } from 'react-icons/gi';
 import { DiBower } from 'react-icons/di';
@@ -78,6 +78,8 @@ const TTS_MODELS: AnyModel[] = [
   { id: 'catherine-tts', name: 'Catherine TTS', provider: 'Typecast', icon: SiSoundcloud, color: 'from-sky-500 to-indigo-500', pricing: 'Standard', context: '—', type: 'tts', endpoint: `${base}/api/v1/audio/speech` },
   { id: 'nana-tts', name: 'Nana TTS', provider: 'Typecast', icon: SiSpotify, color: 'from-emerald-500 to-teal-500', pricing: 'Standard', context: '—', type: 'tts', endpoint: `${base}/api/v1/audio/speech` },
   { id: 'stephanie-tts', name: 'Stephanie TTS', provider: 'Typecast', icon: SiVorondesign, color: 'from-amber-500 to-orange-500', pricing: 'Standard', context: '—', type: 'tts', endpoint: `${base}/api/v1/audio/speech` },
+  { id: 'alexandra-tts', name: 'Alexandra TTS', provider: 'ElevenLabs', icon: SiElevenlabs, color: 'from-slate-600 to-zinc-800', pricing: 'Premium', context: '—', type: 'tts', endpoint: `${base}/api/v1/audio/speech` },
+  { id: 'eve-tts', name: 'Eve TTS', provider: 'ElevenLabs', icon: SiElevenlabs, color: 'from-zinc-600 to-slate-800', pricing: 'Premium', context: '—', type: 'tts', endpoint: `${base}/api/v1/audio/speech` },
 ];
 
 const STT_MODELS: AnyModel[] = [
@@ -1072,6 +1074,10 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
   const [ttsTempo, setTtsTempo] = useState(1.0);
   const [ttsEmotionIntensity, setTtsEmotionIntensity] = useState(1.0);
   const [ttsLanguage, setTtsLanguage] = useState<'eng' | 'kor' | 'jpn' | 'cmn' | 'spa'>('eng');
+  const [ttsStability, setTtsStability] = useState(0.5);
+  const [ttsSimilarityBoost, setTtsSimilarityBoost] = useState(0.75);
+  const [ttsStyle, setTtsStyle] = useState(0);
+  const [ttsSpeakerBoost, setTtsSpeakerBoost] = useState(true);
   const [imageSize, setImageSize] = useState('1024x1024');
   const [imageSteps, setImageSteps] = useState(25);
   const [imageGuidance, setImageGuidance] = useState(7.5);
@@ -1269,10 +1275,20 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
       }
 
       if (selectedModel.type === 'tts') {
+        const isElevenLabs = selectedModel.id === 'alexandra-tts' || selectedModel.id === 'eve-tts';
         const res = await fetch(selectedModel.endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-          body: JSON.stringify({
+          body: JSON.stringify(isElevenLabs ? {
+            model: selectedModel.id,
+            input: message,
+            language: ttsLanguage,
+            stability: ttsStability,
+            similarity_boost: ttsSimilarityBoost,
+            style: ttsStyle,
+            speaker_boost: ttsSpeakerBoost,
+            response_format: 'mp3',
+          } : {
             model: selectedModel.id,
             input: message,
             language: ttsLanguage,
@@ -1427,7 +1443,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                       return (
                         <button
                           key={model.id}
-                          onClick={() => { setSelectedModel(model); setModelOpen(false); setModelSearch(''); clearResult(); }}
+                          onClick={() => { setSelectedModel(model); setModelOpen(false); setModelSearch(''); clearResult(); setTtsLanguage(model.id === 'alexandra-tts' ? 'ind' : model.id === 'eve-tts' ? 'kor' : 'eng'); }}
                           className={`w-full flex items-center gap-1.5 px-2 py-1.5 rounded-lg transition-all duration-150 text-left ${selectedModel.id === model.id ? 'bg-blue-50 dark:bg-blue-800/20 border border-blue-100 dark:border-blue-700' : 'hover:bg-zinc-50 dark:hover:bg-zinc-800'}`}
                         >
                           <div className={`w-5 h-5 rounded-md bg-gradient-to-br ${model.color} flex items-center justify-center flex-shrink-0`}><Icon className="w-2.5 h-2.5 text-white" /></div>
@@ -1644,21 +1660,38 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
               </div>
             )}
 
-            {selectedModel.type === 'tts' && (
+            {selectedModel.type === 'tts' && (() => {
+              const isElevenLabs = selectedModel.id === 'alexandra-tts' || selectedModel.id === 'eve-tts';
+              const languageOptions = selectedModel.id === 'alexandra-tts'
+                ? [
+                    { val: 'ind', label: 'Indonesian', flag: '🇮🇩' },
+                    { val: 'eng', label: 'English', flag: '🇺🇸' },
+                    { val: 'rus', label: 'Russian', flag: '🇷🇺' },
+                    { val: 'cmn', label: 'Mandarin', flag: '🇨🇳' },
+                  ]
+                : selectedModel.id === 'eve-tts'
+                ? [
+                    { val: 'kor', label: 'Korean', flag: '🇰🇷' },
+                    { val: 'eng', label: 'English', flag: '🇺🇸' },
+                    { val: 'msa', label: 'Malay', flag: '🇲🇾' },
+                    { val: 'vie', label: 'Vietnamese', flag: '🇻🇳' },
+                  ]
+                : [
+                    { val: 'eng', label: 'English', flag: '🇺🇸' },
+                    { val: 'kor', label: 'Korean', flag: '🇰🇷' },
+                    { val: 'jpn', label: 'Japanese', flag: '🇯🇵' },
+                    { val: 'cmn', label: 'Mandarin', flag: '🇨🇳' },
+                    { val: 'spa', label: 'Spanish', flag: '🇪🇸' },
+                  ];
+              return (
               <div className="space-y-3">
                 <div>
                   <label className="block text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1.5 flex items-center gap-1"><FiGlobe className="w-3 h-3" /> Language</label>
-                  <div className="grid grid-cols-5 gap-1">
-                    {([
-                      { val: 'eng', label: 'English', flag: '🇺🇸' },
-                      { val: 'kor', label: 'Korean', flag: '🇰🇷' },
-                      { val: 'jpn', label: 'Japanese', flag: '🇯🇵' },
-                      { val: 'cmn', label: 'Mandarin', flag: '🇨🇳' },
-                      { val: 'spa', label: 'Spanish', flag: '🇪🇸' },
-                    ] as const).map(({ val, label, flag }) => (
+                  <div className={`grid gap-1 ${languageOptions.length === 4 ? 'grid-cols-4' : 'grid-cols-5'}`}>
+                    {languageOptions.map(({ val, label, flag }) => (
                       <button
                         key={val}
-                        onClick={() => setTtsLanguage(val)}
+                        onClick={() => setTtsLanguage(val as any)}
                         title={label}
                         className={`flex flex-col items-center justify-center gap-0.5 py-2 px-1 rounded-xl text-[9px] font-semibold uppercase tracking-wide transition-all duration-200 border ${ttsLanguage === val ? 'bg-gradient-to-br from-violet-500 to-purple-600 text-white border-transparent shadow-md shadow-purple-500/20 scale-[1.02]' : 'text-zinc-500 dark:text-zinc-400 border-zinc-200 dark:border-zinc-800 hover:border-violet-300 hover:bg-violet-50/50 dark:hover:bg-violet-900/10'}`}
                       >
@@ -1668,6 +1701,47 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                     ))}
                   </div>
                 </div>
+                {isElevenLabs ? (
+                  <>
+                    <div className="grid grid-cols-2 gap-2.5">
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 flex items-center gap-1"><FiSliders className="w-3 h-3" /> Stability</label>
+                          <span className="text-[10px] font-bold text-blue-400 tabular-nums">{ttsStability.toFixed(2)}</span>
+                        </div>
+                        <input type="range" min="0" max="1" step="0.05" value={ttsStability} onChange={e => setTtsStability(parseFloat(e.target.value))} className="w-full h-1 rounded-full appearance-none bg-zinc-200 dark:bg-zinc-800 accent-blue-400 cursor-pointer" />
+                        <div className="flex justify-between mt-0.5"><span className="text-[8px] text-zinc-400">0</span><span className="text-[8px] text-zinc-400">1</span></div>
+                      </div>
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 flex items-center gap-1"><FiTarget className="w-3 h-3" /> Similarity</label>
+                          <span className="text-[10px] font-bold text-blue-400 tabular-nums">{ttsSimilarityBoost.toFixed(2)}</span>
+                        </div>
+                        <input type="range" min="0" max="1" step="0.05" value={ttsSimilarityBoost} onChange={e => setTtsSimilarityBoost(parseFloat(e.target.value))} className="w-full h-1 rounded-full appearance-none bg-zinc-200 dark:bg-zinc-800 accent-blue-400 cursor-pointer" />
+                        <div className="flex justify-between mt-0.5"><span className="text-[8px] text-zinc-400">0</span><span className="text-[8px] text-zinc-400">1</span></div>
+                      </div>
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 flex items-center gap-1"><FiZap className="w-3 h-3" /> Style</label>
+                          <span className="text-[10px] font-bold text-blue-400 tabular-nums">{ttsStyle.toFixed(2)}</span>
+                        </div>
+                        <input type="range" min="0" max="1" step="0.05" value={ttsStyle} onChange={e => setTtsStyle(parseFloat(e.target.value))} className="w-full h-1 rounded-full appearance-none bg-zinc-200 dark:bg-zinc-800 accent-blue-400 cursor-pointer" />
+                        <div className="flex justify-between mt-0.5"><span className="text-[8px] text-zinc-400">0</span><span className="text-[8px] text-zinc-400">1</span></div>
+                      </div>
+                      <div className="flex flex-col justify-center">
+                        <label className="text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 flex items-center gap-1 mb-1.5"><FiVolume2 className="w-3 h-3" /> Speaker Boost</label>
+                        <button
+                          onClick={() => setTtsSpeakerBoost(!ttsSpeakerBoost)}
+                          className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-[10px] font-semibold transition-all border ${ttsSpeakerBoost ? 'bg-blue-400 text-white border-blue-400' : 'text-zinc-500 dark:text-zinc-400 border-zinc-200 dark:border-zinc-800 hover:border-blue-300'}`}
+                        >
+                          {ttsSpeakerBoost ? <FiCheck className="w-3 h-3" /> : <FiX className="w-3 h-3" />}
+                          {ttsSpeakerBoost ? 'Enabled' : 'Disabled'}
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <>
                 <div>
                   <label className="block text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1.5">Emotion</label>
                   <div className="grid grid-cols-4 gap-1">
@@ -1725,8 +1799,11 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                     <div className="flex justify-between mt-0.5"><span className="text-[8px] text-zinc-400">0</span><span className="text-[8px] text-zinc-400">2</span></div>
                   </div>
                 </div>
+                  </>
+                )}
               </div>
-            )}
+              );
+            })()}
 
             {selectedModel.type === 'stt' && (
               <div className="space-y-3">
