@@ -1,12 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import Head from "next/head";
 import { FaTerminal, FaPlay, FaCode, FaBook, FaRocket, FaArrowRight, FaMoon, FaSun, FaBars, FaTimes, FaCopy, FaCheck, FaKey, FaServer, FaGlobe, FaChevronDown, FaBolt, FaShieldAlt, FaClock, FaInfinity, FaCheckCircle, FaStar, FaUsers, FaChartLine, FaLock, FaCog, FaCloud, FaDatabase, FaLayerGroup, FaStream, FaCircle, FaExternalLinkAlt, FaGithub, FaTwitter, FaDiscord, FaBoxOpen, FaFileCode, FaLightbulb, FaRobot, FaSpinner, FaChevronRight } from "react-icons/fa";
-import { SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiAirbrake, SiDigikeyelectronics, SiMaze, SiGithubcopilot, SiNvidia } from "react-icons/si";
+import { SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiAirbrake, SiDigikeyelectronics, SiMaze } from "react-icons/si";
 import { RiOpenaiFill } from "react-icons/ri";
 import { GiSpermWhale, GiPowerLightning, GiClover } from "react-icons/gi";
-import { DiBower } from "react-icons/di";
 import { TbSquareLetterZ, TbLetterM } from "react-icons/tb";
-import { TiVendorMicrosoft } from "react-icons/ti";
 import { FaXTwitter } from "react-icons/fa6";
 import { FiZap } from "react-icons/fi";
 import Link from "next/link";
@@ -17,11 +15,11 @@ import { oneDark, oneLight } from 'react-syntax-highlighter/dist/cjs/styles/pris
 const base = "https://www.aichixia.xyz";
 
 const allModelTicker = [
-  "DeepSeek V3.2", "Claude Opus 4.8", "Claude Sonnet 4.6", "Gemini 3 Flash", "GPT-5 Mini", "Kimi K2.6",
-  "Qwen3.6 27B", "Llama 3.3 70B", "Mistral Large 3 675B", "Grok 3", "Grok 4 Fast",
-  "GLM 4.7", "DeepSeek V4 Flash", "MiniMax M2.7", "Aichixia 114B", "MiMo V2 Flash",
+  "DeepSeek V3.2", "Claude Opus 4.5", "Gemini 3 Flash", "GPT-5 Mini", "Kimi K2.5",
+  "Qwen3 235B", "Llama 3.3 70B", "Mistral Large 3 675B", "Grok 3", "Grok 4 Fast",
+  "GLM 4.7", "DeepSeek V3.1", "MiniMax M2.7", "Aichixia 114B", "MiMo V2 Flash",
   "GPT-OSS 120B", "Cohere Command A", "Groq Compound", "Qwen3 Coder 480B", "GLM 4.7 Flash",
-  "Phi 4 Multimodal", "GPT-5.2", "Microsoft Copilot", "Step 3.7 Flash", "Nemotron 3 Ultra 550B",
+  "Phi 4 Multimodal", "GPT-5.2",
 ];
 
 const providerLogos = [
@@ -78,31 +76,26 @@ const comparisonRows = [
 
 const models = [
   { id: "gpt-5-mini", name: "GPT-5 Mini", provider: "OpenAI", description: "Balanced performance for general tasks", color: "from-emerald-500 to-green-600", icon: RiOpenaiFill, requiresPro: false },
-  { id: "gpt-5.2", name: "GPT-5.2", provider: "OpenAI", description: "OpenAI's latest GPT-5.2 with enhanced reasoning", color: "from-green-500 to-emerald-600", icon: RiOpenaiFill, requiresPro: false, limited: true },
-  { id: "gpt-oss-120b", name: "GPT-OSS 120B", provider: "OpenAI", description: "Large open-source with browser search", color: "from-pink-600 to-rose-600", icon: RiOpenaiFill, requiresPro: false },
   { id: "aichixia-flash", name: "Aichixia 114B", provider: "Aichiverse", description: "High-efficiency MoE architecture for ultra-fast inference", color: "from-blue-600 via-blue-800 to-slate-900", icon: SiAirbrake, requiresPro: true },
-  { id: "mistral-large-3-675b-instruct", name: "Mistral Large 3 675B", provider: "Mistral AI", description: "Fast inference with European focus", color: "from-orange-500 to-amber-500", icon: TbLetterM, requiresPro: false },
+  { id: "mistral-3.1", name: "Mistral 3.1", provider: "Mistral AI", description: "Fast inference with European focus", color: "from-orange-500 to-amber-500", icon: TbLetterM, requiresPro: false },
   { id: "deepseek-v3.2", name: "DeepSeek V3.2", provider: "DeepSeek", description: "Deep reasoning and code generation", color: "from-cyan-500 to-blue-600", icon: GiSpermWhale, requiresPro: true },
-  { id: "deepseek-v4-flash", name: "DeepSeek V4 Flash", provider: "DeepSeek", description: "Fast next-generation DeepSeek model", color: "from-cyan-600 to-teal-600", icon: GiSpermWhale, requiresPro: false },
-  { id: "claude-sonnet-4.6", name: "Claude Sonnet 4.6", provider: "Anthropic", description: "Balanced Claude model for everyday tasks", color: "from-orange-600 to-red-600", icon: SiAnthropic, requiresPro: true },
-  { id: "claude-opus-4.8", name: "Claude Opus 4.8", provider: "Anthropic", description: "World's #1 AI model for complex tasks", color: "from-orange-500 to-amber-600", icon: SiAnthropic, requiresPro: false },
+  { id: "deepseek-v3.1", name: "DeepSeek V3.1", provider: "DeepSeek", description: "Previous generation DeepSeek model", color: "from-cyan-600 to-teal-600", icon: GiSpermWhale, requiresPro: false },
+  { id: "claude-opus-4.5", name: "Claude Opus 4.5", provider: "Anthropic", description: "World's #1 AI model for complex tasks", color: "from-orange-500 to-amber-600", icon: SiAnthropic, requiresPro: true },
   { id: "gemini-3-flash", name: "Gemini 3 Flash", provider: "Google", description: "Multimodal understanding and accuracy", color: "from-indigo-500 to-purple-600", icon: SiGooglegemini, requiresPro: false },
   { id: "grok-3", name: "Grok 3", provider: "xAI", description: "xAI's flagship model with real-time data", color: "from-slate-600 to-zinc-700", icon: FaXTwitter, requiresPro: false },
-  { id: "grok-4-fast", name: "Grok 4 Fast", provider: "xAI", description: "xAI's fastest Grok 4 with 2M context window", color: "from-zinc-700 to-slate-900", icon: FaXTwitter, requiresPro: true },
   { id: "glm-4.7", name: "GLM 4.7", provider: "Zhipu", description: "Multilingual excellence with strong reasoning", color: "from-blue-700 to-indigo-800", icon: TbSquareLetterZ, requiresPro: true },
+  { id: "kimi-k2", name: "Kimi K2", provider: "Moonshot", description: "Superior tool calling and reasoning", color: "from-blue-500 to-cyan-600", icon: SiDigikeyelectronics, requiresPro: false },
   { id: "glm-4.7-flash", name: "GLM 4.7 Flash", provider: "Zhipu", description: "Very fast, suitable for real-time apps", color: "from-blue-700 to-indigo-800", icon: TbSquareLetterZ, requiresPro: false },
-  { id: "kimi-k2.6", name: "Kimi K2.6", provider: "Moonshot", description: "Superior tool calling and reasoning", color: "from-blue-500 to-cyan-600", icon: SiDigikeyelectronics, requiresPro: true },
-  { id: "copilot", name: "Microsoft Copilot", provider: "Microsoft", description: "Dynamic model routing with web search", color: "from-blue-500 to-cyan-500", icon: SiGithubcopilot, requiresPro: false },
-  { id: "step-3.7-flash", name: "Step 3.7 Flash", provider: "StepFun", description: "Vision-language model with agentic and coding capabilities", color: "from-blue-500 to-blue-700", icon: DiBower, requiresPro: false },
-  { id: "nemotron-3-ultra-550b-a55b", name: "Nemotron 3 Ultra 550B", provider: "NVIDIA", description: "Large-scale mixture-of-experts model for complex reasoning", color: "from-emerald-600 to-green-600", icon: SiNvidia, requiresPro: false },
-  { id: "qwen3.6-27b", name: "Qwen3.6 27B", provider: "Alibaba", description: "Large multilingual model with strong reasoning", color: "from-purple-500 to-pink-500", icon: SiAlibabacloud, requiresPro: false },
-  { id: "qwen3-coder-480b", name: "Qwen3 Coder 480B", provider: "Alibaba", description: "Specialized in coding and Asian languages", color: "from-purple-600 to-fuchsia-600", icon: SiAlibabacloud, requiresPro: true },
-  { id: "minimax-m2.7", name: "MiniMax M2.7", provider: "MiniMax", description: "Multilingual coding specialist with agent workflows", color: "from-cyan-600 to-blue-600", icon: SiMaze, requiresPro: true },
+  { id: "qwen3-235b", name: "Qwen3 235B", provider: "Alibaba", description: "Large multilingual model with strong reasoning", color: "from-purple-500 to-pink-500", icon: SiAlibabacloud, requiresPro: true },
+  { id: "qwen3-coder-480b", name: "Qwen3 Coder 480B", provider: "Alibaba", description: "Specialized in coding and Asian languages", color: "from-purple-600 to-fuchsia-600", icon: SiAlibabacloud, requiresPro: false },
+  { id: "minimax-m2.1", name: "MiniMax M2.1", provider: "MiniMax", description: "Multilingual coding specialist with agent workflows", color: "from-cyan-600 to-blue-600", icon: SiMaze, requiresPro: true },
   { id: "llama-3.3-70b", name: "Llama 3.3 70B", provider: "Meta", description: "Efficient open-source powerhouse", color: "from-blue-600 to-indigo-700", icon: SiMeta, requiresPro: false },
+  { id: "gpt-oss-120b", name: "GPT-OSS 120B", provider: "OpenAI", description: "Large open-source with browser search", color: "from-pink-600 to-rose-600", icon: RiOpenaiFill, requiresPro: false },
   { id: "mimo-v2-flash", name: "MiMo V2 Flash", provider: "Xiaomi", description: "Efficient 309B MoE model for reasoning and coding", color: "from-blue-600 to-purple-600", icon: FiZap, requiresPro: false },
   { id: "groq-compound", name: "Groq Compound", provider: "Groq", description: "Multi-model agentic system with tools", color: "from-orange-600 to-red-600", icon: GiPowerLightning, requiresPro: false },
   { id: "cohere-command-a", name: "Cohere Command A", provider: "Cohere", description: "Enterprise-grade with excellent tool use", color: "from-emerald-600 to-teal-600", icon: GiClover, requiresPro: false },
-  { id: "phi-4-multimodal-instruct", name: "Phi 4 Multimodal", provider: "Microsoft", description: "Compact multimodal model for budget workloads", color: "from-cyan-500 to-blue-700", icon: TiVendorMicrosoft, requiresPro: false },
+  { id: "grok-4-fast", name: "Grok 4 Fast", provider: "xAI", description: "xAI's fastest Grok 4 with 2M context window", color: "from-zinc-700 to-slate-900", icon: FaXTwitter, requiresPro: true },
+  { id: "gpt-5.2", name: "GPT-5.2", provider: "OpenAI", description: "OpenAI's latest GPT-5.2 with enhanced reasoning", color: "from-green-500 to-emerald-600", icon: RiOpenaiFill, requiresPro: false, limited: true },
 ];
 
 const features = [
@@ -1185,47 +1178,21 @@ func main() {
 
           <div className={`grid lg:grid-cols-2 gap-4 sm:gap-6 transition-all duration-700 ${isVisible.playground ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <div className="space-y-3 sm:space-y-4 min-w-0">
-              <div
-                className="relative p-4 sm:p-6 rounded-2xl overflow-hidden"
-                style={{
-                  background: 'linear-gradient(145deg, rgba(255,255,255,0.7), rgba(255,255,255,0.35))',
-                  backdropFilter: 'blur(20px)',
-                  WebkitBackdropFilter: 'blur(20px)',
-                  border: '1px solid rgba(255,255,255,0.5)',
-                  boxShadow: '0 8px 32px rgba(31,38,135,0.1), inset 0 1px 0 rgba(255,255,255,0.6)',
-                }}
-              >
-                <div className="dark:hidden absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(circle at 20% 0%, rgba(59,130,246,0.08), transparent 60%)' }} />
-                <div
-                  className="hidden dark:block absolute inset-0 pointer-events-none rounded-2xl"
-                  style={{ background: 'linear-gradient(145deg, rgba(24,24,27,0.75), rgba(9,9,11,0.55))', backdropFilter: 'blur(20px)' }}
-                />
-                <div className="hidden dark:block absolute inset-0 pointer-events-none rounded-2xl" style={{ border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)' }} />
-                <div className="hidden dark:block absolute -top-24 -right-24 w-64 h-64 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(59,130,246,0.18), transparent 70%)' }} />
-
-                <div className="relative flex items-center justify-between mb-4 sm:mb-5">
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #3b82f6, #06b6d4)', boxShadow: '0 4px 12px rgba(59,130,246,0.35)' }}>
-                      <FaCog className="w-3.5 h-3.5 text-white" />
-                    </div>
-                    <h3 className="text-sm sm:text-base font-black text-zinc-900 dark:text-white tracking-tight">Request Configuration</h3>
-                  </div>
+              <div className="p-4 sm:p-5 rounded-xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 shadow-lg">
+                <div className="flex items-center justify-between mb-4 sm:mb-5">
+                  <h3 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white">Request Configuration</h3>
+                  <FaCog className="w-4 h-4 text-zinc-400" />
                 </div>
 
-                <div className="relative space-y-3 sm:space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   <div>
                     <label className="block text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Model</label>
                     <button
                       onClick={() => setShowModelModal(true)}
-                      className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all duration-200 group"
-                      style={{
-                        background: 'rgba(255,255,255,0.5)',
-                        border: '1px solid rgba(255,255,255,0.6)',
-                        boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.04), inset 0 -1px 0 rgba(255,255,255,0.5)',
-                      }}
+                      className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-200 group"
                     >
                       <div className="flex items-center gap-2">
-                        <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${selectedModelData?.color || 'from-blue-500 to-cyan-500'} flex items-center justify-center flex-shrink-0 shadow-sm`}>
+                        <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${selectedModelData?.color || 'from-blue-500 to-cyan-500'} flex items-center justify-center flex-shrink-0`}>
                           {selectedModelData?.icon ? <selectedModelData.icon className="w-3.5 h-3.5 text-white" /> : <FaRobot className="w-3.5 h-3.5 text-white" />}
                         </div>
                         <div className="text-left">
@@ -1253,16 +1220,11 @@ func main() {
                         value={apiKey}
                         onChange={(e) => setApiKey(e.target.value)}
                         placeholder="acv-..."
-                        className="w-full px-3 py-2.5 pr-10 rounded-xl text-xs sm:text-sm text-zinc-900 dark:text-white placeholder-zinc-400 focus:ring-2 focus:ring-blue-500/30 outline-none transition-all duration-200"
-                        style={{
-                          background: 'rgba(255,255,255,0.5)',
-                          border: '1px solid rgba(255,255,255,0.6)',
-                          boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.04), inset 0 -1px 0 rgba(255,255,255,0.5)',
-                        }}
+                        className="w-full px-3 py-2.5 pr-10 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs sm:text-sm text-zinc-900 dark:text-white placeholder-zinc-400 focus:border-blue-500 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all duration-200"
                       />
                       <button
                         onClick={() => setShowApiKeyInput(!showApiKeyInput)}
-                        className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 hover:bg-white/60 dark:hover:bg-white/10 rounded-lg transition-colors duration-200"
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-lg transition-colors duration-200"
                       >
                         {showApiKeyInput ? <FaLock className="w-3 h-3 text-zinc-400" /> : <FaKey className="w-3 h-3 text-zinc-400" />}
                       </button>
@@ -1279,23 +1241,14 @@ func main() {
                       onChange={(e) => setMessage(e.target.value)}
                       rows={3}
                       placeholder="Enter your prompt..."
-                      className="w-full px-3 py-2.5 rounded-xl text-xs sm:text-sm text-zinc-900 dark:text-white placeholder-zinc-400 focus:ring-2 focus:ring-blue-500/30 outline-none transition-all duration-200 resize-none"
-                      style={{
-                        background: 'rgba(255,255,255,0.5)',
-                        border: '1px solid rgba(255,255,255,0.6)',
-                        boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.04), inset 0 -1px 0 rgba(255,255,255,0.5)',
-                      }}
+                      className="w-full px-3 py-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs sm:text-sm text-zinc-900 dark:text-white placeholder-zinc-400 focus:border-blue-500 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all duration-200 resize-none"
                     />
                   </div>
 
                   <button
                     onClick={handleSendRequest}
                     disabled={isLoading}
-                    className="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-3 text-sm sm:text-base font-bold text-white rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:hover:scale-100"
-                    style={{
-                      background: 'linear-gradient(135deg, #3b82f6, #06b6d4)',
-                      boxShadow: '0 8px 20px rgba(59,130,246,0.35), inset 0 1px 0 rgba(255,255,255,0.25)',
-                    }}
+                    className="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-3 text-sm sm:text-base font-bold text-white bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 rounded-lg shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 disabled:hover:scale-100"
                   >
                     {isLoading ? (
                       <>
@@ -1312,20 +1265,9 @@ func main() {
                 </div>
               </div>
 
-              <div
-                className="relative rounded-2xl overflow-hidden min-w-0"
-                style={{
-                  background: 'linear-gradient(145deg, rgba(255,255,255,0.7), rgba(255,255,255,0.35))',
-                  backdropFilter: 'blur(20px)',
-                  WebkitBackdropFilter: 'blur(20px)',
-                  border: '1px solid rgba(255,255,255,0.5)',
-                  boxShadow: '0 8px 32px rgba(31,38,135,0.1), inset 0 1px 0 rgba(255,255,255,0.6)',
-                }}
-              >
-                <div className="hidden dark:block absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(145deg, rgba(24,24,27,0.75), rgba(9,9,11,0.55))', backdropFilter: 'blur(20px)' }} />
-                <div className="hidden dark:block absolute inset-0 pointer-events-none" style={{ border: '1px solid rgba(255,255,255,0.08)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06)' }} />
-                <div className="relative flex items-center gap-0 border-b border-white/40 dark:border-white/5">
-                  <div className="flex items-center gap-1.5 px-4 py-2.5 border-r border-white/40 dark:border-white/5 flex-shrink-0">
+              <div className="rounded-xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 shadow-lg overflow-hidden min-w-0">
+                <div className="flex items-center gap-0 border-b border-zinc-100 dark:border-zinc-800">
+                  <div className="flex items-center gap-1.5 px-4 py-2.5 border-r border-zinc-100 dark:border-zinc-800 flex-shrink-0">
                     <FaCode className="w-3 h-3 text-zinc-500 dark:text-zinc-400" />
                     <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300">Code</span>
                   </div>
@@ -1337,14 +1279,14 @@ func main() {
                         className={`px-2.5 py-1 rounded-md text-[10px] font-bold whitespace-nowrap transition-all duration-150 flex-shrink-0 ${
                           selectedLang === lang
                             ? 'bg-blue-500 text-white shadow-sm'
-                            : 'text-zinc-500 dark:text-zinc-400 hover:bg-white/60 dark:hover:bg-white/10 hover:text-zinc-800 dark:hover:text-zinc-200'
+                            : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-800 dark:hover:text-zinc-200'
                         }`}
                       >
                         {lang === 'curl' ? 'cURL' : lang === 'typescript' ? 'TypeScript' : lang === 'python' ? 'Python' : 'Go'}
                       </button>
                     ))}
                     <div className="flex-1" />
-                    <div className="flex items-center gap-0.5 p-0.5 rounded-lg" style={{ background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.6)' }}>
+                    <div className="flex items-center gap-0.5 p-0.5 rounded-lg bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex-shrink-0">
                       <button
                         onClick={() => setSelectedSdk('openai')}
                         className={`flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-bold transition-all duration-150 ${
