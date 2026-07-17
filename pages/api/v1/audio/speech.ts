@@ -8,6 +8,7 @@ import { generateSpeech as generateStephanie, StephanieError, StephanieRateLimit
 import { generateSpeech as generateAlexandra, AlexandraError, AlexandraRateLimitError, AlexandraQuotaError } from "@/lib/alexandra";
 import { generateSpeech as generateEve, EveError, EveRateLimitError, EveQuotaError } from "@/lib/eve";
 import { logRequest, incrementUsage, updateDailyUsage, verifyApiKey } from "@/lib/console-utils";
+import { getServiceSupabase } from "@/lib/supabase";
 
 export const config = {
   api: {
@@ -29,6 +30,30 @@ const VOICE_MODEL_MAP: Record<string, "starling" | "lindsay" | "miu" | "catherin
 };
 
 const DEFAULT_MODEL = "starling-tts";
+
+const LOCKED_MODELS_PRO = ['alexandra-tts', 'eve-tts'];
+
+async function checkModelAccess(userId: string, model: string): Promise<{ allowed: boolean; error?: string }> {
+  const supabaseAdmin = getServiceSupabase();
+  const { data: settings, error } = await supabaseAdmin
+    .from('user_settings')
+    .select('plan')
+    .eq('user_id', userId)
+    .single();
+
+  if (error || !settings) return { allowed: true };
+
+  const userPlan = settings.plan;
+  const modelLower = model.toLowerCase();
+
+  if (userPlan === 'free' && LOCKED_MODELS_PRO.includes(modelLower)) {
+    return {
+      allowed: false,
+      error: `Model '${model}' requires Pro or Enterprise plan. Upgrade your plan at https://aichixia.xyz/console`,
+    };
+  }
+  return { allowed: true };
+}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
@@ -102,6 +127,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   const provider = VOICE_MODEL_MAP[model] ?? "starling";
+
+  const modelAccess = await checkModelAccess(apiKeyData.user_id, model);
+
+  if (!modelAccess.allowed) {
+    await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, false);
+    await logRequest({
+      api_key_id: apiKeyData.id,
+      user_id: apiKeyData.user_id,
+      model,
+      endpoint: "/api/v1/audio/speech",
+      status: 403,
+      tokens_used: 0,
+      error_message: modelAccess.error || "Model access denied",
+      ip_address: ip,
+      user_agent: userAgent,
+    });
+    return res.status(403).json({ error: { message: modelAccess.error, type: "insufficient_quota", param: "model", code: "model_access_denied" } });
+  }
 
   try {
     const ttsConfig = {
