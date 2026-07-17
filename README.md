@@ -1,57 +1,86 @@
 <div align="center">
 
-<img src="https://www.aichixia.xyz/favicon.ico" width="64" height="64" alt="Aichixia" />
+<img src="https://www.aichixia.xyz/favicon.ico" width="72" height="72" alt="Aichixia" />
 
 # Aichixia
 
-**Unified AI API Platform — OpenAI & Anthropic Compatible**
+### The Unified AI API Platform
 
-[![Live](https://img.shields.io/badge/Live-aichixia.xyz-02A9FF?style=for-the-badge&logo=vercel&logoColor=white)](https://www.aichixia.xyz)
-[![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js)](https://nextjs.org)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
-[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com)
-[![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
+**One key. 30+ models. Zero vendor lock-in.**
 
-Access 20+ AI models — Claude, GPT, Gemini, Grok, DeepSeek, and more — through a single OpenAI-compatible API. Includes image generation, text-to-speech, an API playground, and a full developer console.
+<p>
+<a href="https://www.aichixia.xyz"><img src="https://img.shields.io/badge/Live-aichixia.xyz-3b82f6?style=for-the-badge&logo=vercel&logoColor=white" alt="Live" /></a>
+<a href="https://nextjs.org"><img src="https://img.shields.io/badge/Next.js-14-000000?style=for-the-badge&logo=next.js&logoColor=white" alt="Next.js" /></a>
+<a href="https://www.typescriptlang.org"><img src="https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" /></a>
+<a href="https://supabase.com"><img src="https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase" /></a>
+<a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-fbbf24?style=for-the-badge" alt="License" /></a>
+</p>
 
-[**Live Demo**](https://www.aichixia.xyz) · [**API Docs**](https://www.aichixia.xyz/docs) · [**Console**](https://www.aichixia.xyz/console)
+Access **26+ text models**, **image generation**, and **8 text-to-speech voices** — Claude, GPT, Gemini, Grok, DeepSeek, Qwen, NVIDIA, ElevenLabs, and more — through one OpenAI-compatible API. Swap providers by changing a single string.
+
+[**Live Demo**](https://www.aichixia.xyz) &nbsp;·&nbsp; [**API Docs**](https://www.aichixia.xyz/docs) &nbsp;·&nbsp; [**Console**](https://www.aichixia.xyz/console) &nbsp;·&nbsp; [**Playground**](https://www.aichixia.xyz/#playground)
 
 </div>
 
----
+<br />
 
-## What is Aichixia?
+## Why Aichixia?
 
-Aichixia is an open-source AI API gateway that aggregates 20+ state-of-the-art language models, image generation models, and TTS models behind a single unified API. It is fully OpenAI SDK-compatible and also supports the Anthropic SDK — change one line of code to switch from any existing AI provider.
+Every AI provider ships its own SDK, its own auth scheme, its own quirks. Aichixia collapses all of that into a single gateway that speaks the **OpenAI** and **Anthropic** SDK formats natively — so migrating from any existing provider is a one-line `baseURL` change.
 
-**Key highlights:**
-- One API key for all models
-- OpenAI SDK + Anthropic SDK compatible
-- Image generation (`/api/v1/images/generations`)
-- Text-to-speech (`/api/v1/audio/speech`)
-- Built-in API playground in the console
-- API key management with rate limiting
-- Free and Pro tiers
+<table>
+<tr>
+<td width="50%" valign="top">
 
----
+**One key, every model**
+No juggling API keys across providers. Generate one Aichixia key and call any model behind it.
+
+**Drop-in compatible**
+Fully compatible with the official `openai` and `@anthropic-ai/sdk` packages — no custom client required.
+
+**Beyond text**
+Native image generation and multilingual text-to-speech, same auth, same gateway.
+
+</td>
+<td width="50%" valign="top">
+
+**Built-in playground**
+Test prompts, compare models, and copy working code in 12 languages — right in the console.
+
+**Full observability**
+Every request logged with latency, tokens, and status. Usage stats out of the box.
+
+**Generous free tier**
+Most models are free forever. Pro unlocks frontier models like Claude Sonnet and DeepSeek V3.2.
+
+</td>
+</tr>
+</table>
+
+<br />
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Framework | Next.js 14 (Pages Router) |
-| Language | TypeScript |
-| Database | Supabase (PostgreSQL) |
-| Auth | Supabase Auth |
-| Styling | Tailwind CSS |
-| Deployment | Vercel |
-| AI Providers | OpenAI, Anthropic, Google, xAI, DeepSeek, Mistral, Cloudflare AI, Typecast, and more |
+<div align="center">
 
----
+| Layer | Technology |
+|:--|:--|
+| **Framework** | Next.js 14 (Pages Router) |
+| **Language** | TypeScript |
+| **Database & Auth** | Supabase (PostgreSQL) |
+| **Styling** | Tailwind CSS |
+| **Deployment** | Vercel |
+| **Text Providers** | OpenAI · Anthropic · Google · xAI · DeepSeek · Mistral · Zhipu · Alibaba · Meta · Moonshot · MiniMax · Cohere · Groq · Microsoft · StepFun · NVIDIA |
+| **Image Providers** | Cloudflare AI (Flux, Leonardo) · Google |
+| **Voice Providers** | Typecast · ElevenLabs |
+
+</div>
+
+<br />
 
 ## API Endpoints
 
-### Chat Completions (OpenAI-compatible)
+### Chat Completions <sub>OpenAI-compatible</sub>
 
 ```http
 POST /api/v1/chat/completions
@@ -62,19 +91,19 @@ Authorization: Bearer YOUR_API_KEY
 import OpenAI from "openai";
 
 const client = new OpenAI({
-  apiKey: "YOUR_API_KEY",
-  baseURL: "https://www.aichixia.xyz/api/v1",
+ apiKey: "YOUR_API_KEY",
+ baseURL: "https://www.aichixia.xyz/api/v1",
 });
 
 const response = await client.chat.completions.create({
-  model: "claude-opus-4.5",
-  messages: [{ role: "user", content: "Hello!" }],
+ model: "claude-opus-4.8",
+ messages: [{ role: "user", content: "Hello!" }],
 });
 
 console.log(response.choices[0].message.content);
 ```
 
-### Messages (Anthropic-compatible)
+### Messages <sub>Anthropic-compatible</sub>
 
 ```http
 POST /api/v1/messages
@@ -85,14 +114,14 @@ x-api-key: YOUR_API_KEY
 import Anthropic from "@anthropic-ai/sdk";
 
 const client = new Anthropic({
-  apiKey: "YOUR_API_KEY",
-  baseURL: "https://www.aichixia.xyz/api/v1",
+ apiKey: "YOUR_API_KEY",
+ baseURL: "https://www.aichixia.xyz/api/v1",
 });
 
 const message = await client.messages.create({
-  model: "grok-3",
-  max_tokens: 1024,
-  messages: [{ role: "user", content: "Hello!" }],
+ model: "grok-3",
+ max_tokens: 1024,
+ messages: [{ role: "user", content: "Hello!" }],
 });
 
 console.log(message.content[0].text);
@@ -107,11 +136,11 @@ Authorization: Bearer YOUR_API_KEY
 
 ```json
 {
-  "model": "flux-2-dev",
-  "prompt": "A serene mountain landscape at sunset",
-  "size": "1024x1024",
-  "steps": 30,
-  "response_format": "b64_json"
+ "model": "flux-2-dev",
+ "prompt": "A serene mountain landscape at sunset",
+ "size": "1024x1024",
+ "steps": 30,
+ "response_format": "b64_json"
 }
 ```
 
@@ -124,51 +153,87 @@ Authorization: Bearer YOUR_API_KEY
 
 ```json
 {
-  "model": "starling-tts",
-  "input": "Hello, this is Aichixia speaking.",
-  "emotion": "happy",
-  "volume": 100,
-  "pitch": 0,
-  "tempo": 1.0
+ "model": "starling-tts",
+ "input": "Hello, this is Aichixia speaking.",
+ "language": "eng",
+ "emotion": "happy",
+ "volume": 100,
+ "pitch": 0,
+ "tempo": 1.0
 }
 ```
 
----
+<details>
+<summary><b>ElevenLabs voices use a different parameter set</b> — click to expand</summary>
+
+```json
+{
+ "model": "alexandra-tts",
+ "input": "Hello, this is Aichixia speaking.",
+ "language": "eng",
+ "stability": 0.5,
+ "similarity_boost": 0.75,
+ "style": 0,
+ "speaker_boost": true
+}
+```
+
+</details>
+
+<br />
 
 ## Available Models
 
 ### Text Generation
 
-| Model ID | Name | Provider | Context | Plan |
-|----------|------|----------|---------|------|
-| `gpt-5-mini` | GPT-5 Mini | OpenAI | 400K | Free |
-| `gpt-5.2` | GPT-5.2 | OpenAI | 400K | Free |
-| `gpt-oss-120b` | GPT-OSS 120B | OpenAI | 131K | Free |
-| `claude-opus-4.5` | Claude Opus 4.5 | Anthropic | 200K | Pro |
-| `gemini-3-flash` | Gemini 3 Flash | Google | 1M | Free |
-| `grok-3` | Grok 3 | xAI | 1M | Free |
-| `grok-4-fast` | Grok 4 Fast | xAI | 2M | Pro |
-| `deepseek-v3.2` | DeepSeek V3.2 | DeepSeek | 128K | Pro |
-| `deepseek-v3.1` | DeepSeek V3.1 | DeepSeek | 128K | Free |
-| `mistral-3.1` | Mistral 3.1 | Mistral AI | 128K | Free |
-| `kimi-k2` | Kimi K2 | Moonshot | 256K | Free |
-| `glm-4.7` | GLM 4.7 | Zhipu | 200K | Pro |
-| `glm-4.7-flash` | GLM 4.7 Flash | Zhipu | 131K | Free |
-| `qwen3-235b` | Qwen3 235B | Alibaba | 256K | Pro |
-| `qwen3-coder-480b` | Qwen3 Coder 480B | Alibaba | 256K | Free |
-| `minimax-m2.1` | MiniMax M2.1 | MiniMax | 200K | Pro |
-| `llama-3.3-70b` | Llama 3.3 70B | Meta | 130K | Free |
-| `mimo-v2-flash` | MiMo V2 Flash | Xiaomi | 256K | Free |
-| `groq-compound` | Groq Compound | Groq | 131K | Free |
-| `cohere-command-a` | Cohere Command A | Cohere | 256K | Free |
-| `aichixia-flash` | Aichixia 114B | Aichiverse | 256K | Pro |
+<details open>
+<summary><b>Free tier</b></summary>
 
-> Vision models (image input supported): `gemini-3-flash`, `gpt-5.2`, `aichixia-flash`, `grok-4-fast`
+| Model ID | Name | Provider | Context |
+|:--|:--|:--|:--:|
+| `gpt-5-mini` | GPT-5 Mini | OpenAI | 400K |
+| `gpt-5.2` | GPT-5.2 | OpenAI | 400K |
+| `gpt-oss-120b` | GPT-OSS 120B | OpenAI | 131K |
+| `claude-opus-4.8` | Claude Opus 4.8 | Anthropic | 200K |
+| `gemini-3-flash` | Gemini 3 Flash | Google | 1M |
+| `grok-3` | Grok 3 | xAI | 1M |
+| `deepseek-v4-flash` | DeepSeek V4 Flash | DeepSeek | 128K |
+| `mistral-large-3-675b-instruct` | Mistral Large 3 675B | Mistral AI | 128K |
+| `glm-4.7-flash` | GLM 4.7 Flash | Zhipu | 131K |
+| `qwen3.6-27b` | Qwen3.6 27B | Alibaba | 256K |
+| `llama-3.3-70b` | Llama 3.3 70B | Meta | 130K |
+| `mimo-v2-flash` | MiMo V2 Flash | Xiaomi | 256K |
+| `groq-compound` | Groq Compound | Groq | 131K |
+| `cohere-command-a` | Cohere Command A | Cohere | 256K |
+| `copilot` | Microsoft Copilot | Microsoft | 128K |
+| `phi-4-multimodal-instruct` | Phi 4 Multimodal | Microsoft | 128K |
+| `step-3.7-flash` | Step 3.7 Flash | StepFun | 256K |
+| `nemotron-3-ultra-550b-a55b` | Nemotron 3 Ultra 550B | NVIDIA | 256K |
+
+</details>
+
+<details open>
+<summary><b>Pro tier</b></summary>
+
+| Model ID | Name | Provider | Context |
+|:--|:--|:--|:--:|
+| `claude-sonnet-4.6` | Claude Sonnet 4.6 | Anthropic | 200K |
+| `grok-4-fast` | Grok 4 Fast | xAI | 2M |
+| `deepseek-v3.2` | DeepSeek V3.2 | DeepSeek | 128K |
+| `glm-4.7` | GLM 4.7 | Zhipu | 200K |
+| `qwen3-coder-480b` | Qwen3 Coder 480B | Alibaba | 256K |
+| `minimax-m2.7` | MiniMax M2.7 | MiniMax | 200K |
+| `kimi-k2.6` | Kimi K2.6 | Moonshot | 256K |
+| `aichixia-flash` | Aichixia 114B | Aichiverse | 256K |
+
+</details>
+
+> **Vision-capable models:** `gemini-3-flash` · `gpt-5.2` · `aichixia-flash` · `grok-4-fast`
 
 ### Image Generation
 
 | Model ID | Name | Provider |
-|----------|------|----------|
+|:--|:--|:--|
 | `flux-2-dev` | Flux 2 | Black Forest Labs |
 | `lucid-origin` | Lucid Origin | Leonardo |
 | `phoenix-1.0` | Phoenix 1.0 | Leonardo |
@@ -176,119 +241,127 @@ Authorization: Bearer YOUR_API_KEY
 
 ### Text-to-Speech
 
-| Model ID | Name | Provider |
-|----------|------|----------|
-| `starling-tts` | Starling TTS | Typecast |
-| `lindsay-tts` | Lindsay TTS | Typecast |
+| Model ID | Name | Provider | Languages |
+|:--|:--|:--|:--|
+| `starling-tts` | Starling TTS | Typecast | eng, kor, jpn, cmn, spa |
+| `lindsay-tts` | Lindsay TTS | Typecast | eng, kor, jpn, cmn, spa |
+| `miu-tts` | Miu Kobayashi TTS | Typecast | eng, kor, jpn, cmn, spa |
+| `catherine-tts` | Catherine TTS | Typecast | eng, kor, jpn, cmn, spa |
+| `nana-tts` | Nana TTS | Typecast | eng, kor, jpn, cmn, spa |
+| `stephanie-tts` | Stephanie TTS | Typecast | eng, kor, jpn, cmn, spa |
+| `alexandra-tts` | Alexandra TTS `PRO` | ElevenLabs | ind, eng, rus, cmn |
+| `eve-tts` | Eve TTS `PRO` | ElevenLabs | kor, eng, msa, vie |
 
----
+<br />
 
 ## Architecture
 
 ```mermaid
 graph TB
-    subgraph Client["Client"]
-        A[Web App / SDK / HTTP]
-    end
+ subgraph Client["Client"]
+ A[Web App / SDK / HTTP]
+ end
 
-    subgraph Gateway["Aichixia API Gateway (Next.js)"]
-        B[Auth & API Key Verification]
-        C[Rate Limiter]
-        D[Request Router]
-    end
+ subgraph Gateway["Aichixia API Gateway — Next.js"]
+ B[Auth & API Key Verification]
+ C[Plan & Rate Limiter]
+ D[Request Router]
+ end
 
-    subgraph Endpoints["Endpoints"]
-        E[/api/v1/chat/completions]
-        F[/api/v1/messages]
-        G[/api/v1/images/generations]
-        H[/api/v1/audio/speech]
-    end
+ subgraph Endpoints["Endpoints"]
+ E["/api/v1/chat/completions"]
+ F["/api/v1/messages"]
+ G["/api/v1/images/generations"]
+ H["/api/v1/audio/speech"]
+ end
 
-    subgraph Providers["AI Providers"]
-        I[OpenAI · Anthropic · Google]
-        J[xAI · DeepSeek · Mistral]
-        K[Zhipu · Alibaba · Meta]
-        L[Cloudflare AI · Typecast]
-    end
+ subgraph Providers["AI Providers"]
+ I["OpenAI · Anthropic · Google"]
+ J["xAI · DeepSeek · Mistral · NVIDIA"]
+ K["Zhipu · Alibaba · Meta · StepFun"]
+ L["Cloudflare AI · Typecast · ElevenLabs"]
+ end
 
-    subgraph Storage["Supabase"]
-        M[(API Keys)]
-        N[(Request Logs)]
-        O[(Usage Stats)]
-    end
+ subgraph Storage["Supabase"]
+ M[("API Keys")]
+ N[("Request Logs")]
+ O[("Usage Stats")]
+ end
 
-    A --> B
-    B --> C
-    C --> D
-    D --> E & F & G & H
-    E & F --> I & J & K
-    G --> L
-    H --> L
-    B --> M
-    D --> N & O
+ A --> B --> C --> D
+ D --> E & F & G & H
+ E & F --> I & J & K
+ G --> L
+ H --> L
+ B --> M
+ D --> N & O
 ```
 
----
+<br />
 
 ## Project Structure
 
 ```
 aichixia/
 ├── pages/
-│   ├── index.tsx                  # Landing page
-│   ├── docs.tsx                   # API documentation
-│   ├── api/
-│   │   ├── v1/
-│   │   │   ├── chat/
-│   │   │   │   └── completions.ts # OpenAI-compatible chat endpoint
-│   │   │   ├── messages.ts        # Anthropic-compatible endpoint
-│   │   │   ├── images/
-│   │   │   │   └── generations.ts # Image generation endpoint
-│   │   │   └── audio/
-│   │   │       └── speech.ts      # Text-to-speech endpoint
-│   │   └── console/
-│   │       ├── keys.ts            # API key management
-│   │       ├── stats.ts           # Usage statistics
-│   │       └── profile.ts         # User profile
-│   └── console/
-│       └── index.tsx              # Developer console
+│ ├── index.tsx # Landing page
+│ ├── docs.tsx # API documentation
+│ ├── api/
+│ │ ├── v1/
+│ │ │ ├── chat/
+│ │ │ │ └── completions.ts # OpenAI-compatible chat endpoint
+│ │ │ ├── messages.ts # Anthropic-compatible endpoint
+│ │ │ ├── images/
+│ │ │ │ └── generations.ts # Image generation endpoint
+│ │ │ └── audio/
+│ │ │ └── speech.ts # Text-to-speech endpoint
+│ │ └── console/
+│ │ ├── keys.ts # API key management
+│ │ ├── stats.ts # Usage statistics
+│ │ └── profile.ts # User profile
+│ └── console/
+│ └── index.tsx # Developer console
 ├── components/
-│   └── console/
-│       ├── overview.tsx
-│       ├── apikeys.tsx
-│       ├── activity.tsx
-│       ├── models.tsx
-│       ├── playground.tsx
-│       └── settings.tsx
+│ └── console/
+│ ├── overview.tsx
+│ ├── apikeys.tsx
+│ ├── activity.tsx
+│ ├── models.tsx
+│ ├── playground.tsx
+│ └── settings.tsx
 ├── lib/
-│   ├── supabase.ts
-│   ├── console-utils.ts           # API key verification, logging
-│   ├── openai.ts                  # GPT-5 Mini
-│   ├── claude.ts                  # Claude Opus 4.5
-│   ├── gemini.ts                  # Gemini 3 Flash
-│   ├── grok.ts                    # Grok 3
-│   ├── grok-fast.ts               # Grok 4 Fast
-│   ├── deepseek.ts                # DeepSeek V3.2
-│   ├── deepseek-v.ts              # DeepSeek V3.1
-│   ├── mistral.ts / zhipu.ts      # Mistral / GLM via Cloudflare
-│   ├── kimi.ts                    # Kimi K2
-│   ├── glm.ts                     # GLM 4.7
-│   ├── qwen.ts / qwen3.ts         # Qwen3 models
-│   ├── minimax.ts                 # MiniMax M2.1
-│   ├── llama.ts                   # Llama 3.3 70B
-│   ├── gpt.ts / gpt-oss.ts        # GPT-5.2 / GPT-OSS
-│   ├── mimo.ts                    # MiMo V2 Flash
-│   ├── compound.ts                # Groq Compound
-│   ├── cohere.ts                  # Cohere Command A
-│   ├── aichixia.ts                # Aichixia 114B
-│   ├── flux.ts / lucid.ts         # Image generation
-│   ├── phoenix.ts / nano.ts       # Image generation
-│   ├── starling.ts                # Starling TTS
-│   └── lindsay.ts                 # Lindsay TTS
+│ ├── supabase.ts
+│ ├── console-utils.ts # API key verification, logging
+│ ├── openai.ts / gpt.ts # GPT-5 Mini / GPT-5.2
+│ ├── claude.ts / opus.ts # Claude Sonnet 4.6 / Opus 4.8
+│ ├── gemini.ts # Gemini 3 Flash
+│ ├── grok.ts / grok-fast.ts # Grok 3 / Grok 4 Fast
+│ ├── deepseek.ts / deepseek-v.ts # DeepSeek V3.2 / V4 Flash
+│ ├── mistral.ts # Mistral Large 3
+│ ├── kimi.ts # Kimi K2.6
+│ ├── glm.ts / zhipu.ts # GLM 4.7 / GLM 4.7 Flash
+│ ├── qwen.ts / qwen3.ts # Qwen3 Coder / Qwen3.6
+│ ├── minimax.ts # MiniMax M2.7
+│ ├── llama.ts # Llama 3.3 70B
+│ ├── gpt-oss.ts # GPT-OSS 120B
+│ ├── mimo.ts # MiMo V2 Flash
+│ ├── compound.ts # Groq Compound
+│ ├── cohere.ts # Cohere Command A
+│ ├── copilot.ts # Microsoft Copilot
+│ ├── phi.ts # Phi 4 Multimodal
+│ ├── stepfun.ts # Step 3.7 Flash
+│ ├── nemotron.ts # Nemotron 3 Ultra 550B
+│ ├── aichixia.ts # Aichixia 114B
+│ ├── flux.ts / lucid.ts # Image generation
+│ ├── phoenix.ts / nano.ts # Image generation
+│ ├── starling.ts / lindsay.ts # Typecast TTS
+│ ├── miu.ts / catherine.ts # Typecast TTS
+│ ├── nana.ts / stephanie.ts # Typecast TTS
+│ └── alexandra.ts / eve.ts # ElevenLabs TTS
 └── public/
 ```
 
----
+<br />
 
 ## Getting Started
 
@@ -296,7 +369,7 @@ aichixia/
 
 - Node.js 18+
 - A Supabase project
-- API keys for whichever AI providers you want to enable
+- API keys for whichever providers you want to enable
 
 ### Installation
 
@@ -325,6 +398,8 @@ DEEPSEEK_API_KEY=
 KIMI_API_KEY=
 MINIMAX_API_KEY=
 COHERE_API_KEY=
+STEPFUN_API_KEY=
+NEMOTRON_API_KEY=
 
 # Cloudflare AI (Mistral, GLM, Llama, MiMo, Groq Compound)
 CLOUDFLARE_API_KEY=
@@ -337,12 +412,19 @@ FLUX_MODEL=@cf/black-forest-labs/flux-2-dev
 LUCID_MODEL=@cf/leonardo/lucid-origin
 PHOENIX_MODEL=@cf/leonardo/phoenix-1.0
 
-# TTS (Typecast)
+# TTS — Typecast
 TTS_API_KEY=
 TTS_VOICE_ID=
 TTS_VOICE_ID_LINDSAY=
-TTS_MODEL=ssfm-v21
-TTS_MODEL_LINDSAY=ssfm-v21
+TTS_VOICE_ID_MIU=
+TTS_VOICE_ID_CATHERINE=
+TTS_VOICE_ID_NANA=
+TTS_VOICE_ID_STEPHANIE=
+
+# TTS — ElevenLabs
+ELEVENLABS_API_KEY=
+TTS_VOICE_ID_ALEXANDRA=
+TTS_VOICE_ID_EVE=
 ```
 
 ### Supabase Schema
@@ -351,61 +433,61 @@ Run these in your Supabase SQL editor:
 
 ```sql
 create table api_keys (
-  id uuid default gen_random_uuid() primary key,
-  user_id uuid references auth.users not null,
-  key text unique not null,
-  name text not null,
-  prefix text not null,
-  is_active boolean default true,
-  rate_limit integer default 100,
-  requests_used integer default 0,
-  last_reset_at timestamptz default now(),
-  created_at timestamptz default now(),
-  updated_at timestamptz default now()
+ id uuid default gen_random_uuid() primary key,
+ user_id uuid references auth.users not null,
+ key text unique not null,
+ name text not null,
+ prefix text not null,
+ is_active boolean default true,
+ rate_limit integer default 100,
+ requests_used integer default 0,
+ last_reset_at timestamptz default now(),
+ created_at timestamptz default now(),
+ updated_at timestamptz default now()
 );
 
 create table request_logs (
-  id uuid default gen_random_uuid() primary key,
-  api_key_id uuid references api_keys not null,
-  user_id uuid references auth.users not null,
-  model text not null,
-  endpoint text not null,
-  status integer not null,
-  latency_ms integer,
-  tokens_used integer default 0,
-  error_message text,
-  ip_address text,
-  user_agent text,
-  created_at timestamptz default now()
+ id uuid default gen_random_uuid() primary key,
+ api_key_id uuid references api_keys not null,
+ user_id uuid references auth.users not null,
+ model text not null,
+ endpoint text not null,
+ status integer not null,
+ latency_ms integer,
+ tokens_used integer default 0,
+ error_message text,
+ ip_address text,
+ user_agent text,
+ created_at timestamptz default now()
 );
 
 create table daily_usage (
-  id uuid default gen_random_uuid() primary key,
-  api_key_id uuid references api_keys not null,
-  user_id uuid references auth.users not null,
-  date date not null,
-  requests_count integer default 0,
-  tokens_used integer default 0,
-  success_count integer default 0,
-  error_count integer default 0,
-  created_at timestamptz default now()
+ id uuid default gen_random_uuid() primary key,
+ api_key_id uuid references api_keys not null,
+ user_id uuid references auth.users not null,
+ date date not null,
+ requests_count integer default 0,
+ tokens_used integer default 0,
+ success_count integer default 0,
+ error_count integer default 0,
+ created_at timestamptz default now()
 );
 
 create table user_settings (
-  id uuid default gen_random_uuid() primary key,
-  user_id uuid references auth.users unique not null,
-  plan text default 'free' check (plan in ('free', 'pro', 'enterprise')),
-  plan_expires_at timestamptz,
-  is_admin boolean default false,
-  created_at timestamptz default now()
+ id uuid default gen_random_uuid() primary key,
+ user_id uuid references auth.users unique not null,
+ plan text default 'free' check (plan in ('free', 'pro', 'enterprise')),
+ plan_expires_at timestamptz,
+ is_admin boolean default false,
+ created_at timestamptz default now()
 );
 
 create table user_profiles (
-  id uuid default gen_random_uuid() primary key,
-  user_id uuid references auth.users unique not null,
-  display_name text,
-  avatar_url text,
-  created_at timestamptz default now()
+ id uuid default gen_random_uuid() primary key,
+ user_id uuid references auth.users unique not null,
+ display_name text,
+ avatar_url text,
+ created_at timestamptz default now()
 );
 ```
 
@@ -417,7 +499,7 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
----
+<br />
 
 ## Deployment
 
@@ -430,34 +512,39 @@ vercel
 
 Add all environment variables in your Vercel project settings. The project deploys automatically on push to `main`.
 
----
+<br />
 
 ## Console Features
 
 The built-in developer console at `/console` includes:
 
-- **Overview** — usage stats, daily request chart, active keys
-- **API Keys** — create, revoke, and rename keys (max 2 active)
-- **Activity** — full request log with model, endpoint, status, latency, tokens
-- **Models** — browse all available models with endpoint details
-- **Playground** — interactive API tester with code generation in 12 languages
-- **Settings** — profile management, plan info, promo code redemption
+| Section | Description |
+|:--|:--|
+| **Overview** | Usage stats, daily request chart, active keys |
+| **API Keys** | Create, revoke, and rename keys with granular endpoint access |
+| **Activity** | Full request log — model, endpoint, status, latency, tokens |
+| **Models** | Browse every available model with capabilities and supported languages |
+| **Playground** | Interactive API tester with code generation in 12 languages |
+| **Settings** | Profile management, plan info, promo code redemption |
 
----
+<br />
 
 ## Plans
 
 | Feature | Free | Pro |
-|---------|------|-----|
+|:--|:--:|:--:|
 | API Keys | Up to 2 | Up to 2 |
-| Rate Limit | 100 req/reset | 400 req/reset |
-| All free models | ✓ | ✓ |
-| Pro models (Claude, Grok 4, DeepSeek V3.2...) | ✗ | ✓ |
-| Priority access | ✗ | ✓ |
+| Daily Requests | 1,000 / day | 4,000 / day |
+| All free models | | |
+| Pro models (Claude Sonnet, DeepSeek V3.2, Kimi K2.6...) | | |
+| Pro voices (Alexandra, Eve) | | |
+| Priority access | | |
+
+Need more? **Enterprise** plans are available with custom limits — [contact us](mailto:contact@aichixia.xyz).
 
 Pro is free — find the redeem code in the docs.
 
----
+<br />
 
 ## Contributing
 
@@ -469,14 +556,20 @@ Pull requests are welcome. For major changes, open an issue first to discuss wha
 4. Push to the branch (`git push origin feature/your-feature`)
 5. Open a Pull Request
 
----
+<br />
 
 ## Related Projects
 
-[![Aichiow](https://img.shields.io/badge/Aichiow-6A5ACD?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Takawell/Aichiow)
+<p align="center">
+<a href="https://github.com/Takawell/Aichiow"><img src="https://img.shields.io/badge/Aichiow-6A5ACD?style=for-the-badge&logo=github&logoColor=white" alt="Aichiow" /></a>
+</p>
 
----
+<br />
 
-## License
+<div align="center">
 
-MIT © [Takawell](https://github.com/Takawell)
+**MIT** © [Takawell](https://github.com/Takawell)
+
+<sub>Built with too many API keys and not enough sleep.</sub>
+
+</div>
