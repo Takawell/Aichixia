@@ -78,8 +78,8 @@ const TTS_MODELS: AnyModel[] = [
   { id: 'catherine-tts', name: 'Catherine TTS', provider: 'Typecast', icon: SiSoundcloud, color: 'from-sky-500 to-indigo-500', pricing: 'Standard', context: '—', type: 'tts', endpoint: `${base}/api/v1/audio/speech` },
   { id: 'nana-tts', name: 'Nana TTS', provider: 'Typecast', icon: SiSpotify, color: 'from-emerald-500 to-teal-500', pricing: 'Standard', context: '—', type: 'tts', endpoint: `${base}/api/v1/audio/speech` },
   { id: 'stephanie-tts', name: 'Stephanie TTS', provider: 'Typecast', icon: SiVorondesign, color: 'from-amber-500 to-orange-500', pricing: 'Standard', context: '—', type: 'tts', endpoint: `${base}/api/v1/audio/speech` },
-  { id: 'alexandra-tts', name: 'Alexandra TTS', provider: 'ElevenLabs', icon: SiElevenlabs, color: 'from-slate-600 to-zinc-800', pricing: 'Premium', context: '—', type: 'tts', endpoint: `${base}/api/v1/audio/speech` },
-  { id: 'eve-tts', name: 'Eve TTS', provider: 'ElevenLabs', icon: SiElevenlabs, color: 'from-zinc-600 to-slate-800', pricing: 'Premium', context: '—', type: 'tts', endpoint: `${base}/api/v1/audio/speech` },
+  { id: 'alexandra-tts', name: 'Alexandra TTS', provider: 'ElevenLabs', icon: SiElevenlabs, color: 'from-slate-600 to-zinc-800', pricing: 'Premium', context: '—', type: 'tts', endpoint: `${base}/api/v1/audio/speech`, requiresPro: true },
+  { id: 'eve-tts', name: 'Eve TTS', provider: 'ElevenLabs', icon: SiElevenlabs, color: 'from-zinc-600 to-slate-800', pricing: 'Premium', context: '—', type: 'tts', endpoint: `${base}/api/v1/audio/speech`, requiresPro: true },
 ];
 
 const STT_MODELS: AnyModel[] = [
