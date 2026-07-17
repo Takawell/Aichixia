@@ -86,7 +86,7 @@ export default function Docs() {
           model: 'gpt-5-mini',
           max_tokens: 4096,
           messages: [
-            { role: 'system', content: 'You are a helpful API assistant for Aichixia, an AI API aggregation platform. Help users integrate and use the Aichixia API. Keep answers concise and clear. Aichixia base URL: https://www.aichixia.xyz. Auth: Bearer token or x-api-key header.\n\nEndpoints:\n- Chat (OpenAI-compat): POST /api/v1/chat/completions\n- Messages (Anthropic-compat): POST /api/v1/messages\n- Image generation: POST /api/v1/images/generations\n- TTS: POST /api/v1/audio/speech\n- STT Transcription: POST /api/v1/audio/transcriptions\n- STT Translation: POST /api/v1/audio/translations\n\nText models (free): gpt-5-mini, gpt-5.2, gpt-oss-120b, gemini-3-flash, grok-3, deepseek-v3.1, mistral-large-3-675b-instruct, glm-4.7-flash, kimi-k2.5, qwen3-coder-480b, llama-3.3-70b, mimo-v2-flash, groq-compound, cohere-command-a\nText models (pro): claude-opus-4.5, grok-4-fast, deepseek-v3.2, glm-4.7, qwen3-235b, minimax-m2.7, aichixia-flash\nVision models: gemini-3-flash, gpt-5.2, aichixia-flash, grok-4-fast\nImage generation models: flux-2-dev, lucid-origin, phoenix-1.0, nano-image\nTTS models: starling-tts, lindsay-tts, miu-tts, catherine-tts (all support language codes: eng, kor, jpn, cmn, spa)\nSTT models: whisper-large-v3 (max accuracy), whisper-large-v3-turbo (max speed 216x real-time)\n\nPlans: Free=1000 req/day, Pro=4000 req/day, Enterprise=custom (contact sales team via email).\nContact: contact@aichixia.xyz | Telegram community: https://t.me/AichixiaAPI\nDo not use tool calling or function calling. Use code examples when relevant.' },
+            { role: 'system', content: 'You are a helpful API assistant for Aichixia, an AI API aggregation platform. Help users integrate and use the Aichixia API. Keep answers concise and clear. Aichixia base URL: https://www.aichixia.xyz. Auth: Bearer token or x-api-key header.\n\nEndpoints:\n- Chat (OpenAI-compat): POST /api/v1/chat/completions\n- Messages (Anthropic-compat): POST /api/v1/messages\n- Image generation: POST /api/v1/images/generations\n- TTS: POST /api/v1/audio/speech\n- STT Transcription: POST /api/v1/audio/transcriptions\n- STT Translation: POST /api/v1/audio/translations\n\nText models (free): gpt-5-mini, gpt-5.2, gpt-oss-120b, gemini-3-flash, grok-3, deepseek-v4-flash, mistral-large-3-675b-instruct, glm-4.7-flash, claude-opus-4.8, copilot, step-3.7-flash, nemotron-3-ultra-550b-a55b, qwen3.6-27b, llama-3.3-70b, mimo-v2-flash, groq-compound, cohere-command-a, phi-4-multimodal-instruct\nText models (pro): claude-sonnet-4.6, grok-4-fast, deepseek-v3.2, glm-4.7, qwen3-coder-480b, minimax-m2.7, kimi-k2.6, aichixia-flash\nVision models: gemini-3-flash, gpt-5.2, aichixia-flash, grok-4-fast\nImage generation models: flux-2-dev, lucid-origin, phoenix-1.0, nano-image\nTTS models: starling-tts, lindsay-tts, miu-tts, catherine-tts, nana-tts, stephanie-tts (Typecast, support: eng, kor, jpn, cmn, spa), alexandra-tts (ElevenLabs, support: ind, eng, rus, cmn), eve-tts (ElevenLabs, support: kor, eng, msa, vie)\nSTT models: whisper-large-v3 (max accuracy), whisper-large-v3-turbo (max speed 216x real-time)\n\nPlans: Free=1000 req/day, Pro=4000 req/day, Enterprise=custom (contact sales team via email).\nContact: contact@aichixia.xyz | Telegram community: https://t.me/AichixiaAPI\nDo not use tool calling or function calling. Use code examples when relevant.' },
             ...newMessages.map(m => ({ role: m.role, content: m.content })),
           ],
         }),
@@ -120,7 +120,7 @@ const client = new OpenAI({
 });
 
 const response = await client.chat.completions.create({
-  model: "claude-opus-4.5",
+  model: "claude-opus-4.8",
   messages: [
     { role: "user", content: "Explain quantum computing" }
   ],
@@ -138,7 +138,7 @@ client = OpenAI(
 )
 
 response = client.chat.completions.create(
-    model="claude-opus-4.5",
+    model="claude-opus-4.8",
     messages=[
         {"role": "user", "content": "Explain quantum computing"}
     ],
@@ -321,7 +321,7 @@ const client = new Anthropic({
 });
 
 const message = await client.messages.create({
-  model: "claude-opus-4.5",
+  model: "claude-opus-4.8",
   max_tokens: 1024,
   messages: [
     { role: "user", content: "Explain quantum computing" }
@@ -338,7 +338,7 @@ client = anthropic.Anthropic(
 )
 
 message = client.messages.create(
-    model="claude-opus-4.5",
+    model="claude-opus-4.8",
     max_tokens=1024,
     messages=[
         {"role": "user", "content": "Explain quantum computing"}
@@ -369,7 +369,7 @@ console.log(message.content[0].text);`,
   -H "x-api-key: YOUR_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
-    "model": "claude-opus-4.5",
+    "model": "claude-opus-4.8",
     "max_tokens": 1024,
     "messages": [
       {"role": "user", "content": "Explain quantum computing"}
@@ -481,7 +481,7 @@ console.log(data.text);`,
         <div>
           <p className="text-xs font-bold text-amber-800 dark:text-amber-300 mb-1">Built-in Tool Calling</p>
           <p className="text-xs text-amber-700 dark:text-amber-400 leading-relaxed">
-            Several models have native tool calling and web search built-in — you do not need to define or pass a <code className="bg-amber-100 dark:bg-amber-900/30 px-1 rounded">tools</code> array. Just send your prompt and the model handles it automatically. Models with built-in tools: <code className="bg-amber-100 dark:bg-amber-900/30 px-1 rounded">gemini-3-flash</code>, <code className="bg-amber-100 dark:bg-amber-900/30 px-1 rounded">deepseek-v3.1</code>, <code className="bg-amber-100 dark:bg-amber-900/30 px-1 rounded">groq-compound</code>, <code className="bg-amber-100 dark:bg-amber-900/30 px-1 rounded">kimi-k2</code>, <code className="bg-amber-100 dark:bg-amber-900/30 px-1 rounded">cohere-command-a and more</code>.
+            Several models have native tool calling and web search built-in — you do not need to define or pass a <code className="bg-amber-100 dark:bg-amber-900/30 px-1 rounded">tools</code> array. Just send your prompt and the model handles it automatically. Models with built-in tools: <code className="bg-amber-100 dark:bg-amber-900/30 px-1 rounded">gemini-3-flash</code>, <code className="bg-amber-100 dark:bg-amber-900/30 px-1 rounded">deepseek-v4-flash</code>, <code className="bg-amber-100 dark:bg-amber-900/30 px-1 rounded">groq-compound</code>, <code className="bg-amber-100 dark:bg-amber-900/30 px-1 rounded">kimi-k2.6</code>, <code className="bg-amber-100 dark:bg-amber-900/30 px-1 rounded">cohere-command-a and more</code>.
           </p>
         </div>
       </div>
@@ -708,7 +708,7 @@ console.log(data.text);`,
                     </button>
                     {expandedSection === 'chat-request' && (
                       <div className="p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
-                        <Param name="model" required type="string" desc="Model ID. e.g. claude-opus-4.5, gpt-5-mini, deepseek-v3.2, gemini-3-flash, grok-3" />
+                        <Param name="model" required type="string" desc="Model ID. e.g. claude-opus-4.8, gpt-5-mini, deepseek-v3.2, gemini-3-flash, grok-3" />
                         <Param name="messages" required type="array" desc="Array of message objects with role (system | user | assistant) and content" />
                         <Param name="temperature" type="number" desc="Sampling temperature 0–2. Higher = more creative. Default: 0.8" />
                         <Param name="max_tokens" type="number" desc="Maximum tokens to generate. Default: 1080" />
@@ -729,7 +729,7 @@ console.log(data.text);`,
   "id": "chatcmpl-abc123",
   "object": "chat.completion",
   "created": 1677652288,
-  "model": "claude-opus-4.5",
+  "model": "claude-opus-4.8",
   "choices": [
     {
       "index": 0,
@@ -762,31 +762,36 @@ console.log(data.text);`,
                             { id: 'gpt-5-mini', label: 'GPT-5 Mini', plan: 'free' },
                             { id: 'gpt-5.2', label: 'GPT-5.2', plan: 'free' },
                             { id: 'gpt-oss-120b', label: 'GPT-OSS 120B', plan: 'free' },
-                            { id: 'claude-opus-4.5', label: 'Claude Opus 4.5', plan: 'pro' },
+                            { id: 'aichixia-flash', label: 'Aichixia 114B', plan: 'pro' },
+                            { id: 'mistral-large-3-675b-instruct', label: 'Mistral Large 3 675B', plan: 'free' },
+                            { id: 'deepseek-v3.2', label: 'DeepSeek V3.2', plan: 'pro' },
+                            { id: 'deepseek-v4-flash', label: 'DeepSeek V4 Flash', plan: 'free' },
+                            { id: 'claude-sonnet-4.6', label: 'Claude Sonnet 4.6', plan: 'pro' },
+                            { id: 'claude-opus-4.8', label: 'Claude Opus 4.8', plan: 'free' },
                             { id: 'gemini-3-flash', label: 'Gemini 3 Flash', plan: 'free' },
                             { id: 'grok-3', label: 'Grok 3', plan: 'free' },
-                            { id: 'grok-4-fast', label: 'Grok 4 Fast', plan: 'pro' },
-                            { id: 'deepseek-v3.2', label: 'DeepSeek V3.2', plan: 'pro' },
-                            { id: 'deepseek-v3.1', label: 'DeepSeek V3.1', plan: 'free' },
-                            { id: 'mistral-3.1', label: 'Mistral 3.1', plan: 'free' },
+                            { id: 'phi-4-multimodal-instruct', label: 'Phi 4 Multimodal', plan: 'free' },
                             { id: 'glm-4.7', label: 'GLM 4.7', plan: 'pro' },
                             { id: 'glm-4.7-flash', label: 'GLM 4.7 Flash', plan: 'free' },
-                            { id: 'kimi-k2', label: 'Kimi K2', plan: 'free' },
-                            { id: 'qwen3-235b', label: 'Qwen3 235B', plan: 'pro' },
-                            { id: 'qwen3-coder-480b', label: 'Qwen3 Coder 480B', plan: 'free' },
-                            { id: 'minimax-m2.1', label: 'MiniMax M2.1', plan: 'pro' },
+                            { id: 'kimi-k2.6', label: 'Kimi K2.6', plan: 'pro' },
+                            { id: 'copilot', label: 'Microsoft Copilot', plan: 'free' },
+                            { id: 'step-3.7-flash', label: 'Step 3.7 Flash', plan: 'free' },
+                            { id: 'nemotron-3-ultra-550b-a55b', label: 'Nemotron 3 Ultra 550B', plan: 'free' },
+                            { id: 'qwen3.6-27b', label: 'Qwen3.6 27B', plan: 'free' },
+                            { id: 'qwen3-coder-480b', label: 'Qwen3 Coder 480B', plan: 'pro' },
+                            { id: 'minimax-m2.7', label: 'MiniMax M2.7', plan: 'pro' },
                             { id: 'llama-3.3-70b', label: 'Llama 3.3 70B', plan: 'free' },
                             { id: 'mimo-v2-flash', label: 'MiMo V2 Flash', plan: 'free' },
                             { id: 'groq-compound', label: 'Groq Compound', plan: 'free' },
                             { id: 'cohere-command-a', label: 'Cohere Command A', plan: 'free' },
-                            { id: 'aichixia-flash', label: 'Aichixia 114B', plan: 'pro' },
+                            { id: 'grok-4-fast', label: 'Grok 4 Fast', plan: 'pro' },
                           ].map(({ id, label, plan }) => (
                             <div key={id} className="flex items-center justify-between p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
                               <div>
                                 <p className="text-xs font-semibold text-zinc-900 dark:text-white">{label}</p>
-                                <code className="text-[10px] text-zinc-500 dark:text-zinc-400 font-mono">{id}</code>
+                                <code className="text-[10px] text-zinc-500 dark:text-zinc-400 font-mono break-all">{id}</code>
                               </div>
-                              <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-semibold ${plan === 'pro' ? 'bg-orange-100 dark:bg-orange-950/30 text-orange-600 dark:text-orange-400' : 'bg-emerald-100 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400'}`}>
+                              <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-semibold flex-shrink-0 ml-2 ${plan === 'pro' ? 'bg-orange-100 dark:bg-orange-950/30 text-orange-600 dark:text-orange-400' : 'bg-emerald-100 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400'}`}>
                                 {plan === 'pro' ? 'Pro' : 'Free'}
                               </span>
                             </div>
@@ -880,7 +885,7 @@ console.log(data.text);`,
       "text": "Your response here..."
     }
   ],
-  "model": "claude-opus-4.5",
+  "model": "claude-opus-4.8",
   "stop_reason": "end_turn",
   "stop_sequence": null,
   "usage": {
@@ -1048,15 +1053,19 @@ console.log(data.text);`,
                     </button>
                     {expandedSection === 'tts-request' && (
                       <div className="p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
-                        <Param name="model" required type="string" desc="TTS model ID: starling-tts, lindsay-tts, miu-tts, or catherine-tts" />
-                        <Param name="input" required type="string" desc="The text to convert to speech. Max 2000 characters." />
-                        <Param name="emotion" type="string" desc="Emotional tone: normal, happy, sad, angry, fearful, disgusted, surprised. Default: normal" />
-                        <Param name="volume" type="number" desc="Output volume 0–200. Default: 100" />
-                        <Param name="pitch" type="number" desc="Pitch in semitones -12 to 12. Default: 0" />
-                        <Param name="tempo" type="number" desc="Speed multiplier 0.5–2.0. Default: 1" />
+                        <Param name="model" required type="string" desc="TTS model ID: starling-tts, lindsay-tts, miu-tts, catherine-tts, nana-tts, stephanie-tts, alexandra-tts, or eve-tts" />
+                        <Param name="input" required type="string" desc="The text to convert to speech. Max 2000 characters (5000 for alexandra-tts / eve-tts)." />
+                        <Param name="emotion" type="string" desc="Typecast models only. Emotional tone: normal, happy, sad, angry, fearful, disgusted, surprised. Default: normal" />
+                        <Param name="emotion_intensity" type="number" desc="Typecast models only. Emotion intensity 0–2. Default: 1" />
+                        <Param name="volume" type="number" desc="Typecast models only. Output volume 0–200. Default: 100" />
+                        <Param name="pitch" type="number" desc="Typecast models only. Pitch in semitones -12 to 12. Default: 0" />
+                        <Param name="tempo" type="number" desc="Typecast models only. Speed multiplier 0.5–2.0. Default: 1" />
+                        <Param name="stability" type="number" desc="ElevenLabs models only (alexandra-tts, eve-tts). Voice stability 0–1. Default: 0.5" />
+                        <Param name="similarity_boost" type="number" desc="ElevenLabs models only. Similarity to original voice 0–1. Default: 0.75" />
+                        <Param name="style" type="number" desc="ElevenLabs models only. Style exaggeration 0–1. Default: 0" />
+                        <Param name="speaker_boost" type="boolean" desc="ElevenLabs models only. Boost speaker clarity. Default: true" />
                         <Param name="response_format" type="string" desc="Audio format: mp3 or wav. Default: mp3" />
-                        <Param name="emotion_intensity" type="number" desc="Emotion intensity 0–2. Default: 1" />
-                        <Param name="language" type="string" desc="Language code: eng, kor, jpn, cmn, or spa. Default: eng" />
+                        <Param name="language" type="string" desc="Language code, varies by model. Default: eng (Typecast) / eng (ElevenLabs)" />
                         <Param name="seed" type="number" desc="Random seed for reproducibility. Optional." />
                       </div>
                     )}
@@ -1096,6 +1105,10 @@ console.log(data.text);`,
                             { id: 'lindsay-tts', name: 'Lindsay TTS', provider: 'Typecast', desc: 'Premium voice with enhanced prosody and clarity.' },
                             { id: 'miu-tts', name: 'Miu Kobayashi TTS', provider: 'Typecast', desc: 'Expressive voice actor model with vivid emotional range.' },
                             { id: 'catherine-tts', name: 'Catherine TTS', provider: 'Typecast', desc: 'Warm, polished voice for professional narration.' },
+                            { id: 'nana-tts', name: 'Nana TTS', provider: 'Typecast', desc: 'Bright, energetic voice with lively delivery.' },
+                            { id: 'stephanie-tts', name: 'Stephanie TTS', provider: 'Typecast', desc: 'Confident, articulate voice for versatile use.' },
+                            { id: 'alexandra-tts', name: 'Alexandra TTS', provider: 'ElevenLabs', desc: 'Multilingual voice supporting Indonesian, English, Russian, Mandarin.' },
+                            { id: 'eve-tts', name: 'Eve TTS', provider: 'ElevenLabs', desc: 'Multilingual voice supporting Korean, English, Malay, Vietnamese.' },
                           ].map(({ id, name, provider, desc }) => (
                             <div key={id} className="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
                               <div className="flex items-center justify-between mb-1 gap-2">
@@ -1114,22 +1127,58 @@ console.log(data.text);`,
                       <FaChevronRight className={`w-4 h-4 text-zinc-400 transition-transform duration-200 ${expandedSection === 'tts-languages' ? 'rotate-90' : ''}`} />
                     </button>
                     {expandedSection === 'tts-languages' && (
-                      <div className="p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
-                        <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-3">All TTS models support the same set of language codes for the <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">language</code> parameter.</p>
-                        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-                          {[
-                            { code: 'eng', label: 'English', flag: '🇺🇸' },
-                            { code: 'kor', label: 'Korean', flag: '🇰🇷' },
-                            { code: 'jpn', label: 'Japanese', flag: '🇯🇵' },
-                            { code: 'cmn', label: 'Mandarin', flag: '🇨🇳' },
-                            { code: 'spa', label: 'Spanish', flag: '🇪🇸' },
-                          ].map(({ code, label, flag }) => (
-                            <div key={code} className="flex flex-col items-center gap-1 p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
-                              <span className="text-base leading-none">{flag}</span>
-                              <code className="text-[10px] font-mono text-violet-600 dark:text-violet-400">{code}</code>
-                              <span className="text-[9px] text-zinc-500 dark:text-zinc-400">{label}</span>
-                            </div>
-                          ))}
+                      <div className="p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 space-y-4">
+                        <div>
+                          <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-2">Typecast models (starling-tts, lindsay-tts, miu-tts, catherine-tts, nana-tts, stephanie-tts)</p>
+                          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                            {[
+                              { code: 'eng', label: 'English', flag: '🇺🇸' },
+                              { code: 'kor', label: 'Korean', flag: '🇰🇷' },
+                              { code: 'jpn', label: 'Japanese', flag: '🇯🇵' },
+                              { code: 'cmn', label: 'Mandarin', flag: '🇨🇳' },
+                              { code: 'spa', label: 'Spanish', flag: '🇪🇸' },
+                            ].map(({ code, label, flag }) => (
+                              <div key={code} className="flex flex-col items-center gap-1 p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
+                                <span className="text-base leading-none">{flag}</span>
+                                <code className="text-[10px] font-mono text-violet-600 dark:text-violet-400">{code}</code>
+                                <span className="text-[9px] text-zinc-500 dark:text-zinc-400">{label}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-2">Alexandra TTS (ElevenLabs)</p>
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                            {[
+                              { code: 'ind', label: 'Indonesian', flag: '🇮🇩' },
+                              { code: 'eng', label: 'English', flag: '🇺🇸' },
+                              { code: 'rus', label: 'Russian', flag: '🇷🇺' },
+                              { code: 'cmn', label: 'Mandarin', flag: '🇨🇳' },
+                            ].map(({ code, label, flag }) => (
+                              <div key={code} className="flex flex-col items-center gap-1 p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
+                                <span className="text-base leading-none">{flag}</span>
+                                <code className="text-[10px] font-mono text-violet-600 dark:text-violet-400">{code}</code>
+                                <span className="text-[9px] text-zinc-500 dark:text-zinc-400">{label}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-2">Eve TTS (ElevenLabs)</p>
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                            {[
+                              { code: 'kor', label: 'Korean', flag: '🇰🇷' },
+                              { code: 'eng', label: 'English', flag: '🇺🇸' },
+                              { code: 'msa', label: 'Malay', flag: '🇲🇾' },
+                              { code: 'vie', label: 'Vietnamese', flag: '🇻🇳' },
+                            ].map(({ code, label, flag }) => (
+                              <div key={code} className="flex flex-col items-center gap-1 p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
+                                <span className="text-base leading-none">{flag}</span>
+                                <code className="text-[10px] font-mono text-violet-600 dark:text-violet-400">{code}</code>
+                                <span className="text-[9px] text-zinc-500 dark:text-zinc-400">{label}</span>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       </div>
                     )}
