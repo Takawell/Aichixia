@@ -5,6 +5,8 @@ import { generateSpeech as generateMiu, MiuError, MiuRateLimitError, MiuQuotaErr
 import { generateSpeech as generateCatherine, CatherineError, CatherineRateLimitError, CatherineQuotaError } from "@/lib/catherine";
 import { generateSpeech as generateNana, NanaError, NanaRateLimitError, NanaQuotaError } from "@/lib/nana";
 import { generateSpeech as generateStephanie, StephanieError, StephanieRateLimitError, StephanieQuotaError } from "@/lib/stephanie";
+import { generateSpeech as generateAlexandra, AlexandraError, AlexandraRateLimitError, AlexandraQuotaError } from "@/lib/alexandra";
+import { generateSpeech as generateEve, EveError, EveRateLimitError, EveQuotaError } from "@/lib/eve";
 import { logRequest, incrementUsage, updateDailyUsage, verifyApiKey } from "@/lib/console-utils";
 
 export const config = {
@@ -15,13 +17,15 @@ export const config = {
   },
 };
 
-const VOICE_MODEL_MAP: Record<string, "starling" | "lindsay" | "miu" | "catherine" | "nana" | "stephanie"> = {
+const VOICE_MODEL_MAP: Record<string, "starling" | "lindsay" | "miu" | "catherine" | "nana" | "stephanie" | "alexandra" | "eve"> = {
   "starling-tts": "starling",
   "lindsay-tts": "lindsay",
   "miu-tts": "miu",
   "catherine-tts": "catherine",
   "nana-tts": "nana",
   "stephanie-tts": "stephanie",
+  "alexandra-tts": "alexandra",
+  "eve-tts": "eve",
 };
 
 const DEFAULT_MODEL = "starling-tts";
@@ -74,6 +78,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     volume,
     pitch,
     tempo,
+    stability,
+    similarity_boost,
+    style,
+    speaker_boost,
     response_format = "mp3",
     seed,
   } = req.body;
@@ -109,6 +117,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       seed,
     };
 
+    const elevenLabsConfig = {
+      text: input,
+      voiceId: voice_id || voice,
+      language,
+      stability,
+      similarityBoost: similarity_boost,
+      style,
+      speakerBoost: speaker_boost,
+      format: response_format as "mp3" | "wav",
+      seed,
+    };
+
     const result = provider === "lindsay"
       ? await generateLindsay(ttsConfig)
       : provider === "miu"
@@ -119,6 +139,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       ? await generateNana(ttsConfig)
       : provider === "stephanie"
       ? await generateStephanie(ttsConfig)
+      : provider === "alexandra"
+      ? await generateAlexandra(elevenLabsConfig)
+      : provider === "eve"
+      ? await generateEve(elevenLabsConfig)
       : await generateStarling(ttsConfig);
 
     if (!result.success) {
@@ -168,8 +192,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   } catch (error: any) {
     const latency = Date.now() - startTime;
 
-    const isRateLimit = error instanceof StarlingRateLimitError || error instanceof LindsayRateLimitError || error instanceof MiuRateLimitError || error instanceof CatherineRateLimitError || error instanceof NanaRateLimitError || error instanceof StephanieRateLimitError;
-    const isQuota = error instanceof StarlingQuotaError || error instanceof LindsayQuotaError || error instanceof MiuQuotaError || error instanceof CatherineQuotaError || error instanceof NanaQuotaError || error instanceof StephanieQuotaError;
+    const isRateLimit = error instanceof StarlingRateLimitError || error instanceof LindsayRateLimitError || error instanceof MiuRateLimitError || error instanceof CatherineRateLimitError || error instanceof NanaRateLimitError || error instanceof StephanieRateLimitError || error instanceof AlexandraRateLimitError || error instanceof EveRateLimitError;
+    const isQuota = error instanceof StarlingQuotaError || error instanceof LindsayQuotaError || error instanceof MiuQuotaError || error instanceof CatherineQuotaError || error instanceof NanaQuotaError || error instanceof StephanieQuotaError || error instanceof AlexandraQuotaError || error instanceof EveQuotaError;
     const status = isRateLimit ? 429 : isQuota ? 402 : 500;
 
     await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, false);
@@ -192,7 +216,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (isQuota) {
       return res.status(402).json({ error: { message: "Monthly credit quota exceeded.", type: "insufficient_quota", code: "insufficient_quota" } });
     }
-    if (error instanceof StarlingError || error instanceof LindsayError || error instanceof MiuError || error instanceof CatherineError || error instanceof NanaError || error instanceof StephanieError) {
+    if (error instanceof StarlingError || error instanceof LindsayError || error instanceof MiuError || error instanceof CatherineError || error instanceof NanaError || error instanceof StephanieError || error instanceof AlexandraError || error instanceof EveError) {
       return res.status(400).json({ error: { message: error.message, type: "invalid_request_error", code: null } });
     }
 
