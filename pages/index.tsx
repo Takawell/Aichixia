@@ -238,8 +238,8 @@ const pricingPlans = [
 const stats = [
   { label: "API Calls", value: "1.2B+", icon: FaChartLine },
   { label: "Developers", value: "40K+", icon: FaUsers },
-  { label: "Uptime", value: "99.99%", icon: FaClock },
-  { label: "Models", value: "20+", icon: FaRobot }
+  { label: "Uptime", value: "99.74%", icon: FaClock },
+  { label: "Models", value: "30+", icon: FaRobot }
 ];
 
 const testimonials = [
@@ -1169,7 +1169,7 @@ func main() {
               <span className="text-[10px] sm:text-xs font-semibold text-blue-700 dark:text-blue-300">Try It Live</span>
             </div>
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-zinc-900 dark:text-white px-4">
-              Interactive API Playground
+              API Playground
             </h2>
             <p className="text-sm sm:text-base lg:text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto px-4">
               Test our API right here. No signup required. Just add your key and start building.
