@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { FiCopy, FiCheck, FiLock, FiZap, FiCpu, FiTrendingUp, FiDollarSign, FiSearch, FiStar, FiInfo, FiImage, FiX, FiExternalLink, FiMic } from 'react-icons/fi';
-import { SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiAirbrake, SiMaze, SiXiaomi, SiFlux, SiImagedotsc, SiSecurityscorecard, SiLapce, SiGithubcopilot, SiAudiomack, SiSoundcloud, SiSpotify, SiVorondesign, SiNvidia } from 'react-icons/si';
+import { SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiAirbrake, SiMaze, SiXiaomi, SiFlux, SiImagedotsc, SiSecurityscorecard, SiLapce, SiGithubcopilot, SiAudiomack, SiSoundcloud, SiSpotify, SiVorondesign, SiNvidia, SiElevenlabs } from 'react-icons/si';
 import { RiOpenaiFill } from 'react-icons/ri';
 import { GiSpermWhale, GiPowerLightning, GiClover, GiFire, } from 'react-icons/gi';
 import { DiBower } from 'react-icons/di';
@@ -28,6 +28,10 @@ const LANGUAGE_FLAGS: Record<string, string> = {
   jpn: '🇯🇵',
   cmn: '🇨🇳',
   spa: '🇪🇸',
+  ind: '🇮🇩',
+  rus: '🇷🇺',
+  msa: '🇲🇾',
+  vie: '🇻🇳',
 };
 
 const AVAILABLE_MODELS = [
@@ -551,6 +555,36 @@ const AVAILABLE_MODELS = [
     pricing: 'Standard',
     features: ['Articulate', 'Confident tone', 'Multi-language'],
     languages: ['eng', 'kor', 'jpn', 'cmn', 'spa'],
+    endpoint: 'https://www.aichixia.xyz/api/v1/audio/speech',
+  },
+  {
+    id: 'alexandra-tts',
+    name: 'Alexandra TTS',
+    icon: SiElevenlabs,
+    color: 'from-slate-600 to-zinc-800',
+    category: 'Text-to-Speech',
+    description: 'ElevenLabs multilingual voice for Indonesian, English, Russian, and Mandarin.',
+    speed: 4,
+    quality: 5,
+    contextWindow: '5K chars',
+    pricing: 'Premium',
+    features: ['Multilingual', 'High fidelity', 'Voice cloning quality'],
+    languages: ['ind', 'eng', 'rus', 'cmn'],
+    endpoint: 'https://www.aichixia.xyz/api/v1/audio/speech',
+  },
+  {
+    id: 'eve-tts',
+    name: 'Eve TTS',
+    icon: SiElevenlabs,
+    color: 'from-zinc-600 to-slate-800',
+    category: 'Text-to-Speech',
+    description: 'ElevenLabs multilingual voice for Korean, English, Malay, and Vietnamese.',
+    speed: 4,
+    quality: 5,
+    contextWindow: '5K chars',
+    pricing: 'Premium',
+    features: ['Multilingual', 'High fidelity', 'Voice cloning quality'],
+    languages: ['kor', 'eng', 'msa', 'vie'],
     endpoint: 'https://www.aichixia.xyz/api/v1/audio/speech',
   },
   {
