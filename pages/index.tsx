@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import Head from "next/head";
 import { FaTerminal, FaPlay, FaCode, FaBook, FaRocket, FaArrowRight, FaMoon, FaSun, FaBars, FaTimes, FaCopy, FaCheck, FaKey, FaServer, FaGlobe, FaChevronDown, FaBolt, FaShieldAlt, FaClock, FaInfinity, FaCheckCircle, FaStar, FaUsers, FaChartLine, FaLock, FaCog, FaCloud, FaDatabase, FaLayerGroup, FaStream, FaCircle, FaExternalLinkAlt, FaGithub, FaTwitter, FaDiscord, FaBoxOpen, FaFileCode, FaLightbulb, FaRobot, FaSpinner, FaChevronRight } from "react-icons/fa";
-import { SiOpenai, SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiAirbrake, SiDigikeyelectronics, SiMaze } from "react-icons/si";
+import { SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiAirbrake, SiDigikeyelectronics, SiMaze } from "react-icons/si";
+import { RiOpenaiFill } from "react-icons/ri";
 import { GiSpermWhale, GiPowerLightning, GiClover } from "react-icons/gi";
 import { TbSquareLetterZ, TbLetterM } from "react-icons/tb";
 import { FaXTwitter } from "react-icons/fa6";
@@ -74,7 +75,7 @@ const comparisonRows = [
 ];
 
 const models = [
-  { id: "gpt-5-mini", name: "GPT-5 Mini", provider: "OpenAI", description: "Balanced performance for general tasks", color: "from-emerald-500 to-green-600", icon: SiOpenai, requiresPro: false },
+  { id: "gpt-5-mini", name: "GPT-5 Mini", provider: "OpenAI", description: "Balanced performance for general tasks", color: "from-emerald-500 to-green-600", icon: RiOpenaiFill, requiresPro: false },
   { id: "aichixia-flash", name: "Aichixia 114B", provider: "Aichiverse", description: "High-efficiency MoE architecture for ultra-fast inference", color: "from-blue-600 via-blue-800 to-slate-900", icon: SiAirbrake, requiresPro: true },
   { id: "mistral-3.1", name: "Mistral 3.1", provider: "Mistral AI", description: "Fast inference with European focus", color: "from-orange-500 to-amber-500", icon: TbLetterM, requiresPro: false },
   { id: "deepseek-v3.2", name: "DeepSeek V3.2", provider: "DeepSeek", description: "Deep reasoning and code generation", color: "from-cyan-500 to-blue-600", icon: GiSpermWhale, requiresPro: true },
@@ -89,12 +90,12 @@ const models = [
   { id: "qwen3-coder-480b", name: "Qwen3 Coder 480B", provider: "Alibaba", description: "Specialized in coding and Asian languages", color: "from-purple-600 to-fuchsia-600", icon: SiAlibabacloud, requiresPro: false },
   { id: "minimax-m2.1", name: "MiniMax M2.1", provider: "MiniMax", description: "Multilingual coding specialist with agent workflows", color: "from-cyan-600 to-blue-600", icon: SiMaze, requiresPro: true },
   { id: "llama-3.3-70b", name: "Llama 3.3 70B", provider: "Meta", description: "Efficient open-source powerhouse", color: "from-blue-600 to-indigo-700", icon: SiMeta, requiresPro: false },
-  { id: "gpt-oss-120b", name: "GPT-OSS 120B", provider: "OpenAI", description: "Large open-source with browser search", color: "from-pink-600 to-rose-600", icon: SiOpenai, requiresPro: false },
+  { id: "gpt-oss-120b", name: "GPT-OSS 120B", provider: "OpenAI", description: "Large open-source with browser search", color: "from-pink-600 to-rose-600", icon: RiOpenaiFill, requiresPro: false },
   { id: "mimo-v2-flash", name: "MiMo V2 Flash", provider: "Xiaomi", description: "Efficient 309B MoE model for reasoning and coding", color: "from-blue-600 to-purple-600", icon: FiZap, requiresPro: false },
   { id: "groq-compound", name: "Groq Compound", provider: "Groq", description: "Multi-model agentic system with tools", color: "from-orange-600 to-red-600", icon: GiPowerLightning, requiresPro: false },
   { id: "cohere-command-a", name: "Cohere Command A", provider: "Cohere", description: "Enterprise-grade with excellent tool use", color: "from-emerald-600 to-teal-600", icon: GiClover, requiresPro: false },
   { id: "grok-4-fast", name: "Grok 4 Fast", provider: "xAI", description: "xAI's fastest Grok 4 with 2M context window", color: "from-zinc-700 to-slate-900", icon: FaXTwitter, requiresPro: true },
-  { id: "gpt-5.2", name: "GPT-5.2", provider: "OpenAI", description: "OpenAI's latest GPT-5.2 with enhanced reasoning", color: "from-green-500 to-emerald-600", icon: SiOpenai, requiresPro: false, limited: true },
+  { id: "gpt-5.2", name: "GPT-5.2", provider: "OpenAI", description: "OpenAI's latest GPT-5.2 with enhanced reasoning", color: "from-green-500 to-emerald-600", icon: RiOpenaiFill, requiresPro: false, limited: true },
 ];
 
 const features = [
@@ -1294,7 +1295,7 @@ func main() {
                             : 'text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300'
                         }`}
                       >
-                        <SiOpenai className="w-2.5 h-2.5" />
+                        <RiOpenaiFill className="w-2.5 h-2.5" />
                         OpenAI
                       </button>
                       <button
