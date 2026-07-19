@@ -11,7 +11,7 @@ export type ChatMessage = {
 };
 
 const MINIMAX_API_KEY = process.env.MINIMAX_API_KEY;
-const MINIMAX_MODEL = process.env.MINIMAX_MODEL || "minimax/minimax-m2.7";
+const MINIMAX_MODEL = process.env.MINIMAX_MODEL || "minimaxai/minimax-m3";
 const TAVILY_API_KEY = process.env.TAVILY_API_KEY;
 
 if (!MINIMAX_API_KEY) {
