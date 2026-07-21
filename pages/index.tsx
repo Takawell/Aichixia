@@ -15,10 +15,10 @@ import { oneDark, oneLight } from 'react-syntax-highlighter/dist/cjs/styles/pris
 const base = "https://www.aichixia.xyz";
 
 const allModelTicker = [
-  "DeepSeek V3.2", "Claude Opus 4.5", "Gemini 3 Flash", "GPT-5 Mini", "Kimi K2.5",
+  "DeepSeek V3.2", "Claude Opus 4.8", "Gemini 3 Flash", "GPT-5 Mini", "Kimi K2.6",
   "Qwen3 235B", "Llama 3.3 70B", "Mistral Large 3 675B", "Grok 3", "Grok 4 Fast",
-  "GLM 4.7", "DeepSeek V3.1", "MiniMax M2.7", "Aichixia 114B", "MiMo V2 Flash",
-  "GPT-OSS 120B", "Cohere Command A", "Groq Compound", "Qwen3 Coder 480B", "GLM 4.7 Flash",
+  "GLM 4.7", "DeepSeek V4 Flash", "MiniMax M3", "Aichixia 114B", "MiMo V2 Flash",
+  "GPT-OSS 120B", "GPT-5.5", "Cohere Command A", "Groq Compound", "Qwen3 Coder 480B", "GLM 4.7 Flash",
   "Phi 4 Multimodal", "GPT-5.2",
 ];
 
@@ -79,16 +79,16 @@ const models = [
   { id: "aichixia-flash", name: "Aichixia 114B", provider: "Aichiverse", description: "High-efficiency MoE architecture for ultra-fast inference", color: "from-blue-600 via-blue-800 to-slate-900", icon: SiAirbrake, requiresPro: true },
   { id: "mistral-3.1", name: "Mistral 3.1", provider: "Mistral AI", description: "Fast inference with European focus", color: "from-orange-500 to-amber-500", icon: TbLetterM, requiresPro: false },
   { id: "deepseek-v3.2", name: "DeepSeek V3.2", provider: "DeepSeek", description: "Deep reasoning and code generation", color: "from-cyan-500 to-blue-600", icon: GiSpermWhale, requiresPro: true },
-  { id: "deepseek-v3.1", name: "DeepSeek V3.1", provider: "DeepSeek", description: "Previous generation DeepSeek model", color: "from-cyan-600 to-teal-600", icon: GiSpermWhale, requiresPro: false },
-  { id: "claude-opus-4.5", name: "Claude Opus 4.5", provider: "Anthropic", description: "World's #1 AI model for complex tasks", color: "from-orange-500 to-amber-600", icon: SiAnthropic, requiresPro: true },
+  { id: "deepseek-v4-flash", name: "DeepSeek V4 Flash", provider: "DeepSeek", description: "Previous generation DeepSeek model", color: "from-cyan-600 to-teal-600", icon: GiSpermWhale, requiresPro: false },
+  { id: "claude-opus-4.8", name: "Claude Opus 4.8", provider: "Anthropic", description: "World's #1 AI model for complex tasks", color: "from-orange-500 to-amber-600", icon: SiAnthropic, requiresPro: true },
   { id: "gemini-3-flash", name: "Gemini 3 Flash", provider: "Google", description: "Multimodal understanding and accuracy", color: "from-indigo-500 to-purple-600", icon: SiGooglegemini, requiresPro: false },
   { id: "grok-3", name: "Grok 3", provider: "xAI", description: "xAI's flagship model with real-time data", color: "from-slate-600 to-zinc-700", icon: FaXTwitter, requiresPro: false },
   { id: "glm-4.7", name: "GLM 4.7", provider: "Zhipu", description: "Multilingual excellence with strong reasoning", color: "from-blue-700 to-indigo-800", icon: TbSquareLetterZ, requiresPro: true },
-  { id: "kimi-k2", name: "Kimi K2", provider: "Moonshot", description: "Superior tool calling and reasoning", color: "from-blue-500 to-cyan-600", icon: SiDigikeyelectronics, requiresPro: false },
+  { id: "kimi-k2.6", name: "Kimi K2.6", provider: "Moonshot", description: "Superior tool calling and reasoning", color: "from-blue-500 to-cyan-600", icon: SiDigikeyelectronics, requiresPro: false },
   { id: "glm-4.7-flash", name: "GLM 4.7 Flash", provider: "Zhipu", description: "Very fast, suitable for real-time apps", color: "from-blue-700 to-indigo-800", icon: TbSquareLetterZ, requiresPro: false },
   { id: "qwen3-235b", name: "Qwen3 235B", provider: "Alibaba", description: "Large multilingual model with strong reasoning", color: "from-purple-500 to-pink-500", icon: SiAlibabacloud, requiresPro: true },
   { id: "qwen3-coder-480b", name: "Qwen3 Coder 480B", provider: "Alibaba", description: "Specialized in coding and Asian languages", color: "from-purple-600 to-fuchsia-600", icon: SiAlibabacloud, requiresPro: false },
-  { id: "minimax-m2.1", name: "MiniMax M2.1", provider: "MiniMax", description: "Multilingual coding specialist with agent workflows", color: "from-cyan-600 to-blue-600", icon: SiMaze, requiresPro: true },
+  { id: "minimax-m3", name: "MiniMax M3", provider: "MiniMax", description: "Multilingual coding specialist with agent workflows", color: "from-cyan-600 to-blue-600", icon: SiMaze, requiresPro: true },
   { id: "llama-3.3-70b", name: "Llama 3.3 70B", provider: "Meta", description: "Efficient open-source powerhouse", color: "from-blue-600 to-indigo-700", icon: SiMeta, requiresPro: false },
   { id: "gpt-oss-120b", name: "GPT-OSS 120B", provider: "OpenAI", description: "Large open-source with browser search", color: "from-pink-600 to-rose-600", icon: RiOpenaiFill, requiresPro: false },
   { id: "mimo-v2-flash", name: "MiMo V2 Flash", provider: "Xiaomi", description: "Efficient 309B MoE model for reasoning and coding", color: "from-blue-600 to-purple-600", icon: FiZap, requiresPro: false },
@@ -236,10 +236,10 @@ const pricingPlans = [
 ];
 
 const stats = [
-  { label: "API Calls", value: "1.2B+", icon: FaChartLine },
-  { label: "Developers", value: "40K+", icon: FaUsers },
+  { label: "API Calls", value: "10M+", icon: FaChartLine },
+  { label: "Developers", value: "20K+", icon: FaUsers },
   { label: "Uptime", value: "99.74%", icon: FaClock },
-  { label: "Models", value: "30+", icon: FaRobot }
+  { label: "Models", value: "40+", icon: FaRobot }
 ];
 
 const testimonials = [
@@ -659,7 +659,7 @@ func main() {
       `}} />
       
       <Head>
-        <title>Aichixia - Modern AI API Platform | 20+ Models in One Unified API</title>
+        <title>Aichixia - AI API Platform | 40+ Models in One Unified API</title>
         <meta name="description" content="Build AI applications 10x faster with Aichixia's unified API. Access Claude, GPT, Gemini, DeepSeek and 20+ AI models through one OpenAI-compatible endpoint. Sub-100ms latency, 99.9% uptime, enterprise-grade security." />
         <meta name="keywords" content="AI API, OpenAI alternative, Claude API, GPT API, Gemini API, AI infrastructure, multi-model API, DeepSeek, machine learning API, enterprise AI" />
         <meta name="author" content="Aichixia" />
@@ -672,7 +672,7 @@ func main() {
         
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://www.aichixia.xyz" />
-        <meta property="og:title" content="Aichixia - Modern AI API Platform | 20+ Models in One Unified API" />
+        <meta property="og:title" content="Aichixia - AI API Platform | 20+ Models in One Unified API" />
         <meta property="og:description" content="Build AI applications 10x faster with Aichixia's unified API. Access Claude, GPT, Gemini, DeepSeek and 20+ AI models through one OpenAI-compatible endpoint. Sub-100ms latency, 99.9% uptime." />
         <meta property="og:image" content="https://www.aichixia.xyz/og-image.png" />
         <meta property="og:image:width" content="1200" />
@@ -682,14 +682,14 @@ func main() {
         
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:url" content="https://www.aichixia.xyz" />
-        <meta name="twitter:title" content="Aichixia - Modern AI API Platform | 20+ Models in One Unified API" />
+        <meta name="twitter:title" content="Aichixia - AI API Platform | 20+ Models in One Unified API" />
         <meta name="twitter:description" content="Build AI applications 10x faster with Aichixia's unified API. Access Claude, GPT, Gemini, DeepSeek and 20+ AI models. Sub-100ms latency, 99.9% uptime." />
         <meta name="twitter:image" content="https://www.aichixia.xyz/og-image.png" />
         <meta name="twitter:creator" content="@aichixia" />
         <meta name="twitter:site" content="@aichixia" />
         
-        <meta property="discord:title" content="Aichixia - Modern AI API Platform" />
-        <meta property="discord:description" content="20+ AI models in one unified API. OpenAI-compatible. Sub-100ms latency. Enterprise-grade security." />
+        <meta property="discord:title" content="Aichixia - AI API Platform" />
+        <meta property="discord:description" content="40+ AI models in one unified API. OpenAI-compatible. Sub-100ms latency. Enterprise-grade security." />
         <meta property="discord:image" content="https://www.aichixia.xyz/og-image.png" />
         
         <meta name="robots" content="index, follow" />
