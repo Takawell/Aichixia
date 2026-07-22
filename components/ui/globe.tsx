@@ -3,10 +3,9 @@
 import createGlobe, { COBEOptions } from "cobe"
 import { useCallback, useEffect, useRef, useState } from "react"
 
-const GLOBE_CONFIG: COBEOptions = {
+const GLOBE_CONFIG: Omit<COBEOptions, "onRender" | "context"> = {
   width: 800,
   height: 800,
-  onRender: () => {},
   devicePixelRatio: 2,
   phi: 0,
   theta: 0.3,
