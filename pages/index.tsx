@@ -11,7 +11,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
-import { Globe } from "@/components/ui/globe";
+import { SplineScene } from "@/components/ui/splite";
 import ThemeToggle from "@/components/ThemeToggle";
 
 const base = "https://www.aichixia.xyz";
@@ -860,7 +860,10 @@ func main() {
         <div className="absolute inset-0 bg-gradient-to-b from-zinc-950 via-zinc-950 to-black" />
         <div className="absolute inset-0 opacity-40" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.08) 1px, transparent 0)', backgroundSize: '32px 32px' }} />
 
-        <Globe className="pointer-events-none absolute left-1/2 top-1/2 aspect-square w-[130vw] max-w-[1100px] -translate-x-1/2 -translate-y-[42%] opacity-70 sm:w-[95vw] lg:w-[62vw]" />
+        <SplineScene
+          scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+          className="pointer-events-none absolute left-1/2 top-1/2 aspect-square w-[130vw] max-w-[1100px] -translate-x-1/2 -translate-y-[42%] opacity-70 sm:w-[95vw] lg:w-[62vw]"
+        />
 
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 sm:h-56 bg-gradient-to-t from-zinc-950 via-zinc-950/80 to-transparent" />
 
