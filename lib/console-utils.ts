@@ -142,14 +142,14 @@ export async function getUsageStats(userId: string, days: number = 7, forAdmin: 
   const startDate = new Date();
   startDate.setDate(startDate.getDate() - days);
 
-  const query = supabaseAdmin
+  let query = supabaseAdmin
     .from('daily_usage')
     .select('*')
     .gte('date', startDate.toISOString().split('T')[0])
     .order('date', { ascending: true });
 
   if (!forAdmin) {
-    query.eq('user_id', userId);
+    query = query.eq('user_id', userId);
   }
 
   const { data, error } = await query;
@@ -161,14 +161,14 @@ export async function getUsageStats(userId: string, days: number = 7, forAdmin: 
 export async function getRecentLogs(userId: string, limit: number = 20, forAdmin: boolean = false) {
   const supabaseAdmin = getServiceSupabase();
 
-  const query = supabaseAdmin
+  let query = supabaseAdmin
     .from('request_logs')
     .select('*')
     .order('created_at', { ascending: false })
     .limit(limit);
 
   if (!forAdmin) {
-    query.eq('user_id', userId);
+    query = query.eq('user_id', userId);
   }
 
   const { data, error } = await query;
