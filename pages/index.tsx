@@ -11,6 +11,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
+import { Globe } from "@/components/ui/globe";
 
 const base = "https://www.aichixia.xyz";
 
@@ -864,41 +865,48 @@ func main() {
         )}
       </header>
 
-      <section className="relative pt-12 sm:pt-16 lg:pt-20 pb-16 sm:pb-20 lg:pb-24 px-3 sm:px-4 lg:px-6 overflow-hidden">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center space-y-4 sm:space-y-6">
-            <div className="space-y-3 sm:space-y-4 opacity-0 fade-in-up stagger-delay-1">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50">
-                <FaStar className="w-3 h-3 text-blue-600 dark:text-blue-400" />
-                <span className="text-[10px] sm:text-xs font-semibold text-blue-700 dark:text-blue-300">OpenAI & Anthropic Compatible</span>
+      <section className="relative pt-16 sm:pt-24 lg:pt-32 pb-24 sm:pb-32 lg:pb-40 px-3 sm:px-4 lg:px-6 overflow-hidden bg-zinc-950">
+        <div className="absolute inset-0 bg-gradient-to-b from-zinc-950 via-zinc-950 to-black" />
+        <div className="absolute inset-0 opacity-40" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.08) 1px, transparent 0)', backgroundSize: '32px 32px' }} />
+
+        <Globe className="pointer-events-none absolute left-1/2 top-1/2 aspect-square w-[130vw] max-w-[1100px] -translate-x-1/2 -translate-y-[42%] opacity-70 sm:w-[95vw] lg:w-[62vw]" />
+
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 sm:h-56 bg-gradient-to-t from-zinc-950 via-zinc-950/80 to-transparent" />
+
+        <div className="relative max-w-6xl mx-auto">
+          <div className="text-center space-y-6 sm:space-y-8">
+            <div className="space-y-4 sm:space-y-6 opacity-0 fade-in-up stagger-delay-1">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.06] backdrop-blur-sm border border-white/10">
+                <FaStar className="w-3 h-3 text-cyan-400" />
+                <span className="text-[10px] sm:text-xs font-semibold tracking-wide text-zinc-200">OpenAI & Anthropic Compatible</span>
               </div>
-              
-              <h1 className="text-3xl sm:text-4xl lg:text-6xl font-black text-zinc-900 dark:text-white leading-tight tracking-tight px-4">
+
+              <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black text-white leading-[1.05] tracking-tight px-2">
                 Build AI Apps
                 <br />
-                <span className="bg-gradient-to-r from-blue-600 via-cyan-500 to-purple-600 bg-clip-text text-transparent animate-gradient">
+                <span className="bg-gradient-to-r from-blue-400 via-cyan-300 to-purple-400 bg-clip-text text-transparent animate-gradient">
                   10x Faster
                 </span>
               </h1>
-              
-              <p className="text-sm sm:text-base lg:text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto leading-relaxed px-4">
-                One unified API for Claude, GPT, Gemini, and more. Compatible with OpenAI <span className="font-semibold text-zinc-800 dark:text-zinc-200">and</span> Anthropic SDKs. Switch models instantly, scale effortlessly.
+
+              <p className="text-base sm:text-lg lg:text-xl text-zinc-400 max-w-2xl mx-auto leading-relaxed px-4 font-light">
+                One unified API for Claude, GPT, Gemini, and more. Compatible with OpenAI <span className="font-medium text-zinc-200">and</span> Anthropic SDKs. Switch models instantly, scale effortlessly.
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 opacity-0 fade-in-up stagger-delay-2 px-4">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 opacity-0 fade-in-up stagger-delay-2 px-4">
               <Link
                 href="/console"
-                className="group flex items-center gap-1.5 sm:gap-2 px-5 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base font-bold text-white bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 rounded-lg shadow-xl hover:shadow-blue-500/50 transition-all duration-300 hover:scale-105 w-full sm:w-auto justify-center"
+                className="group flex items-center gap-2 px-7 py-3 sm:py-3.5 text-sm sm:text-base font-bold text-zinc-950 bg-white hover:bg-zinc-100 rounded-full shadow-2xl shadow-cyan-500/10 transition-all duration-300 hover:scale-[1.03] w-full sm:w-auto justify-center"
               >
                 <FaRocket className="w-4 h-4" />
                 <span>Start Free</span>
                 <FaArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform duration-300" />
               </Link>
-              
+
               <Link
                 href="/docs"
-                className="group flex items-center gap-1.5 sm:gap-2 px-5 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base font-bold text-zinc-900 dark:text-white bg-white dark:bg-zinc-900 border-2 border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 w-full sm:w-auto justify-center"
+                className="group flex items-center gap-2 px-7 py-3 sm:py-3.5 text-sm sm:text-base font-semibold text-white bg-white/[0.06] backdrop-blur-sm border border-white/15 hover:bg-white/[0.1] hover:border-white/25 rounded-full transition-all duration-300 hover:scale-[1.03] w-full sm:w-auto justify-center"
               >
                 <FaBook className="w-4 h-4" />
                 <span>View Docs</span>
@@ -906,12 +914,12 @@ func main() {
               </Link>
             </div>
 
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 pt-8 sm:pt-10 opacity-0 fade-in-up stagger-delay-3 px-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 pt-10 sm:pt-14 opacity-0 fade-in-up stagger-delay-3 px-4 max-w-3xl mx-auto">
               {stats.map((stat, idx) => (
-                <div key={idx} className="group p-3 sm:p-4 rounded-xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-lg transition-all duration-300 hover:scale-105">
-                  <stat.icon className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400 mb-2 mx-auto group-hover:scale-110 transition-transform duration-300" />
-                  <div className="text-xl sm:text-2xl lg:text-3xl font-black text-zinc-900 dark:text-white mb-0.5">{stat.value}</div>
-                  <div className="text-[10px] sm:text-xs text-zinc-600 dark:text-zinc-400 font-semibold">{stat.label}</div>
+                <div key={idx} className="group p-4 sm:p-5 rounded-2xl bg-white/[0.04] backdrop-blur-sm border border-white/10 hover:border-white/20 hover:bg-white/[0.07] transition-all duration-300">
+                  <stat.icon className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-400 mb-2 mx-auto group-hover:scale-110 transition-transform duration-300" />
+                  <div className="text-xl sm:text-2xl lg:text-3xl font-black text-white mb-0.5">{stat.value}</div>
+                  <div className="text-[10px] sm:text-xs text-zinc-400 font-medium">{stat.label}</div>
                 </div>
               ))}
             </div>
