@@ -12,6 +12,7 @@ import Image from "next/image";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import { Globe } from "@/components/ui/globe";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const base = "https://www.aichixia.xyz";
 
@@ -355,10 +356,6 @@ export default function Home() {
       Object.values(observerRefs.current).forEach((observer) => observer.disconnect());
     };
   }, []);
-
-  const toggleTheme = () => {
-    document.documentElement.classList.toggle('dark');
-  };
 
   const handleSendRequest = async () => {
     if (!apiKey.trim()) {
@@ -794,13 +791,7 @@ func main() {
             </nav>
 
             <div className="flex items-center gap-1.5 sm:gap-2">
-              <button
-                onClick={toggleTheme}
-                className="p-1.5 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
-                aria-label="Toggle theme"
-              >
-                {isDark ? <FaSun className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <FaMoon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
-              </button>
+              <ThemeToggle />
 
               <Link
                 href="/console"
