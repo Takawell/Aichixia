@@ -856,66 +856,75 @@ func main() {
         )}
       </header>
 
-      <section className="relative pt-16 sm:pt-24 lg:pt-32 pb-24 sm:pb-32 lg:pb-40 px-3 sm:px-4 lg:px-6 overflow-hidden bg-zinc-950">
+      <section className="relative pt-16 sm:pt-24 lg:pt-20 pb-24 sm:pb-32 lg:pb-24 px-3 sm:px-4 lg:px-6 overflow-hidden bg-zinc-950">
         <div className="absolute inset-0 bg-gradient-to-b from-zinc-950 via-zinc-950 to-black" />
         <div className="absolute inset-0 opacity-40" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.08) 1px, transparent 0)', backgroundSize: '32px 32px' }} />
 
         <SplineScene
           scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
-          className="pointer-events-none absolute left-1/2 top-1/2 aspect-square w-[130vw] max-w-[1100px] -translate-x-1/2 -translate-y-[42%] opacity-70 sm:w-[95vw] lg:w-[62vw]"
+          className="pointer-events-none absolute left-1/2 top-1/2 aspect-square w-[160vw] max-w-[900px] -translate-x-1/2 -translate-y-[42%] opacity-40 lg:hidden"
         />
 
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 sm:h-56 bg-gradient-to-t from-zinc-950 via-zinc-950/80 to-transparent" />
 
-        <div className="relative max-w-6xl mx-auto">
-          <div className="text-center space-y-6 sm:space-y-8">
-            <div className="space-y-4 sm:space-y-6 opacity-0 fade-in-up stagger-delay-1">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.06] backdrop-blur-sm border border-white/10">
-                <FaStar className="w-3 h-3 text-cyan-400" />
-                <span className="text-[10px] sm:text-xs font-semibold tracking-wide text-zinc-200">OpenAI & Anthropic Compatible</span>
+        <div className="relative max-w-7xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-4 items-center">
+            <div className="text-center lg:text-left space-y-6 sm:space-y-8">
+              <div className="space-y-4 sm:space-y-6 opacity-0 fade-in-up stagger-delay-1">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.06] backdrop-blur-sm border border-white/10">
+                  <FaStar className="w-3 h-3 text-cyan-400" />
+                  <span className="text-[10px] sm:text-xs font-semibold tracking-wide text-zinc-200">OpenAI & Anthropic Compatible</span>
+                </div>
+
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-[1.05] tracking-tight px-2 lg:px-0">
+                  Build AI Apps
+                  <br />
+                  <span className="bg-gradient-to-r from-blue-400 via-cyan-300 to-purple-400 bg-clip-text text-transparent animate-gradient">
+                    10x Faster
+                  </span>
+                </h1>
+
+                <p className="text-base sm:text-lg lg:text-xl text-zinc-400 max-w-2xl lg:max-w-lg mx-auto lg:mx-0 leading-relaxed px-4 lg:px-0 font-light">
+                  One unified API for Claude, GPT, Gemini, and more. Compatible with OpenAI <span className="font-medium text-zinc-200">and</span> Anthropic SDKs. Switch models instantly, scale effortlessly.
+                </p>
               </div>
 
-              <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black text-white leading-[1.05] tracking-tight px-2">
-                Build AI Apps
-                <br />
-                <span className="bg-gradient-to-r from-blue-400 via-cyan-300 to-purple-400 bg-clip-text text-transparent animate-gradient">
-                  10x Faster
-                </span>
-              </h1>
+              <div className="flex flex-col sm:flex-row items-center lg:justify-start justify-center gap-3 opacity-0 fade-in-up stagger-delay-2 px-4 lg:px-0">
+                <Link
+                  href="/console"
+                  className="group flex items-center gap-2 px-7 py-3 sm:py-3.5 text-sm sm:text-base font-bold text-zinc-950 bg-white hover:bg-zinc-100 rounded-full shadow-2xl shadow-cyan-500/10 transition-all duration-300 hover:scale-[1.03] w-full sm:w-auto justify-center"
+                >
+                  <FaRocket className="w-4 h-4" />
+                  <span>Start Free</span>
+                  <FaArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform duration-300" />
+                </Link>
 
-              <p className="text-base sm:text-lg lg:text-xl text-zinc-400 max-w-2xl mx-auto leading-relaxed px-4 font-light">
-                One unified API for Claude, GPT, Gemini, and more. Compatible with OpenAI <span className="font-medium text-zinc-200">and</span> Anthropic SDKs. Switch models instantly, scale effortlessly.
-              </p>
+                <Link
+                  href="/docs"
+                  className="group flex items-center gap-2 px-7 py-3 sm:py-3.5 text-sm sm:text-base font-semibold text-white bg-white/[0.06] backdrop-blur-sm border border-white/15 hover:bg-white/[0.1] hover:border-white/25 rounded-full transition-all duration-300 hover:scale-[1.03] w-full sm:w-auto justify-center"
+                >
+                  <FaBook className="w-4 h-4" />
+                  <span>View Docs</span>
+                  <FaChevronRight className="w-3 h-3 group-hover:translate-x-1 transition-transform duration-300" />
+                </Link>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 sm:gap-4 pt-10 sm:pt-14 lg:pt-6 opacity-0 fade-in-up stagger-delay-3 px-4 lg:px-0 max-w-3xl lg:max-w-none mx-auto lg:mx-0">
+                {stats.map((stat, idx) => (
+                  <div key={idx} className="group p-4 sm:p-5 rounded-2xl bg-white/[0.04] backdrop-blur-sm border border-white/10 hover:border-white/20 hover:bg-white/[0.07] transition-all duration-300">
+                    <stat.icon className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-400 mb-2 mx-auto lg:mx-0 group-hover:scale-110 transition-transform duration-300" />
+                    <div className="text-xl sm:text-2xl lg:text-3xl font-black text-white mb-0.5">{stat.value}</div>
+                    <div className="text-[10px] sm:text-xs text-zinc-400 font-medium">{stat.label}</div>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 opacity-0 fade-in-up stagger-delay-2 px-4">
-              <Link
-                href="/console"
-                className="group flex items-center gap-2 px-7 py-3 sm:py-3.5 text-sm sm:text-base font-bold text-zinc-950 bg-white hover:bg-zinc-100 rounded-full shadow-2xl shadow-cyan-500/10 transition-all duration-300 hover:scale-[1.03] w-full sm:w-auto justify-center"
-              >
-                <FaRocket className="w-4 h-4" />
-                <span>Start Free</span>
-                <FaArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform duration-300" />
-              </Link>
-
-              <Link
-                href="/docs"
-                className="group flex items-center gap-2 px-7 py-3 sm:py-3.5 text-sm sm:text-base font-semibold text-white bg-white/[0.06] backdrop-blur-sm border border-white/15 hover:bg-white/[0.1] hover:border-white/25 rounded-full transition-all duration-300 hover:scale-[1.03] w-full sm:w-auto justify-center"
-              >
-                <FaBook className="w-4 h-4" />
-                <span>View Docs</span>
-                <FaChevronRight className="w-3 h-3 group-hover:translate-x-1 transition-transform duration-300" />
-              </Link>
-            </div>
-
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 pt-10 sm:pt-14 opacity-0 fade-in-up stagger-delay-3 px-4 max-w-3xl mx-auto">
-              {stats.map((stat, idx) => (
-                <div key={idx} className="group p-4 sm:p-5 rounded-2xl bg-white/[0.04] backdrop-blur-sm border border-white/10 hover:border-white/20 hover:bg-white/[0.07] transition-all duration-300">
-                  <stat.icon className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-400 mb-2 mx-auto group-hover:scale-110 transition-transform duration-300" />
-                  <div className="text-xl sm:text-2xl lg:text-3xl font-black text-white mb-0.5">{stat.value}</div>
-                  <div className="text-[10px] sm:text-xs text-zinc-400 font-medium">{stat.label}</div>
-                </div>
-              ))}
+            <div className="hidden lg:block relative h-[560px]">
+              <SplineScene
+                scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+                className="w-full h-full"
+              />
             </div>
           </div>
         </div>
