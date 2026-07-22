@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "cobe": "^2.0.1",
     "graphql": "^16.9.0",
     "isomorphic-fetch": "^3.0.0",
     "lucide-react": "^0.451.0",
