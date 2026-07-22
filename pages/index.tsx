@@ -12,7 +12,6 @@ import Image from "next/image";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import { SplineScene } from "@/components/ui/splite";
-import ThemeToggle from "@/components/ThemeToggle";
 
 const base = "https://www.aichixia.xyz";
 
@@ -296,7 +295,7 @@ const useCases = [
 ];
 
 export default function Home() {
-  const [isDark, setIsDark] = useState(false);
+  const isDark = true;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showModelModal, setShowModelModal] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
@@ -316,15 +315,37 @@ export default function Home() {
   const [activeStep, setActiveStep] = useState(0);
   const [scrollY, setScrollY] = useState(0);
   const [isVisible, setIsVisible] = useState<{ [key: string]: boolean }>({});
+  const [isDesktop, setIsDesktop] = useState(false);
+  const [heroInView, setHeroInView] = useState(false);
+  const heroRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const mql = window.matchMedia('(min-width: 1024px)');
+    setIsDesktop(mql.matches);
+    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }, []);
+
+  useEffect(() => {
+    if (!heroRef.current) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setHeroInView(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(heroRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   const observerRefs = useRef<{ [key: string]: IntersectionObserver }>({});
 
   useEffect(() => {
-    setIsDark(document.documentElement.classList.contains('dark'));
-    const observer = new MutationObserver(() => {
-      setIsDark(document.documentElement.classList.contains('dark'));
-    });
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-    return () => observer.disconnect();
+    document.documentElement.classList.add('dark');
   }, []);
 
   useEffect(() => {
@@ -791,8 +812,6 @@ func main() {
             </nav>
 
             <div className="flex items-center gap-1.5 sm:gap-2">
-              <ThemeToggle />
-
               <Link
                 href="/console"
                 className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
@@ -856,26 +875,22 @@ func main() {
         )}
       </header>
 
-      <section className="relative pt-16 sm:pt-24 lg:pt-20 pb-24 sm:pb-32 lg:pb-24 px-3 sm:px-4 lg:px-6 overflow-hidden bg-zinc-950">
-        <div className="absolute inset-0 bg-gradient-to-b from-zinc-950 via-zinc-950 to-black" />
-        <div className="absolute inset-0 opacity-40" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.08) 1px, transparent 0)', backgroundSize: '32px 32px' }} />
+      <section ref={heroRef} className="relative pt-16 sm:pt-24 lg:pt-20 pb-24 sm:pb-32 lg:pb-24 px-3 sm:px-4 lg:px-6 overflow-hidden bg-black">
+        <div className="absolute inset-0 opacity-30" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.06) 1px, transparent 0)', backgroundSize: '32px 32px' }} />
 
-        <SplineScene
-          scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
-          className="pointer-events-none absolute left-1/2 top-1/2 aspect-square w-[160vw] max-w-[900px] -translate-x-1/2 -translate-y-[42%] opacity-40 lg:hidden"
-        />
+        {heroInView && !isDesktop && (
+          <SplineScene
+            scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+            className="pointer-events-none absolute left-1/2 top-1/2 aspect-square w-[160vw] max-w-[900px] -translate-x-1/2 -translate-y-[42%] opacity-40"
+          />
+        )}
 
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 sm:h-56 bg-gradient-to-t from-zinc-950 via-zinc-950/80 to-transparent" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 sm:h-56 bg-gradient-to-t from-black via-black/80 to-transparent" />
 
         <div className="relative max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-10 lg:gap-4 items-center">
             <div className="text-center lg:text-left space-y-6 sm:space-y-8">
               <div className="space-y-4 sm:space-y-6 opacity-0 fade-in-up stagger-delay-1">
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.06] backdrop-blur-sm border border-white/10">
-                  <FaStar className="w-3 h-3 text-cyan-400" />
-                  <span className="text-[10px] sm:text-xs font-semibold tracking-wide text-zinc-200">OpenAI & Anthropic Compatible</span>
-                </div>
-
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-[1.05] tracking-tight px-2 lg:px-0">
                   Build AI Apps
                   <br />
@@ -892,7 +907,7 @@ func main() {
               <div className="flex flex-col sm:flex-row items-center lg:justify-start justify-center gap-3 opacity-0 fade-in-up stagger-delay-2 px-4 lg:px-0">
                 <Link
                   href="/console"
-                  className="group flex items-center gap-2 px-7 py-3 sm:py-3.5 text-sm sm:text-base font-bold text-zinc-950 bg-white hover:bg-zinc-100 rounded-full shadow-2xl shadow-cyan-500/10 transition-all duration-300 hover:scale-[1.03] w-full sm:w-auto justify-center"
+                  className="group flex items-center gap-2 px-7 py-3 sm:py-3.5 text-sm sm:text-base font-bold text-black bg-white hover:bg-zinc-100 rounded-full shadow-2xl shadow-cyan-500/10 transition-all duration-300 hover:scale-[1.03] w-full sm:w-auto justify-center"
                 >
                   <FaRocket className="w-4 h-4" />
                   <span>Start Free</span>
@@ -921,10 +936,12 @@ func main() {
             </div>
 
             <div className="hidden lg:block relative h-[560px]">
-              <SplineScene
-                scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
-                className="w-full h-full"
-              />
+              {heroInView && isDesktop && (
+                <SplineScene
+                  scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+                  className="w-full h-full"
+                />
+              )}
             </div>
           </div>
         </div>
