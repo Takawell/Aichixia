@@ -21,35 +21,39 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   const { type, days, limit, admin } = req.query;
-  const isAdminRequest = admin === 'true';
+  const wantsAdmin = admin === 'true';
 
-  if (isAdminRequest) {
+  let isVerifiedAdmin = false;
+
+  if (wantsAdmin) {
     const supabaseAdmin = getServiceSupabase();
-    const { data: settings } = await supabaseAdmin
+    const { data: settings, error: settingsError } = await supabaseAdmin
       .from('user_settings')
       .select('is_admin')
       .eq('user_id', user.id)
       .single();
 
-    if (!settings?.is_admin) {
+    if (settingsError || settings?.is_admin !== true) {
       return res.status(403).json({ error: 'Admin access required' });
     }
+
+    isVerifiedAdmin = true;
   }
 
   if (type === 'usage') {
     const daysCount = days ? parseInt(days as string) : 7;
-    const usageData = await getUsageStats(user.id, daysCount, isAdminRequest);
+    const usageData = await getUsageStats(user.id, daysCount, isVerifiedAdmin);
     return res.status(200).json({ usage: usageData });
   }
 
   if (type === 'logs') {
     const logsLimit = limit ? parseInt(limit as string) : 100;
-    const logs = await getRecentLogs(user.id, logsLimit, isAdminRequest);
+    const logs = await getRecentLogs(user.id, logsLimit, isVerifiedAdmin);
     return res.status(200).json({ logs });
   }
 
   if (type === 'total') {
-    if (isAdminRequest) {
+    if (isVerifiedAdmin) {
       const stats = await getAllUsersStats();
       return res.status(200).json({ stats });
     } else {
