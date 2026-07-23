@@ -67,7 +67,7 @@ const sdkBadges = [
 const comparisonRows = [
   { feature: "OpenAI Compatible", aichixia: true, openai: true },
   { feature: "Anthropic SDK Support", aichixia: true, openai: false },
-  { feature: "20+ Models", aichixia: true, openai: false },
+  { feature: "40+ Models", aichixia: true, openai: false },
   { feature: "Image Generation", aichixia: true, openai: true },
   { feature: "Text-to-Speech", aichixia: true, openai: true },
   { feature: "Free Tier", aichixia: true, openai: false },
@@ -744,7 +744,7 @@ func main() {
                 "ratingValue": "5",
                 "ratingCount": "3"
               },
-              "description": "Unified AI API platform providing access to 20+ AI models including Claude, GPT, Gemini, and DeepSeek through one OpenAI-compatible endpoint.",
+              "description": "Unified AI API platform providing access to 40+ AI models including Claude, GPT, Gemini, and DeepSeek through one OpenAI-compatible endpoint.",
               "url": "https://www.aichixia.xyz",
               "author": {
                 "@type": "Organization",
