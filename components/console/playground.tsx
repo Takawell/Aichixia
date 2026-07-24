@@ -35,8 +35,6 @@ type MemoryMessage = {
   timestamp: number;
 };
 
-const STREAM_CAPABLE_MODELS = new Set(['kimi-k2.6', 'mistral-large-3-675b-instruct', 'minimax-m3', 'step-3.7-flash', 'nemotron-3-ultra-550b-a55b']);
-
 const TEXT_MODELS: AnyModel[] = [
   { id: 'gpt-5-mini', name: 'GPT-5 Mini', provider: 'OpenAI', icon: RiOpenaiFill, color: 'from-emerald-500 to-green-600', pricing: 'Budget', context: '400K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'aichixia-flash', name: 'Aichixia 114B', provider: 'Aichiverse', icon: SiAirbrake, color: 'from-blue-600 via-blue-800 to-slate-900', pricing: 'Standard', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
@@ -1088,9 +1086,6 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
   const [imageSeed, setImageSeed] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [response, setResponse] = useState<any>(null);
-  const [streamEnabled, setStreamEnabled] = useState(false);
-  const [isStreaming, setIsStreaming] = useState(false);
-  const [streamingText, setStreamingText] = useState('');
   const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -1178,7 +1173,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
   const clearResult = () => {
     setResponse(null); setImageBase64(null); setAudioUrl(null);
     setError(null); setLatency(null); setIsPlaying(false); setArtifact(null);
-    setSttResult(null); setStreamingText(''); setIsStreaming(false);
+    setSttResult(null);
     if (audioRef.current) { audioRef.current.pause(); audioRef.current.src = ''; }
   };
 
@@ -1331,90 +1326,6 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
       } else {
         msgs.push({ role: 'user', content: message });
       }
-
-      const canStream = streamEnabled && STREAM_CAPABLE_MODELS.has(selectedModel.id) && typeof ReadableStream !== 'undefined';
-
-      if (canStream) {
-        setIsStreaming(true);
-        setStreamingText('');
-        setActiveTab('response');
-
-        let res: Response;
-        try {
-          res = await fetch(selectedModel.endpoint, {
-            method: 'POST',
-            headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ model: selectedModel.id, messages: msgs, temperature, max_tokens: maxTokens, stream: true }),
-          });
-        } catch (fetchErr: any) {
-          setIsStreaming(false);
-          setError(fetchErr?.message || 'Network error while starting stream');
-          return;
-        }
-
-        if (!res.ok || !res.body) {
-          const { data, error: parseError } = await safeParseJson(res);
-          setLatency(Date.now() - t0);
-          setIsStreaming(false);
-          if (parseError) { setError(parseError); return; }
-          setError(data?.error?.message || `Error ${res.status}`);
-          return;
-        }
-
-        let fullText = '';
-
-        try {
-          const reader = res.body.getReader();
-          const decoder = new TextDecoder();
-          let buffer = '';
-
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            if (!value) continue;
-
-            buffer += decoder.decode(value, { stream: true });
-            const parts = buffer.split('\n\n');
-            buffer = parts.pop() || '';
-
-            for (const part of parts) {
-              if (!part.startsWith('data: ')) continue;
-              const payload = part.slice(6).trim();
-              if (!payload || payload === '[DONE]') continue;
-              try {
-                const parsed = JSON.parse(payload);
-                if (typeof parsed?.text === 'string') {
-                  fullText += parsed.text;
-                  setStreamingText(fullText);
-                }
-                if (parsed?.error) {
-                  setError(String(parsed.error));
-                }
-              } catch {
-                continue;
-              }
-            }
-          }
-        } catch (streamErr: any) {
-          setIsStreaming(false);
-          if (!fullText) {
-            setError(streamErr?.message || 'Stream interrupted');
-            return;
-          }
-        }
-
-        setLatency(Date.now() - t0);
-        setIsStreaming(false);
-
-        if (fullText) {
-          setResponse({ choices: [{ message: { role: 'assistant', content: fullText } }] });
-          const detected = detectArtifact(fullText);
-          if (detected) setArtifact(detected);
-          if (memoryEnabled) addToMemory(message, fullText);
-        }
-        return;
-      }
-
       const res = await fetch(selectedModel.endpoint, {
         method: 'POST',
         headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
@@ -1436,11 +1347,10 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
       setError(err.message || 'Network error');
     } finally {
       setIsLoading(false);
-      setIsStreaming(false);
     }
   };
 
-  const responseText = isStreaming ? streamingText : (response?.choices?.[0]?.message?.content ?? '');
+  const responseText = response?.choices?.[0]?.message?.content ?? '';
   const tokensUsed = response?.usage?.total_tokens ?? null;
   const ModelIcon = selectedModel.icon as any;
   const tabModels = modelsForTab();
@@ -1542,7 +1452,6 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                             <div className="flex items-center gap-1 flex-wrap">
                               <span className="text-[10px] font-semibold text-zinc-900 dark:text-white truncate">{model.name}</span>
                               {hasVision && <span className="text-[8px] font-bold px-1 py-0.5 rounded-full bg-blue-100 dark:bg-blue-800/30 text-blue-400 dark:text-blue-300 border border-blue-100 dark:border-blue-700 flex-shrink-0">Vision</span>}
-                              {STREAM_CAPABLE_MODELS.has(model.id) && <span className="text-[8px] font-bold px-1 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-500 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex-shrink-0">Stream</span>}
                             </div>
                             <div className="text-[9px] text-zinc-500 truncate">{model.provider}{model.context !== '—' ? ` · ${model.context}` : ''}</div>
                           </div>
@@ -1596,22 +1505,6 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                     className="w-full px-2.5 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[10px] sm:text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:border-blue-300 dark:focus:border-blue-400 focus:ring-1 focus:ring-blue-300/20 outline-none transition-all resize-none"
                   />
                 )}
-              </div>
-            )}
-
-            {selectedModel.type === 'text' && STREAM_CAPABLE_MODELS.has(selectedModel.id) && (
-              <div className="flex items-center justify-between px-2.5 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
-                <div className="flex items-center gap-1.5">
-                  <FiZap className="w-3 h-3 text-emerald-500" />
-                  <span className="text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400">Stream response</span>
-                </div>
-                <button
-                  onClick={() => setStreamEnabled(!streamEnabled)}
-                  className={`relative rounded-full transition-all duration-300 flex items-center px-0.5 ${streamEnabled ? 'bg-emerald-500' : 'bg-zinc-300 dark:bg-zinc-700'}`}
-                  style={{ height: '18px', width: '32px' }}
-                >
-                  <div className={`w-3.5 h-3.5 rounded-full bg-white shadow-sm transition-all duration-300 ${streamEnabled ? 'translate-x-3.5' : 'translate-x-0'}`} />
-                </button>
               </div>
             )}
 
@@ -2319,17 +2212,12 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                   </div>
                 )}
 
-                {(response || isStreaming) && responseText && (
+                {response && responseText && (
                   <div className="space-y-2 fade-in">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1.5">
                         <div className={`w-4 h-4 rounded bg-gradient-to-br ${selectedModel.color} flex items-center justify-center`}><ModelIcon className="w-2 h-2 text-white" /></div>
                         <span className="text-[10px] font-semibold text-zinc-600 dark:text-zinc-400">{selectedModel.name}</span>
-                        {isStreaming && (
-                          <span className="flex items-center gap-1 text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-500 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
-                            <span className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" /> Streaming
-                          </span>
-                        )}
                         {uploadedImages.length > 0 && (
                           <span className="text-[8px] font-bold px-1 py-0.5 rounded-full bg-blue-100 dark:bg-blue-800/30 text-blue-400 dark:text-blue-300 border border-blue-100 dark:border-blue-700">
                             {uploadedImages.length} image{uploadedImages.length > 1 ? 's' : ''} analyzed
@@ -2353,7 +2241,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                         <pre className="text-[10px] sm:text-xs text-zinc-700 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap break-words font-mono">{responseText}</pre>
                       )}
                     </div>
-                    {response?.usage && (
+                    {response.usage && (
                       <div className="flex flex-wrap gap-2 pt-1">
                         {[
                           { label: 'Prompt', val: response.usage.prompt_tokens },
