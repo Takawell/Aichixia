@@ -86,7 +86,7 @@ export default function Docs() {
           model: 'gpt-5-mini',
           max_tokens: 4096,
           messages: [
-            { role: 'system', content: 'You are a helpful API assistant for Aichixia, an AI API aggregation platform. Help users integrate and use the Aichixia API. Keep answers concise and clear. Aichixia base URL: https://www.aichixia.xyz. Auth: Bearer token or x-api-key header.\n\nEndpoints:\n- Chat (OpenAI-compat): POST /api/v1/chat/completions\n- Messages (Anthropic-compat): POST /api/v1/messages\n- Image generation: POST /api/v1/images/generations\n- TTS: POST /api/v1/audio/speech\n- STT Transcription: POST /api/v1/audio/transcriptions\n- STT Translation: POST /api/v1/audio/translations\n\nText models (free): gpt-5-mini, gpt-5.2, gpt-oss-120b, gemini-3-flash, grok-3, deepseek-v4-flash, mistral-large-3-675b-instruct, glm-4.7-flash, claude-opus-4.8, copilot, step-3.7-flash, nemotron-3-ultra-550b-a55b, qwen3.6-27b, llama-3.3-70b, mimo-v2-flash, groq-compound, cohere-command-a, phi-4-multimodal-instruct\nText models (pro): claude-sonnet-4.6, grok-4-fast, deepseek-v3.2, glm-4.7, qwen3-coder-480b, minimax-m2.7, kimi-k2.6, aichixia-flash\nVision models: gemini-3-flash, gpt-5.2, aichixia-flash, grok-4-fast\nImage generation models: flux-2-dev, lucid-origin, phoenix-1.0, nano-image\nTTS models: starling-tts, lindsay-tts, miu-tts, catherine-tts, nana-tts, stephanie-tts (Typecast, support: eng, kor, jpn, cmn, spa), alexandra-tts (ElevenLabs, support: ind, eng, rus, cmn), eve-tts (ElevenLabs, support: kor, eng, msa, vie)\nSTT models: whisper-large-v3 (max accuracy), whisper-large-v3-turbo (max speed 216x real-time)\n\nPlans: Free=1000 req/day, Pro=4000 req/day, Enterprise=custom (contact sales team via email).\nContact: contact@aichixia.xyz | Telegram community: https://t.me/AichixiaAPI\nDo not use tool calling or function calling. Use code examples when relevant.' },
+            { role: 'system', content: 'You are a helpful API assistant for Aichixia, an AI API aggregation platform. Help users integrate and use the Aichixia API. Keep answers concise and clear. Aichixia base URL: https://www.aichixia.xyz. Auth: Bearer token or x-api-key header.\n\nEndpoints:\n- Chat (OpenAI-compat): POST /api/v1/chat/completions\n- Messages (Anthropic-compat): POST /api/v1/messages\n- Image generation: POST /api/v1/images/generations\n- TTS: POST /api/v1/audio/speech\n- STT Transcription: POST /api/v1/audio/transcriptions\n- STT Translation: POST /api/v1/audio/translations\n\nText models (free): gpt-5-mini, gpt-5.2, gpt-oss-120b, gemini-3-flash, grok-3, deepseek-v4-flash, mistral-large-3-675b-instruct, glm-4.7-flash, claude-opus-4.8, copilot, step-3.7-flash, nemotron-3-ultra-550b-a55b, qwen3.6-27b, llama-3.3-70b, mimo-v2-flash, groq-compound, cohere-command-a, phi-4-multimodal-instruct\nText models (pro): claude-sonnet-4.6, grok-4-fast, deepseek-v3.2, glm-4.7, qwen3-coder-480b, minimax-m3, kimi-k2.6, aichixia-flash, gpt-5.5\\nStreaming (stream: true) supported only on: kimi-k2.6, mistral-large-3-675b-instruct, minimax-m3, step-3.7-flash, nemotron-3-ultra-550b-a55b -- returns SSE for supported models; other models return a 400 error if stream is requested.\\nVision models: gemini-3-flash, gpt-5.2, aichixia-flash, grok-4-fast\nImage generation models: flux-2-dev, lucid-origin, phoenix-1.0, nano-image\nTTS models: starling-tts, lindsay-tts, miu-tts, catherine-tts, nana-tts, stephanie-tts (Typecast, support: eng, kor, jpn, cmn, spa), alexandra-tts (ElevenLabs, support: ind, eng, rus, cmn), eve-tts (ElevenLabs, support: kor, eng, msa, vie)\nSTT models: whisper-large-v3 (max accuracy), whisper-large-v3-turbo (max speed 216x real-time)\n\nPlans: Free=1000 req/day, Pro=4000 req/day, Enterprise=custom (contact sales team via email).\nContact: contact@aichixia.xyz | Telegram community: https://t.me/AichixiaAPI\nDo not use tool calling or function calling. Use code examples when relevant.' },
             ...newMessages.map(m => ({ role: m.role, content: m.content })),
           ],
         }),
@@ -712,7 +712,7 @@ console.log(data.text);`,
                         <Param name="messages" required type="array" desc="Array of message objects with role (system | user | assistant) and content" />
                         <Param name="temperature" type="number" desc="Sampling temperature 0–2. Higher = more creative. Default: 0.8" />
                         <Param name="max_tokens" type="number" desc="Maximum tokens to generate. Default: 1080" />
-                        <Param name="stream" type="boolean" desc="Streaming via SSE. Default: false. Not supported on this endpoint." />
+                        <Param name="stream" type="boolean" desc="Streaming via SSE. Default: false. Supported only on: kimi-k2.6, mistral-large-3-675b-instruct, minimax-m3, step-3.7-flash, nemotron-3-ultra-550b-a55b" />
                         <Param name="top_p" type="number" desc="Nucleus sampling 0–1. Alternative to temperature." />
                       </div>
                     )}
@@ -761,6 +761,7 @@ console.log(data.text);`,
                           {[
                             { id: 'gpt-5-mini', label: 'GPT-5 Mini', plan: 'free' },
                             { id: 'gpt-5.2', label: 'GPT-5.2', plan: 'free' },
+                            { id: 'gpt-5.5', label: 'GPT-5.5', plan: 'pro' },
                             { id: 'gpt-oss-120b', label: 'GPT-OSS 120B', plan: 'free' },
                             { id: 'aichixia-flash', label: 'Aichixia 114B', plan: 'pro' },
                             { id: 'mistral-large-3-675b-instruct', label: 'Mistral Large 3 675B', plan: 'free' },
@@ -779,7 +780,7 @@ console.log(data.text);`,
                             { id: 'nemotron-3-ultra-550b-a55b', label: 'Nemotron 3 Ultra 550B', plan: 'free' },
                             { id: 'qwen3.6-27b', label: 'Qwen3.6 27B', plan: 'free' },
                             { id: 'qwen3-coder-480b', label: 'Qwen3 Coder 480B', plan: 'pro' },
-                            { id: 'minimax-m2.7', label: 'MiniMax M2.7', plan: 'pro' },
+                            { id: 'minimax-m3', label: 'MiniMax M3', plan: 'pro' },
                             { id: 'llama-3.3-70b', label: 'Llama 3.3 70B', plan: 'free' },
                             { id: 'mimo-v2-flash', label: 'MiMo V2 Flash', plan: 'free' },
                             { id: 'groq-compound', label: 'Groq Compound', plan: 'free' },
@@ -798,6 +799,68 @@ console.log(data.text);`,
                           ))}
                         </div>
                         <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-3">Vision models: <code className="text-zinc-600 dark:text-zinc-400">gemini-3-flash</code>, <code className="text-zinc-600 dark:text-zinc-400">gpt-5.2</code>, <code className="text-zinc-600 dark:text-zinc-400">aichixia-flash</code>, <code className="text-zinc-600 dark:text-zinc-400">grok-4-fast</code></p>
+                      </div>
+                    )}
+
+                    <button onClick={() => toggleSection('chat-streaming')} className="w-full flex items-center justify-between p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
+                      <h3 className="text-base font-bold text-zinc-900 dark:text-white">Streaming</h3>
+                      <FaChevronRight className={`w-4 h-4 text-zinc-400 transition-transform duration-200 ${expandedSection === 'chat-streaming' ? 'rotate-90' : ''}`} />
+                    </button>
+                    {expandedSection === 'chat-streaming' && (
+                      <div className="p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 space-y-3">
+                        <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400">
+                          Set <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">stream: true</code> in the request body to receive the response as Server-Sent Events instead of a single JSON payload. Each chunk arrives as <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">data: {'{"text": "..."}'}</code>, terminated by <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">data: [DONE]</code>.
+                        </p>
+                        <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50">
+                          <p className="text-xs text-amber-800 dark:text-amber-300">Streaming is currently only available for a subset of models. Requesting <code className="bg-amber-100 dark:bg-amber-900/30 px-1 rounded">stream: true</code> on an unsupported model returns a 400 error.</p>
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                          {[
+                            { id: 'kimi-k2.6', label: 'Kimi K2.6' },
+                            { id: 'mistral-large-3-675b-instruct', label: 'Mistral Large 3' },
+                            { id: 'minimax-m3', label: 'MiniMax M3' },
+                            { id: 'step-3.7-flash', label: 'Step 3.7 Flash' },
+                            { id: 'nemotron-3-ultra-550b-a55b', label: 'Nemotron 3 Ultra' },
+                          ].map(({ id, label }) => (
+                            <div key={id} className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
+                              <p className="text-xs font-semibold text-zinc-900 dark:text-white">{label}</p>
+                              <code className="text-[10px] text-zinc-500 dark:text-zinc-400 font-mono break-all">{id}</code>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="rounded-lg bg-zinc-100 dark:bg-zinc-900 overflow-hidden">
+                          <SyntaxHighlighter language="javascript" style={isDark ? oneDark : oneLight} customStyle={{ margin: 0, padding: '12px', background: 'transparent', fontSize: '11px' }}>
+{`const res = await fetch("${base}/api/v1/chat/completions", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: "Bearer YOUR_API_KEY",
+  },
+  body: JSON.stringify({
+    model: "kimi-k2.6",
+    messages: [{ role: "user", content: "Tell me a short story" }],
+    stream: true,
+  }),
+});
+
+const reader = res.body.getReader();
+const decoder = new TextDecoder();
+
+while (true) {
+  const { done, value } = await reader.read();
+  if (done) break;
+
+  const chunk = decoder.decode(value);
+  for (const line of chunk.split("\\n\\n")) {
+    if (!line.startsWith("data: ")) continue;
+    const payload = line.slice(6).trim();
+    if (payload === "[DONE]") continue;
+    const { text } = JSON.parse(payload);
+    if (text) process.stdout.write(text);
+  }
+}`}
+                          </SyntaxHighlighter>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -864,6 +927,7 @@ console.log(data.text);`,
                         <Param name="max_tokens" required type="number" desc="Maximum tokens to generate. Required by Anthropic SDK." />
                         <Param name="system" type="string" desc="System prompt — passed as a separate field, not inside messages." />
                         <Param name="temperature" type="number" desc="Sampling temperature 0–2. Default: 0.8" />
+                        <Param name="stream" type="boolean" desc="Streaming via native Anthropic SSE events (message_start, content_block_delta, message_stop). Default: false. Supported only on: kimi-k2.6, mistral-large-3-675b-instruct, minimax-m3, step-3.7-flash, nemotron-3-ultra-550b-a55b" />
                       </div>
                     )}
 
@@ -896,6 +960,50 @@ console.log(data.text);`,
                           </SyntaxHighlighter>
                         </div>
                         <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-2">Access text via: <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">message.content[0].text</code></p>
+                      </div>
+                    )}
+
+                    <button onClick={() => toggleSection('anthropic-streaming')} className="w-full flex items-center justify-between p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
+                      <h3 className="text-base font-bold text-zinc-900 dark:text-white">Streaming</h3>
+                      <FaChevronRight className={`w-4 h-4 text-zinc-400 transition-transform duration-200 ${expandedSection === 'anthropic-streaming' ? 'rotate-90' : ''}`} />
+                    </button>
+                    {expandedSection === 'anthropic-streaming' && (
+                      <div className="p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 space-y-3">
+                        <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400">
+                          Set <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">stream: true</code> to receive native Anthropic-style SSE events: <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">message_start</code> → <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">content_block_start</code> → repeated <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">content_block_delta</code> → <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">content_block_stop</code> → <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">message_delta</code> → <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">message_stop</code>. Fully compatible with the Anthropic SDK's built-in stream helper.
+                        </p>
+                        <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50">
+                          <p className="text-xs text-amber-800 dark:text-amber-300">Streaming is currently only available for a subset of models. Requesting <code className="bg-amber-100 dark:bg-amber-900/30 px-1 rounded">stream: true</code> on an unsupported model returns a 400 error.</p>
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                          {[
+                            { id: 'kimi-k2.6', label: 'Kimi K2.6' },
+                            { id: 'mistral-large-3-675b-instruct', label: 'Mistral Large 3' },
+                            { id: 'minimax-m3', label: 'MiniMax M3' },
+                            { id: 'step-3.7-flash', label: 'Step 3.7 Flash' },
+                            { id: 'nemotron-3-ultra-550b-a55b', label: 'Nemotron 3 Ultra' },
+                          ].map(({ id, label }) => (
+                            <div key={id} className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
+                              <p className="text-xs font-semibold text-zinc-900 dark:text-white">{label}</p>
+                              <code className="text-[10px] text-zinc-500 dark:text-zinc-400 font-mono break-all">{id}</code>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="rounded-lg bg-zinc-100 dark:bg-zinc-900 overflow-hidden">
+                          <SyntaxHighlighter language="javascript" style={isDark ? oneDark : oneLight} customStyle={{ margin: 0, padding: '12px', background: 'transparent', fontSize: '11px' }}>
+{`const stream = await client.messages.stream({
+  model: "kimi-k2.6",
+  max_tokens: 1024,
+  messages: [{ role: "user", content: "Tell me a short story" }],
+});
+
+stream.on("text", (text) => {
+  process.stdout.write(text);
+});
+
+const message = await stream.finalMessage();`}
+                          </SyntaxHighlighter>
+                        </div>
                       </div>
                     )}
 
