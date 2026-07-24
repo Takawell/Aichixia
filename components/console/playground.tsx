@@ -51,7 +51,7 @@ const TEXT_MODELS: AnyModel[] = [
   { id: 'glm-4.7-flash', name: 'GLM 4.7 Flash', provider: 'Zhipu', icon: TbSquareLetterZ, color: 'from-blue-700 to-indigo-800', pricing: 'Standard', context: '131K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
   { id: 'qwen3.6-27b', name: 'Qwen3.6 27B', provider: 'Alibaba', icon: SiMatternet, color: 'from-purple-500 to-pink-500', pricing: 'Standard', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'qwen3-coder-480b', name: 'Qwen3 Coder 480B', provider: 'Alibaba', icon: SiMatternet, color: 'from-purple-600 to-fuchsia-600', pricing: 'Premium', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
-  { id: 'minimax-m2.7', name: 'MiniMax M2.7', provider: 'MiniMax', icon: SiMaze, color: 'from-cyan-600 to-blue-600', pricing: 'Premium', context: '204K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
+  { id: 'minimax-m3', name: 'MiniMax M3', provider: 'MiniMax', icon: SiMaze, color: 'from-cyan-600 to-blue-600', pricing: 'Premium', context: '204K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
   { id: 'llama-3.3-70b', name: 'Llama 3.3 70B', provider: 'Meta', icon: SiMeta, color: 'from-blue-600 to-indigo-700', pricing: 'Standard', context: '130K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'gpt-oss-120b', name: 'GPT-OSS 120B', provider: 'OpenAI', icon: RiOpenaiFill, color: 'from-pink-600 to-rose-600', pricing: 'Budget', context: '128K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'mimo-v2-flash', name: 'MiMo V2 Flash', provider: 'Xiaomi', icon: FiZap, color: 'from-blue-600 to-purple-600', pricing: 'Budget', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
@@ -62,6 +62,7 @@ const TEXT_MODELS: AnyModel[] = [
   { id: 'step-3.7-flash', name: 'Step 3.7 Flash', provider: 'StepFun', icon: DiBower, color: 'from-blue-500 to-blue-700', pricing: 'Standard', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'nemotron-3-ultra-550b-a55b', name: 'Nemotron 3 Ultra 550B', provider: 'NVIDIA', icon: SiNvidia, color: 'from-emerald-600 to-green-600', pricing: 'Premium', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'gpt-5.2', name: 'GPT-5.2', provider: 'OpenAI', icon: RiOpenaiFill, color: 'from-green-500 to-emerald-600', pricing: 'Standard', context: '400K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, limited: true },
+  { id: 'gpt-5.5', name: 'GPT-5.5', provider: 'OpenAI', icon: RiOpenaiFill, color: 'from-green-600 to-teal-600', pricing: 'Premium', context: '400K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
 ];
 
 const IMAGE_MODELS: AnyModel[] = [
