@@ -26,6 +26,7 @@ import { chatPhi, PhiRateLimitError, PhiQuotaError } from "@/lib/phi";
 import { chatCopilot, CopilotRateLimitError, CopilotQuotaError } from "@/lib/copilot";
 import { chatStepfun, StepfunRateLimitError, StepfunQuotaError } from "@/lib/stepfun";
 import { chatNemotron, NemotronRateLimitError, NemotronQuotaError } from "@/lib/nemotron";
+import { chatGpt55, Gpt55RateLimitError, Gpt55QuotaError } from "@/lib/gpt-5-5";
 import { verifyApiKey, incrementUsage, logRequest, updateDailyUsage } from "@/lib/console-utils";
 import { getServiceSupabase } from "@/lib/supabase";
 
@@ -52,10 +53,11 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "kimi-k2.6": { fn: chatKimi, provider: "kimi" },
   "glm-4.7": { fn: chatGlm, provider: "glm" },
   "gpt-5.2": { fn: chatGPT, provider: "gpt" },
+  "gpt-5.5": { fn: chatGpt55, provider: "gpt55" },
   "mistral-large-3-675b-instruct": { fn: chatMistral, provider: "mistral" },
   "qwen3.6-27b": { fn: chatQwenV2, provider: "qwen3" },
   "qwen3-coder-480b": { fn: chatQwen, provider: "qwen" },
-  "minimax-m2.7": { fn: chatMinimax, provider: "minimax" },
+  "minimax-m3": { fn: chatMinimax, provider: "minimax" },
   "llama-3.3-70b": { fn: chatLlama, provider: "llama" },
   "gpt-oss-120b": { fn: chatGptOss, provider: "gptoss" },
   "mimo-v2-flash": { fn: chatMimo, provider: "mimo" },
@@ -71,7 +73,7 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "aichixia-flash": { fn: chatAichixia, provider: "aichixia" },
 };
 
-const LOCKED_MODELS_PRO = ['deepseek-v3.2', 'qwen3-coder-480b', 'minimax-m2.7', 'claude-sonnet-4.6', 'glm-4.7', 'aichixia-flash', 'grok-4-fast', 'kimi-k2.6'];
+const LOCKED_MODELS_PRO = ['deepseek-v3.2', 'qwen3-coder-480b', 'minimax-m3', 'claude-sonnet-4.6', 'glm-4.7', 'aichixia-flash', 'grok-4-fast', 'kimi-k2.6', 'gpt-5.5'];
 
 const RATE_LIMIT_ERRORS = [
   OpenAIRateLimitError, KimiRateLimitError, GlmRateLimitError, GPTRateLimitError,
@@ -79,7 +81,7 @@ const RATE_LIMIT_ERRORS = [
   QwenRateLimitError, QwenV2RateLimitError, GptOssRateLimitError, CompoundRateLimitError,
   LlamaRateLimitError, MistralRateLimitError, MimoRateLimitError, PhiRateLimitError,
   MinimaxRateLimitError, GrokRateLimitError, GrokFastRateLimitError, ZhipuRateLimitError,
-  AichixiaRateLimitError, CopilotRateLimitError, StepfunRateLimitError, NemotronRateLimitError, OpusRateLimitError,
+  AichixiaRateLimitError, CopilotRateLimitError, StepfunRateLimitError, NemotronRateLimitError, Gpt55RateLimitError, OpusRateLimitError,
 ];
 
 const QUOTA_ERRORS = [
@@ -88,7 +90,7 @@ const QUOTA_ERRORS = [
   QwenQuotaError, QwenV2QuotaError, GptOssQuotaError, CompoundQuotaError,
   LlamaQuotaError, MistralQuotaError, MimoQuotaError, PhiQuotaError,
   MinimaxQuotaError, GrokQuotaError, GrokFastQuotaError, ZhipuQuotaError,
-  AichixiaQuotaError, CopilotQuotaError, StepfunQuotaError, NemotronQuotaError, OpusQuotaError,
+  AichixiaQuotaError, CopilotQuotaError, StepfunQuotaError, NemotronQuotaError, Gpt55QuotaError, OpusQuotaError,
 ];
 
 function isRateLimitError(error: any): boolean {
