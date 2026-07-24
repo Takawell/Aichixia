@@ -175,6 +175,136 @@ export async function chatKimi(
   }
 }
 
+export async function streamKimi(
+  history: ChatMessage[],
+  opts?: {
+    temperature?: number;
+    maxTokens?: number;
+    enableSearch?: boolean;
+  }
+): Promise<ReadableStream<Uint8Array>> {
+  if (!KIMI_API_KEY) {
+    throw new Error("NVIDIA_API_KEY not defined in environment variables.");
+  }
+
+  const enableSearch = opts?.enableSearch !== false && tavilyClient !== null;
+  const encoder = new TextEncoder();
+
+  return new ReadableStream<Uint8Array>({
+    async start(controller) {
+      const enqueue = (text: string) => {
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text })}\n\n`));
+      };
+
+      const enqueueError = (message: string) => {
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: message })}\n\n`));
+      };
+
+      const done = () => {
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+        controller.close();
+      };
+
+      try {
+        let messages = [...history];
+        const maxIterations = 3;
+        let iterations = 0;
+
+        while (iterations < maxIterations) {
+          iterations++;
+
+          if (enableSearch && iterations === 1) {
+            const response = await client.chat.completions.create({
+              model: KIMI_MODEL,
+              messages: messages.map((m) => ({
+                role: m.role,
+                content: m.content,
+                ...(m.tool_call_id && { tool_call_id: m.tool_call_id }),
+                ...(m.tool_calls && { tool_calls: m.tool_calls }),
+              })),
+              temperature: opts?.temperature ?? 1.0,
+              max_tokens: opts?.maxTokens ?? 16384,
+              top_p: 1.0,
+              tools: [SEARCH_TOOL],
+            });
+
+            const message = response.choices[0]?.message;
+
+            if (message?.tool_calls && message.tool_calls.length > 0) {
+              messages.push({
+                role: "assistant",
+                content: message.content || "",
+                tool_calls: message.tool_calls,
+              });
+
+              for (const toolCall of message.tool_calls) {
+                if (toolCall.function.name === "web_search") {
+                  const args = JSON.parse(toolCall.function.arguments);
+                  controller.enqueue(
+                    encoder.encode(`data: ${JSON.stringify({ searching: args.query })}\n\n`)
+                  );
+                  const searchResult = await executeWebSearch(args.query);
+                  messages.push({
+                    role: "tool",
+                    content: searchResult,
+                    tool_call_id: toolCall.id,
+                  });
+                }
+              }
+
+              continue;
+            }
+
+            const reply = message?.content?.trim() ?? "I'm unable to respond right now.";
+            enqueue(reply);
+            done();
+            return;
+          }
+
+          const streamResponse = await client.chat.completions.create({
+            model: KIMI_MODEL,
+            messages: messages.map((m) => ({
+              role: m.role,
+              content: m.content,
+              ...(m.tool_call_id && { tool_call_id: m.tool_call_id }),
+              ...(m.tool_calls && { tool_calls: m.tool_calls }),
+            })),
+            temperature: opts?.temperature ?? 1.0,
+            max_tokens: opts?.maxTokens ?? 16384,
+            top_p: 1.0,
+            stream: true,
+          });
+
+          for await (const chunk of streamResponse) {
+            const delta = chunk.choices[0]?.delta?.content;
+            if (delta) enqueue(delta);
+          }
+
+          done();
+          return;
+        }
+
+        enqueue("Request took too long. Please try again.");
+        done();
+      } catch (error: any) {
+        let message = "An unexpected error occurred.";
+        if (error?.status === 429) {
+          message = "Rate limit exceeded. Please wait a moment.";
+        } else if (error?.status === 402 || error?.code === "insufficient_quota") {
+          message = "Quota exceeded. Please try again later.";
+        } else if (error?.status === 503 || error?.status === 500) {
+          message = "Server error. Please try again.";
+        } else if (error?.message?.includes("<!DOCTYPE") || error?.message?.includes("not valid JSON")) {
+          message = "Model returned an invalid response. Please try again.";
+        }
+        enqueueError(message);
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+        controller.close();
+      }
+    },
+  });
+}
+
 export async function quickChatKimi(
   userMessage: string,
   opts?: {
@@ -208,5 +338,6 @@ export async function quickChatKimi(
 
 export default {
   chatKimi,
+  streamKimi,
   quickChatKimi,
 };
