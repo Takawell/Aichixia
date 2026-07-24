@@ -3,7 +3,7 @@ import { encode } from 'gpt-tokenizer';
 import { chatGemini } from "@/lib/gemini";
 import { chatAichixia, AichixiaRateLimitError, AichixiaQuotaError } from "@/lib/aichixia";
 import { chatOpenAI, OpenAIRateLimitError, OpenAIQuotaError } from "@/lib/openai";
-import { chatKimi, KimiRateLimitError, KimiQuotaError } from "@/lib/kimi";
+import { chatKimi, streamKimi, KimiRateLimitError, KimiQuotaError } from "@/lib/kimi";
 import { chatGlm, GlmRateLimitError, GlmQuotaError } from "@/lib/glm";
 import { chatGPT, GPTRateLimitError, GPTQuotaError } from "@/lib/gpt";
 import { chatClaude, ClaudeRateLimitError, ClaudeQuotaError } from "@/lib/claude";
@@ -16,16 +16,16 @@ import { chatQwenV2, QwenV2RateLimitError, QwenV2QuotaError } from "@/lib/qwen3"
 import { chatGptOss, GptOssRateLimitError, GptOssQuotaError } from "@/lib/gpt-oss";
 import { chatCompound, CompoundRateLimitError, CompoundQuotaError } from "@/lib/compound";
 import { chatLlama, LlamaRateLimitError, LlamaQuotaError } from "@/lib/llama";
-import { chatMistral, MistralRateLimitError, MistralQuotaError } from "@/lib/mistral";
+import { chatMistral, streamMistral, MistralRateLimitError, MistralQuotaError } from "@/lib/mistral";
 import { chatMimo, MimoRateLimitError, MimoQuotaError } from "@/lib/mimo";
-import { chatMinimax, MinimaxRateLimitError, MinimaxQuotaError } from "@/lib/minimax";
+import { chatMinimax, streamMinimax, MinimaxRateLimitError, MinimaxQuotaError } from "@/lib/minimax";
 import { chatGrokFast, GrokFastRateLimitError, GrokFastQuotaError } from "@/lib/grok-fast";
 import { chatGrok, GrokRateLimitError, GrokQuotaError } from "@/lib/grok";
 import { chatZhipu, ZhipuRateLimitError, ZhipuQuotaError } from "@/lib/zhipu";
 import { chatPhi, PhiRateLimitError, PhiQuotaError } from "@/lib/phi";
 import { chatCopilot, CopilotRateLimitError, CopilotQuotaError } from "@/lib/copilot";
-import { chatStepfun, StepfunRateLimitError, StepfunQuotaError } from "@/lib/stepfun";
-import { chatNemotron, NemotronRateLimitError, NemotronQuotaError } from "@/lib/nemotron";
+import { chatStepfun, streamStepfun, StepfunRateLimitError, StepfunQuotaError } from "@/lib/stepfun";
+import { chatNemotron, streamNemotron, NemotronRateLimitError, NemotronQuotaError } from "@/lib/nemotron";
 import { chatGpt55, Gpt55RateLimitError, Gpt55QuotaError } from "@/lib/gpt-5-5";
 import { verifyApiKey, incrementUsage, logRequest, updateDailyUsage } from "@/lib/console-utils";
 import { getServiceSupabase } from "@/lib/supabase";
@@ -35,6 +35,7 @@ export const config = {
     bodyParser: {
       sizeLimit: '20mb',
     },
+    responseLimit: false,
   },
 };
 
@@ -42,6 +43,11 @@ type ChatFunction = (
   history: { role: "user" | "assistant" | "system"; content: any }[],
   opts?: { temperature?: number; maxTokens?: number }
 ) => Promise<{ reply: string }>;
+
+type StreamFunction = (
+  history: { role: "user" | "assistant" | "system"; content: any }[],
+  opts?: { temperature?: number; maxTokens?: number }
+) => Promise<ReadableStream<Uint8Array>>;
 
 const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "deepseek-v3.2": { fn: chatDeepSeek, provider: "deepseek" },
@@ -71,6 +77,14 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "step-3.7-flash": { fn: chatStepfun, provider: "stepfun" },
   "nemotron-3-ultra-550b-a55b": { fn: chatNemotron, provider: "nemotron" },
   "aichixia-flash": { fn: chatAichixia, provider: "aichixia" },
+};
+
+const STREAM_MODEL_MAPPING: Record<string, StreamFunction> = {
+  "kimi-k2.6": streamKimi,
+  "mistral-large-3-675b-instruct": streamMistral,
+  "minimax-m3": streamMinimax,
+  "step-3.7-flash": streamStepfun,
+  "nemotron-3-ultra-550b-a55b": streamNemotron,
 };
 
 const LOCKED_MODELS_PRO = ['deepseek-v3.2', 'qwen3-coder-480b', 'minimax-m3', 'claude-sonnet-4.6', 'glm-4.7', 'aichixia-flash', 'grok-4-fast', 'kimi-k2.6', 'gpt-5.5'];
@@ -188,97 +202,177 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const ipAddress = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress || null;
   const userAgent = req.headers['user-agent'] || null;
 
-  try {
-    const {
-      model,
-      messages,
-      temperature = 0.8,
-      max_tokens = 1080,
-      stream = false,
-    } = req.body;
+  const {
+    model,
+    messages,
+    temperature = 0.8,
+    max_tokens = 1080,
+    stream = false,
+  } = req.body;
 
-    if (!model || typeof model !== "string") {
-      await incrementUsage(apiKeyData.id);
-      await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, false);
-      await logRequest({
-        api_key_id: apiKeyData.id, user_id: apiKeyData.user_id,
-        model: 'unknown', endpoint: '/api/v1/chat/completions',
-        status: 400, tokens_used: 0, error_message: 'model is required',
-        ip_address: ipAddress, user_agent: userAgent,
-      });
-      return res.status(400).json({
-        error: { message: "model is required and must be a string", type: "invalid_request_error", param: "model", code: null },
-      });
-    }
+  if (!model || typeof model !== "string") {
+    await incrementUsage(apiKeyData.id);
+    await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, false);
+    await logRequest({
+      api_key_id: apiKeyData.id, user_id: apiKeyData.user_id,
+      model: 'unknown', endpoint: '/api/v1/chat/completions',
+      status: 400, tokens_used: 0, error_message: 'model is required',
+      ip_address: ipAddress, user_agent: userAgent,
+    });
+    return res.status(400).json({
+      error: { message: "model is required and must be a string", type: "invalid_request_error", param: "model", code: null },
+    });
+  }
 
-    const modelAccess = await checkModelAccess(apiKeyData.user_id, model);
+  const modelAccess = await checkModelAccess(apiKeyData.user_id, model);
 
-    if (!modelAccess.allowed) {
+  if (!modelAccess.allowed) {
+    await incrementUsage(apiKeyData.id);
+    await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, false);
+    await logRequest({
+      api_key_id: apiKeyData.id, user_id: apiKeyData.user_id,
+      model, endpoint: '/api/v1/chat/completions',
+      status: 403, tokens_used: 0, error_message: modelAccess.error || 'Model access denied',
+      ip_address: ipAddress, user_agent: userAgent,
+    });
+    return res.status(403).json({
+      error: { message: modelAccess.error, type: "insufficient_quota", param: "model", code: "model_access_denied" },
+    });
+  }
+
+  if (!messages || !Array.isArray(messages)) {
+    await incrementUsage(apiKeyData.id);
+    await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, false);
+    await logRequest({
+      api_key_id: apiKeyData.id, user_id: apiKeyData.user_id,
+      model, endpoint: '/api/v1/chat/completions',
+      status: 400, tokens_used: 0, error_message: 'messages is required',
+      ip_address: ipAddress, user_agent: userAgent,
+    });
+    return res.status(400).json({
+      error: { message: "messages is required and must be an array", type: "invalid_request_error", param: "messages", code: null },
+    });
+  }
+
+  const modelConfig = MODEL_MAPPING[model.toLowerCase()];
+
+  if (!modelConfig) {
+    await incrementUsage(apiKeyData.id);
+    await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, false);
+    await logRequest({
+      api_key_id: apiKeyData.id, user_id: apiKeyData.user_id,
+      model, endpoint: '/api/v1/chat/completions',
+      status: 400, tokens_used: 0, error_message: 'model not found',
+      ip_address: ipAddress, user_agent: userAgent,
+    });
+    return res.status(400).json({
+      error: {
+        message: `Model '${model}' is not supported. Available models: ${Object.keys(MODEL_MAPPING).join(", ")}`,
+        type: "invalid_request_error", param: "model", code: "model_not_found",
+      },
+    });
+  }
+
+  const history = messages.map((msg: any) => ({
+    role: msg.role as "user" | "assistant" | "system",
+    content: msg.content,
+  }));
+
+  const streamFn = STREAM_MODEL_MAPPING[model.toLowerCase()];
+
+  if (stream) {
+    if (!streamFn) {
       await incrementUsage(apiKeyData.id);
       await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, false);
       await logRequest({
         api_key_id: apiKeyData.id, user_id: apiKeyData.user_id,
         model, endpoint: '/api/v1/chat/completions',
-        status: 403, tokens_used: 0, error_message: modelAccess.error || 'Model access denied',
-        ip_address: ipAddress, user_agent: userAgent,
-      });
-      return res.status(403).json({
-        error: { message: modelAccess.error, type: "insufficient_quota", param: "model", code: "model_access_denied" },
-      });
-    }
-
-    if (!messages || !Array.isArray(messages)) {
-      await incrementUsage(apiKeyData.id);
-      await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, false);
-      await logRequest({
-        api_key_id: apiKeyData.id, user_id: apiKeyData.user_id,
-        model, endpoint: '/api/v1/chat/completions',
-        status: 400, tokens_used: 0, error_message: 'messages is required',
-        ip_address: ipAddress, user_agent: userAgent,
-      });
-      return res.status(400).json({
-        error: { message: "messages is required and must be an array", type: "invalid_request_error", param: "messages", code: null },
-      });
-    }
-
-    if (stream) {
-      await incrementUsage(apiKeyData.id);
-      await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, false);
-      await logRequest({
-        api_key_id: apiKeyData.id, user_id: apiKeyData.user_id,
-        model, endpoint: '/api/v1/chat/completions',
-        status: 400, tokens_used: 0, error_message: 'streaming not supported',
-        ip_address: ipAddress, user_agent: userAgent,
-      });
-      return res.status(400).json({
-        error: { message: "Streaming is not supported in this endpoint", type: "invalid_request_error", param: "stream", code: null },
-      });
-    }
-
-    const modelConfig = MODEL_MAPPING[model.toLowerCase()];
-
-    if (!modelConfig) {
-      await incrementUsage(apiKeyData.id);
-      await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, false);
-      await logRequest({
-        api_key_id: apiKeyData.id, user_id: apiKeyData.user_id,
-        model, endpoint: '/api/v1/chat/completions',
-        status: 400, tokens_used: 0, error_message: 'model not found',
+        status: 400, tokens_used: 0, error_message: 'streaming not supported for this model',
         ip_address: ipAddress, user_agent: userAgent,
       });
       return res.status(400).json({
         error: {
-          message: `Model '${model}' is not supported. Available models: ${Object.keys(MODEL_MAPPING).join(", ")}`,
-          type: "invalid_request_error", param: "model", code: "model_not_found",
+          message: `Streaming is not supported for model '${model}'. Streaming-capable models: ${Object.keys(STREAM_MODEL_MAPPING).join(", ")}`,
+          type: "invalid_request_error", param: "stream", code: null,
         },
       });
     }
 
-    const history = messages.map((msg: any) => ({
-      role: msg.role as "user" | "assistant" | "system",
-      content: msg.content,
-    }));
+    res.writeHead(200, {
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache, no-transform",
+      Connection: "keep-alive",
+    });
 
+    try {
+      const readable = await streamFn(history, { temperature, maxTokens: max_tokens });
+      const reader = readable.getReader();
+      const decoder = new TextDecoder();
+      let fullText = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunkText = decoder.decode(value, { stream: true });
+        res.write(chunkText);
+
+        const lines = chunkText.split("\n\n");
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          const payload = line.slice(6).trim();
+          if (payload === "[DONE]") continue;
+          try {
+            const parsed = JSON.parse(payload);
+            if (parsed.text) fullText += parsed.text;
+          } catch {
+            continue;
+          }
+        }
+      }
+
+      res.end();
+
+      const latency = Date.now() - startTime;
+      const promptText = messages.map((m: any) => extractTextFromContent(m.content)).join(' ');
+      const promptTokens = calculateTokens(promptText);
+      const completionTokens = calculateTokens(fullText);
+      const totalTokens = promptTokens + completionTokens;
+
+      await incrementUsage(apiKeyData.id);
+      await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, totalTokens, true);
+      await logRequest({
+        api_key_id: apiKeyData.id, user_id: apiKeyData.user_id,
+        model, endpoint: '/api/v1/chat/completions',
+        status: 200, latency_ms: latency, tokens_used: totalTokens,
+        ip_address: ipAddress, user_agent: userAgent,
+      });
+    } catch (err: any) {
+      const latency = Date.now() - startTime;
+      await incrementUsage(apiKeyData.id);
+      await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, false);
+      await logRequest({
+        api_key_id: apiKeyData.id, user_id: apiKeyData.user_id,
+        model, endpoint: '/api/v1/chat/completions',
+        status: isRateLimitError(err) ? 429 : 500,
+        latency_ms: latency, tokens_used: 0, error_message: err.message,
+        ip_address: ipAddress, user_agent: userAgent,
+      });
+
+      if (!res.headersSent) {
+        const status = isRateLimitError(err) ? 429 : isQuotaError(err) ? 429 : 500;
+        return res.status(status).json({
+          error: { message: err.message || "Internal server error", type: "server_error", param: null, code: null },
+        });
+      }
+      res.write(`data: ${JSON.stringify({ error: err.message || "Internal server error" })}\n\n`);
+      res.write("data: [DONE]\n\n");
+      res.end();
+    }
+    return;
+  }
+
+  try {
     const result = await modelConfig.fn(history, { temperature, maxTokens: max_tokens });
 
     const latency = Date.now() - startTime;
