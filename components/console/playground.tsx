@@ -1332,16 +1332,25 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
         msgs.push({ role: 'user', content: message });
       }
 
-      const canStream = streamEnabled && STREAM_CAPABLE_MODELS.has(selectedModel.id);
+      const canStream = streamEnabled && STREAM_CAPABLE_MODELS.has(selectedModel.id) && typeof ReadableStream !== 'undefined';
 
       if (canStream) {
         setIsStreaming(true);
+        setStreamingText('');
         setActiveTab('response');
-        const res = await fetch(selectedModel.endpoint, {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ model: selectedModel.id, messages: msgs, temperature, max_tokens: maxTokens, stream: true }),
-        });
+
+        let res: Response;
+        try {
+          res = await fetch(selectedModel.endpoint, {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ model: selectedModel.id, messages: msgs, temperature, max_tokens: maxTokens, stream: true }),
+          });
+        } catch (fetchErr: any) {
+          setIsStreaming(false);
+          setError(fetchErr?.message || 'Network error while starting stream');
+          return;
+        }
 
         if (!res.ok || !res.body) {
           const { data, error: parseError } = await safeParseJson(res);
@@ -1352,35 +1361,57 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
           return;
         }
 
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder();
         let fullText = '';
-        let buffer = '';
 
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          buffer += decoder.decode(value, { stream: true });
-          const parts = buffer.split('\n\n');
-          buffer = parts.pop() || '';
-          for (const part of parts) {
-            if (!part.startsWith('data: ')) continue;
-            const payload = part.slice(6).trim();
-            if (payload === '[DONE]') continue;
-            try {
-              const parsed = JSON.parse(payload);
-              if (parsed.text) { fullText += parsed.text; setStreamingText(fullText); }
-              if (parsed.error) { setError(parsed.error); }
-            } catch { continue; }
+        try {
+          const reader = res.body.getReader();
+          const decoder = new TextDecoder();
+          let buffer = '';
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            if (!value) continue;
+
+            buffer += decoder.decode(value, { stream: true });
+            const parts = buffer.split('\n\n');
+            buffer = parts.pop() || '';
+
+            for (const part of parts) {
+              if (!part.startsWith('data: ')) continue;
+              const payload = part.slice(6).trim();
+              if (!payload || payload === '[DONE]') continue;
+              try {
+                const parsed = JSON.parse(payload);
+                if (typeof parsed?.text === 'string') {
+                  fullText += parsed.text;
+                  setStreamingText(fullText);
+                }
+                if (parsed?.error) {
+                  setError(String(parsed.error));
+                }
+              } catch {
+                continue;
+              }
+            }
+          }
+        } catch (streamErr: any) {
+          setIsStreaming(false);
+          if (!fullText) {
+            setError(streamErr?.message || 'Stream interrupted');
+            return;
           }
         }
 
         setLatency(Date.now() - t0);
         setIsStreaming(false);
-        setResponse({ choices: [{ message: { role: 'assistant', content: fullText } }] });
-        const detected = detectArtifact(fullText);
-        if (detected) setArtifact(detected);
-        if (memoryEnabled && fullText) addToMemory(message, fullText);
+
+        if (fullText) {
+          setResponse({ choices: [{ message: { role: 'assistant', content: fullText } }] });
+          const detected = detectArtifact(fullText);
+          if (detected) setArtifact(detected);
+          if (memoryEnabled) addToMemory(message, fullText);
+        }
         return;
       }
 
@@ -1576,9 +1607,10 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                 </div>
                 <button
                   onClick={() => setStreamEnabled(!streamEnabled)}
-                  className={`relative w-8 h-4.5 rounded-full transition-colors duration-200 ${streamEnabled ? 'bg-emerald-500' : 'bg-zinc-300 dark:bg-zinc-700'}`}
+                  className={`relative rounded-full transition-all duration-300 flex items-center px-0.5 ${streamEnabled ? 'bg-emerald-500' : 'bg-zinc-300 dark:bg-zinc-700'}`}
+                  style={{ height: '18px', width: '32px' }}
                 >
-                  <span className={`absolute top-0.5 left-0.5 w-3.5 h-3.5 rounded-full bg-white shadow-sm transition-transform duration-200 ${streamEnabled ? 'translate-x-3.5' : 'translate-x-0'}`} />
+                  <div className={`w-3.5 h-3.5 rounded-full bg-white shadow-sm transition-all duration-300 ${streamEnabled ? 'translate-x-3.5' : 'translate-x-0'}`} />
                 </button>
               </div>
             )}
@@ -2321,7 +2353,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                         <pre className="text-[10px] sm:text-xs text-zinc-700 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap break-words font-mono">{responseText}</pre>
                       )}
                     </div>
-                    {response.usage && (
+                    {response?.usage && (
                       <div className="flex flex-wrap gap-2 pt-1">
                         {[
                           { label: 'Prompt', val: response.usage.prompt_tokens },
