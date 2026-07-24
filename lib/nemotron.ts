@@ -49,7 +49,7 @@ export async function chatNemotron(
         content: m.content,
       })),
       temperature: opts?.temperature ?? 0.8,
-      max_tokens: opts?.maxTokens ?? 4096,
+      max_tokens: opts?.maxTokens ?? 8096,
     });
 
     const reply =
@@ -57,6 +57,51 @@ export async function chatNemotron(
       "I'm unable to respond right now.";
 
     return { reply };
+  } catch (error: any) {
+    if (error?.status === 429) {
+      throw new NemotronRateLimitError(
+        `Nemotron rate limit exceeded: ${error.message}`
+      );
+    }
+    if (error?.status === 402 || error?.code === "insufficient_quota") {
+      throw new NemotronQuotaError(
+        `Nemotron quota exceeded: ${error.message}`
+      );
+    }
+    if (error?.status === 503 || error?.status === 500) {
+      throw new Error(`Nemotron server error: ${error.message}`);
+    }
+
+    throw error;
+  }
+}
+
+export async function* chatNemotronStream(
+  history: ChatMessage[],
+  opts?: { temperature?: number; maxTokens?: number }
+): AsyncGenerator<string, void, unknown> {
+  if (!NEMOTRON_API_KEY) {
+    throw new Error("NEMOTRON_API_KEY not defined in environment variables.");
+  }
+
+  try {
+    const stream = await client.chat.completions.create({
+      model: NEMOTRON_MODEL,
+      messages: history.map((m) => ({
+        role: m.role,
+        content: m.content,
+      })),
+      temperature: opts?.temperature ?? 0.8,
+      max_tokens: opts?.maxTokens ?? 4096,
+      stream: true,
+    });
+
+    for await (const chunk of stream) {
+      const delta = chunk.choices[0]?.delta?.content;
+      if (delta) {
+        yield delta;
+      }
+    }
   } catch (error: any) {
     if (error?.status === 429) {
       throw new NemotronRateLimitError(
@@ -107,5 +152,6 @@ export async function quickChatNemotron(
 
 export default {
   chatNemotron,
+  chatNemotronStream,
   quickChatNemotron,
 };
