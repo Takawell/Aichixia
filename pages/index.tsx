@@ -679,7 +679,7 @@ func main() {
       
       <Head>
         <title>Aichixia - AI API Platform | 40+ Models in One Unified API</title>
-        <meta name="description" content="Build AI applications 10x faster with Aichixia's unified API. Access Claude, GPT, Gemini, DeepSeek and 20+ AI models through one OpenAI-compatible endpoint. Sub-100ms latency, 99.9% uptime, enterprise-grade security." />
+        <meta name="description" content="Build AI applications 10x faster with Aichixia's unified API. Access Claude, GPT, Gemini, DeepSeek and 40+ AI models through one OpenAI-compatible endpoint. Sub-100ms latency, 99.9% uptime, enterprise-grade security." />
         <meta name="keywords" content="AI API, OpenAI alternative, Claude API, GPT API, Gemini API, AI infrastructure, multi-model API, DeepSeek, machine learning API, enterprise AI" />
         <meta name="author" content="Aichixia" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -691,8 +691,8 @@ func main() {
         
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://www.aichixia.xyz" />
-        <meta property="og:title" content="Aichixia - AI API Platform | 20+ Models in One Unified API" />
-        <meta property="og:description" content="Build AI applications 10x faster with Aichixia's unified API. Access Claude, GPT, Gemini, DeepSeek and 20+ AI models through one OpenAI-compatible endpoint. Sub-100ms latency, 99.9% uptime." />
+        <meta property="og:title" content="Aichixia - AI API Platform | 40+ Models in One Unified API" />
+        <meta property="og:description" content="Build AI applications 10x faster with Aichixia's unified API. Access Claude, GPT, Gemini, DeepSeek and 40+ AI models through one OpenAI-compatible endpoint. Sub-100ms latency, 99.9% uptime." />
         <meta property="og:image" content="https://www.aichixia.xyz/og-image.png" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
@@ -701,8 +701,8 @@ func main() {
         
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:url" content="https://www.aichixia.xyz" />
-        <meta name="twitter:title" content="Aichixia - AI API Platform | 20+ Models in One Unified API" />
-        <meta name="twitter:description" content="Build AI applications 10x faster with Aichixia's unified API. Access Claude, GPT, Gemini, DeepSeek and 20+ AI models. Sub-100ms latency, 99.9% uptime." />
+        <meta name="twitter:title" content="Aichixia - AI API Platform | 40+ Models in One Unified API" />
+        <meta name="twitter:description" content="Build AI applications 10x faster with Aichixia's unified API. Access Claude, GPT, Gemini, DeepSeek and 40+ AI models. Sub-100ms latency, 99.9% uptime." />
         <meta name="twitter:image" content="https://www.aichixia.xyz/og-image.png" />
         <meta name="twitter:creator" content="@aichixia" />
         <meta name="twitter:site" content="@aichixia" />
@@ -949,7 +949,7 @@ func main() {
 
       <div className="py-6 sm:py-8 overflow-hidden border-y border-zinc-100 dark:border-zinc-900 bg-white dark:bg-black">
         <div className="mb-4 sm:mb-5 text-center">
-          <p className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-600">20+ Models Available</p>
+          <p className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-600">40+ Models Available</p>
         </div>
         <div className="relative flex overflow-hidden">
           <div className="flex animate-marquee gap-3 whitespace-nowrap">
@@ -1542,7 +1542,7 @@ func main() {
               Aichixia vs OpenAI API
             </h2>
             <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400 max-w-xl mx-auto px-4">
-              Everything OpenAI offers, plus 20+ additional models, Anthropic SDK support, and a free Pro plan.
+              Everything OpenAI offers, plus 40+ additional models, Anthropic SDK support, and a free Pro plan.
             </p>
           </div>
 
@@ -1666,7 +1666,7 @@ func main() {
             {[
               { q: "Is Aichixia really free?", a: "Yes. The free tier gives you access to all models with standard rate limits. No credit card required. Pro tier is also free — find the redeem code hidden in our docs." },
               { q: "Do I need to change my code to use Aichixia?", a: "No. If you already use the OpenAI SDK, just change one line — the baseURL. Everything else stays the same. We also support the Anthropic SDK natively." },
-              { q: "Which models are available?", a: "20+ models including Claude Opus 4.5, GPT-5 Mini, Gemini 3 Flash, Grok 3, DeepSeek V3.2, Kimi K2, Qwen3 235B, Llama 3.3 70B, Mistral 3.1, and many more. New models are added regularly." },
+              { q: "Which models are available?", a: "40+ models including Claude Opus 4.8, GPT-5 Mini, Gemini 3 Flash, Grok 3, DeepSeek V3.2, Kimi K2.6, Qwen3 235B, Llama 3.3 70B, Mistral 3 Large 678B, and many more. New models are added regularly." },
               { q: "What about image generation and TTS?", a: "Yes! We support image generation via /api/v1/images/generations (Flux 2, Lucid Origin, Phoenix, Nano) and text-to-speech via /api/v1/audio/speech (Starling TTS, Lindsay TTS)." },
               { q: "Can I use the Anthropic SDK?", a: "Yes! Point the Anthropic SDK to our /api/v1/messages endpoint with your Aichixia API key. All Aichixia models are accessible — not just Claude." },
             ].map((faq, idx) => (
