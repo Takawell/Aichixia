@@ -109,7 +109,7 @@ export async function streamMistral(
             content: m.content,
           })),
           temperature: opts?.temperature ?? 0.8,
-          max_tokens: opts?.maxTokens ?? 4096,
+          max_tokens: opts?.maxTokens ?? 8096,
           stream: true,
         });
 
