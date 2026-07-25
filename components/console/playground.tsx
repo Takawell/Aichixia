@@ -1530,7 +1530,6 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                       <p className="text-center text-[10px] text-zinc-400 py-4">No models found</p>
                     ) : tabModels.map(model => {
                       const Icon = model.icon as any;
-                      const hasVision = VISION_MODEL_IDS.has(model.id);
                       return (
                         <button
                           key={model.id}
@@ -1541,8 +1540,6 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-1 flex-wrap">
                               <span className="text-[10px] font-semibold text-zinc-900 dark:text-white truncate">{model.name}</span>
-                              {hasVision && <span className="text-[8px] font-bold px-1 py-0.5 rounded-full bg-blue-100 dark:bg-blue-800/30 text-blue-400 dark:text-blue-300 border border-blue-100 dark:border-blue-700 flex-shrink-0">Vision</span>}
-                              {STREAM_CAPABLE_MODELS.has(model.id) && <span className="text-[8px] font-bold px-1 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-500 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex-shrink-0">Stream</span>}
                             </div>
                             <div className="text-[9px] text-zinc-500 truncate">{model.provider}{model.context !== '—' ? ` · ${model.context}` : ''}</div>
                           </div>
