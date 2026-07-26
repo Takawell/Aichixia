@@ -637,7 +637,7 @@ export default function Monitoring({ recentLogs, users, onRefresh, loading, refr
             }>
             {filteredLogs.length === 0
               ? <EmptyState icon={<FiActivity />} message="No activity in this time range" />
-              : <div style={{ display:'flex', flexDirection:'column', gap:3 }}>{filteredLogs.slice(0,20).map((log,i) => <LogRow key={log.id} log={log} index={i} />)}</div>
+              : <div style={{ display:'flex', flexDirection:'column', gap:3 }}>{filteredLogs.slice(0,17).map((log,i) => <LogRow key={log.id} log={log} index={i} />)}</div>
             }
           </Panel>
         </div>
