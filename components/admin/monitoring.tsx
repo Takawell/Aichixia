@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { FiActivity, FiZap, FiCheckCircle, FiAlertCircle, FiClock, FiTrendingUp, FiUsers, FiCpu, FiServer, FiRefreshCw } from 'react-icons/fi';
+import { FiActivity, FiZap, FiCheckCircle, FiAlertCircle, FiClock, FiTrendingUp, FiUsers, FiCpu, FiServer, FiRefreshCw, FiChevronRight, FiX, FiGlobe, FiMonitor, FiHash } from 'react-icons/fi';
 
 type RequestLog = {
   id: string; api_key_id: string; user_id: string; model: string;
@@ -13,6 +13,8 @@ type User = {
   avatar_url: string | null; plan: string; plan_expires_at: string | null;
   is_admin: boolean; active_keys: number; created_at: string;
 };
+
+type MonitoringUser = User & { requestCount:number; totalTokens:number; lastActive:Date; mostUsedModel:string; logs:RequestLog[] };
 
 type MonitoringProps = {
   recentLogs: RequestLog[]; users: User[];
@@ -195,9 +197,10 @@ function FilterBar({ timeRange, setTimeRange, selectedModel, setSelectedModel, m
   );
 }
 
-function UserRow({ user, index }: {
+function UserRow({ user, index, onClick }: {
   user: User & { requestCount:number; totalTokens:number; lastActive:Date; mostUsedModel:string };
   index: number;
+  onClick?: () => void;
 }) {
   const dark = useIsDark();
   const cfg = PC(user.plan);
@@ -217,13 +220,13 @@ function UserRow({ user, index }: {
   ];
 
   return (
-    <div onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
+    <div onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)} onClick={onClick}
       className="border border-zinc-100 dark:border-zinc-800/60"
       style={{
         display:'flex', alignItems:'center', gap:7, padding:'8px 9px', borderRadius:11,
         background: hov ? (dark ? 'rgba(255,255,255,0.042)' : 'rgba(0,0,0,0.025)') : (dark ? 'rgba(255,255,255,0.018)' : 'rgba(255,255,255,0.7)'),
         backdropFilter:'blur(12px)', WebkitBackdropFilter:'blur(12px)',
-        transition:'all 0.22s ease', cursor:'default',
+        transition:'all 0.22s ease', cursor: onClick ? 'pointer' : 'default',
         boxShadow: hov ? (dark ? '0 8px 24px rgba(0,0,0,0.3)' : '0 6px 18px rgba(0,0,0,0.07)') : 'none',
         animation:'mn-rowIn 0.4s both ease-out', animationDelay:`${index*50}ms`,
         minWidth:0, overflow:'hidden',
@@ -267,6 +270,7 @@ function UserRow({ user, index }: {
         <FiClock style={{ fontSize:8, color: dark ? '#34d399' : '#059669' }} />
         <span style={{ fontSize:9.5, fontWeight:600, color: dark ? '#34d399' : '#059669', fontFamily:'monospace', whiteSpace:'nowrap' }}>{getTimeSince(user.lastActive)}</span>
       </div>
+      {onClick && <FiChevronRight className="text-zinc-300 dark:text-zinc-600" style={{ fontSize:12, flexShrink:0, transition:'transform 0.2s', transform: hov ? 'translateX(2px)' : 'none' }} />}
     </div>
   );
 }
@@ -311,6 +315,133 @@ function LogRow({ log, index }: { log: RequestLog; index: number }) {
       <span className="text-zinc-400 dark:text-zinc-500" style={{ fontSize:9.5, fontFamily:'monospace', flexShrink:0, whiteSpace:'nowrap' }}>
         {getTimeSince(new Date(log.created_at))}
       </span>
+    </div>
+  );
+}
+
+function UserDetailModal({ user, onClose }: {
+  user: MonitoringUser | null;
+  onClose: () => void;
+}) {
+  const dark = useIsDark();
+  const [visible, setVisible] = useState(false);
+  useEffect(() => { if (user) requestAnimationFrame(() => requestAnimationFrame(() => setVisible(true))); }, [user]);
+
+  const handleClose = () => {
+    setVisible(false);
+    setTimeout(onClose, 280);
+  };
+
+  if (!user) return null;
+  const cfg = PC(user.plan);
+  const grad = dark ? cfg.gradDark : cfg.gradLight;
+
+  const modelBreakdown = Object.entries(
+    user.logs.reduce((m, l) => { m[l.model] = (m[l.model] || 0) + 1; return m; }, {} as Record<string, number>)
+  ).sort((a,b) => b[1]-a[1]);
+
+  const latestUserAgent = user.logs.find(l => l.user_agent)?.user_agent || 'Unknown';
+  const latestIp = user.logs.find(l => l.ip_address)?.ip_address || 'Unknown';
+
+  return (
+    <div style={{ position:'fixed', inset:0, zIndex:200, display:'flex', alignItems:'flex-end', justifyContent:'center' }}>
+      <div onClick={handleClose} style={{ position:'absolute', inset:0, background:'rgba(0,0,0,0.65)', backdropFilter:'blur(6px)', WebkitBackdropFilter:'blur(6px)', opacity: visible ? 1 : 0, transition:'opacity 0.28s ease' }} />
+      <div
+        className="bg-white dark:bg-[#0a0e17] border border-zinc-100 dark:border-zinc-800/60"
+        style={{
+          position:'relative', width:'100%', maxWidth:480, maxHeight:'86vh', borderRadius:'20px 20px 0 0',
+          overflow:'hidden', display:'flex', flexDirection:'column',
+          transform: visible ? 'translateY(0)' : 'translateY(40px)', opacity: visible ? 1 : 0,
+          transition:'transform 0.32s cubic-bezier(0.22,1,0.36,1), opacity 0.28s ease',
+        }}
+      >
+        <div style={{ padding:'16px 16px 12px', borderBottom: dark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.06)', flexShrink:0 }}>
+          <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:10 }}>
+            <div style={{ display:'flex', alignItems:'center', gap:10, minWidth:0 }}>
+              {user.avatar_url
+                ? <img src={user.avatar_url} alt="" className="border border-zinc-200 dark:border-zinc-700" style={{ width:42, height:42, borderRadius:12, objectFit:'cover', flexShrink:0 }} />
+                : <div style={{ width:42, height:42, borderRadius:12, background: grad, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:800, fontSize:16, flexShrink:0 }}>
+                    {(user.display_name?.[0] || user.email[0]).toUpperCase()}
+                  </div>
+              }
+              <div style={{ minWidth:0 }}>
+                <p className="text-zinc-900 dark:text-white" style={{ fontSize:14, fontWeight:800, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{user.display_name || user.email}</p>
+                <p className="text-zinc-400 dark:text-zinc-500" style={{ fontSize:11, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{user.email}</p>
+              </div>
+            </div>
+            <button onClick={handleClose} className="hover:bg-zinc-100 dark:hover:bg-zinc-800" style={{ all:'unset', cursor:'pointer', width:28, height:28, borderRadius:8, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+              <FiX className="text-zinc-400 dark:text-zinc-500" style={{ fontSize:15 }} />
+            </button>
+          </div>
+        </div>
+
+        <div style={{ overflowY:'auto', padding:14, display:'flex', flexDirection:'column', gap:12 }}>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:7 }}>
+            <div className="border border-zinc-100 dark:border-zinc-800/60" style={{ borderRadius:11, padding:'8px 9px' }}>
+              <p className="text-zinc-400 dark:text-zinc-500" style={{ fontSize:9, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:3 }}>Requests</p>
+              <p className="text-zinc-900 dark:text-white" style={{ fontSize:15, fontWeight:800 }}>{user.requestCount}</p>
+            </div>
+            <div className="border border-zinc-100 dark:border-zinc-800/60" style={{ borderRadius:11, padding:'8px 9px' }}>
+              <p className="text-zinc-400 dark:text-zinc-500" style={{ fontSize:9, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:3 }}>Tokens</p>
+              <p className="text-zinc-900 dark:text-white" style={{ fontSize:15, fontWeight:800 }}>{user.totalTokens.toLocaleString()}</p>
+            </div>
+            <div className="border border-zinc-100 dark:border-zinc-800/60" style={{ borderRadius:11, padding:'8px 9px' }}>
+              <p className="text-zinc-400 dark:text-zinc-500" style={{ fontSize:9, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:3 }}>Last Active</p>
+              <p className="text-zinc-900 dark:text-white" style={{ fontSize:15, fontWeight:800, fontFamily:'monospace' }}>{getTimeSince(user.lastActive)}</p>
+            </div>
+          </div>
+
+          <div>
+            <p className="text-zinc-400 dark:text-zinc-500" style={{ fontSize:9.5, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.07em', marginBottom:6, display:'flex', alignItems:'center', gap:5 }}>
+              <FiCpu style={{ fontSize:10 }} /> Models Used
+            </p>
+            <div style={{ display:'flex', flexWrap:'wrap', gap:5 }}>
+              {modelBreakdown.map(([model, count]) => (
+                <span key={model} className="border border-zinc-100 dark:border-zinc-800/60 text-zinc-700 dark:text-zinc-300" style={{ fontSize:10.5, fontWeight:600, padding:'3px 8px', borderRadius:99, fontFamily:'monospace', display:'flex', alignItems:'center', gap:4 }}>
+                  {model} <span className="text-zinc-400 dark:text-zinc-500">×{count}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <p className="text-zinc-400 dark:text-zinc-500" style={{ fontSize:9.5, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.07em', marginBottom:6, display:'flex', alignItems:'center', gap:5 }}>
+              <FiMonitor style={{ fontSize:10 }} /> User Agent
+            </p>
+            <p className="text-zinc-600 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-900/60" style={{ fontSize:10.5, fontFamily:'monospace', padding:'8px 10px', borderRadius:9, wordBreak:'break-all', lineHeight:1.4 }}>
+              {latestUserAgent}
+            </p>
+            <div style={{ display:'flex', alignItems:'center', gap:5, marginTop:6 }}>
+              <FiGlobe className="text-zinc-400 dark:text-zinc-500" style={{ fontSize:10 }} />
+              <span className="text-zinc-500 dark:text-zinc-400" style={{ fontSize:10.5, fontFamily:'monospace' }}>{latestIp}</span>
+            </div>
+          </div>
+
+          <div>
+            <p className="text-zinc-400 dark:text-zinc-500" style={{ fontSize:9.5, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.07em', marginBottom:6, display:'flex', alignItems:'center', gap:5 }}>
+              <FiHash style={{ fontSize:10 }} /> Request History ({user.logs.length})
+            </p>
+            {user.logs.length === 0
+              ? <EmptyState icon={<FiActivity />} message="No requests in this time range" />
+              : <div style={{ display:'flex', flexDirection:'column', gap:4, maxHeight:280, overflowY:'auto' }}>
+                  {user.logs.slice(0, 30).map((log, i) => (
+                    <div key={log.id} className="border border-zinc-100 dark:border-zinc-800/60" style={{ padding:'7px 9px', borderRadius:9 }}>
+                      <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom: log.error_message ? 3 : 0 }}>
+                        <code className="text-zinc-800 dark:text-white" style={{ fontSize:10.5, fontWeight:600, fontFamily:'monospace', flex:1, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{log.model}</code>
+                        <span style={{ fontSize:10, fontWeight:700, color: log.status >= 400 ? (dark?'#f87171':'#dc2626') : log.status >= 200 && log.status < 300 ? (dark?'#34d399':'#059669') : (dark?'#94a3b8':'#64748b') }}>{log.status}</span>
+                        {log.latency_ms && <span className="text-zinc-400 dark:text-zinc-500" style={{ fontSize:9.5, fontFamily:'monospace' }}>{log.latency_ms}ms</span>}
+                        <span className="text-zinc-400 dark:text-zinc-500" style={{ fontSize:9.5, fontFamily:'monospace' }}>{getTimeSince(new Date(log.created_at))}</span>
+                      </div>
+                      {log.error_message && (
+                        <p className="text-red-500 dark:text-red-400" style={{ fontSize:9.5, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{log.error_message}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+            }
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -360,6 +491,7 @@ export default function Monitoring({ recentLogs, users, onRefresh, loading, refr
   const dark = useIsDark();
   const [timeRange, setTimeRange] = useState<'1h'|'6h'|'24h'>('24h');
   const [selectedModel, setSelectedModel] = useState<string>('all');
+  const [selectedUser, setSelectedUser] = useState<MonitoringUser | null>(null);
 
   const getTimeRangeMs = () => {
     if (timeRange === '1h') return 60 * 60 * 1000;
@@ -382,11 +514,12 @@ export default function Monitoring({ recentLogs, users, onRefresh, loading, refr
         const mostUsedModel = Object.entries(
           userLogs.reduce((m, l) => { m[l.model] = (m[l.model] || 0) + 1; return m; }, {} as Record<string,number>)
         ).sort((a,b) => b[1]-a[1])[0]?.[0] || 'unknown';
-        acc.push({ ...user, requestCount: userLogs.length, totalTokens: userLogs.reduce((s,l) => s+(l.tokens_used||0),0), lastActive: new Date(lastActive), mostUsedModel });
+        const sortedUserLogs = [...userLogs].sort((a,b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        acc.push({ ...user, requestCount: userLogs.length, totalTokens: userLogs.reduce((s,l) => s+(l.tokens_used||0),0), lastActive: new Date(lastActive), mostUsedModel, logs: sortedUserLogs });
       }
     }
     return acc;
-  }, [] as Array<User & { requestCount:number; totalTokens:number; lastActive:Date; mostUsedModel:string }>)
+  }, [] as MonitoringUser[])
   .sort((a,b) => b.requestCount - a.requestCount).slice(0,10);
 
   const models = [...new Set(recentLogs.map(l => l.model))];
@@ -486,7 +619,7 @@ export default function Monitoring({ recentLogs, users, onRefresh, loading, refr
             }>
             {activeUsers.length === 0
               ? <EmptyState icon={<FiUsers />} message="No active users in this time range" />
-              : <div style={{ display:'flex', flexDirection:'column', gap:5 }}>{activeUsers.map((u,i) => <UserRow key={u.user_id} user={u} index={i} />)}</div>
+              : <div style={{ display:'flex', flexDirection:'column', gap:5 }}>{activeUsers.map((u,i) => <UserRow key={u.user_id} user={u} index={i} onClick={() => setSelectedUser(u)} />)}</div>
             }
           </Panel>
 
@@ -504,11 +637,13 @@ export default function Monitoring({ recentLogs, users, onRefresh, loading, refr
             }>
             {filteredLogs.length === 0
               ? <EmptyState icon={<FiActivity />} message="No activity in this time range" />
-              : <div style={{ display:'flex', flexDirection:'column', gap:3 }}>{filteredLogs.slice(0,10).map((log,i) => <LogRow key={log.id} log={log} index={i} />)}</div>
+              : <div style={{ display:'flex', flexDirection:'column', gap:3 }}>{filteredLogs.slice(0,20).map((log,i) => <LogRow key={log.id} log={log} index={i} />)}</div>
             }
           </Panel>
         </div>
       </div>
+
+      <UserDetailModal user={selectedUser} onClose={() => setSelectedUser(null)} />
     </>
   );
 }
