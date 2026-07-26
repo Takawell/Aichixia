@@ -195,45 +195,31 @@ export default function Login() {
         @keyframes popIn{0%{opacity:0;transform:scale(0.9);}100%{opacity:1;transform:scale(1);}}
         @keyframes auroraDrift{0%,100%{transform:translate(0,0) rotate(0deg);}50%{transform:translate(2%,-3%) rotate(6deg);}}
         @keyframes auroraDrift2{0%,100%{transform:translate(0,0) rotate(0deg);}50%{transform:translate(-3%,2%) rotate(-8deg);}}
+        @keyframes slowSpin{to{transform:rotate(360deg);}}
+        @keyframes slowSpinRev{to{transform:rotate(-360deg);}}
+        @keyframes nodePulse{0%,100%{opacity:0.35;transform:scale(1);}50%{opacity:1;transform:scale(1.6);}}
+        @keyframes dashFlow{to{stroke-dashoffset:-200;}}
+        @keyframes floatSlow{0%,100%{transform:translateY(0);}50%{transform:translateY(-14px);}}
+        @keyframes floatSlow2{0%,100%{transform:translateY(0);}50%{transform:translateY(12px);}}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
         .shake{animation:shake 0.6s cubic-bezier(0.36,0.07,0.19,0.97) both;}
         .pop-in{animation:popIn 0.3s cubic-bezier(0.4,0,0.2,1) both;}
         .login-card{animation:cardIn 0.6s cubic-bezier(0.16,1,0.3,1) both;}
+        .left-copy{animation:fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) 0.15s both;}
         input::placeholder{color:${dark ? 'rgba(226,232,240,0.32)' : 'rgba(15,23,42,0.32)'};}
         input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus{-webkit-text-fill-color:inherit;transition:background-color 9999s ease-in-out 0s;}
         @media(max-width:480px){.login-card{padding:32px 22px !important;}}
+        @media(max-width:900px){.geo-panel{display:none !important;} .mobile-brand{display:flex !important;}}
       `}</style>
 
       <div style={{
-        minHeight: '100vh', position: 'relative', overflow: 'hidden', display: 'flex',
-        alignItems: 'center', justifyContent: 'center', padding: '24px',
+        minHeight: '100vh', position: 'relative', display: 'flex',
         background: dark ? '#05070d' : '#f4f8fc',
         transition: 'background 0.35s ease',
       }}>
-        {/* aurora mesh background */}
-        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
-          <div style={{
-            position: 'absolute', width: 620, height: 620, borderRadius: '50%', top: '-14%', left: '-10%',
-            background: dark ? 'radial-gradient(circle,rgba(14,165,233,0.22),transparent 70%)' : 'radial-gradient(circle,rgba(14,165,233,0.16),transparent 70%)',
-            filter: 'blur(10px)', animation: 'auroraDrift 16s ease-in-out infinite',
-          }} />
-          <div style={{
-            position: 'absolute', width: 560, height: 560, borderRadius: '50%', bottom: '-16%', right: '-8%',
-            background: dark ? 'radial-gradient(circle,rgba(99,102,241,0.22),transparent 70%)' : 'radial-gradient(circle,rgba(99,102,241,0.14),transparent 70%)',
-            filter: 'blur(10px)', animation: 'auroraDrift2 18s ease-in-out infinite',
-          }} />
-          <div style={{
-            position: 'absolute', inset: 0,
-            backgroundImage: dark
-              ? 'linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px)'
-              : 'linear-gradient(rgba(15,23,42,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(15,23,42,0.025) 1px,transparent 1px)',
-            backgroundSize: '42px 42px',
-            maskImage: 'radial-gradient(ellipse 80% 60% at 50% 40%,black 40%,transparent 90%)',
-          }} />
-        </div>
-
         <div style={{ position: 'fixed', top: 18, right: 20, zIndex: 20 }}><ThemeToggle /></div>
 
-        <div style={{ position: 'fixed', top: 22, left: 26, zIndex: 20 }}>
+        <div className="mobile-brand" style={{ display: 'none', position: 'fixed', top: 22, left: 24, zIndex: 20, alignItems: 'center' }}>
           <span style={{
             fontFamily: "'Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, letterSpacing: '0.14em',
             textTransform: 'uppercase', background: `linear-gradient(135deg,${A},${A2})`,
@@ -242,6 +228,97 @@ export default function Login() {
             aichixia.xyz
           </span>
         </div>
+
+        {/* LEFT — geometric panel */}
+        <div className="geo-panel" style={{
+          flex: '0 0 48%', position: 'relative', overflow: 'hidden',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          background: dark
+            ? 'linear-gradient(160deg,#070b16 0%,#0a1730 55%,#050a14 100%)'
+            : 'linear-gradient(160deg,#eef4fb 0%,#e3edf9 55%,#eef6f4 100%)',
+          borderRight: `1px solid ${dark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.06)'}`,
+        }}>
+          {/* dot grid */}
+          <div style={{
+            position: 'absolute', inset: 0,
+            backgroundImage: dark
+              ? 'radial-gradient(rgba(148,197,255,0.16) 1px,transparent 1.4px)'
+              : 'radial-gradient(rgba(14,60,110,0.14) 1px,transparent 1.4px)',
+            backgroundSize: '26px 26px',
+            maskImage: 'radial-gradient(ellipse 75% 65% at 50% 45%,black 45%,transparent 92%)',
+          }} />
+
+          {/* ambient glow */}
+          <div style={{
+            position: 'absolute', width: 480, height: 480, borderRadius: '50%', top: '8%', left: '-12%',
+            background: dark ? 'radial-gradient(circle,rgba(14,165,233,0.16),transparent 70%)' : 'radial-gradient(circle,rgba(14,165,233,0.12),transparent 70%)',
+            filter: 'blur(20px)', animation: 'auroraDrift 18s ease-in-out infinite',
+          }} />
+          <div style={{
+            position: 'absolute', width: 420, height: 420, borderRadius: '50%', bottom: '4%', right: '-10%',
+            background: dark ? 'radial-gradient(circle,rgba(99,102,241,0.16),transparent 70%)' : 'radial-gradient(circle,rgba(99,102,241,0.1),transparent 70%)',
+            filter: 'blur(20px)', animation: 'auroraDrift2 20s ease-in-out infinite',
+          }} />
+
+          {/* rotating outline rings */}
+          <svg width="420" height="420" viewBox="0 0 420 420" style={{ position: 'absolute', opacity: dark ? 0.5 : 0.4 }}>
+            <g style={{ transformOrigin: '210px 210px', animation: 'slowSpin 40s linear infinite' }}>
+              <circle cx="210" cy="210" r="168" fill="none" stroke={dark ? 'rgba(148,197,255,0.22)' : 'rgba(14,60,110,0.18)'} strokeWidth="1" strokeDasharray="2 10" strokeLinecap="round" />
+            </g>
+            <g style={{ transformOrigin: '210px 210px', animation: 'slowSpinRev 55s linear infinite' }}>
+              <circle cx="210" cy="210" r="128" fill="none" stroke={dark ? 'rgba(99,102,241,0.28)' : 'rgba(99,102,241,0.22)'} strokeWidth="1" strokeDasharray="1 7" strokeLinecap="round" />
+            </g>
+            <g style={{ transformOrigin: '210px 210px', animation: 'slowSpin 70s linear infinite' }}>
+              <polygon points="210,80 320,150 320,270 210,340 100,270 100,150" fill="none" stroke={dark ? 'rgba(14,165,233,0.3)' : 'rgba(14,165,233,0.28)'} strokeWidth="1.2" />
+            </g>
+          </svg>
+
+          {/* connecting lines + nodes */}
+          <svg width="440" height="300" viewBox="0 0 440 300" style={{ position: 'absolute', top: '14%', animation: 'floatSlow 7s ease-in-out infinite' }}>
+            <line x1="60" y1="60" x2="220" y2="130" stroke={dark ? 'rgba(148,197,255,0.32)' : 'rgba(14,60,110,0.22)'} strokeWidth="1.2" strokeDasharray="5 6" style={{ animation: 'dashFlow 6s linear infinite' }} />
+            <line x1="220" y1="130" x2="380" y2="70" stroke={dark ? 'rgba(99,102,241,0.32)' : 'rgba(99,102,241,0.24)'} strokeWidth="1.2" strokeDasharray="5 6" style={{ animation: 'dashFlow 8s linear infinite' }} />
+            <line x1="220" y1="130" x2="240" y2="250" stroke={dark ? 'rgba(14,165,233,0.32)' : 'rgba(14,165,233,0.24)'} strokeWidth="1.2" strokeDasharray="5 6" style={{ animation: 'dashFlow 7s linear infinite' }} />
+            <line x1="240" y1="250" x2="90" y2="220" stroke={dark ? 'rgba(148,197,255,0.24)' : 'rgba(14,60,110,0.18)'} strokeWidth="1.2" strokeDasharray="5 6" style={{ animation: 'dashFlow 9s linear infinite' }} />
+            <circle cx="60" cy="60" r="4.5" fill={A} style={{ animation: 'nodePulse 3s ease-in-out infinite' }} />
+            <circle cx="220" cy="130" r="6" fill={A2} style={{ animation: 'nodePulse 3s ease-in-out 0.4s infinite' }} />
+            <circle cx="380" cy="70" r="4.5" fill={A} style={{ animation: 'nodePulse 3s ease-in-out 0.8s infinite' }} />
+            <circle cx="240" cy="250" r="4.5" fill={A2} style={{ animation: 'nodePulse 3s ease-in-out 1.2s infinite' }} />
+            <circle cx="90" cy="220" r="4.5" fill={A} style={{ animation: 'nodePulse 3s ease-in-out 1.6s infinite' }} />
+          </svg>
+
+          {/* floating geometric outline shapes */}
+          <div style={{ position: 'absolute', top: '18%', right: '14%', animation: 'floatSlow2 8s ease-in-out infinite' }}>
+            <svg width="54" height="54" viewBox="0 0 54 54"><rect x="4" y="4" width="46" height="46" rx="12" fill="none" stroke={dark ? 'rgba(148,197,255,0.3)' : 'rgba(14,60,110,0.22)'} strokeWidth="1.4" /></svg>
+          </div>
+          <div style={{ position: 'absolute', bottom: '22%', left: '12%', animation: 'floatSlow 9s ease-in-out infinite' }}>
+            <svg width="40" height="40" viewBox="0 0 40 40"><polygon points="20,3 37,32 3,32" fill="none" stroke={dark ? 'rgba(14,165,233,0.35)' : 'rgba(14,165,233,0.3)'} strokeWidth="1.4" /></svg>
+          </div>
+
+          <div className="left-copy" style={{ position: 'relative', textAlign: 'center', padding: '0 48px', marginTop: 210 }}>
+            <span style={{
+              fontFamily: "'Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, letterSpacing: '0.16em',
+              textTransform: 'uppercase', background: `linear-gradient(135deg,${A},${A2})`,
+              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+            }}>
+              aichixia.xyz
+            </span>
+            <h2 style={{
+              fontFamily: "'Space Grotesk',sans-serif", fontSize: 27, fontWeight: 700, marginTop: 14,
+              color: dark ? '#f1f5f9' : '#0f172a', letterSpacing: '-0.02em', lineHeight: 1.25,
+            }}>
+              One API,<br />every model.
+            </h2>
+            <p style={{ fontSize: 13.5, color: dark ? 'rgba(226,232,240,0.5)' : 'rgba(15,23,42,0.5)', marginTop: 10, lineHeight: 1.6 }}>
+              A single, reliable endpoint connecting your product to the world's leading AI models.
+            </p>
+          </div>
+        </div>
+
+        {/* RIGHT — login form */}
+        <div style={{
+          flex: '1 1 52%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          padding: '24px', position: 'relative',
+        }}>
 
         <div
           ref={cardRef}
@@ -370,6 +447,7 @@ export default function Login() {
             {' '}and{' '}
             <a href="/privacy" style={{ color: A, textDecoration: 'none', fontWeight: 500 }} onMouseOver={e => (e.currentTarget.style.textDecoration = 'underline')} onMouseOut={e => (e.currentTarget.style.textDecoration = 'none')}>Privacy Policy</a>
           </p>
+        </div>
         </div>
       </div>
     </>
