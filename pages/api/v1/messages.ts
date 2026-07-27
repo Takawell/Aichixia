@@ -10,10 +10,10 @@ import { chatClaude, ClaudeRateLimitError, ClaudeQuotaError } from "@/lib/claude
 import { chatOpus, OpusRateLimitError, OpusQuotaError } from "@/lib/opus";
 import { chatCohere, CohereRateLimitError, CohereQuotaError } from "@/lib/cohere";
 import { chatDeepSeek, DeepSeekRateLimitError, DeepSeekQuotaError } from "@/lib/deepseek";
-import { chatDeepSeekV, DeepSeekVRateLimitError, DeepSeekVQuotaError } from "@/lib/deepseek-v";
+import { chatDeepSeekV, streamDeepSeekV, DeepSeekVRateLimitError, DeepSeekVQuotaError } from "@/lib/deepseek-v";
 import { chatQwen, QwenRateLimitError, QwenQuotaError } from "@/lib/qwen";
 import { chatQwenV2, QwenV2RateLimitError, QwenV2QuotaError } from "@/lib/qwen3";
-import { chatGptOss, GptOssRateLimitError, GptOssQuotaError } from "@/lib/gpt-oss";
+import { chatGptOss, streamGptOss, GptOssRateLimitError, GptOssQuotaError } from "@/lib/gpt-oss";
 import { chatCompound, CompoundRateLimitError, CompoundQuotaError } from "@/lib/compound";
 import { chatLlama, LlamaRateLimitError, LlamaQuotaError } from "@/lib/llama";
 import { chatMistral, streamMistral, MistralRateLimitError, MistralQuotaError } from "@/lib/mistral";
@@ -23,7 +23,6 @@ import { chatGrokFast, GrokFastRateLimitError, GrokFastQuotaError } from "@/lib/
 import { chatGrok, GrokRateLimitError, GrokQuotaError } from "@/lib/grok";
 import { chatZhipu, ZhipuRateLimitError, ZhipuQuotaError } from "@/lib/zhipu";
 import { chatPhi, PhiRateLimitError, PhiQuotaError } from "@/lib/phi";
-import { chatCopilot, CopilotRateLimitError, CopilotQuotaError } from "@/lib/copilot";
 import { chatStepfun, streamStepfun, StepfunRateLimitError, StepfunQuotaError } from "@/lib/stepfun";
 import { chatNemotron, streamNemotron, NemotronRateLimitError, NemotronQuotaError } from "@/lib/nemotron";
 import { chatGpt55, Gpt55RateLimitError, Gpt55QuotaError } from "@/lib/gpt-5-5";
@@ -73,7 +72,6 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "grok-3": { fn: chatGrok, provider: "grok" },
   "grok-4-fast": { fn: chatGrokFast, provider: "grok-fast" },
   "glm-4.7-flash": { fn: chatZhipu, provider: "zhipu" },
-  "copilot": { fn: chatCopilot, provider: "copilot" },
   "step-3.7-flash": { fn: chatStepfun, provider: "stepfun" },
   "nemotron-3-ultra-550b-a55b": { fn: chatNemotron, provider: "nemotron" },
   "aichixia-flash": { fn: chatAichixia, provider: "aichixia" },
@@ -85,6 +83,8 @@ const STREAM_MODEL_MAPPING: Record<string, StreamFunction> = {
   "minimax-m3": streamMinimax,
   "step-3.7-flash": streamStepfun,
   "nemotron-3-ultra-550b-a55b": streamNemotron,
+  "gpt-oss-120b": streamGptOss,
+  "deepseek-v4-flash": streamDeepSeekV,
 };
 
 const LOCKED_MODELS_PRO = ['deepseek-v3.2', 'minimax-m3', 'qwen3-coder-480b', 'claude-sonnet-4.6', 'glm-4.7', 'aichixia-flash', 'grok-4-fast', 'kimi-k2.6', 'gpt-5.5'];
@@ -95,7 +95,7 @@ const RATE_LIMIT_ERRORS = [
   QwenRateLimitError, QwenV2RateLimitError, GptOssRateLimitError, CompoundRateLimitError,
   LlamaRateLimitError, MistralRateLimitError, MimoRateLimitError, PhiRateLimitError,
   MinimaxRateLimitError, GrokRateLimitError, GrokFastRateLimitError, ZhipuRateLimitError,
-  AichixiaRateLimitError, CopilotRateLimitError, StepfunRateLimitError, NemotronRateLimitError, Gpt55RateLimitError, OpusRateLimitError,
+  AichixiaRateLimitError, StepfunRateLimitError, NemotronRateLimitError, Gpt55RateLimitError, OpusRateLimitError,
 ];
 
 const QUOTA_ERRORS = [
@@ -104,7 +104,7 @@ const QUOTA_ERRORS = [
   QwenQuotaError, QwenV2QuotaError, GptOssQuotaError, CompoundQuotaError,
   LlamaQuotaError, MistralQuotaError, MimoQuotaError, PhiQuotaError,
   MinimaxQuotaError, GrokQuotaError, GrokFastQuotaError, ZhipuQuotaError,
-  AichixiaQuotaError, CopilotQuotaError, StepfunQuotaError, NemotronQuotaError, Gpt55QuotaError, OpusQuotaError,
+  AichixiaQuotaError, StepfunQuotaError, NemotronQuotaError, Gpt55QuotaError, OpusQuotaError,
 ];
 
 function isRateLimitError(error: any): boolean {
