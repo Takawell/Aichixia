@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import type { Stream } from "openai/streaming";
 
 export type Role = "user" | "assistant" | "system";
 
@@ -112,7 +113,7 @@ export async function streamGptOss(
       };
 
       try {
-        const streamResponse = opts?.enableSearch !== false
+        const streamResponse: Stream<OpenAI.Chat.Completions.ChatCompletionChunk> = opts?.enableSearch !== false
           ? await client.chat.completions.create({
               model: GROQ_MODEL_OSS,
               messages: history.map((m) => ({
