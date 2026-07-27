@@ -86,7 +86,7 @@ export default function Docs() {
           model: 'gpt-5-mini',
           max_tokens: 4096,
           messages: [
-            { role: 'system', content: 'You are a helpful API assistant for Aichixia, an AI API aggregation platform. Help users integrate and use the Aichixia API. Keep answers concise and clear. Aichixia base URL: https://www.aichixia.xyz. Auth: Bearer token or x-api-key header.\n\nEndpoints:\n- Chat (OpenAI-compat): POST /api/v1/chat/completions\n- Messages (Anthropic-compat): POST /api/v1/messages\n- Image generation: POST /api/v1/images/generations\n- TTS: POST /api/v1/audio/speech\n- STT Transcription: POST /api/v1/audio/transcriptions\n- STT Translation: POST /api/v1/audio/translations\n\nText models (free): gpt-5-mini, gpt-5.2, gpt-oss-120b, gemini-3-flash, grok-3, deepseek-v4-flash, mistral-large-3-675b-instruct, glm-4.7-flash, claude-opus-4.8, copilot, step-3.7-flash, nemotron-3-ultra-550b-a55b, qwen3.6-27b, llama-3.3-70b, mimo-v2-flash, groq-compound, cohere-command-a, phi-4-multimodal-instruct\nText models (pro): claude-sonnet-4.6, grok-4-fast, deepseek-v3.2, glm-4.7, qwen3-coder-480b, minimax-m3, kimi-k2.6, aichixia-flash, gpt-5.5\\nStreaming (stream: true) supported only on: kimi-k2.6, mistral-large-3-675b-instruct, minimax-m3, step-3.7-flash, nemotron-3-ultra-550b-a55b -- returns SSE for supported models; other models return a 400 error if stream is requested.\\nVision models: gemini-3-flash, gpt-5.2, aichixia-flash, grok-4-fast\nImage generation models: flux-2-dev, lucid-origin, phoenix-1.0, nano-image\nTTS models: starling-tts, lindsay-tts, miu-tts, catherine-tts, nana-tts, stephanie-tts (Typecast, support: eng, kor, jpn, cmn, spa), alexandra-tts (ElevenLabs, support: ind, eng, rus, cmn), eve-tts (ElevenLabs, support: kor, eng, msa, vie)\nSTT models: whisper-large-v3 (max accuracy), whisper-large-v3-turbo (max speed 216x real-time)\n\nPlans: Free=1000 req/day, Pro=4000 req/day, Enterprise=custom (contact sales team via email).\nContact: contact@aichixia.xyz | Telegram community: https://t.me/AichixiaAPI\nDo not use tool calling or function calling. Use code examples when relevant.' },
+            { role: 'system', content: 'You are a helpful API assistant for Aichixia, an AI API aggregation platform. Help users integrate and use the Aichixia API. Keep answers concise and clear. Aichixia base URL: https://www.aichixia.xyz. Auth: Bearer token or x-api-key header.\n\nEndpoints:\n- Chat (OpenAI-compat): POST /api/v1/chat/completions\n- Messages (Anthropic-compat): POST /api/v1/messages\n- Image generation: POST /api/v1/images/generations\n- TTS: POST /api/v1/audio/speech\n- STT Transcription: POST /api/v1/audio/transcriptions\n- STT Translation: POST /api/v1/audio/translations\n\nText models (free): gpt-5-mini, gpt-5.2, gpt-oss-120b, gemini-3-flash, grok-3, deepseek-v4-flash, mistral-large-3-675b-instruct, glm-4.7-flash, claude-opus-4.8, step-3.7-flash, nemotron-3-ultra-550b-a55b, qwen3.6-27b, llama-3.3-70b, mimo-v2-flash, groq-compound, cohere-command-a, phi-4-multimodal-instruct\nText models (pro): claude-sonnet-4.6, grok-4-fast, deepseek-v3.2, glm-4.7, qwen3-coder-480b, minimax-m3, kimi-k2.6, aichixia-flash, gpt-5.5\\nStreaming (stream: true) supported only on: kimi-k2.6, mistral-large-3-675b-instruct, minimax-m3, step-3.7-flash, nemotron-3-ultra-550b-a55b, gpt-oss-120b, deepseek-v4-flash -- returns SSE for supported models; other models return a 400 error if stream is requested.\\nVision models: gpt-5.2, kimi-k2.6, gemini-3-flash, grok-4-fast, phi-4-multimodal-instruct, qwen3.6-27b, step-3.7-flash\nImage generation models: flux-2-dev, lucid-origin, phoenix-1.0, nano-image\nTTS models: starling-tts, lindsay-tts, miu-tts, catherine-tts, nana-tts, stephanie-tts (Typecast, support: eng, kor, jpn, cmn, spa), alexandra-tts (ElevenLabs, support: ind, eng, rus, cmn), eve-tts (ElevenLabs, support: kor, eng, msa, vie)\nSTT models: whisper-large-v3 (max accuracy), whisper-large-v3-turbo (max speed 216x real-time)\n\nPlans: Free=1000 req/day, Pro=4000 req/day, Enterprise=custom (contact sales team via email).\nContact: contact@aichixia.xyz | Telegram community: https://t.me/AichixiaAPI\nDo not use tool calling or function calling. Use code examples when relevant.' },
             ...newMessages.map(m => ({ role: m.role, content: m.content })),
           ],
         }),
@@ -712,7 +712,7 @@ console.log(data.text);`,
                         <Param name="messages" required type="array" desc="Array of message objects with role (system | user | assistant) and content" />
                         <Param name="temperature" type="number" desc="Sampling temperature 0–2. Higher = more creative. Default: 0.8" />
                         <Param name="max_tokens" type="number" desc="Maximum tokens to generate. Default: 1080" />
-                        <Param name="stream" type="boolean" desc="Streaming via SSE. Default: false. Supported only on: kimi-k2.6, mistral-large-3-675b-instruct, minimax-m3, step-3.7-flash, nemotron-3-ultra-550b-a55b" />
+                        <Param name="stream" type="boolean" desc="Streaming via SSE. Default: false. Supported only on: kimi-k2.6, mistral-large-3-675b-instruct, minimax-m3, step-3.7-flash, nemotron-3-ultra-550b-a55b, gpt-oss-120b, deepseek-v4-flash" />
                         <Param name="top_p" type="number" desc="Nucleus sampling 0–1. Alternative to temperature." />
                       </div>
                     )}
@@ -775,7 +775,6 @@ console.log(data.text);`,
                             { id: 'glm-4.7', label: 'GLM 4.7', plan: 'pro' },
                             { id: 'glm-4.7-flash', label: 'GLM 4.7 Flash', plan: 'free' },
                             { id: 'kimi-k2.6', label: 'Kimi K2.6', plan: 'pro' },
-                            { id: 'copilot', label: 'Microsoft Copilot', plan: 'free' },
                             { id: 'step-3.7-flash', label: 'Step 3.7 Flash', plan: 'free' },
                             { id: 'nemotron-3-ultra-550b-a55b', label: 'Nemotron 3 Ultra 550B', plan: 'free' },
                             { id: 'qwen3.6-27b', label: 'Qwen3.6 27B', plan: 'free' },
@@ -798,7 +797,7 @@ console.log(data.text);`,
                             </div>
                           ))}
                         </div>
-                        <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-3">Vision models: <code className="text-zinc-600 dark:text-zinc-400">gemini-3-flash</code>, <code className="text-zinc-600 dark:text-zinc-400">gpt-5.2</code>, <code className="text-zinc-600 dark:text-zinc-400">aichixia-flash</code>, <code className="text-zinc-600 dark:text-zinc-400">grok-4-fast</code></p>
+                        <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-3">Vision models: <code className="text-zinc-600 dark:text-zinc-400">gpt-5.2</code>, <code className="text-zinc-600 dark:text-zinc-400">kimi-k2.6</code>, <code className="text-zinc-600 dark:text-zinc-400">gemini-3-flash</code>, <code className="text-zinc-600 dark:text-zinc-400">grok-4-fast</code>, <code className="text-zinc-600 dark:text-zinc-400">phi-4-multimodal-instruct</code>, <code className="text-zinc-600 dark:text-zinc-400">qwen3.6-27b</code>, <code className="text-zinc-600 dark:text-zinc-400">step-3.7-flash</code></p>
                       </div>
                     )}
 
@@ -821,6 +820,8 @@ console.log(data.text);`,
                             { id: 'minimax-m3', label: 'MiniMax M3' },
                             { id: 'step-3.7-flash', label: 'Step 3.7 Flash' },
                             { id: 'nemotron-3-ultra-550b-a55b', label: 'Nemotron 3 Ultra' },
+                            { id: 'gpt-oss-120b', label: 'GPT-OSS 120B' },
+                            { id: 'deepseek-v4-flash', label: 'DeepSeek V4 Flash' },
                           ].map(({ id, label }) => (
                             <div key={id} className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
                               <p className="text-xs font-semibold text-zinc-900 dark:text-white">{label}</p>
@@ -927,7 +928,7 @@ while (true) {
                         <Param name="max_tokens" required type="number" desc="Maximum tokens to generate. Required by Anthropic SDK." />
                         <Param name="system" type="string" desc="System prompt — passed as a separate field, not inside messages." />
                         <Param name="temperature" type="number" desc="Sampling temperature 0–2. Default: 0.8" />
-                        <Param name="stream" type="boolean" desc="Streaming via native Anthropic SSE events (message_start, content_block_delta, message_stop). Default: false. Supported only on: kimi-k2.6, mistral-large-3-675b-instruct, minimax-m3, step-3.7-flash, nemotron-3-ultra-550b-a55b" />
+                        <Param name="stream" type="boolean" desc="Streaming via native Anthropic SSE events (message_start, content_block_delta, message_stop). Default: false. Supported only on: kimi-k2.6, mistral-large-3-675b-instruct, minimax-m3, step-3.7-flash, nemotron-3-ultra-550b-a55b, gpt-oss-120b, deepseek-v4-flash" />
                       </div>
                     )}
 
@@ -982,6 +983,8 @@ while (true) {
                             { id: 'minimax-m3', label: 'MiniMax M3' },
                             { id: 'step-3.7-flash', label: 'Step 3.7 Flash' },
                             { id: 'nemotron-3-ultra-550b-a55b', label: 'Nemotron 3 Ultra' },
+                            { id: 'gpt-oss-120b', label: 'GPT-OSS 120B' },
+                            { id: 'deepseek-v4-flash', label: 'DeepSeek V4 Flash' },
                           ].map(({ id, label }) => (
                             <div key={id} className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
                               <p className="text-xs font-semibold text-zinc-900 dark:text-white">{label}</p>
