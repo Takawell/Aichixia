@@ -82,6 +82,15 @@ function getTimeSince(date: Date) {
   return `${Math.floor(m / 60)}h`;
 }
 
+function VerifiedBadge({ size = 12 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 22 22" style={{ flexShrink:0 }}>
+      <path fill="#1d9bf0" d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.084-1.245-1.439C12.275.215 11.646.017 11 0c-.646.017-1.275.215-1.816.57-.54.354-.972.852-1.246 1.438-.607-.223-1.264-.27-1.897-.14-.634.131-1.218.437-1.687.882-.445.47-.75 1.053-.882 1.687-.13.633-.083 1.29.14 1.897-.587.274-1.084.705-1.439 1.246C.215 8.725.017 9.354 0 10c.017.646.215 1.275.57 1.816.354.54.852.972 1.438 1.246-.223.607-.27 1.264-.14 1.897.131.634.437 1.218.882 1.687.47.445 1.053.75 1.687.882.633.13 1.29.083 1.897-.14.274.587.705 1.084 1.246 1.439.54.354 1.17.552 1.816.569.646-.017 1.275-.215 1.816-.57.54-.354.972-.852 1.246-1.438.607.223 1.264.27 1.897.14.634-.131 1.218-.437 1.687-.882.445-.47.75-1.053.882-1.687.13-.633.083-1.29-.14-1.897.587-.274 1.084-.705 1.439-1.246.354-.54.552-1.17.569-1.816Z" transform="translate(0 1)" />
+      <path fill="#fff" d="M9.34 14.5 5.5 10.66l1.32-1.32 2.52 2.52 5.32-5.32 1.32 1.32-6.64 6.64Z" />
+    </svg>
+  );
+}
+
 function SLabel({ children }: { children: React.ReactNode }) {
   return (
     <div style={{ display:'flex', alignItems:'center', gap:10 }}>
@@ -245,6 +254,7 @@ function UserRow({ user, index, onClick }: {
           <p className="text-zinc-800 dark:text-white" style={{ fontSize:11, fontWeight:700, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis', flex:1, minWidth:0 }}>
             {user.display_name || user.email}
           </p>
+          {user.is_admin && <VerifiedBadge size={12} />}
           <span style={{ fontSize:8, fontWeight:700, letterSpacing:'0.06em', textTransform:'uppercase', padding:'1px 5px', borderRadius:99, background: soft, color: text, border:`1px solid ${border}`, flexShrink:0 }}>
             {cfg.label}
           </span>
@@ -365,7 +375,10 @@ function UserDetailModal({ user, onClose }: {
                   </div>
               }
               <div style={{ minWidth:0 }}>
-                <p className="text-zinc-900 dark:text-white" style={{ fontSize:14, fontWeight:800, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{user.display_name || user.email}</p>
+                <div style={{ display:'flex', alignItems:'center', gap:5, minWidth:0 }}>
+                  <p className="text-zinc-900 dark:text-white" style={{ fontSize:14, fontWeight:800, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{user.display_name || user.email}</p>
+                  {user.is_admin && <VerifiedBadge size={14} />}
+                </div>
                 <p className="text-zinc-400 dark:text-zinc-500" style={{ fontSize:11, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{user.email}</p>
               </div>
             </div>
