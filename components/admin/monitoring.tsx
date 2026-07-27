@@ -251,10 +251,13 @@ function UserRow({ user, index, onClick }: {
       }
       <div style={{ flex:1, minWidth:0, overflow:'hidden' }}>
         <div style={{ display:'flex', alignItems:'center', gap:4, marginBottom:2, minWidth:0 }}>
-          <p className="text-zinc-800 dark:text-white" style={{ fontSize:11, fontWeight:700, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis', flex:1, minWidth:0 }}>
-            {user.display_name || user.email}
-          </p>
-          {user.is_admin && <VerifiedBadge size={12} />}
+          <span style={{ display:'inline-flex', alignItems:'center', gap:3, minWidth:0, overflow:'hidden' }}>
+            <p className="text-zinc-800 dark:text-white" style={{ fontSize:11, fontWeight:700, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis', minWidth:0 }}>
+              {user.display_name || user.email}
+            </p>
+            {user.is_admin && <VerifiedBadge size={12} />}
+          </span>
+          <span style={{ flex:1 }} />
           <span style={{ fontSize:8, fontWeight:700, letterSpacing:'0.06em', textTransform:'uppercase', padding:'1px 5px', borderRadius:99, background: soft, color: text, border:`1px solid ${border}`, flexShrink:0 }}>
             {cfg.label}
           </span>
