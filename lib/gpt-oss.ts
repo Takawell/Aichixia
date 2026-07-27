@@ -1,5 +1,4 @@
 import OpenAI from "openai";
-import type { Stream } from "openai/streaming";
 
 export type Role = "user" | "assistant" | "system";
 
@@ -88,7 +87,6 @@ export async function streamGptOss(
   opts?: {
     temperature?: number;
     maxTokens?: number;
-    enableSearch?: boolean;
   }
 ): Promise<ReadableStream<Uint8Array>> {
   if (!GROQ_API_KEY) {
@@ -113,28 +111,16 @@ export async function streamGptOss(
       };
 
       try {
-        const streamResponse: Stream<OpenAI.Chat.Completions.ChatCompletionChunk> = opts?.enableSearch !== false
-          ? await client.chat.completions.create({
-              model: GROQ_MODEL_OSS,
-              messages: history.map((m) => ({
-                role: m.role,
-                content: m.content,
-              })),
-              temperature: opts?.temperature ?? 0.8,
-              max_tokens: opts?.maxTokens ?? 4096,
-              tools: [{ type: "browser_search" }],
-              stream: true,
-            } as any)
-          : await client.chat.completions.create({
-              model: GROQ_MODEL_OSS,
-              messages: history.map((m) => ({
-                role: m.role,
-                content: m.content,
-              })),
-              temperature: opts?.temperature ?? 0.8,
-              max_tokens: opts?.maxTokens ?? 4096,
-              stream: true,
-            } as any);
+        const streamResponse = await client.chat.completions.create({
+          model: GROQ_MODEL_OSS,
+          messages: history.map((m) => ({
+            role: m.role,
+            content: m.content,
+          })),
+          temperature: opts?.temperature ?? 0.8,
+          max_tokens: opts?.maxTokens ?? 4096,
+          stream: true,
+        });
 
         for await (const chunk of streamResponse) {
           const delta = chunk.choices[0]?.delta?.content;
@@ -182,7 +168,6 @@ export async function quickChatGptOss(
   }
 
   hist.push({ role: "user", content: userMessage });
-
   const { reply } = await chatGptOss(hist, {
     temperature: opts?.temperature,
     maxTokens: opts?.maxTokens,
