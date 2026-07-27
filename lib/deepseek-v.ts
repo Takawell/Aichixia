@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import type { Stream } from "openai/streaming";
 
 export type Role = "user" | "assistant" | "system";
 
@@ -107,7 +108,7 @@ export async function streamDeepSeekV(
       };
 
       try {
-        const requestBody: any = {
+        const streamResponse: Stream<OpenAI.Chat.Completions.ChatCompletionChunk> = await client.chat.completions.create({
           model: DEEPSEEK_V_MODEL,
           messages: history.map((m) => ({
             role: m.role,
@@ -120,9 +121,7 @@ export async function streamDeepSeekV(
             thinking: opts?.enableThinking ?? false,
           },
           stream: true,
-        };
-
-        const streamResponse = await client.chat.completions.create(requestBody);
+        } as any);
 
         for await (const chunk of streamResponse) {
           const delta = chunk.choices[0]?.delta?.content;
