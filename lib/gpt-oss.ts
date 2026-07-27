@@ -53,7 +53,7 @@ export async function chatGptOss(
         content: m.content,
       })),
       temperature: opts?.temperature ?? 0.8,
-      max_tokens: opts?.maxTokens ?? 12096,
+      max_tokens: opts?.maxTokens ?? 4096,
     };
 
     if (opts?.enableSearch !== false) {
@@ -112,22 +112,28 @@ export async function streamGptOss(
       };
 
       try {
-        const requestBody: any = {
-          model: GROQ_MODEL_OSS,
-          messages: history.map((m) => ({
-            role: m.role,
-            content: m.content,
-          })),
-          temperature: opts?.temperature ?? 0.8,
-          max_tokens: opts?.maxTokens ?? 8096,
-          stream: true,
-        };
-
-        if (opts?.enableSearch !== false) {
-          requestBody.tools = [{ type: "browser_search" }];
-        }
-
-        const streamResponse = await client.chat.completions.create(requestBody);
+        const streamResponse = opts?.enableSearch !== false
+          ? await client.chat.completions.create({
+              model: GROQ_MODEL_OSS,
+              messages: history.map((m) => ({
+                role: m.role,
+                content: m.content,
+              })),
+              temperature: opts?.temperature ?? 0.8,
+              max_tokens: opts?.maxTokens ?? 4096,
+              tools: [{ type: "browser_search" }],
+              stream: true,
+            } as any)
+          : await client.chat.completions.create({
+              model: GROQ_MODEL_OSS,
+              messages: history.map((m) => ({
+                role: m.role,
+                content: m.content,
+              })),
+              temperature: opts?.temperature ?? 0.8,
+              max_tokens: opts?.maxTokens ?? 4096,
+              stream: true,
+            } as any);
 
         for await (const chunk of streamResponse) {
           const delta = chunk.choices[0]?.delta?.content;
