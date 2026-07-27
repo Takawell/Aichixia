@@ -107,7 +107,7 @@ export async function streamDeepSeekV(
       };
 
       try {
-        const streamResponse = await client.chat.completions.create({
+        const requestBody: any = {
           model: DEEPSEEK_V_MODEL,
           messages: history.map((m) => ({
             role: m.role,
@@ -120,7 +120,9 @@ export async function streamDeepSeekV(
             thinking: opts?.enableThinking ?? false,
           },
           stream: true,
-        } as any);
+        };
+
+        const streamResponse = await client.chat.completions.create(requestBody);
 
         for await (const chunk of streamResponse) {
           const delta = chunk.choices[0]?.delta?.content;
