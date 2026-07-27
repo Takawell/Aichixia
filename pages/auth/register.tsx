@@ -223,20 +223,14 @@ function InputField({ type, value, onChange, placeholder, required, children, is
 }) {
   const [focused, setFocused] = useState(false);
   return (
-    <div style={{ marginBottom: 16 }}>
-      <label style={{
-        display: 'block', fontSize: 12.5, fontWeight: 600, marginBottom: 7,
-        color: dark ? 'rgba(226,232,240,0.7)' : 'rgba(15,23,42,0.65)', letterSpacing: '0.01em',
-      }}>
+    <div className="field-wrap">
+      <label className="field-label" style={{ color: dark ? 'rgba(226,232,240,0.7)' : 'rgba(15,23,42,0.65)' }}>
         {label}
       </label>
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: 8,
-        borderRadius: 13, padding: '0 14px', height: 46,
+      <div className="field-box" style={{
         background: dark ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.6)',
         border: `1.5px solid ${isError ? '#ef4444' : focused ? A : dark ? 'rgba(255,255,255,0.09)' : 'rgba(15,23,42,0.08)'}`,
         boxShadow: focused ? `0 0 0 4px ${dark ? 'rgba(14,165,233,0.14)' : 'rgba(14,165,233,0.1)'}` : 'none',
-        transition: 'border-color 0.18s ease, box-shadow 0.18s ease, background 0.3s ease',
       }}>
         <input
           type={type}
@@ -246,11 +240,8 @@ function InputField({ type, value, onChange, placeholder, required, children, is
           onChange={e => onChange(e.target.value)}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
-          style={{
-            flex: 1, height: '100%', background: 'transparent', border: 'none', outline: 'none',
-            fontSize: 14, fontWeight: 500, fontFamily: "'Inter',sans-serif",
-            color: dark ? '#f1f5f9' : '#0f172a',
-          }}
+          className="field-input"
+          style={{ color: dark ? '#f1f5f9' : '#0f172a' }}
         />
         {children}
       </div>
@@ -293,15 +284,12 @@ function PrimaryBtn({ loading, children }: { loading: boolean; children: React.R
       disabled={loading}
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
+      className="primary-btn"
       style={{
-        width: '100%', height: 46, borderRadius: 13, border: 'none', cursor: loading ? 'not-allowed' : 'pointer',
-        fontSize: 14, fontWeight: 700, color: '#fff', letterSpacing: '0.01em',
         background: `linear-gradient(135deg,${A},${A2})`,
         boxShadow: hov && !loading ? `0 8px 24px rgba(14,165,233,0.38)` : `0 4px 16px rgba(14,165,233,0.28)`,
         transform: hov && !loading ? 'translateY(-1px)' : 'translateY(0)',
         opacity: loading ? 0.7 : 1,
-        transition: 'all 0.2s cubic-bezier(0.22,1,0.36,1)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
       }}
     >
       {loading && (
@@ -324,15 +312,12 @@ function OAuthBtn({ onClick, loading, icon, label, dark }: { onClick: () => void
       disabled={loading}
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
+      className="oauth-btn"
       style={{
-        width: '100%', height: 44, borderRadius: 13, cursor: loading ? 'not-allowed' : 'pointer',
-        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9,
-        marginBottom: 10, fontSize: 13.5, fontWeight: 600,
         color: dark ? '#e2e8f0' : '#334155',
         background: hov ? (dark ? 'rgba(255,255,255,0.07)' : 'rgba(15,23,42,0.035)') : (dark ? 'rgba(255,255,255,0.035)' : 'rgba(255,255,255,0.55)'),
         border: `1.5px solid ${dark ? 'rgba(255,255,255,0.09)' : 'rgba(15,23,42,0.08)'}`,
         opacity: loading ? 0.6 : 1,
-        transition: 'all 0.18s ease',
       }}
     >
       {loading
@@ -452,34 +437,55 @@ export default function Register() {
         .shake{animation:shake 0.6s cubic-bezier(0.36,0.07,0.19,0.97) both;}
         .pop-in{animation:popIn 0.3s cubic-bezier(0.4,0,0.2,1) both;}
         .login-card{animation:cardIn 0.6s cubic-bezier(0.16,1,0.3,1) both;}
-        .left-copy{animation:fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) 0.15s both;}
+        .left-copy{animation:fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) 0.15s both;position:relative;text-align:center;padding:0 48px;margin-top:210px;}
+        .page-wrap{min-height:100vh;position:relative;display:flex;}
+        .geo-panel{flex:0 0 48%;position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+        .geo-rings{width:420px;height:420px;}
+        .geo-net{width:440px;height:300px;top:14%;}
+        .right-panel{flex:1 1 52%;display:flex;align-items:center;justify-content:center;padding:24px;position:relative;}
+        .form-card{position:relative;width:100%;max-width:400px;border-radius:24px;padding:40px 36px 32px;}
+        .icon-badge{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:15px;margin-bottom:18px;}
+        .h1-title{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;letter-spacing:-0.02em;margin-bottom:8px;}
+        .head-block{text-align:center;margin-bottom:26px;}
+        .theme-toggle-fixed{position:fixed;top:18px;right:20px;z-index:20;}
+        .field-wrap{margin-bottom:16px;}
+        .field-label{display:block;font-size:12.5px;font-weight:600;margin-bottom:7px;letter-spacing:0.01em;}
+        .field-box{display:flex;align-items:center;gap:8px;border-radius:13px;padding:0 14px;height:46px;transition:border-color 0.18s ease,box-shadow 0.18s ease,background 0.3s ease;}
+        .field-input{flex:1;height:100%;background:transparent;border:none;outline:none;font-size:14px;font-weight:500;font-family:'Inter',sans-serif;}
+        .primary-btn{width:100%;height:46px;border-radius:13px;border:none;font-size:14px;font-weight:700;color:#fff;letter-spacing:0.01em;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s cubic-bezier(0.22,1,0.36,1);}
+        .oauth-btn{width:100%;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;gap:9px;margin-bottom:10px;font-size:13.5px;font-weight:600;transition:all 0.18s ease;}
         input::placeholder{color:${dark ? 'rgba(226,232,240,0.32)' : 'rgba(15,23,42,0.32)'};}
         input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus{-webkit-text-fill-color:inherit;transition:background-color 9999s ease-in-out 0s;}
-        @media(max-width:480px){.login-card{padding:32px 22px !important;}}
-        @media(max-width:900px){.geo-panel{display:none !important;} .mobile-brand{display:flex !important;}}
+        @media(max-width:900px){
+          .page-wrap{flex-direction:column;}
+          .geo-panel{flex:0 0 auto;width:100%;height:150px;border-right:none !important;border-bottom:1px solid rgba(148,163,184,0.14);}
+          .geo-rings{width:260px;height:260px;}
+          .geo-net{width:280px;height:190px;top:6%;}
+          .left-copy{margin-top:0;padding:0 20px;}
+          .left-copy h2{font-size:17px !important;margin-top:4px !important;}
+          .left-copy p{display:none;}
+          .right-panel{padding:20px 16px 36px;flex:1 1 auto;}
+          .form-card{max-width:100%;padding:24px 20px 20px;border-radius:20px;}
+          .icon-badge{width:36px;height:36px;border-radius:11px;margin-bottom:8px;}
+          .h1-title{font-size:18px;margin-bottom:4px;}
+          .head-block{margin-bottom:16px;}
+          .theme-toggle-fixed{top:12px;right:12px;}
+          .field-wrap{margin-bottom:12px;}
+          .field-box{height:42px;}
+          .oauth-btn{height:41px;margin-bottom:8px;}
+        }
+        @media(max-width:420px){
+          .geo-panel{height:118px;}
+          .geo-rings{width:200px;height:200px;}
+          .geo-net{width:220px;height:150px;}
+          .form-card{padding:20px 16px 16px;}
+        }
       `}</style>
 
-      <div style={{
-        minHeight: '100vh', position: 'relative', display: 'flex',
-        background: dark ? '#05070d' : '#f4f8fc',
-        transition: 'background 0.35s ease',
-      }}>
-        <div style={{ position: 'fixed', top: 18, right: 20, zIndex: 20 }}><ThemeToggle /></div>
+      <div className="page-wrap" style={{ background: dark ? '#05070d' : '#f4f8fc', transition: 'background 0.35s ease' }}>
+        <div className="theme-toggle-fixed"><ThemeToggle /></div>
 
-        <div className="mobile-brand" style={{ display: 'none', position: 'fixed', top: 22, left: 24, zIndex: 20, alignItems: 'center' }}>
-          <span style={{
-            fontFamily: "'Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, letterSpacing: '0.14em',
-            textTransform: 'uppercase', background: `linear-gradient(135deg,${A},${A2})`,
-            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-          }}>
-            aichixia.xyz
-          </span>
-        </div>
-
-        {/* LEFT — geometric panel */}
         <div className="geo-panel" style={{
-          flex: '0 0 48%', position: 'relative', overflow: 'hidden',
-          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
           background: dark
             ? 'linear-gradient(160deg,#070b16 0%,#0a1730 55%,#050a14 100%)'
             : 'linear-gradient(160deg,#eef4fb 0%,#e3edf9 55%,#eef6f4 100%)',
@@ -505,7 +511,7 @@ export default function Register() {
             filter: 'blur(20px)', animation: 'auroraDrift2 20s ease-in-out infinite',
           }} />
 
-          <svg width="420" height="420" viewBox="0 0 420 420" style={{ position: 'absolute', opacity: dark ? 0.5 : 0.4 }}>
+          <svg className="geo-rings" viewBox="0 0 420 420" style={{ position: 'absolute', opacity: dark ? 0.5 : 0.4 }}>
             <g style={{ transformOrigin: '210px 210px', animation: 'slowSpin 40s linear infinite' }}>
               <circle cx="210" cy="210" r="168" fill="none" stroke={dark ? 'rgba(148,197,255,0.22)' : 'rgba(14,60,110,0.18)'} strokeWidth="1" strokeDasharray="2 10" strokeLinecap="round" />
             </g>
@@ -517,7 +523,7 @@ export default function Register() {
             </g>
           </svg>
 
-          <svg width="440" height="300" viewBox="0 0 440 300" style={{ position: 'absolute', top: '14%', animation: 'floatSlow 7s ease-in-out infinite' }}>
+          <svg className="geo-net" viewBox="0 0 440 300" style={{ position: 'absolute', animation: 'floatSlow 7s ease-in-out infinite' }}>
             <line x1="60" y1="60" x2="220" y2="130" stroke={dark ? 'rgba(148,197,255,0.32)' : 'rgba(14,60,110,0.22)'} strokeWidth="1.2" strokeDasharray="5 6" style={{ animation: 'dashFlow 6s linear infinite' }} />
             <line x1="220" y1="130" x2="380" y2="70" stroke={dark ? 'rgba(99,102,241,0.32)' : 'rgba(99,102,241,0.24)'} strokeWidth="1.2" strokeDasharray="5 6" style={{ animation: 'dashFlow 8s linear infinite' }} />
             <line x1="220" y1="130" x2="240" y2="250" stroke={dark ? 'rgba(14,165,233,0.32)' : 'rgba(14,165,233,0.24)'} strokeWidth="1.2" strokeDasharray="5 6" style={{ animation: 'dashFlow 7s linear infinite' }} />
@@ -529,14 +535,7 @@ export default function Register() {
             <circle cx="90" cy="220" r="4.5" fill={A} style={{ animation: 'nodePulse 3s ease-in-out 1.6s infinite' }} />
           </svg>
 
-          <div style={{ position: 'absolute', top: '18%', right: '14%', animation: 'floatSlow2 8s ease-in-out infinite' }}>
-            <svg width="54" height="54" viewBox="0 0 54 54"><rect x="4" y="4" width="46" height="46" rx="12" fill="none" stroke={dark ? 'rgba(148,197,255,0.3)' : 'rgba(14,60,110,0.22)'} strokeWidth="1.4" /></svg>
-          </div>
-          <div style={{ position: 'absolute', bottom: '22%', left: '12%', animation: 'floatSlow 9s ease-in-out infinite' }}>
-            <svg width="40" height="40" viewBox="0 0 40 40"><polygon points="20,3 37,32 3,32" fill="none" stroke={dark ? 'rgba(14,165,233,0.35)' : 'rgba(14,165,233,0.3)'} strokeWidth="1.4" /></svg>
-          </div>
-
-          <div className="left-copy" style={{ position: 'relative', textAlign: 'center', padding: '0 48px', marginTop: 210 }}>
+          <div className="left-copy">
             <span style={{
               fontFamily: "'Space Grotesk',sans-serif", fontSize: 13, fontWeight: 700, letterSpacing: '0.16em',
               textTransform: 'uppercase', background: `linear-gradient(135deg,${A},${A2})`,
@@ -556,153 +555,139 @@ export default function Register() {
           </div>
         </div>
 
-        {/* RIGHT — register form */}
-        <div style={{
-          flex: '1 1 52%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-          padding: '24px', position: 'relative',
-        }}>
-
-        <div
-          ref={cardRef}
-          className={`login-card ${shaking ? 'shake' : ''}`}
-          style={{
-            position: 'relative', width: '100%', maxWidth: 400, borderRadius: 24,
-            padding: '40px 36px 32px',
-            background: dark ? 'rgba(255,255,255,0.045)' : 'rgba(255,255,255,0.55)',
-            border: `1px solid ${dark ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.7)'}`,
-            boxShadow: dark
-              ? '0 24px 70px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.06)'
-              : '0 24px 70px rgba(15,23,42,0.12), inset 0 1px 0 rgba(255,255,255,0.9)',
-            backdropFilter: 'blur(28px)', WebkitBackdropFilter: 'blur(28px)',
-          }}
-        >
-          <div style={{ textAlign: 'center', marginBottom: 26 }}>
-            <div style={{
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-              width: 48, height: 48, borderRadius: 15, marginBottom: 18,
-              background: `linear-gradient(135deg,${A},${A2})`,
-              boxShadow: `0 8px 22px rgba(14,165,233,0.35)`,
-            }}>
-              <svg viewBox="0 0 32 32" width="22" height="22" fill="none">
-                <polygon points="16,3 29,26 3,26" stroke="white" strokeWidth="2.5" fill="none" strokeLinejoin="round" />
-                <polygon points="16,10 24,24 8,24" fill="white" opacity="0.3" />
-              </svg>
+        <div className="right-panel">
+          <div
+            ref={cardRef}
+            className={`login-card form-card ${shaking ? 'shake' : ''}`}
+            style={{
+              background: dark ? 'rgba(255,255,255,0.045)' : 'rgba(255,255,255,0.55)',
+              border: `1px solid ${dark ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.7)'}`,
+              boxShadow: dark
+                ? '0 24px 70px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.06)'
+                : '0 24px 70px rgba(15,23,42,0.12), inset 0 1px 0 rgba(255,255,255,0.9)',
+              backdropFilter: 'blur(28px)', WebkitBackdropFilter: 'blur(28px)',
+            }}
+          >
+            <div className="head-block">
+              <div className="icon-badge" style={{
+                background: `linear-gradient(135deg,${A},${A2})`,
+                boxShadow: `0 8px 22px rgba(14,165,233,0.35)`,
+              }}>
+                <svg viewBox="0 0 32 32" width="22" height="22" fill="none">
+                  <polygon points="16,3 29,26 3,26" stroke="white" strokeWidth="2.5" fill="none" strokeLinejoin="round" />
+                  <polygon points="16,10 24,24 8,24" fill="white" opacity="0.3" />
+                </svg>
+              </div>
+              <h1 className="h1-title" style={{ color: dark ? '#f1f5f9' : '#0f172a' }}>Create your account</h1>
+              <p style={{ fontSize: 13.5, color: sub, fontWeight: 500 }}>Start building with 20+ AI models</p>
             </div>
-            <h1 style={{
-              fontFamily: "'Space Grotesk',sans-serif", fontSize: 24, fontWeight: 700,
-              color: dark ? '#f1f5f9' : '#0f172a', letterSpacing: '-0.02em', marginBottom: 8,
-            }}>
-              Create your account
-            </h1>
-            <p style={{ fontSize: 13.5, color: sub, fontWeight: 500 }}>Start building with 20+ AI models</p>
-          </div>
 
-          {error && (
-            <div className="pop-in" style={{
-              marginBottom: 16, padding: '11px 14px', borderRadius: 12, display: 'flex', alignItems: 'flex-start', gap: 9,
-              background: dark ? 'rgba(248,113,113,0.1)' : '#fef2f2',
-              border: `1px solid ${dark ? 'rgba(248,113,113,0.28)' : '#fecaca'}`,
-            }}>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, marginTop: 1 }}>
-                <circle cx="12" cy="12" r="10" stroke="#f87171" strokeWidth="1.5" /><path d="M12 8v4m0 4h.01" stroke="#f87171" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-              <span style={{ fontSize: 12, color: '#ef4444', lineHeight: 1.45 }}>{error}</span>
-            </div>
-          )}
-
-          {success && (
-            <div className="pop-in" style={{
-              marginBottom: 16, padding: '11px 14px', borderRadius: 12, display: 'flex', alignItems: 'center', gap: 9,
-              background: dark ? 'rgba(74,222,128,0.1)' : '#f0fdf4',
-              border: `1px solid ${dark ? 'rgba(74,222,128,0.28)' : '#bbf7d0'}`,
-            }}>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="10" stroke="#4ade80" strokeWidth="1.5" /><path d="M8 12l3 3 5-5" stroke="#4ade80" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-              <span style={{ fontSize: 12, color: dark ? '#4ade80' : '#16a34a' }}>{success}</span>
-            </div>
-          )}
-
-          <OAuthBtn onClick={handleGoogleSignup} loading={googleLoading} icon={<GoogleIcon />} label="Sign up with Google" dark={dark} />
-          <OAuthBtn onClick={handleGithubSignup} loading={githubLoading} icon={<GitHubIcon dark={dark} />} label="Sign up with GitHub" dark={dark} />
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, marginTop: 6 }}>
-            <div style={{ flex: 1, height: 1, background: divider }} />
-            <span style={{ fontSize: 11, color: sub, fontWeight: 600, letterSpacing: '0.05em' }}>OR SIGN UP WITH EMAIL</span>
-            <div style={{ flex: 1, height: 1, background: divider }} />
-          </div>
-
-          <form onSubmit={handleRegister}>
-            <InputField type="email" label="Email" value={email} onChange={setEmail} placeholder="you@example.com" required isError={!!error} dark={dark} />
-
-            <InputField type={showPassword ? 'text' : 'password'} label="Password" value={password} onChange={setPassword} placeholder="Min. 6 characters" required isError={!!error} dark={dark}>
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                style={{
-                  background: 'none', border: 'none', cursor: 'pointer', padding: 4,
-                  display: 'flex', alignItems: 'center', color: dark ? 'rgba(226,232,240,0.4)' : 'rgba(15,23,42,0.35)',
-                  transition: 'color 0.18s',
-                }}
-                onMouseOver={e => (e.currentTarget.style.color = A)}
-                onMouseOut={e => (e.currentTarget.style.color = dark ? 'rgba(226,232,240,0.4)' : 'rgba(15,23,42,0.35)')}
-              >
-                {showPassword
-                  ? <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" /><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" /><line x1="1" y1="1" x2="23" y2="23" /></svg>
-                  : <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
-                }
-              </button>
-            </InputField>
-
-            <PasswordStrength password={password} dark={dark} />
-
-            <InputField
-              type={showConfirmPassword ? 'text' : 'password'} label="Confirm password" value={confirmPassword} onChange={setConfirmPassword}
-              placeholder="Re-enter your password" required
-              isError={!!error || (confirmPassword.length > 0 && password !== confirmPassword)}
-              dark={dark}
-            >
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                style={{
-                  background: 'none', border: 'none', cursor: 'pointer', padding: 4,
-                  display: 'flex', alignItems: 'center', color: dark ? 'rgba(226,232,240,0.4)' : 'rgba(15,23,42,0.35)',
-                  transition: 'color 0.18s',
-                }}
-                onMouseOver={e => (e.currentTarget.style.color = A)}
-                onMouseOut={e => (e.currentTarget.style.color = dark ? 'rgba(226,232,240,0.4)' : 'rgba(15,23,42,0.35)')}
-              >
-                {showConfirmPassword
-                  ? <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" /><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" /><line x1="1" y1="1" x2="23" y2="23" /></svg>
-                  : <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
-                }
-              </button>
-            </InputField>
-
-            {confirmPassword.length > 0 && password !== confirmPassword && (
-              <p style={{ fontSize: 12, color: '#f87171', marginTop: -8, marginBottom: 12, paddingLeft: 2 }}>Passwords do not match</p>
-            )}
-            {confirmPassword.length > 0 && password === confirmPassword && confirmPassword.length >= 6 && (
-              <p style={{ fontSize: 12, color: '#4ade80', marginTop: -8, marginBottom: 12, paddingLeft: 2 }}>✓ Passwords match</p>
+            {error && (
+              <div className="pop-in" style={{
+                marginBottom: 16, padding: '11px 14px', borderRadius: 12, display: 'flex', alignItems: 'flex-start', gap: 9,
+                background: dark ? 'rgba(248,113,113,0.1)' : '#fef2f2',
+                border: `1px solid ${dark ? 'rgba(248,113,113,0.28)' : '#fecaca'}`,
+              }}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, marginTop: 1 }}>
+                  <circle cx="12" cy="12" r="10" stroke="#f87171" strokeWidth="1.5" /><path d="M12 8v4m0 4h.01" stroke="#f87171" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+                <span style={{ fontSize: 12, color: '#ef4444', lineHeight: 1.45 }}>{error}</span>
+              </div>
             )}
 
-            <PrimaryBtn loading={loading}>{loading ? 'Creating account...' : 'Create Account'}</PrimaryBtn>
-          </form>
+            {success && (
+              <div className="pop-in" style={{
+                marginBottom: 16, padding: '11px 14px', borderRadius: 12, display: 'flex', alignItems: 'center', gap: 9,
+                background: dark ? 'rgba(74,222,128,0.1)' : '#f0fdf4',
+                border: `1px solid ${dark ? 'rgba(74,222,128,0.28)' : '#bbf7d0'}`,
+              }}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" stroke="#4ade80" strokeWidth="1.5" /><path d="M8 12l3 3 5-5" stroke="#4ade80" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <span style={{ fontSize: 12, color: dark ? '#4ade80' : '#16a34a' }}>{success}</span>
+              </div>
+            )}
 
-          <p style={{ textAlign: 'center', fontSize: 13, color: sub, marginTop: 18, fontWeight: 500 }}>
-            Already have an account?{' '}
-            <Link href="/auth/login" style={{ color: A, fontWeight: 700, textDecoration: 'none' }} onMouseOver={e => ((e.target as HTMLElement).style.textDecoration = 'underline')} onMouseOut={e => ((e.target as HTMLElement).style.textDecoration = 'none')}>
-              Sign in
-            </Link>
-          </p>
-          <p style={{ textAlign: 'center', fontSize: 11, color: dark ? 'rgba(226,232,240,0.32)' : 'rgba(15,23,42,0.32)', marginTop: 16, lineHeight: 1.7 }}>
-            By creating an account, you agree to our{' '}
-            <a href="/terms" style={{ color: A, textDecoration: 'none', fontWeight: 500 }} onMouseOver={e => (e.currentTarget.style.textDecoration = 'underline')} onMouseOut={e => (e.currentTarget.style.textDecoration = 'none')}>Terms of Service</a>
-            {' '}and{' '}
-            <a href="/privacy" style={{ color: A, textDecoration: 'none', fontWeight: 500 }} onMouseOver={e => (e.currentTarget.style.textDecoration = 'underline')} onMouseOut={e => (e.currentTarget.style.textDecoration = 'none')}>Privacy Policy</a>
-          </p>
-        </div>
+            <OAuthBtn onClick={handleGoogleSignup} loading={googleLoading} icon={<GoogleIcon />} label="Sign up with Google" dark={dark} />
+            <OAuthBtn onClick={handleGithubSignup} loading={githubLoading} icon={<GitHubIcon dark={dark} />} label="Sign up with GitHub" dark={dark} />
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, marginTop: 6 }}>
+              <div style={{ flex: 1, height: 1, background: divider }} />
+              <span style={{ fontSize: 11, color: sub, fontWeight: 600, letterSpacing: '0.05em' }}>OR SIGN UP WITH EMAIL</span>
+              <div style={{ flex: 1, height: 1, background: divider }} />
+            </div>
+
+            <form onSubmit={handleRegister}>
+              <InputField type="email" label="Email" value={email} onChange={setEmail} placeholder="you@example.com" required isError={!!error} dark={dark} />
+
+              <InputField type={showPassword ? 'text' : 'password'} label="Password" value={password} onChange={setPassword} placeholder="Min. 6 characters" required isError={!!error} dark={dark}>
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    background: 'none', border: 'none', cursor: 'pointer', padding: 4,
+                    display: 'flex', alignItems: 'center', color: dark ? 'rgba(226,232,240,0.4)' : 'rgba(15,23,42,0.35)',
+                    transition: 'color 0.18s',
+                  }}
+                  onMouseOver={e => (e.currentTarget.style.color = A)}
+                  onMouseOut={e => (e.currentTarget.style.color = dark ? 'rgba(226,232,240,0.4)' : 'rgba(15,23,42,0.35)')}
+                >
+                  {showPassword
+                    ? <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" /><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" /><line x1="1" y1="1" x2="23" y2="23" /></svg>
+                    : <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
+                  }
+                </button>
+              </InputField>
+
+              <PasswordStrength password={password} dark={dark} />
+
+              <InputField
+                type={showConfirmPassword ? 'text' : 'password'} label="Confirm password" value={confirmPassword} onChange={setConfirmPassword}
+                placeholder="Re-enter your password" required
+                isError={!!error || (confirmPassword.length > 0 && password !== confirmPassword)}
+                dark={dark}
+              >
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  style={{
+                    background: 'none', border: 'none', cursor: 'pointer', padding: 4,
+                    display: 'flex', alignItems: 'center', color: dark ? 'rgba(226,232,240,0.4)' : 'rgba(15,23,42,0.35)',
+                    transition: 'color 0.18s',
+                  }}
+                  onMouseOver={e => (e.currentTarget.style.color = A)}
+                  onMouseOut={e => (e.currentTarget.style.color = dark ? 'rgba(226,232,240,0.4)' : 'rgba(15,23,42,0.35)')}
+                >
+                  {showConfirmPassword
+                    ? <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" /><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" /><line x1="1" y1="1" x2="23" y2="23" /></svg>
+                    : <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
+                  }
+                </button>
+              </InputField>
+
+              {confirmPassword.length > 0 && password !== confirmPassword && (
+                <p style={{ fontSize: 12, color: '#f87171', marginTop: -8, marginBottom: 12, paddingLeft: 2 }}>Passwords do not match</p>
+              )}
+              {confirmPassword.length > 0 && password === confirmPassword && confirmPassword.length >= 6 && (
+                <p style={{ fontSize: 12, color: '#4ade80', marginTop: -8, marginBottom: 12, paddingLeft: 2 }}>✓ Passwords match</p>
+              )}
+
+              <PrimaryBtn loading={loading}>{loading ? 'Creating account...' : 'Create Account'}</PrimaryBtn>
+            </form>
+
+            <p style={{ textAlign: 'center', fontSize: 13, color: sub, marginTop: 18, fontWeight: 500 }}>
+              Already have an account?{' '}
+              <Link href="/auth/login" style={{ color: A, fontWeight: 700, textDecoration: 'none' }} onMouseOver={e => ((e.target as HTMLElement).style.textDecoration = 'underline')} onMouseOut={e => ((e.target as HTMLElement).style.textDecoration = 'none')}>
+                Sign in
+              </Link>
+            </p>
+            <p style={{ textAlign: 'center', fontSize: 11, color: dark ? 'rgba(226,232,240,0.32)' : 'rgba(15,23,42,0.32)', marginTop: 16, lineHeight: 1.7 }}>
+              By creating an account, you agree to our{' '}
+              <a href="/terms" style={{ color: A, textDecoration: 'none', fontWeight: 500 }} onMouseOver={e => (e.currentTarget.style.textDecoration = 'underline')} onMouseOut={e => (e.currentTarget.style.textDecoration = 'none')}>Terms of Service</a>
+              {' '}and{' '}
+              <a href="/privacy" style={{ color: A, textDecoration: 'none', fontWeight: 500 }} onMouseOver={e => (e.currentTarget.style.textDecoration = 'underline')} onMouseOut={e => (e.currentTarget.style.textDecoration = 'none')}>Privacy Policy</a>
+            </p>
+          </div>
         </div>
       </div>
     </>
