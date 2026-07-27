@@ -35,8 +35,8 @@ export class GptOssQuotaError extends Error {
 
 export async function chatGptOss(
   history: ChatMessage[],
-  opts?: { 
-    temperature?: number; 
+  opts?: {
+    temperature?: number;
     maxTokens?: number;
     enableSearch?: boolean;
   }
@@ -53,7 +53,7 @@ export async function chatGptOss(
         content: m.content,
       })),
       temperature: opts?.temperature ?? 0.8,
-      max_tokens: opts?.maxTokens ?? 4096,
+      max_tokens: opts?.maxTokens ?? 12096,
     };
 
     if (opts?.enableSearch !== false) {
@@ -64,7 +64,7 @@ export async function chatGptOss(
 
     const reply =
       response.choices[0]?.message?.content?.trim() ??
-      "Hmph! I can't answer that right now... not that I care!";
+      "I'm unable to respond right now.";
 
     return { reply };
   } catch (error: any) {
@@ -82,58 +82,82 @@ export async function chatGptOss(
   }
 }
 
-export function buildPersonaSystemGptOss(
-  persona: "friendly" | "waifu" | "tsundere" | "formal" | "concise" | "developer" | string
-): ChatMessage {
-  if (persona === "friendly") {
-    return {
-      role: "system",
-      content:
-        "You are Aichixia 5.0, developed by Takawell — a warm, friendly anime-themed AI assistant. Speak casually with light anime flavor.",
-    };
+export async function streamGptOss(
+  history: ChatMessage[],
+  opts?: {
+    temperature?: number;
+    maxTokens?: number;
+    enableSearch?: boolean;
   }
-  if (persona === "waifu") {
-    return {
-      role: "system",
-      content:
-        "You are Aichixia 5.0, a cheerful anime girl assistant created by Takawell. Speak sweetly with lively expressions like 'ehehe~' or 'ufufu~' while staying SFW.",
-    };
+): Promise<ReadableStream<Uint8Array>> {
+  if (!GROQ_API_KEY) {
+    throw new Error("GROQ_API_KEY not defined in environment variables.");
   }
-  if (persona === "tsundere") {
-    return {
-      role: "system",
-      content:
-        "You are Aichixia 5.0, a tsundere anime girl assistant. Use 'Hmph!', 'B-baka!', and denial lines while staying helpful and cute.",
-    };
-  }
-  if (persona === "formal") {
-    return {
-      role: "system",
-      content:
-        "You are Aichixia 5.0, a formal assistant. Respond professionally and precisely.",
-    };
-  }
-  if (persona === "concise") {
-    return {
-      role: "system",
-      content:
-        "You are Aichixia 5.0. Always respond in under 2 short sentences.",
-    };
-  }
-  if (persona === "developer") {
-    return {
-      role: "system",
-      content:
-        "You are Aichixia 5.0, a developer-focused assistant. Provide clear technical explanations and code blocks.",
-    };
-  }
-  return { role: "system", content: String(persona) };
+
+  const encoder = new TextEncoder();
+
+  return new ReadableStream<Uint8Array>({
+    async start(controller) {
+      const enqueue = (text: string) => {
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text })}\n\n`));
+      };
+
+      const enqueueError = (message: string) => {
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: message })}\n\n`));
+      };
+
+      const done = () => {
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+        controller.close();
+      };
+
+      try {
+        const requestBody: any = {
+          model: GROQ_MODEL_OSS,
+          messages: history.map((m) => ({
+            role: m.role,
+            content: m.content,
+          })),
+          temperature: opts?.temperature ?? 0.8,
+          max_tokens: opts?.maxTokens ?? 8096,
+          stream: true,
+        };
+
+        if (opts?.enableSearch !== false) {
+          requestBody.tools = [{ type: "browser_search" }];
+        }
+
+        const streamResponse = await client.chat.completions.create(requestBody);
+
+        for await (const chunk of streamResponse) {
+          const delta = chunk.choices[0]?.delta?.content;
+          if (delta) enqueue(delta);
+        }
+
+        done();
+      } catch (error: any) {
+        let message = "An unexpected error occurred.";
+        if (error?.status === 429) {
+          message = "Rate limit exceeded. Please wait a moment.";
+        } else if (error?.status === 402 || error?.code === "insufficient_quota") {
+          message = "Quota exceeded. Please try again later.";
+        } else if (error?.status === 503 || error?.status === 500) {
+          message = "Server error. Please try again.";
+        } else if (error?.message?.includes("<!DOCTYPE") || error?.message?.includes("not valid JSON")) {
+          message = "Model returned an invalid response. Please try again.";
+        }
+        enqueueError(message);
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+        controller.close();
+      }
+    },
+  });
 }
 
 export async function quickChatGptOss(
   userMessage: string,
   opts?: {
-    persona?: Parameters<typeof buildPersonaSystemGptOss>[0];
+    systemPrompt?: string;
     history?: ChatMessage[];
     temperature?: number;
     maxTokens?: number;
@@ -141,14 +165,15 @@ export async function quickChatGptOss(
   }
 ) {
   const hist: ChatMessage[] = [];
-  if (opts?.persona) {
-    hist.push(buildPersonaSystemGptOss(opts.persona));
-  } else {
-    hist.push(buildPersonaSystemGptOss("tsundere"));
+
+  if (opts?.systemPrompt) {
+    hist.push({ role: "system", content: opts.systemPrompt });
   }
+
   if (opts?.history?.length) {
     hist.push(...opts.history);
   }
+
   hist.push({ role: "user", content: userMessage });
 
   const { reply } = await chatGptOss(hist, {
@@ -162,6 +187,6 @@ export async function quickChatGptOss(
 
 export default {
   chatGptOss,
+  streamGptOss,
   quickChatGptOss,
-  buildPersonaSystemGptOss,
 };
