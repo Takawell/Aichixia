@@ -42,7 +42,6 @@ export default function Docs() {
     setIsDark(newTheme);
     localStorage.setItem('theme', newTheme ? 'dark' : 'light');
   };
-
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDark);
   }, [isDark]);
@@ -558,7 +557,7 @@ console.log(data.text);`,
                 API <span className="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">Reference</span>
               </h1>
               <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
-                Complete guide to integrating Aichixia's AI models. Chat, images, voice, and more — all through one unified API.
+                Complete guide to integrating Aichixia's AI models. Chat, images, voice, and more all through one unified API.
               </p>
               <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap pt-1">
                 {['OpenAI Compatible', 'Anthropic Compatible', 'Image Generation', 'Text-to-Speech', 'Speech-to-Text'].map((tag, i) => (
@@ -1370,7 +1369,7 @@ const message = await stream.finalMessage();`}
                         <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">json / text</p>
                         <div className="rounded-lg bg-zinc-100 dark:bg-zinc-900 overflow-hidden">
                           <SyntaxHighlighter language="json" style={isDark ? oneDark : oneLight} customStyle={{ margin: 0, padding: '12px', background: 'transparent', fontSize: '11px' }}>
-{`{ "text": "Hello, this is the transcribed text." }`}
+                            {`{ "text": "Hello, this is the transcribed text." }`}
                           </SyntaxHighlighter>
                         </div>
                         <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">verbose_json — includes segments with timestamps</p>
