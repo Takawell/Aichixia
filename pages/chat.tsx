@@ -8,6 +8,7 @@ import {
   FiChevronDown, FiCheck, FiCopy, FiArrowLeft, FiMessageSquare, FiLogOut,
   FiSearch, FiCode, FiMaximize2, FiMinimize2, FiExternalLink, FiEdit3,
   FiBookOpen, FiHome, FiArrowUp, FiStopCircle, FiRefreshCw, FiThumbsUp, FiThumbsDown,
+  FiEye, FiTerminal, FiDownload,
 } from 'react-icons/fi';
 import {
   SiAnthropic, SiAlibabacloud, SiMaze, SiDigikeyelectronics, SiAirbrake,
@@ -98,11 +99,13 @@ type Artifact = {
 const STORAGE_KEY = 'aichixia_chat_sessions';
 const API_KEY_STORAGE_KEY = 'aichixia_chat_api_key';
 
+const PREVIEWABLE_LANGS = ['html', 'xml', 'svg'];
+
 const quickActions = [
-  { id: 'write', label: 'Write', icon: FiEdit3 },
-  { id: 'learn', label: 'Learn', icon: FiBookOpen },
-  { id: 'code', label: 'Code', icon: FiCode },
-  { id: 'life', label: 'Life stuff', icon: FiHome },
+  { id: 'write', label: 'Write', icon: FiEdit3, prompt: 'Help me write ' },
+  { id: 'learn', label: 'Learn', icon: FiBookOpen, prompt: 'Explain to me how ' },
+  { id: 'code', label: 'Code', icon: FiCode, prompt: 'Write code that ' },
+  { id: 'life', label: 'Life stuff', icon: FiHome, prompt: 'Help me plan ' },
 ];
 
 function loadSessions(): ChatSession[] {
@@ -142,7 +145,7 @@ function extractArtifact(text: string): Artifact | null {
   if (!match) return null;
   const code = match[2].trim();
   if (code.split('\n').length < 6 && code.length < 200) return null;
-  return { id: genId(), title: 'Generated code', language: match[1] || 'text', code };
+  return { id: genId(), title: 'Generated code', language: (match[1] || 'text').toLowerCase(), code };
 }
 
 function getPlanInfo(settings: UserSettings | null) {
@@ -177,6 +180,7 @@ export default function ChatPage() {
   const [artifact, setArtifact] = useState<Artifact | null>(null);
   const [artifactExpanded, setArtifactExpanded] = useState(false);
   const [artifactCopied, setArtifactCopied] = useState(false);
+  const [artifactTab, setArtifactTab] = useState<'code' | 'preview'>('code');
   const abortRef = useRef<AbortController | null>(null);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -311,6 +315,15 @@ export default function ChatPage() {
     setIsSending(false);
   };
 
+  const applyQuickAction = (prompt: string) => {
+    setInput(prompt);
+    requestAnimationFrame(() => {
+      textareaRef.current?.focus();
+      const len = prompt.length;
+      textareaRef.current?.setSelectionRange(len, len);
+    });
+  };
+
   const handleSend = async (presetText?: string) => {
     const text = (presetText ?? input).trim();
     if (!text || isSending) return;
@@ -358,7 +371,10 @@ export default function ChatPage() {
       setSessions((prev) => prev.map((s) => (s.id === sessionId ? { ...s, messages: [...s.messages, assistantMsg], updatedAt: Date.now() } : s)));
 
       const found = extractArtifact(replyText);
-      if (found) setArtifact(found);
+      if (found) {
+        setArtifact(found);
+        setArtifactTab(PREVIEWABLE_LANGS.includes(found.language) ? 'preview' : 'code');
+      }
     } catch (err: any) {
       if (err?.name !== 'AbortError') setError(err?.message || 'Something went wrong. Please try again.');
     } finally {
@@ -382,9 +398,10 @@ export default function ChatPage() {
   const groupedSessions = groupByDate(filteredSessions);
   const ModelIcon = activeModel.icon;
   const hasMessages = !!activeSession && activeSession.messages.length > 0;
+  const canPreview = artifact ? PREVIEWABLE_LANGS.includes(artifact.language) : false;
 
   return (
-    <div className="h-screen w-full flex bg-zinc-50 dark:bg-zinc-950 transition-colors duration-300 overflow-hidden font-sans">
+    <div className="h-screen w-full flex bg-zinc-50 dark:bg-zinc-950 transition-colors duration-300 overflow-hidden font-sans antialiased">
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-sky-400/10 dark:bg-sky-500/10 blur-3xl" />
         <div className="absolute bottom-0 right-0 w-96 h-96 rounded-full bg-amber-400/10 dark:bg-amber-500/10 blur-3xl" />
@@ -557,9 +574,9 @@ export default function ChatPage() {
         </div>
       </aside>
 
-      <div className={`flex-1 flex min-w-0 relative transition-all duration-300 ${artifact ? 'lg:mr-[45%]' : ''}`}>
+      <div className={`flex-1 flex min-w-0 relative transition-all duration-300 ${artifact ? 'lg:mr-[46%]' : ''}`}>
         <div className="flex-1 flex flex-col min-w-0">
-          <header className="flex items-center justify-between h-14 sm:h-16 px-3 sm:px-5 border-b border-zinc-200/60 dark:border-zinc-800/60 bg-white/70 dark:bg-zinc-950/60 backdrop-blur-xl z-20">
+          <header className="flex items-center justify-between h-14 sm:h-16 px-3 sm:px-5 border-b border-zinc-200/60 dark:border-zinc-800/60 bg-white/70 dark:bg-zinc-950/60 backdrop-blur-xl z-20 flex-shrink-0">
             <div className="flex items-center gap-2 min-w-0">
               <button onClick={() => setSidebarOpen(true)} className="lg:hidden w-8 h-8 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-900 flex items-center justify-center flex-shrink-0">
                 <FiMenu className="text-zinc-600 dark:text-zinc-300" style={{ fontSize: 16 }} />
@@ -574,7 +591,7 @@ export default function ChatPage() {
                     <ModelIcon className="text-white" style={{ fontSize: 12 }} />
                   </div>
                   <span className="text-xs sm:text-sm font-bold text-zinc-800 dark:text-zinc-100 truncate max-w-[120px] sm:max-w-none">{activeModel.name}</span>
-                  <FiChevronDown className={`text-zinc-400 transition-transform duration-200 ${modelMenuOpen ? 'rotate-180' : ''}`} style={{ fontSize: 12 }} />
+                  <FiChevronDown className={`text-zinc-400 transition-transform duration-200 flex-shrink-0 ${modelMenuOpen ? 'rotate-180' : ''}`} style={{ fontSize: 12 }} />
                 </button>
 
                 {modelMenuOpen && (
@@ -613,14 +630,27 @@ export default function ChatPage() {
             <ThemeToggle />
           </header>
 
-          <div ref={scrollRef} className="flex-1 overflow-y-auto">
+          <div ref={scrollRef} className="flex-1 overflow-y-auto overflow-x-hidden min-w-0">
             {!hasMessages ? (
               <div className="h-full flex flex-col items-center justify-center px-4 text-center">
-                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center mb-6 shadow-lg shadow-sky-500/20 animate-in fade-in zoom-in-95 duration-500">
-                  <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6 sm:w-7 sm:h-7" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 3L13.8 9.2L20 11L13.8 12.8L12 19L10.2 12.8L4 11L10.2 9.2L12 3Z" fill="white" />
-                  </svg>
-                </div>
+                <svg
+                  viewBox="0 0 48 48"
+                  fill="none"
+                  className="w-11 h-11 sm:w-12 sm:h-12 mb-6 animate-in fade-in zoom-in-95 duration-500"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <defs>
+                    <linearGradient id="abstractMark" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+                      <stop offset="0%" stopColor="#0ea5e9" />
+                      <stop offset="100%" stopColor="#2563eb" />
+                    </linearGradient>
+                  </defs>
+                  <path
+                    d="M24 2C25 12 26 22 38 24C26 26 25 36 24 46C23 36 22 26 10 24C22 22 23 12 24 2Z"
+                    fill="url(#abstractMark)"
+                  />
+                  <circle cx="38" cy="10" r="3" fill="url(#abstractMark)" opacity="0.7" />
+                </svg>
 
                 <h1 className="text-2xl sm:text-4xl font-serif text-zinc-800 dark:text-zinc-100 text-center mb-8 sm:mb-10 animate-in fade-in slide-in-from-bottom-2 duration-500">
                   {getGreeting()},{' '}
@@ -632,13 +662,14 @@ export default function ChatPage() {
                   </span>
                 </h1>
 
-                <div className="flex flex-wrap items-center justify-center gap-2 animate-in fade-in slide-in-from-bottom-3 duration-500">
+                <div className="flex flex-wrap items-center justify-center gap-2 animate-in fade-in slide-in-from-bottom-3 duration-500 max-w-md">
                   {quickActions.map((a) => {
                     const Icon = a.icon;
                     return (
                       <button
                         key={a.id}
-                        className="flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-zinc-200/70 dark:border-zinc-800/70 bg-white/60 dark:bg-zinc-900/50 backdrop-blur-sm hover:bg-white dark:hover:bg-zinc-900 hover:border-zinc-300 dark:hover:border-zinc-700 text-xs font-medium text-zinc-600 dark:text-zinc-300 transition-all duration-200 active:scale-95"
+                        onClick={() => applyQuickAction(a.prompt)}
+                        className="flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-zinc-200/70 dark:border-zinc-800/70 bg-white/60 dark:bg-zinc-900/50 backdrop-blur-sm hover:bg-white dark:hover:bg-zinc-900 hover:border-sky-300 dark:hover:border-sky-700 hover:shadow-md hover:shadow-sky-500/10 text-xs font-medium text-zinc-600 dark:text-zinc-300 hover:text-sky-600 dark:hover:text-sky-400 transition-all duration-200 active:scale-95"
                       >
                         <Icon style={{ fontSize: 13 }} />
                         {a.label}
@@ -648,9 +679,9 @@ export default function ChatPage() {
                 </div>
               </div>
             ) : (
-              <div className="max-w-3xl mx-auto px-3 sm:px-6 py-6 space-y-5">
+              <div className="max-w-3xl mx-auto px-3 sm:px-6 py-6 space-y-5 min-w-0">
                 {activeSession!.messages.map((m) => (
-                  <MessageBubble key={m.id} message={m} modelIcon={ModelIcon} modelColor={activeModel.color} onViewArtifact={setArtifact} />
+                  <MessageBubble key={m.id} message={m} modelIcon={ModelIcon} modelColor={activeModel.color} onViewArtifact={(a) => { setArtifact(a); setArtifactTab(PREVIEWABLE_LANGS.includes(a.language) ? 'preview' : 'code'); }} />
                 ))}
                 {isSending && (
                   <div className="flex items-start gap-2.5 animate-in fade-in duration-200">
@@ -668,10 +699,10 @@ export default function ChatPage() {
             )}
           </div>
 
-          <div className="px-3 sm:px-6 pb-4 sm:pb-6 pt-2">
+          <div className="px-3 sm:px-6 pb-4 sm:pb-6 pt-2 flex-shrink-0">
             {error && (
               <div className="max-w-3xl mx-auto mb-2 px-3 py-2 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200/60 dark:border-red-500/20 text-[11px] sm:text-xs font-medium text-red-600 dark:text-red-400 flex items-center justify-between gap-2">
-                <span>{error}</span>
+                <span className="min-w-0 break-words">{error}</span>
                 <button onClick={() => handleSend(activeSession?.messages.slice(-1)[0]?.content)} className="flex-shrink-0 flex items-center gap-1 font-semibold hover:underline">
                   <FiRefreshCw style={{ fontSize: 10 }} />
                   Retry
@@ -692,12 +723,12 @@ export default function ChatPage() {
                 />
 
                 <div className="flex items-center justify-between mt-2 pt-1">
-                  <span className="text-[10px] text-zinc-400 dark:text-zinc-600 px-1">Shift + Enter for new line</span>
+                  <span className="text-[10px] text-zinc-400 dark:text-zinc-600 px-1 hidden sm:inline">Shift + Enter for new line</span>
 
                   {isSending ? (
                     <button
                       onClick={stopGenerating}
-                      className="w-8 h-8 rounded-lg bg-zinc-800 dark:bg-zinc-200 hover:bg-zinc-700 dark:hover:bg-white flex items-center justify-center transition-all duration-200 active:scale-90"
+                      className="w-8 h-8 rounded-lg bg-zinc-800 dark:bg-zinc-200 hover:bg-zinc-700 dark:hover:bg-white flex items-center justify-center transition-all duration-200 active:scale-90 ml-auto"
                     >
                       <FiStopCircle className="text-white dark:text-zinc-900" style={{ fontSize: 14 }} />
                     </button>
@@ -705,7 +736,7 @@ export default function ChatPage() {
                     <button
                       onClick={() => handleSend()}
                       disabled={!input.trim()}
-                      className="w-8 h-8 rounded-lg bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center transition-all duration-200 active:scale-90"
+                      className="w-8 h-8 rounded-lg bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center transition-all duration-200 active:scale-90 ml-auto"
                     >
                       <FiArrowUp className="text-white" style={{ fontSize: 14 }} />
                     </button>
@@ -724,7 +755,7 @@ export default function ChatPage() {
       {artifact && (
         <div
           className={`fixed inset-y-0 right-0 z-40 bg-white dark:bg-zinc-950 border-l border-zinc-200/70 dark:border-zinc-800/70 shadow-2xl flex flex-col transition-all duration-300 ease-out ${
-            artifactExpanded ? 'w-full' : 'w-full sm:w-[85%] lg:w-[45%]'
+            artifactExpanded ? 'w-full' : 'w-full sm:w-[88%] lg:w-[46%]'
           } animate-in slide-in-from-right duration-300`}
         >
           <div className="flex items-center justify-between h-14 px-4 border-b border-zinc-200/60 dark:border-zinc-800/60 flex-shrink-0">
@@ -734,7 +765,7 @@ export default function ChatPage() {
               </div>
               <div className="min-w-0">
                 <p className="text-xs font-bold text-zinc-800 dark:text-zinc-100 truncate">{artifact.title}</p>
-                <p className="text-[10px] text-zinc-400 dark:text-zinc-500">{artifact.language}</p>
+                <p className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">{artifact.language}</p>
               </div>
             </div>
             <div className="flex items-center gap-1 flex-shrink-0">
@@ -745,12 +776,29 @@ export default function ChatPage() {
                   setTimeout(() => setArtifactCopied(false), 1500);
                 }}
                 className="w-8 h-8 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-900 flex items-center justify-center transition-colors duration-150"
+                title="Copy code"
               >
                 {artifactCopied ? <FiCheck className="text-emerald-500" style={{ fontSize: 14 }} /> : <FiCopy className="text-zinc-500" style={{ fontSize: 14 }} />}
               </button>
               <button
+                onClick={() => {
+                  const blob = new Blob([artifact.code], { type: 'text/plain' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `artifact.${artifact.language || 'txt'}`;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                }}
+                className="w-8 h-8 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-900 flex items-center justify-center transition-colors duration-150"
+                title="Download"
+              >
+                <FiDownload className="text-zinc-500" style={{ fontSize: 14 }} />
+              </button>
+              <button
                 onClick={() => setArtifactExpanded((v) => !v)}
                 className="hidden sm:flex w-8 h-8 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-900 items-center justify-center transition-colors duration-150"
+                title={artifactExpanded ? 'Collapse' : 'Expand'}
               >
                 {artifactExpanded ? <FiMinimize2 className="text-zinc-500" style={{ fontSize: 13 }} /> : <FiMaximize2 className="text-zinc-500" style={{ fontSize: 13 }} />}
               </button>
@@ -762,10 +810,45 @@ export default function ChatPage() {
               </button>
             </div>
           </div>
-          <div className="flex-1 overflow-auto bg-zinc-50 dark:bg-zinc-900">
-            <pre className="text-xs sm:text-[13px] leading-relaxed p-4 font-mono text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap break-words">
-              <code>{artifact.code}</code>
-            </pre>
+
+          {canPreview && (
+            <div className="flex items-center gap-1 px-4 pt-3 flex-shrink-0">
+              <button
+                onClick={() => setArtifactTab('preview')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors duration-150 ${
+                  artifactTab === 'preview' ? 'bg-sky-50 dark:bg-sky-500/10 text-sky-700 dark:text-sky-400' : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900'
+                }`}
+              >
+                <FiEye style={{ fontSize: 12 }} />
+                Preview
+              </button>
+              <button
+                onClick={() => setArtifactTab('code')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors duration-150 ${
+                  artifactTab === 'code' ? 'bg-sky-50 dark:bg-sky-500/10 text-sky-700 dark:text-sky-400' : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900'
+                }`}
+              >
+                <FiTerminal style={{ fontSize: 12 }} />
+                Code
+              </button>
+            </div>
+          )}
+
+          <div className="flex-1 overflow-hidden bg-zinc-50 dark:bg-zinc-900 min-h-0">
+            {canPreview && artifactTab === 'preview' ? (
+              <iframe
+                title="Artifact preview"
+                sandbox="allow-scripts"
+                srcDoc={artifact.code}
+                className="w-full h-full bg-white border-0"
+              />
+            ) : (
+              <div className="w-full h-full overflow-auto">
+                <pre className="text-xs sm:text-[13px] leading-relaxed p-4 font-mono text-zinc-700 dark:text-zinc-300 whitespace-pre break-normal">
+                  <code>{artifact.code}</code>
+                </pre>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -877,8 +960,8 @@ function MessageBubble({
 
   if (isUser) {
     return (
-      <div className="flex justify-end animate-in fade-in slide-in-from-bottom-2 duration-300">
-        <div className="max-w-[85%] sm:max-w-[75%] px-4 py-2.5 rounded-2xl rounded-br-md bg-gradient-to-br from-sky-500 to-blue-600 text-white text-sm shadow-md whitespace-pre-wrap break-words">
+      <div className="flex justify-end animate-in fade-in slide-in-from-bottom-2 duration-300 min-w-0">
+        <div className="max-w-[85%] sm:max-w-[75%] min-w-0 px-4 py-2.5 rounded-2xl rounded-br-md bg-gradient-to-br from-sky-500 to-blue-600 text-white text-sm shadow-md whitespace-pre-wrap break-words [overflow-wrap:anywhere]">
           {message.content}
         </div>
       </div>
@@ -886,13 +969,13 @@ function MessageBubble({
   }
 
   return (
-    <div className="flex items-start gap-2.5 group animate-in fade-in slide-in-from-bottom-2 duration-300">
+    <div className="flex items-start gap-2.5 group animate-in fade-in slide-in-from-bottom-2 duration-300 min-w-0">
       <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${modelColor} flex items-center justify-center flex-shrink-0 mt-0.5`}>
         <ModelIcon className="text-white" style={{ fontSize: 13 }} />
       </div>
-      <div className="min-w-0 flex-1">
-        <div className="px-4 py-2.5 rounded-2xl rounded-tl-md bg-white/70 dark:bg-zinc-900/60 border border-zinc-200/60 dark:border-zinc-800/60 text-sm text-zinc-800 dark:text-zinc-100">
-          <div className="prose prose-sm dark:prose-invert max-w-none prose-p:my-1.5 prose-pre:my-2 prose-pre:bg-zinc-100 dark:prose-pre:bg-zinc-800 prose-pre:rounded-xl prose-code:text-sky-600 dark:prose-code:text-sky-400 prose-code:before:content-none prose-code:after:content-none prose-headings:font-bold prose-a:text-sky-600 dark:prose-a:text-sky-400 prose-ul:my-1.5 prose-ol:my-1.5 prose-li:my-0.5">
+      <div className="min-w-0 flex-1 max-w-[calc(100%-2.25rem)]">
+        <div className="px-4 py-2.5 rounded-2xl rounded-tl-md bg-white/70 dark:bg-zinc-900/60 border border-zinc-200/60 dark:border-zinc-800/60 text-sm text-zinc-800 dark:text-zinc-100 min-w-0 overflow-hidden">
+          <div className="prose prose-sm dark:prose-invert max-w-none min-w-0 break-words [overflow-wrap:anywhere] prose-p:my-1.5 prose-pre:my-2 prose-pre:bg-zinc-100 dark:prose-pre:bg-zinc-800 prose-pre:rounded-xl prose-pre:overflow-x-auto prose-pre:max-w-full prose-code:text-sky-600 dark:prose-code:text-sky-400 prose-code:before:content-none prose-code:after:content-none prose-code:break-words prose-headings:font-bold prose-a:text-sky-600 dark:prose-a:text-sky-400 prose-a:break-all prose-ul:my-1.5 prose-ol:my-1.5 prose-li:my-0.5 prose-img:rounded-xl prose-table:block prose-table:overflow-x-auto prose-table:max-w-full">
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               components={{
@@ -900,7 +983,7 @@ function MessageBubble({
                   const codeText = String(children).replace(/\n$/, '');
                   if (inline) {
                     return (
-                      <code className={className} {...props}>
+                      <code className={`${className || ''} break-words`} {...props}>
                         {children}
                       </code>
                     );
@@ -908,8 +991,8 @@ function MessageBubble({
                   const langMatch = /language-(\w+)/.exec(className || '');
                   const isBigBlock = codeText.split('\n').length >= 6 || codeText.length >= 200;
                   return (
-                    <div className="relative group/code">
-                      <pre className="!my-0">
+                    <div className="relative group/code max-w-full">
+                      <pre className="!my-0 overflow-x-auto max-w-full">
                         <code className={className} {...props}>
                           {children}
                         </code>
@@ -920,7 +1003,7 @@ function MessageBubble({
                             onViewArtifact({
                               id: genId(),
                               title: 'Generated code',
-                              language: langMatch?.[1] || 'text',
+                              language: (langMatch?.[1] || 'text').toLowerCase(),
                               code: codeText,
                             })
                           }
