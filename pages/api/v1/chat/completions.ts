@@ -4,7 +4,7 @@ import { chatGemini } from "@/lib/gemini";
 import { chatAichixia, AichixiaRateLimitError, AichixiaQuotaError } from "@/lib/aichixia";
 import { chatOpenAI, OpenAIRateLimitError, OpenAIQuotaError } from "@/lib/openai";
 import { chatKimi, streamKimi, KimiRateLimitError, KimiQuotaError } from "@/lib/kimi";
-import { chatGlm, GlmRateLimitError, GlmQuotaError } from "@/lib/glm";
+import { chatGlm, streamGlm, GlmRateLimitError, GlmQuotaError } from "@/lib/glm";
 import { chatGPT, GPTRateLimitError, GPTQuotaError } from "@/lib/gpt";
 import { chatClaude, ClaudeRateLimitError, ClaudeQuotaError } from "@/lib/claude";
 import { chatOpus, OpusRateLimitError, OpusQuotaError } from "@/lib/opus";
@@ -56,7 +56,7 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "claude-opus-4.8": { fn: chatOpus, provider: "opus" },
   "gemini-3-flash": { fn: chatGemini, provider: "gemini" },
   "kimi-k2.6": { fn: chatKimi, provider: "kimi" },
-  "glm-4.7": { fn: chatGlm, provider: "glm" },
+  "glm-5.2": { fn: chatGlm, provider: "glm" },
   "gpt-5.2": { fn: chatGPT, provider: "gpt" },
   "gpt-5.5": { fn: chatGpt55, provider: "gpt55" },
   "mistral-large-3-675b-instruct": { fn: chatMistral, provider: "mistral" },
@@ -85,9 +85,10 @@ const STREAM_MODEL_MAPPING: Record<string, StreamFunction> = {
   "nemotron-3-ultra-550b-a55b": streamNemotron,
   "gpt-oss-120b": streamGptOss,
   "deepseek-v4-flash": streamDeepSeekV,
+  "glm-5.2": streamGlm,
 };
 
-const LOCKED_MODELS_PRO = ['deepseek-v3.2', 'qwen3-coder-480b', 'minimax-m3', 'claude-sonnet-4.6', 'glm-4.7', 'aichixia-flash', 'grok-4-fast', 'kimi-k2.6', 'gpt-5.5'];
+const LOCKED_MODELS_PRO = ['deepseek-v3.2', 'qwen3-coder-480b', 'minimax-m3', 'claude-sonnet-4.6', 'glm-5.2', 'aichixia-flash', 'grok-4-fast', 'kimi-k2.6', 'gpt-5.5'];
 
 const RATE_LIMIT_ERRORS = [
   OpenAIRateLimitError, KimiRateLimitError, GlmRateLimitError, GPTRateLimitError,
