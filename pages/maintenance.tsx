@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 function FloatingPaths({ position }: { position: number }) {
   const paths = Array.from({ length: 30 }, (_, i) => ({
@@ -74,18 +74,49 @@ function FloatingPaths({ position }: { position: number }) {
   );
 }
 
-function useCountdown(target: number) {
-  const [remaining, setRemaining] = useState(target - Date.now());
+const STORAGE_KEY = "aichixia_maintenance_target";
+const FALLBACK_DURATION_MS = 1000 * 60 * 60 * 44;
+
+function getPersistedTarget(): number {
+  if (typeof window === "undefined") {
+    return Date.now() + FALLBACK_DURATION_MS;
+  }
+
+  const stored = window.localStorage.getItem(STORAGE_KEY);
+  const storedValue = stored ? Number(stored) : NaN;
+
+  if (!Number.isNaN(storedValue) && storedValue > Date.now()) {
+    return storedValue;
+  }
+
+  const freshTarget = Date.now() + FALLBACK_DURATION_MS;
+  window.localStorage.setItem(STORAGE_KEY, String(freshTarget));
+  return freshTarget;
+}
+
+function useCountdown() {
+  const [target, setTarget] = useState<number>(() => Date.now() + FALLBACK_DURATION_MS);
+  const [remaining, setRemaining] = useState<number>(FALLBACK_DURATION_MS);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
+    const persisted = getPersistedTarget();
+    setTarget(persisted);
+    setRemaining(Math.max(0, persisted - Date.now()));
+    setReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!ready) return;
     const id = setInterval(() => {
       setRemaining(Math.max(0, target - Date.now()));
     }, 1000);
     return () => clearInterval(id);
-  }, [target]);
+  }, [target, ready]);
 
   const totalSeconds = Math.floor(remaining / 1000);
   return {
+    ready,
     days: Math.floor(totalSeconds / 86400),
     hours: Math.floor((totalSeconds % 86400) / 3600),
     minutes: Math.floor((totalSeconds % 3600) / 60),
@@ -98,8 +129,7 @@ function pad(n: number) {
 }
 
 export default function MaintenancePage() {
-  const target = useMemo(() => Date.now() + 1000 * 60 * 60 * 44, []);
-  const { days, hours, minutes, seconds } = useCountdown(target);
+  const { ready, days, hours, minutes, seconds } = useCountdown();
 
   const title = "Under Maintenance";
   const words = title.split(" ");
@@ -138,7 +168,12 @@ export default function MaintenancePage() {
           API keys, credits, and usage history remain untouched.
         </p>
 
-        <div className="countdown" role="timer" aria-label="Estimated time remaining">
+        <div
+          className="countdown"
+          role="timer"
+          aria-label="Estimated time remaining"
+          style={{ opacity: ready ? 1 : 0 }}
+        >
           {units.map((u, i) => (
             <div className="unit" key={u.label}>
               <span className="unit-value">{pad(u.value)}</span>
@@ -256,6 +291,7 @@ export default function MaintenancePage() {
           margin-bottom: 2.25rem;
           animation: fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
           animation-delay: 0.6s;
+          transition: opacity 0.3s ease;
         }
 
         .unit {
