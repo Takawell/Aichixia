@@ -183,8 +183,8 @@ export default function MaintenancePage() {
           ))}
         </div>
 
-        <a href="mailto:support@aichixia.xyz" className="footer-link">
-          support@aichixia.xyz
+        <a href="mailto:contact@aichixia.xyz" className="footer-link">
+          contact@aichixia.xyz
         </a>
       </div>
 
