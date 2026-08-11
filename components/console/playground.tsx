@@ -2096,6 +2096,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                     onChange={e => setVideoFrameMultiplier(e.target.value)}
                     className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[10px] sm:text-xs text-zinc-900 dark:text-white focus:border-blue-300 dark:focus:border-blue-400 outline-none transition-all cursor-pointer"
                   >
+                    <option value="16">16</option>
                     <option value="32">32</option>
                     <option value="64">64</option>
                     <option value="128">128</option>
