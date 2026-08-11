@@ -92,7 +92,7 @@ export async function generateVideo(params: WanParams): Promise<WanResult> {
   const flowShift = clamp(params.flow_shift ?? 3, WAN_LIMITS.flow_shift.min, WAN_LIMITS.flow_shift.max);
   const frameMultiplier = WAN_LIMITS.frame_multiplier.includes(Number(params.frame_multiplier))
     ? Number(params.frame_multiplier)
-    : 128;
+    : 16;
 
   try {
     const client = await getClient();
