@@ -76,6 +76,7 @@ const IMAGE_MODELS: AnyModel[] = [
 
 const VIDEO_MODELS: AnyModel[] = [
   { id: 'wan2.2-i2v', name: 'Wan 2.2 I2V', provider: 'Alibaba', icon: SiAlibabacloud, color: 'from-purple-500 to-pink-500', pricing: 'Premium', context: '—', type: 'video', endpoint: `${base}/api/v1/videos/generations`, requiresPro: true },
+  { id: 'hailuo-h3', name: 'Hailuo H3', provider: 'MiniMax', icon: SiMaze, color: 'from-cyan-600 to-blue-600', pricing: 'Premium', context: '—', type: 'video', endpoint: `${base}/api/v1/videos/generations`, requiresPro: true },
 ];
 
 const TTS_MODELS: AnyModel[] = [
@@ -285,6 +286,188 @@ async fn main() {
     if (lang === 'elixir') return `HTTPoison.post!(
   "${ep}",
   Jason.encode!(%{prompt: "${msg}", steps: 4}),
+  [
+    {"Content-Type", "application/json"},
+    {"Authorization", "Bearer ${key}"}
+  ]
+) |> Map.get(:body) |> IO.puts()`;
+    return '';
+  }
+
+  if (model.id === 'hailuo-h3') {
+    const ep = model.endpoint;
+    if (lang === 'typescript') return `const response = await fetch("${ep}", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer ${key}",
+  },
+  body: JSON.stringify({
+    model: "${model.id}",
+    prompt: "${msg}",
+    canvas: "960x544 · 16:9 fast",
+    duration: 5,
+    steps: 28,
+    seed: 42,
+  }),
+});
+
+const data = await response.json();
+console.log(data.data.video);`;
+    if (lang === 'python') return `import requests
+response = requests.post(
+    "${ep}",
+    headers={
+        "Content-Type": "application/json",
+        "Authorization": "Bearer ${key}",
+    },
+    json={
+        "model": "${model.id}",
+        "prompt": "${msg}",
+        "canvas": "960x544 · 16:9 fast",
+        "duration": 5,
+        "steps": 28,
+        "seed": 42,
+    },
+)
+
+data = response.json()
+print(data["data"]["video"])`;
+    if (lang === 'curl') return `curl -X POST ${ep} \\
+  -H "Authorization: Bearer ${key}" \\
+  -H "Content-Type: application/json" \\
+  -d '{"model": "${model.id}", "prompt": "${msg}", "canvas": "960x544 · 16:9 fast", "duration": 5, "steps": 28, "seed": 42}'`;
+    if (lang === 'ruby') return `require "net/http"
+require "json"
+
+uri = URI("${ep}")
+http = Net::HTTP.new(uri.host, uri.port)
+http.use_ssl = true
+
+request = Net::HTTP::Post.new(uri)
+request["Content-Type"] = "application/json"
+request["Authorization"] = "Bearer ${key}"
+request.body = {
+  model: "${model.id}", prompt: "${msg}",
+  canvas: "960x544 · 16:9 fast", duration: 5, steps: 28, seed: 42
+}.to_json
+
+response = http.request(request)
+puts JSON.parse(response.body)["data"]["video"]`;
+    if (lang === 'go') return `package main
+
+import (
+  "bytes"
+  "encoding/json"
+  "fmt"
+  "io"
+  "net/http"
+)
+
+func main() {
+  body, _ := json.Marshal(map[string]any{
+    "model":    "${model.id}",
+    "prompt":   "${msg}",
+    "canvas":   "960x544 · 16:9 fast",
+    "duration": 5,
+    "steps":    28,
+    "seed":     42,
+  })
+
+  req, _ := http.NewRequest("POST", "${ep}", bytes.NewBuffer(body))
+  req.Header.Set("Content-Type", "application/json")
+  req.Header.Set("Authorization", "Bearer ${key}")
+
+  resp, _ := http.DefaultClient.Do(req)
+  defer resp.Body.Close()
+  b, _ := io.ReadAll(resp.Body)
+  fmt.Println(string(b))
+}`;
+    if (lang === 'php') return `<?php
+$ch = curl_init("${ep}");
+curl_setopt_array($ch, [
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_POST => true,
+    CURLOPT_HTTPHEADER => [
+        "Content-Type: application/json",
+        "Authorization: Bearer ${key}",
+    ],
+    CURLOPT_POSTFIELDS => json_encode([
+        "model" => "${model.id}",
+        "prompt" => "${msg}",
+        "canvas" => "960x544 · 16:9 fast",
+        "duration" => 5,
+        "steps" => 28,
+        "seed" => 42,
+    ]),
+]);
+$response = json_decode(curl_exec($ch), true);
+echo $response["data"]["video"];`;
+    if (lang === 'java') return `import java.net.URI;
+import java.net.http.*;
+import java.net.http.HttpRequest.BodyPublishers;
+
+var client = HttpClient.newHttpClient();
+var body = """
+    {"model": "${model.id}", "prompt": "${msg}", "canvas": "960x544 · 16:9 fast", "duration": 5, "steps": 28, "seed": 42}
+    """;
+var request = HttpRequest.newBuilder()
+    .uri(URI.create("${ep}"))
+    .header("Content-Type", "application/json")
+    .header("Authorization", "Bearer ${key}")
+    .POST(BodyPublishers.ofString(body))
+    .build();
+var response = client.send(request, HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());`;
+    if (lang === 'csharp') return `using var client = new HttpClient();
+client.DefaultRequestHeaders.Add("Authorization", "Bearer ${key}");
+var body = new StringContent(
+    "{\\"model\\": \\"${model.id}\\", \\"prompt\\": \\"${msg}\\", \\"canvas\\": \\"960x544 · 16:9 fast\\", \\"duration\\": 5, \\"steps\\": 28, \\"seed\\": 42}",
+    System.Text.Encoding.UTF8, "application/json");
+var response = await client.PostAsync("${ep}", body);
+Console.WriteLine(await response.Content.ReadAsStringAsync());`;
+    if (lang === 'kotlin') return `import java.net.URI
+import java.net.http.*
+import java.net.http.HttpRequest.BodyPublishers
+
+val client = HttpClient.newHttpClient()
+val request = HttpRequest.newBuilder()
+    .uri(URI.create("${ep}"))
+    .header("Content-Type", "application/json")
+    .header("Authorization", "Bearer ${key}")
+    .POST(BodyPublishers.ofString("""{"model": "${model.id}", "prompt": "${msg}", "canvas": "960x544 · 16:9 fast", "duration": 5, "steps": 28, "seed": 42}"""))
+    .build()
+val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+println(response.body())`;
+    if (lang === 'swift') return `import Foundation
+
+let url = URL(string: "${ep}")!
+var request = URLRequest(url: url)
+request.httpMethod = "POST"
+request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+request.setValue("Bearer ${key}", forHTTPHeaderField: "Authorization")
+request.httpBody = try! JSONSerialization.data(withJSONObject: [
+    "model": "${model.id}", "prompt": "${msg}",
+    "canvas": "960x544 · 16:9 fast", "duration": 5, "steps": 28, "seed": 42
+])
+let (data, _) = try! await URLSession.shared.data(for: request)
+print(String(data: data, encoding: .utf8)!)`;
+    if (lang === 'rust') return `use reqwest::header::{AUTHORIZATION, CONTENT_TYPE};
+use serde_json::json;
+
+#[tokio::main]
+async fn main() {
+    let client = reqwest::Client::new();
+    let res = client.post("${ep}")
+        .header(CONTENT_TYPE, "application/json")
+        .header(AUTHORIZATION, "Bearer ${key}")
+        .json(&json!({"model": "${model.id}", "prompt": "${msg}", "canvas": "960x544 · 16:9 fast", "duration": 5, "steps": 28, "seed": 42}))
+        .send().await.unwrap();
+    println!("{}", res.text().await.unwrap());
+}`;
+    if (lang === 'elixir') return `HTTPoison.post!(
+  "${ep}",
+  Jason.encode!(%{model: "${model.id}", prompt: "${msg}", canvas: "960x544 · 16:9 fast", duration: 5, steps: 28, seed: 42}),
   [
     {"Content-Type", "application/json"},
     {"Authorization", "Bearer ${key}"}
@@ -1311,9 +1494,20 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
   const [videoFlowShift, setVideoFlowShift] = useState(3);
   const [videoFrameMultiplier, setVideoFrameMultiplier] = useState('16');
   const [videoSafeMode, setVideoSafeMode] = useState(true);
-  const [videoResult, setVideoResult] = useState<{ video: string; download: string; seed: number } | null>(null);
+  const [videoResult, setVideoResult] = useState<{ video: string; download?: string; seed: number | string; markdown?: string } | null>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
   const videoLastInputRef = useRef<HTMLInputElement>(null);
+
+  const [hailuoPrompt, setHailuoPrompt] = useState('A red fox trotting through a snowy pine forest at dawn, snow crunching underfoot');
+  const [hailuoUpsample, setHailuoUpsample] = useState(false);
+  const [hailuoFirstImage, setHailuoFirstImage] = useState<UploadedImage | null>(null);
+  const [hailuoLastImage, setHailuoLastImage] = useState<UploadedImage | null>(null);
+  const [hailuoCanvas, setHailuoCanvas] = useState('960x544 · 16:9 fast');
+  const [hailuoDuration, setHailuoDuration] = useState(5);
+  const [hailuoSteps, setHailuoSteps] = useState(28);
+  const [hailuoSeed, setHailuoSeed] = useState(42);
+  const hailuoFirstInputRef = useRef<HTMLInputElement>(null);
+  const hailuoLastInputRef = useRef<HTMLInputElement>(null);
 
   const [memoryEnabled, setMemoryEnabled] = useState(false);
   const [memories, setMemories] = useState<MemoryMessage[]>([]);
@@ -1429,6 +1623,16 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
     if (!f) return;
     try { setVideoLastImage(await processImageFile(f)); } catch (err: any) { setError(err.message || 'Failed to process image'); }
   };
+  const handleHailuoFirstImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0]; e.target.value = '';
+    if (!f) return;
+    try { setHailuoFirstImage(await processImageFile(f)); } catch (err: any) { setError(err.message || 'Failed to process image'); }
+  };
+  const handleHailuoLastImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0]; e.target.value = '';
+    if (!f) return;
+    try { setHailuoLastImage(await processImageFile(f)); } catch (err: any) { setError(err.message || 'Failed to process image'); }
+  };
   const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(true); };
   const handleDragLeave = (e: React.DragEvent) => { if (!dropZoneRef.current?.contains(e.relatedTarget as Node)) setIsDragging(false); };
   const handleDrop = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(false); if (e.dataTransfer.files) handleImageUpload(e.dataTransfer.files); };
@@ -1445,7 +1649,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
   const handleRun = async () => {
     if (!apiKey.trim()) { setError('Please enter your API key'); return; }
     if (selectedModel.type !== 'stt' && selectedModel.type !== 'video' && !message.trim() && uploadedImages.length === 0) { setError('Please enter a message'); return; }
-    if (selectedModel.type === 'video' && !videoInputImage) { setError('Please upload an input image'); return; }
+    if (selectedModel.id === 'wan2.2-i2v' && !videoInputImage) { setError('Please upload an input image'); return; }
     setIsLoading(true); clearResult();
     const t0 = Date.now();
     try {
@@ -1471,7 +1675,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
         setImageBase64(data.data?.[0]?.b64_json ?? null); setActiveTab('response'); return;
       }
 
-      if (selectedModel.type === 'video') {
+      if (selectedModel.id === 'wan2.2-i2v') {
         const res = await fetch(selectedModel.endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
@@ -1492,6 +1696,29 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
             flow_shift: videoFlowShift,
             frame_multiplier: videoFrameMultiplier,
             safe_mode: videoSafeMode,
+          }),
+        });
+        const { data, error: parseError } = await safeParseJson(res);
+        setLatency(Date.now() - t0);
+        if (parseError) { setError(parseError); return; }
+        if (!res.ok) { setError(data?.error?.message || `Error ${res.status}`); return; }
+        setVideoResult(data.data ?? null); setActiveTab('response'); return;
+      }
+
+      if (selectedModel.id === 'hailuo-h3') {
+        const res = await fetch(selectedModel.endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+          body: JSON.stringify({
+            model: selectedModel.id,
+            prompt: hailuoPrompt,
+            ...(hailuoFirstImage ? { input_image: `data:${hailuoFirstImage.mimeType};base64,${hailuoFirstImage.base64}` } : {}),
+            ...(hailuoLastImage ? { last_image: `data:${hailuoLastImage.mimeType};base64,${hailuoLastImage.base64}` } : {}),
+            canvas: hailuoCanvas,
+            duration: hailuoDuration,
+            steps: hailuoSteps,
+            seed: hailuoSeed,
+            upsample: hailuoUpsample,
           }),
         });
         const { data, error: parseError } = await safeParseJson(res);
@@ -2019,7 +2246,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
               </div>
             )}
 
-            {selectedModel.type === 'video' && (
+            {selectedModel.id === 'wan2.2-i2v' && (
               <div className="space-y-3">
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
@@ -2191,6 +2418,130 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                   <input type="checkbox" checked={videoSafeMode} onChange={e => setVideoSafeMode(e.target.checked)} className="w-3.5 h-3.5 rounded accent-blue-400 cursor-pointer" />
                   <span className="text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400">Safe Mode</span>
                 </label>
+              </div>
+            )}
+
+            {selectedModel.id === 'hailuo-h3' && (
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1">Prompt</label>
+                  <textarea
+                    value={hailuoPrompt}
+                    onChange={e => setHailuoPrompt(e.target.value)}
+                    rows={3}
+                    placeholder="A red fox trotting through a snowy pine forest at dawn, snow crunching underfoot"
+                    className="w-full px-2.5 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[10px] sm:text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:border-blue-300 dark:focus:border-blue-400 focus:ring-1 focus:ring-blue-300/20 outline-none transition-all resize-none"
+                  />
+                </div>
+
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" checked={hailuoUpsample} onChange={e => setHailuoUpsample(e.target.checked)} className="w-3.5 h-3.5 rounded accent-blue-400 cursor-pointer" />
+                  <span className="text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400">Upsample prompt</span>
+                </label>
+
+                <div className="grid grid-cols-2 gap-2.5">
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 flex items-center gap-1"><FiImage className="w-3 h-3" /> First Frame</label>
+                      {hailuoFirstImage && <button onClick={() => setHailuoFirstImage(null)} className="text-[9px] text-red-400 hover:text-red-500 transition-colors">Remove</button>}
+                    </div>
+                    {!hailuoFirstImage ? (
+                      <div
+                        onClick={() => hailuoFirstInputRef.current?.click()}
+                        className="w-full rounded-lg border-2 border-dashed border-zinc-300 dark:border-zinc-700 hover:border-blue-300 dark:hover:border-blue-400 transition-all duration-200 cursor-pointer py-5 flex flex-col items-center justify-center gap-1.5 hover:bg-blue-50/50 dark:hover:bg-blue-950/10"
+                      >
+                        <div className="w-8 h-8 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+                          <FiUpload className="w-4 h-4 text-zinc-400" />
+                        </div>
+                        <p className="text-[9px] font-semibold text-zinc-500 dark:text-zinc-400 text-center">Drop Image</p>
+                        <p className="text-[8px] text-zinc-400">Click to Upload</p>
+                      </div>
+                    ) : (
+                      <div className="relative w-full rounded-lg overflow-hidden border border-zinc-200 dark:border-zinc-800">
+                        <img src={hailuoFirstImage.preview} alt="" className="w-full h-24 object-cover" />
+                      </div>
+                    )}
+                    <input ref={hailuoFirstInputRef} type="file" accept="image/*" className="hidden" onChange={handleHailuoFirstImageChange} />
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 flex items-center gap-1"><FiImage className="w-3 h-3" /> Last Frame</label>
+                      {hailuoLastImage && <button onClick={() => setHailuoLastImage(null)} className="text-[9px] text-red-400 hover:text-red-500 transition-colors">Remove</button>}
+                    </div>
+                    {!hailuoLastImage ? (
+                      <div
+                        onClick={() => hailuoLastInputRef.current?.click()}
+                        className="w-full rounded-lg border-2 border-dashed border-zinc-300 dark:border-zinc-700 hover:border-blue-300 dark:hover:border-blue-400 transition-all duration-200 cursor-pointer py-5 flex flex-col items-center justify-center gap-1.5 hover:bg-blue-50/50 dark:hover:bg-blue-950/10"
+                      >
+                        <div className="w-8 h-8 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+                          <FiUpload className="w-4 h-4 text-zinc-400" />
+                        </div>
+                        <p className="text-[9px] font-semibold text-zinc-500 dark:text-zinc-400 text-center">Drop Image</p>
+                        <p className="text-[8px] text-zinc-400">Click to Upload</p>
+                      </div>
+                    ) : (
+                      <div className="relative w-full rounded-lg overflow-hidden border border-zinc-200 dark:border-zinc-800">
+                        <img src={hailuoLastImage.preview} alt="" className="w-full h-24 object-cover" />
+                      </div>
+                    )}
+                    <input ref={hailuoLastInputRef} type="file" accept="image/*" className="hidden" onChange={handleHailuoLastImageChange} />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1.5">Canvas</label>
+                  <select
+                    value={hailuoCanvas}
+                    onChange={e => setHailuoCanvas(e.target.value)}
+                    className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[10px] sm:text-xs text-zinc-900 dark:text-white focus:border-blue-300 dark:focus:border-blue-400 outline-none transition-all cursor-pointer"
+                  >
+                    <option value="960x544 · 16:9 fast">960x544 · 16:9 fast</option>
+                    <option value="1024x576 · 16:9 fast">1024x576 · 16:9 fast</option>
+                    <option value="1152x640 · 16:9">1152x640 · 16:9</option>
+                    <option value="1280x704 · 16:9">1280x704 · 16:9</option>
+                    <option value="1344x768 · 16:9 full">1344x768 · 16:9 full</option>
+                    <option value="544x960 · 9:16 fast">544x960 · 9:16 fast</option>
+                    <option value="640x1152 · 9:16">640x1152 · 9:16</option>
+                    <option value="768x1344 · 9:16 full">768x1344 · 9:16 full</option>
+                    <option value="544x544 · 1:1 fast">544x544 · 1:1 fast</option>
+                    <option value="768x768 · 1:1 full">768x768 · 1:1 full</option>
+                    <option value="768x576 · 4:3 fast">768x576 · 4:3 fast</option>
+                    <option value="1024x768 · 4:3 full">1024x768 · 4:3 full</option>
+                    <option value="576x768 · 3:4 fast">576x768 · 3:4 fast</option>
+                    <option value="768x1024 · 3:4 full">768x1024 · 3:4 full</option>
+                    <option value="1152x512 · 21:9 fast">1152x512 · 21:9 fast</option>
+                    <option value="1536x672 · 21:9 full">1536x672 · 21:9 full</option>
+                  </select>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400">Duration (s)</label>
+                    <span className="text-[10px] font-bold text-blue-400 tabular-nums">{hailuoDuration}</span>
+                  </div>
+                  <input type="range" min="2" max="14" step="1" value={hailuoDuration} onChange={e => setHailuoDuration(parseInt(e.target.value))} className="w-full h-1 rounded-full appearance-none bg-zinc-200 dark:bg-zinc-800 accent-blue-400 cursor-pointer" />
+                  <div className="flex justify-between mt-0.5"><span className="text-[8px] text-zinc-400">2</span><span className="text-[8px] text-zinc-400">14</span></div>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400">Steps</label>
+                    <span className="text-[10px] font-bold text-blue-400 tabular-nums">{hailuoSteps}</span>
+                  </div>
+                  <input type="range" min="10" max="40" step="1" value={hailuoSteps} onChange={e => setHailuoSteps(parseInt(e.target.value))} className="w-full h-1 rounded-full appearance-none bg-zinc-200 dark:bg-zinc-800 accent-blue-400 cursor-pointer" />
+                  <div className="flex justify-between mt-0.5"><span className="text-[8px] text-zinc-400">10</span><span className="text-[8px] text-zinc-400">40</span></div>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1 flex items-center gap-1"><FiHash className="w-3 h-3" /> Seed</label>
+                  <input
+                    type="number"
+                    value={hailuoSeed}
+                    onChange={e => setHailuoSeed(parseInt(e.target.value) || 0)}
+                    className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[10px] sm:text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:border-blue-300 dark:focus:border-blue-400 outline-none transition-all"
+                  />
+                </div>
               </div>
             )}
 
@@ -2519,7 +2870,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
             <div className="flex gap-2 pt-0.5">
               <button
                 onClick={handleRun}
-                disabled={isLoading || (selectedModel.type === 'video' && !videoInputImage)}
+                disabled={isLoading || (selectedModel.id === 'wan2.2-i2v' && !videoInputImage)}
                 className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 sm:py-2.5 rounded-lg text-white font-bold text-[10px] sm:text-xs shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:hover:scale-100 ${memoryEnabled ? 'bg-gradient-to-r from-violet-500 to-blue-500 hover:from-violet-600 hover:to-blue-600 hover:shadow-violet-400/25 memory-active' : 'bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600 hover:shadow-blue-400/25'}`}
               >
                 {isLoading ? (
@@ -2687,6 +3038,9 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                         className="w-full h-auto rounded-lg shadow-lg"
                       />
                     </div>
+                    {videoResult.markdown && (
+                      <p className="text-[10px] text-zinc-500 dark:text-zinc-400 leading-relaxed">{videoResult.markdown}</p>
+                    )}
                     <div className="flex flex-wrap gap-2">
                       {videoResult.seed != null && (
                         <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
