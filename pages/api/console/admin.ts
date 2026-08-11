@@ -185,7 +185,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (req.method === 'PATCH') {
       try {
-        const { action, promo_id, user_id, plan, plan_expires_at, is_active } = req.body;
+        const {
+          action,
+          promo_id,
+          user_id,
+          plan,
+          plan_expires_at,
+          is_active,
+          display_name,
+          key_id,
+          rate_limit,
+        } = req.body;
 
         if (action === 'update-promo') {
           if (!promo_id) {
@@ -230,6 +240,50 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           if (keysError) throw keysError;
 
           return res.status(200).json({ message: 'User plan updated successfully' });
+        }
+
+        if (action === 'update-user-profile') {
+          if (!user_id) {
+            return res.status(400).json({ error: 'user_id is required' });
+          }
+          if (typeof display_name !== 'string' || !display_name.trim()) {
+            return res.status(400).json({ error: 'display_name is required' });
+          }
+
+          const { data: targetUser, error: getUserError } = await supabaseAdmin.auth.admin.getUserById(user_id);
+          if (getUserError || !targetUser?.user) {
+            return res.status(404).json({ error: 'User not found' });
+          }
+
+          const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(user_id, {
+            user_metadata: {
+              ...targetUser.user.user_metadata,
+              display_name: display_name.trim(),
+            },
+          });
+
+          if (updateError) throw updateError;
+
+          return res.status(200).json({ message: 'Display name updated successfully' });
+        }
+
+        if (action === 'update-key-rate-limit') {
+          if (!key_id) {
+            return res.status(400).json({ error: 'key_id is required' });
+          }
+          const parsedLimit = parseInt(rate_limit, 10);
+          if (!Number.isFinite(parsedLimit) || parsedLimit <= 0) {
+            return res.status(400).json({ error: 'rate_limit must be a positive number' });
+          }
+
+          const { error: keyError } = await supabaseAdmin
+            .from('api_keys')
+            .update({ rate_limit: parsedLimit })
+            .eq('id', key_id);
+
+          if (keyError) throw keyError;
+
+          return res.status(200).json({ message: 'Rate limit updated successfully' });
         }
 
         return res.status(400).json({ error: 'Invalid action' });
