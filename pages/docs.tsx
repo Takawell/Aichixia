@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import Head from "next/head";
 import Link from "next/link";
-import { FaCopy, FaCheck, FaChevronRight, FaTerminal, FaBolt, FaBook, FaMoon, FaSun, FaBars, FaTimes, FaKey, FaMicrophone, FaImage, FaCode, FaCheckCircle, FaRocket, FaLayerGroup, FaDatabase, FaPlay, FaInfoCircle, FaFileAudio, FaGlobe, FaCloudUploadAlt } from "react-icons/fa";
+import { FaCopy, FaCheck, FaChevronRight, FaTerminal, FaBolt, FaBook, FaMoon, FaSun, FaBars, FaTimes, FaKey, FaMicrophone, FaImage, FaVideo, FaCode, FaCheckCircle, FaRocket, FaLayerGroup, FaDatabase, FaPlay, FaInfoCircle, FaFileAudio, FaGlobe, FaCloudUploadAlt } from "react-icons/fa";
 import { FiSend, FiX, FiMessageSquare, FiRefreshCw, FiChevronDown } from "react-icons/fi";
-import { SiGooglegemini } from "react-icons/si";
+import { SiGooglegemini, SiAlibabacloud, SiMaze } from "react-icons/si";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
@@ -15,7 +15,7 @@ const base = "https://www.aichixia.xyz";
 export default function Docs() {
   const [isDark, setIsDark] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'chat' | 'image' | 'tts' | 'quickstart' | 'anthropic' | 'stt'>('quickstart');
+  const [activeTab, setActiveTab] = useState<'chat' | 'image' | 'video' | 'tts' | 'quickstart' | 'anthropic' | 'stt'>('quickstart');
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [expandedSection, setExpandedSection] = useState<string | null>('chat-completions');
   const [assistantOpen, setAssistantOpen] = useState(false);
@@ -85,7 +85,7 @@ export default function Docs() {
           model: 'gpt-5-mini',
           max_tokens: 4096,
           messages: [
-            { role: 'system', content: 'You are a helpful API assistant for Aichixia, an AI API aggregation platform. Help users integrate and use the Aichixia API. Keep answers concise and clear. Aichixia base URL: https://www.aichixia.xyz. Auth: Bearer token or x-api-key header.\n\nEndpoints:\n- Chat (OpenAI-compat): POST /api/v1/chat/completions\n- Messages (Anthropic-compat): POST /api/v1/messages\n- Image generation: POST /api/v1/images/generations\n- TTS: POST /api/v1/audio/speech\n- STT Transcription: POST /api/v1/audio/transcriptions\n- STT Translation: POST /api/v1/audio/translations\n\nText models (free): gpt-5-mini, gpt-5.2, gpt-oss-120b, gemini-3-flash, grok-3, deepseek-v4-flash, mistral-large-3-675b-instruct, glm-4.7-flash, claude-opus-4.8, step-3.7-flash, nemotron-3-ultra-550b-a55b, qwen3.6-27b, llama-3.3-70b, mimo-v2-flash, groq-compound, cohere-command-a, phi-4-multimodal-instruct\nText models (pro): claude-sonnet-4.6, grok-4-fast, deepseek-v3.2, glm-4.7, qwen3-coder-480b, minimax-m3, kimi-k2.6, aichixia-flash, gpt-5.5\\nStreaming (stream: true) supported only on: kimi-k2.6, mistral-large-3-675b-instruct, minimax-m3, step-3.7-flash, nemotron-3-ultra-550b-a55b, gpt-oss-120b, deepseek-v4-flash -- returns SSE for supported models; other models return a 400 error if stream is requested.\\nVision models: gpt-5.2, kimi-k2.6, gemini-3-flash, grok-4-fast, phi-4-multimodal-instruct, qwen3.6-27b, step-3.7-flash\nImage generation models: flux-2-dev, lucid-origin, phoenix-1.0, nano-image\nTTS models: starling-tts, lindsay-tts, miu-tts, catherine-tts, nana-tts, stephanie-tts (Typecast, support: eng, kor, jpn, cmn, spa), alexandra-tts (ElevenLabs, support: ind, eng, rus, cmn), eve-tts (ElevenLabs, support: kor, eng, msa, vie)\nSTT models: whisper-large-v3 (max accuracy), whisper-large-v3-turbo (max speed 216x real-time)\n\nPlans: Free=1000 req/day, Pro=4000 req/day, Enterprise=custom (contact sales team via email).\nContact: contact@aichixia.xyz | Telegram community: https://t.me/AichixiaAPI\nDo not use tool calling or function calling. Use code examples when relevant.' },
+            { role: 'system', content: 'You are a helpful API assistant for Aichixia, an AI API aggregation platform. Help users integrate and use the Aichixia API. Keep answers concise and clear. Aichixia base URL: https://www.aichixia.xyz. Auth: Bearer token or x-api-key header.\n\nEndpoints:\n- Chat (OpenAI-compat): POST /api/v1/chat/completions\n- Messages (Anthropic-compat): POST /api/v1/messages\n- Image generation: POST /api/v1/images/generations\n- Video generation: POST /api/v1/videos/generations\n- TTS: POST /api/v1/audio/speech\n- STT Transcription: POST /api/v1/audio/transcriptions\n- STT Translation: POST /api/v1/audio/translations\n\nText models (free): gpt-5-mini, gpt-5.2, gpt-oss-120b, gemini-3-flash, grok-3, deepseek-v4-flash, mistral-large-3-675b-instruct, glm-4.7-flash, claude-opus-4.8, step-3.7-flash, nemotron-3-ultra-550b-a55b, qwen3.6-27b, llama-3.3-70b, mimo-v2-flash, groq-compound, cohere-command-a, phi-4-multimodal-instruct\nText models (pro): claude-sonnet-4.6, grok-4-fast, deepseek-v3.2, glm-4.7, qwen3-coder-480b, minimax-m3, kimi-k2.6, aichixia-flash, gpt-5.5\\nStreaming (stream: true) supported only on: kimi-k2.6, mistral-large-3-675b-instruct, minimax-m3, step-3.7-flash, nemotron-3-ultra-550b-a55b, gpt-oss-120b, deepseek-v4-flash -- returns SSE for supported models; other models return a 400 error if stream is requested.\\nVision models: gpt-5.2, kimi-k2.6, gemini-3-flash, grok-4-fast, phi-4-multimodal-instruct, qwen3.6-27b, step-3.7-flash\nImage generation models: flux-2-dev, lucid-origin, phoenix-1.0, nano-image\nVideo generation models (pro): wan2.2-i2v (Alibaba, image-to-video, requires input_image), hailuo-h3 (MiniMax, text-to-video and image-to-video with synced soundtrack)\nTTS models: starling-tts, lindsay-tts, miu-tts, catherine-tts, nana-tts, stephanie-tts (Typecast, support: eng, kor, jpn, cmn, spa), alexandra-tts (ElevenLabs, support: ind, eng, rus, cmn), eve-tts (ElevenLabs, support: kor, eng, msa, vie)\nSTT models: whisper-large-v3 (max accuracy), whisper-large-v3-turbo (max speed 216x real-time)\n\nPlans: Free=1000 req/day, Pro=4000 req/day, Enterprise=custom (contact sales team via email).\nContact: contact@aichixia.xyz | Telegram community: https://t.me/AichixiaAPI\nDo not use tool calling or function calling. Use code examples when relevant.' },
             ...newMessages.map(m => ({ role: m.role, content: m.content })),
           ],
         }),
@@ -251,6 +251,110 @@ print(image_base64)`,
     "size": "1024x1024",
     "steps": 30,
     "response_format": "b64_json"
+  }'`,
+
+    videoWanJS: `const response = await fetch('${base}/api/v1/videos/generations', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer YOUR_API_KEY'
+  },
+  body: JSON.stringify({
+    model: 'wan2.2-i2v',
+    input_image: 'data:image/png;base64,YOUR_BASE64_IMAGE',
+    prompt: 'make this image come alive, cinematic motion, smooth animation',
+    duration_seconds: 3.5,
+    steps: 6,
+    frame_multiplier: '16'
+  })
+});
+
+const data = await response.json();
+console.log(data.data.video);`,
+
+    videoWanPython: `import requests
+
+response = requests.post(
+    '${base}/api/v1/videos/generations',
+    headers={
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer YOUR_API_KEY'
+    },
+    json={
+        'model': 'wan2.2-i2v',
+        'input_image': 'data:image/png;base64,YOUR_BASE64_IMAGE',
+        'prompt': 'make this image come alive, cinematic motion, smooth animation',
+        'duration_seconds': 3.5,
+        'steps': 6,
+        'frame_multiplier': '16'
+    }
+)
+
+data = response.json()
+print(data['data']['video'])`,
+
+    videoWanCurl: `curl -X POST ${base}/api/v1/videos/generations \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "wan2.2-i2v",
+    "input_image": "data:image/png;base64,YOUR_BASE64_IMAGE",
+    "prompt": "make this image come alive, cinematic motion, smooth animation",
+    "duration_seconds": 3.5,
+    "steps": 6,
+    "frame_multiplier": "16"
+  }'`,
+
+    videoHailuoJS: `const response = await fetch('${base}/api/v1/videos/generations', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer YOUR_API_KEY'
+  },
+  body: JSON.stringify({
+    model: 'hailuo-h3',
+    prompt: 'A red fox trotting through a snowy pine forest at dawn, snow crunching underfoot',
+    canvas: '960x544 · 16:9 fast',
+    duration: 5,
+    steps: 28,
+    seed: 42
+  })
+});
+
+const data = await response.json();
+console.log(data.data.video);`,
+
+    videoHailuoPython: `import requests
+
+response = requests.post(
+    '${base}/api/v1/videos/generations',
+    headers={
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer YOUR_API_KEY'
+    },
+    json={
+        'model': 'hailuo-h3',
+        'prompt': 'A red fox trotting through a snowy pine forest at dawn, snow crunching underfoot',
+        'canvas': '960x544 · 16:9 fast',
+        'duration': 5,
+        'steps': 28,
+        'seed': 42
+    }
+)
+
+data = response.json()
+print(data['data']['video'])`,
+
+    videoHailuoCurl: `curl -X POST ${base}/api/v1/videos/generations \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "hailuo-h3",
+    "prompt": "A red fox trotting through a snowy pine forest at dawn, snow crunching underfoot",
+    "canvas": "960x544 · 16:9 fast",
+    "duration": 5,
+    "steps": 28,
+    "seed": 42
   }'`,
 
     ttsJS: `const response = await fetch('${base}/api/v1/audio/speech', {
@@ -580,6 +684,7 @@ console.log(data.text);`,
                   { id: 'chat', label: 'Chat Completions', icon: FaTerminal },
                   { id: 'anthropic', label: 'Anthropic SDK', icon: FaLayerGroup },
                   { id: 'image', label: 'Image Generation', icon: FaImage },
+                  { id: 'video', label: 'Video Generation', icon: FaVideo },
                   { id: 'tts', label: 'Text-to-Speech', icon: FaMicrophone },
                   { id: 'stt', label: 'Speech-to-Text', icon: FaFileAudio },
                 ] as const).map(({ id, label, icon: Icon }) => (
@@ -659,6 +764,7 @@ console.log(data.text);`,
                         { label: 'Chat Completions (OpenAI)', url: `${base}/api/v1/chat/completions` },
                         { label: 'Messages (Anthropic)', url: `${base}/api/v1/messages` },
                         { label: 'Image Generation', url: `${base}/api/v1/images/generations` },
+                        { label: 'Video Generation', url: `${base}/api/v1/videos/generations` },
                         { label: 'Text-to-Speech', url: `${base}/api/v1/audio/speech` },
                         { label: 'Transcriptions (STT)', url: `${base}/api/v1/audio/transcriptions` },
                         { label: 'Translations (STT)', url: `${base}/api/v1/audio/translations` },
@@ -1133,6 +1239,135 @@ const message = await stream.finalMessage();`}
                   <CodeBlock code={codeExamples.imageGenerationJS} lang="JavaScript" id="image-js" />
                   <CodeBlock code={codeExamples.imageGenerationPython} lang="Python" id="image-python" />
                   <CodeBlock code={codeExamples.imageGenerationCurl} lang="cURL" id="image-curl" />
+                </div>
+              )}
+
+              {activeTab === 'video' && (
+                <div className="space-y-6 animate-fade-in-up">
+                  <div>
+                    <h2 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white mb-3">Video Generation API</h2>
+                    <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400">
+                      Generate videos from images or text prompts using Wan 2.2 I2V and Hailuo H3.
+                    </p>
+                  </div>
+
+                  <div className="p-4 sm:p-5 rounded-xl border-l-4 border-purple-500 bg-purple-50/50 dark:bg-purple-950/10 border border-purple-200 dark:border-purple-900/50">
+                    <div className="flex items-start gap-3">
+                      <FaVideo className="w-4 h-4 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <h4 className="text-sm font-bold text-purple-900 dark:text-purple-100 mb-1">Endpoint</h4>
+                        <code className="text-xs text-purple-700 dark:text-purple-300 bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded break-all inline-block max-w-full">POST {base}/api/v1/videos/generations</code>
+                        <p className="text-xs text-purple-700 dark:text-purple-300 mt-1.5">Response returns a direct video URL in <code className="bg-purple-100 dark:bg-purple-900/30 px-1 rounded">data.video</code>. Requires Pro or Enterprise plan.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    <button onClick={() => toggleSection('video-wan')} className="w-full flex items-center justify-between p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
+                      <div className="flex items-center gap-2">
+                        <SiAlibabacloud className="w-3.5 h-3.5 text-purple-500" />
+                        <h3 className="text-base font-bold text-zinc-900 dark:text-white">Wan 2.2 I2V (Alibaba)</h3>
+                      </div>
+                      <FaChevronRight className={`w-4 h-4 text-zinc-400 transition-transform duration-200 ${expandedSection === 'video-wan' ? 'rotate-90' : ''}`} />
+                    </button>
+                    {expandedSection === 'video-wan' && (
+                      <div className="p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+                        <Param name="model" required type="string" desc="Must be wan2.2-i2v" />
+                        <Param name="input_image" required type="string" desc="Base64 data URL or image URL. Required for this model." />
+                        <Param name="last_image" type="string" desc="Optional last frame to guide the animation, same format as input_image" />
+                        <Param name="prompt" type="string" desc="Motion description. Default: make this image come alive, cinematic motion, smooth animation" />
+                        <Param name="duration_seconds" type="number" desc="Video length in seconds. Range: 0.5–20.1. Default: 3.5" />
+                        <Param name="steps" type="number" desc="Inference steps. Range: 1–30. Default: 6" />
+                        <Param name="frame_multiplier" type="string" desc="Frame interpolation multiplier. One of: 16, 32, 64, 128. Default: 16" />
+                        <Param name="negative_prompt" type="string" desc="What to avoid in the generated motion. Optional." />
+                        <Param name="guidance_scale" type="number" desc="High noise stage guidance. Range: 0–10. Default: 6.5" />
+                        <Param name="guidance_scale_2" type="number" desc="Low noise stage guidance. Range: 0–10. Default: 1" />
+                        <Param name="seed" type="number" desc="Seed for reproducibility. Range: 0–2147483647. Default: 42" />
+                        <Param name="randomize_seed" type="boolean" desc="Ignore seed and randomize each call. Default: false" />
+                        <Param name="quality" type="number" desc="Output video quality. Range: 1–10. Default: 6" />
+                        <Param name="scheduler" type="string" desc="Sampling scheduler. Default: UniPCMultistep" />
+                        <Param name="flow_shift" type="number" desc="Flow shift value. Range: 0.5–15. Default: 3" />
+                        <Param name="safe_mode" type="boolean" desc="Enable safety filtering. Default: true" />
+                      </div>
+                    )}
+
+                    <button onClick={() => toggleSection('video-hailuo')} className="w-full flex items-center justify-between p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
+                      <div className="flex items-center gap-2">
+                        <SiMaze className="w-3.5 h-3.5 text-cyan-500" />
+                        <h3 className="text-base font-bold text-zinc-900 dark:text-white">Hailuo H3 (MiniMax)</h3>
+                      </div>
+                      <FaChevronRight className={`w-4 h-4 text-zinc-400 transition-transform duration-200 ${expandedSection === 'video-hailuo' ? 'rotate-90' : ''}`} />
+                    </button>
+                    {expandedSection === 'video-hailuo' && (
+                      <div className="p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+                        <Param name="model" required type="string" desc="Must be hailuo-h3" />
+                        <Param name="prompt" type="string" desc="Text prompt describing the video. Works with or without an input image." />
+                        <Param name="input_image" type="string" desc="Optional first frame, base64 data URL or image URL" />
+                        <Param name="last_image" type="string" desc="Optional last frame, same format as input_image" />
+                        <Param name="canvas" type="string" desc="Resolution and aspect ratio preset, e.g. 960x544 · 16:9 fast. 'fast' presets are lighter on GPU quota." />
+                        <Param name="duration" type="number" desc="Video length in seconds. Range: 2–14. Default: 5" />
+                        <Param name="steps" type="number" desc="Sampling steps. Range: 10–40. Default: 28" />
+                        <Param name="seed" type="number" desc="Seed for reproducibility. Default: 42" />
+                        <Param name="upsample" type="boolean" desc="Upsample the prompt for richer detail. Default: false" />
+                      </div>
+                    )}
+
+                    <button onClick={() => toggleSection('video-response')} className="w-full flex items-center justify-between p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
+                      <h3 className="text-base font-bold text-zinc-900 dark:text-white">Response Format</h3>
+                      <FaChevronRight className={`w-4 h-4 text-zinc-400 transition-transform duration-200 ${expandedSection === 'video-response' ? 'rotate-90' : ''}`} />
+                    </button>
+                    {expandedSection === 'video-response' && (
+                      <div className="p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+                        <div className="rounded-lg bg-zinc-100 dark:bg-zinc-900 overflow-hidden">
+                          <SyntaxHighlighter language="json" style={isDark ? oneDark : oneLight} customStyle={{ margin: 0, padding: '12px', background: 'transparent', fontSize: '11px' }}>
+{`{
+  "id": "video-1234567890",
+  "object": "video.generation",
+  "created": 1677652288,
+  "model": "wan2.2-i2v",
+  "data": {
+    "video": "https://.../generated.mp4",
+    "download": "https://.../generated.mp4",
+    "seed": 42
+  }
+}`}
+                          </SyntaxHighlighter>
+                        </div>
+                        <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-2">Video generation can take significantly longer than text or image requests. Increase client-side timeouts accordingly.</p>
+                      </div>
+                    )}
+
+                    <button onClick={() => toggleSection('video-models')} className="w-full flex items-center justify-between p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
+                      <h3 className="text-base font-bold text-zinc-900 dark:text-white">Available Video Models</h3>
+                      <FaChevronRight className={`w-4 h-4 text-zinc-400 transition-transform duration-200 ${expandedSection === 'video-models' ? 'rotate-90' : ''}`} />
+                    </button>
+                    {expandedSection === 'video-models' && (
+                      <div className="p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+                        <div className="space-y-2">
+                          {[
+                            { id: 'wan2.2-i2v', name: 'Wan 2.2 I2V', provider: 'Alibaba', desc: 'Image-to-video with cinematic motion, requires an input image' },
+                            { id: 'hailuo-h3', name: 'Hailuo H3', provider: 'MiniMax', desc: 'Text-to-video and image-to-video with fully synced soundtrack' },
+                          ].map(({ id, name, provider, desc }) => (
+                            <div key={id} className="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
+                              <div className="flex items-center justify-between mb-1">
+                                <p className="text-xs font-semibold text-zinc-900 dark:text-white">{name}</p>
+                                <span className="text-[9px] text-zinc-400 dark:text-zinc-500">{provider}</span>
+                              </div>
+                              <code className="text-[10px] text-purple-600 dark:text-purple-400 font-mono">{id}</code>
+                              <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mt-0.5">{desc}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <CodeBlock code={codeExamples.videoWanJS} lang="JavaScript · Wan 2.2 I2V" id="video-wan-js" />
+                  <CodeBlock code={codeExamples.videoWanPython} lang="Python · Wan 2.2 I2V" id="video-wan-python" />
+                  <CodeBlock code={codeExamples.videoWanCurl} lang="cURL · Wan 2.2 I2V" id="video-wan-curl" />
+                  <CodeBlock code={codeExamples.videoHailuoJS} lang="JavaScript · Hailuo H3" id="video-hailuo-js" />
+                  <CodeBlock code={codeExamples.videoHailuoPython} lang="Python · Hailuo H3" id="video-hailuo-python" />
+                  <CodeBlock code={codeExamples.videoHailuoCurl} lang="cURL · Hailuo H3" id="video-hailuo-curl" />
                 </div>
               )}
 
