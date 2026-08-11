@@ -62,10 +62,10 @@ function resolveFileUrl(file: any): string {
   if (!file) return "";
   if (typeof file === "string") return file;
   if (typeof file.url === "string" && file.url) return file.url;
-  if (typeof file.path === "string" && file.path) {
-    const base = WAN22_SPACE.startsWith("http") ? WAN22_SPACE : `https://huggingface.co/spaces/${WAN22_SPACE}`;
-    return `${base.replace(/\/$/, "")}/file=${file.path.replace(/^\//, "")}`;
-  }
+  if (file.video && typeof file.video === "object") return resolveFileUrl(file.video);
+  if (file.value && typeof file.value === "object") return resolveFileUrl(file.value);
+  if (Array.isArray(file) && file.length > 0) return resolveFileUrl(file[0]);
+  if (typeof file.path === "string" && file.path && /^https?:\/\//.test(file.path)) return file.path;
   return "";
 }
 
@@ -119,9 +119,16 @@ export async function generateVideo(params: WanParams): Promise<WanResult> {
 
     const data = result.data as any[];
 
+    const videoUrl = resolveFileUrl(data[0]);
+    const downloadUrl = resolveFileUrl(data[1]);
+
+    if (!videoUrl) {
+      throw new Error(`Wan2.2 returned no resolvable video URL. Raw data[0]: ${JSON.stringify(data[0])}`);
+    }
+
     return {
-      video: resolveFileUrl(data[0]),
-      downloadFile: resolveFileUrl(data[1]),
+      video: videoUrl,
+      downloadFile: downloadUrl,
       seed: data[2],
     };
   } catch (error: any) {
