@@ -156,7 +156,10 @@ export default function AdminDashboard() {
   const [pinVerifying, setPinVerifying] = useState(false);
   const [pinSuccess, setPinSuccess] = useState(false);
   const [newPromo, setNewPromo] = useState({ code: '', plan_type: 'pro', duration_days: 30, max_uses: 100 });
-  const [editUser, setEditUser] = useState({ plan: 'free', plan_expires_at: '' });
+  const [editUser, setEditUser] = useState({ plan: 'free', plan_expires_at: '', display_name: '' });
+  const [editingKeyId, setEditingKeyId] = useState<string | null>(null);
+  const [editRateLimit, setEditRateLimit] = useState('');
+  const [rateLimitSaving, setRateLimitSaving] = useState(false);
   const [activeChartLine, setActiveChartLine] = useState<ChartLine>('requests');
   const [showKeysModal, setShowKeysModal] = useState(false);
   const [keysModalVisible, setKeysModalVisible] = useState(false);
@@ -167,7 +170,11 @@ export default function AdminDashboard() {
 
   const openUserDetail = (user: User) => {
     setSelectedUser(user);
-    setEditUser({ plan: user.plan, plan_expires_at: user.plan_expires_at ? new Date(user.plan_expires_at).toISOString().slice(0, 16) : '' });
+    setEditUser({
+      plan: user.plan,
+      plan_expires_at: user.plan_expires_at ? new Date(user.plan_expires_at).toISOString().slice(0, 16) : '',
+      display_name: user.display_name || '',
+    });
     setActiveChartLine('requests');
     setShowUserDetailModal(true);
     requestAnimationFrame(() => requestAnimationFrame(() => setUserDetailVisible(true)));
@@ -180,6 +187,8 @@ export default function AdminDashboard() {
 
   const openKeysModal = async (user: User) => {
     setUserKeys([]);
+    setEditingKeyId(null);
+    setEditRateLimit('');
     setShowKeysModal(true);
     requestAnimationFrame(() => requestAnimationFrame(() => setKeysModalVisible(true)));
     setKeysLoading(true);
@@ -200,7 +209,7 @@ export default function AdminDashboard() {
 
   const closeKeysModal = () => {
     setKeysModalVisible(false);
-    setTimeout(() => { setShowKeysModal(false); setUserKeys([]); }, 300);
+    setTimeout(() => { setShowKeysModal(false); setUserKeys([]); setEditingKeyId(null); setEditRateLimit(''); }, 300);
   };
 
   useEffect(() => {
@@ -329,19 +338,77 @@ export default function AdminDashboard() {
     else showToast('Failed to update promo code', 'error');
   };
 
-  const handleUpdateUserPlan = async () => {
+  const handleSaveUser = async () => {
     if (!selectedUser) return;
     setActionLoading(true);
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
+    if (!session) { setActionLoading(false); return; }
+    const token = session.access_token;
+
+    const nameChanged = editUser.display_name.trim() !== (selectedUser.display_name || '');
+    const planChanged =
+      editUser.plan !== selectedUser.plan ||
+      (editUser.plan_expires_at || null) !==
+        (selectedUser.plan_expires_at ? new Date(selectedUser.plan_expires_at).toISOString().slice(0, 16) : null);
+
+    try {
+      if (nameChanged) {
+        if (!editUser.display_name.trim()) { showToast('Name cannot be empty', 'error'); setActionLoading(false); return; }
+        const res = await fetch('/api/console/admin', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ action: 'update-user-profile', user_id: selectedUser.user_id, display_name: editUser.display_name.trim() }),
+        });
+        if (!res.ok) throw new Error('name');
+      }
+      if (planChanged) {
+        const res = await fetch('/api/console/admin', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ action: 'update-user-plan', user_id: selectedUser.user_id, plan: editUser.plan, plan_expires_at: editUser.plan_expires_at || null }),
+        });
+        if (!res.ok) throw new Error('plan');
+      }
+      setActionLoading(false);
+      closeUserDetail();
+      fetchAllData(true);
+      showToast('User updated successfully', 'success');
+    } catch {
+      setActionLoading(false);
+      showToast('Failed to update user', 'error');
+    }
+  };
+
+  const startEditRateLimit = (key: ApiKey) => {
+    setEditingKeyId(key.id);
+    setEditRateLimit(String(key.rate_limit));
+  };
+
+  const cancelEditRateLimit = () => {
+    setEditingKeyId(null);
+    setEditRateLimit('');
+  };
+
+  const handleUpdateKeyRateLimit = async (keyId: string) => {
+    const parsed = parseInt(editRateLimit, 10);
+    if (!Number.isFinite(parsed) || parsed <= 0) { showToast('Enter a valid rate limit', 'error'); return; }
+    setRateLimitSaving(true);
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { setRateLimitSaving(false); return; }
     const res = await fetch('/api/console/admin', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
-      body: JSON.stringify({ action: 'update-user-plan', user_id: selectedUser.user_id, plan: editUser.plan, plan_expires_at: editUser.plan_expires_at || null }),
+      body: JSON.stringify({ action: 'update-key-rate-limit', key_id: keyId, rate_limit: parsed }),
     });
-    setActionLoading(false);
-    if (res.ok) { closeUserDetail(); fetchAllData(true); showToast('User plan updated successfully', 'success'); }
-    else showToast('Failed to update user plan', 'error');
+    setRateLimitSaving(false);
+    if (res.ok) {
+      setUserKeys(prev => prev.map(k => (k.id === keyId ? { ...k, rate_limit: parsed } : k)));
+      setEditingKeyId(null);
+      setEditRateLimit('');
+      showToast('Rate limit updated successfully', 'success');
+    } else {
+      showToast('Failed to update rate limit', 'error');
+    }
   };
 
   const copyToClipboard = (text: string, id: string) => {
@@ -1179,6 +1246,16 @@ export default function AdminDashboard() {
                   </div>
                   <div className="space-y-2">
                     <div>
+                      <label className="block text-[9px] font-semibold text-sky-600 dark:text-sky-500 uppercase tracking-wider mb-1">Name</label>
+                      <input
+                        type="text"
+                        value={editUser.display_name}
+                        onChange={e => setEditUser({ ...editUser, display_name: e.target.value })}
+                        placeholder="Display name"
+                        className="w-full px-3 py-2 bg-sky-50/60 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800/50 rounded-xl text-xs text-slate-800 dark:text-white placeholder:text-slate-400 outline-none focus:border-sky-500 dark:focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all"
+                      />
+                    </div>
+                    <div>
                       <label className="block text-[9px] font-semibold text-sky-600 dark:text-sky-500 uppercase tracking-wider mb-1">Plan</label>
                       <select
                         value={editUser.plan}
@@ -1209,7 +1286,7 @@ export default function AdminDashboard() {
                       Cancel
                     </button>
                     <button
-                      onClick={handleUpdateUserPlan}
+                      onClick={handleSaveUser}
                       disabled={actionLoading}
                       className="relative flex-1 px-4 py-2 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white rounded-xl font-semibold transition-all text-xs disabled:opacity-50 flex items-center justify-center gap-1.5 overflow-hidden"
                       style={{ boxShadow: '0 4px 16px rgba(14,165,233,0.35)' }}
@@ -1382,30 +1459,82 @@ export default function AdminDashboard() {
                                 : <FiCopy style={{ fontSize:9,color:'rgba(255,255,255,0.3)' }} />
                               }
                             </button>
+                            {editingKeyId !== key.id && (
+                              <button
+                                onClick={() => startEditRateLimit(key)}
+                                className="flex-shrink-0 w-6 h-6 rounded-md flex items-center justify-center transition-all duration-150"
+                                style={{ background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.07)' }}
+                                onMouseEnter={e => (e.currentTarget.style.background='rgba(14,165,233,0.1)')}
+                                onMouseLeave={e => (e.currentTarget.style.background='rgba(255,255,255,0.04)')}
+                                title="Edit rate limit"
+                              >
+                                <FiEdit2 style={{ fontSize:9,color:'rgba(255,255,255,0.3)' }} />
+                              </button>
+                            )}
                           </div>
 
                           <div className="mb-2">
                             <div className="flex items-center justify-between mb-1.5">
                               <span style={{ fontSize:9,color:'rgba(255,255,255,0.25)',fontWeight:600,letterSpacing:'0.08em',textTransform:'uppercase' }}>Rate Limit Today</span>
-                              <span className={`text-[10px] font-bold tabular-nums ${colors.text}`}>
-                                {key.requests_today.toLocaleString()} / {key.rate_limit.toLocaleString()}
-                              </span>
+                              {editingKeyId !== key.id && (
+                                <span className={`text-[10px] font-bold tabular-nums ${colors.text}`}>
+                                  {key.requests_today.toLocaleString()} / {key.rate_limit.toLocaleString()}
+                                </span>
+                              )}
                             </div>
-                            <div className="relative h-1.5 rounded-full overflow-hidden" style={{ background:'rgba(255,255,255,0.06)' }}>
-                              <div
-                                className="absolute inset-y-0 left-0 rounded-full transition-all duration-500"
-                                style={{ width:`${pct}%`,background:`linear-gradient(90deg,${colors.bar}cc,${colors.bar})`,boxShadow:`0 0 8px ${colors.bar}50` }}
-                              />
-                            </div>
-                            <div className="flex items-center justify-between mt-1">
-                              <span style={{ fontSize:8,color:'rgba(255,255,255,0.18)' }}>
-                                {key.last_used_at
-                                  ? `Last used ${new Date(key.last_used_at).toLocaleDateString('en-US', { month:'short', day:'numeric' })}`
-                                  : 'Never used'
-                                }
-                              </span>
-                              <span style={{ fontSize:8,fontWeight:700,color:colors.bar }}>{Math.round(pct)}%</span>
-                            </div>
+
+                            {editingKeyId === key.id ? (
+                              <div className="flex items-center gap-1.5 mb-1">
+                                <input
+                                  type="number"
+                                  min={1}
+                                  value={editRateLimit}
+                                  onChange={e => setEditRateLimit(e.target.value)}
+                                  autoFocus
+                                  className="w-full px-2.5 py-1.5 rounded-lg text-[11px] font-bold tabular-nums outline-none"
+                                  style={{ background:'rgba(14,165,233,0.08)', border:'1px solid rgba(14,165,233,0.3)', color:'#38bdf8' }}
+                                />
+                                <button
+                                  onClick={() => handleUpdateKeyRateLimit(key.id)}
+                                  disabled={rateLimitSaving}
+                                  className="flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-150 disabled:opacity-50"
+                                  style={{ background:'rgba(52,211,153,0.12)',border:'1px solid rgba(52,211,153,0.3)' }}
+                                  title="Save"
+                                >
+                                  {rateLimitSaving
+                                    ? <div className="w-3 h-3 border-2 border-emerald-400/30 border-t-emerald-400 rounded-full animate-spin" />
+                                    : <FiCheck style={{ fontSize:11,color:'#34d399' }} />
+                                  }
+                                </button>
+                                <button
+                                  onClick={cancelEditRateLimit}
+                                  disabled={rateLimitSaving}
+                                  className="flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-150 disabled:opacity-50"
+                                  style={{ background:'rgba(248,113,113,0.1)',border:'1px solid rgba(248,113,113,0.25)' }}
+                                  title="Cancel"
+                                >
+                                  <FiX style={{ fontSize:11,color:'#f87171' }} />
+                                </button>
+                              </div>
+                            ) : (
+                              <>
+                                <div className="relative h-1.5 rounded-full overflow-hidden" style={{ background:'rgba(255,255,255,0.06)' }}>
+                                  <div
+                                    className="absolute inset-y-0 left-0 rounded-full transition-all duration-500"
+                                    style={{ width:`${pct}%`,background:`linear-gradient(90deg,${colors.bar}cc,${colors.bar})`,boxShadow:`0 0 8px ${colors.bar}50` }}
+                                  />
+                                </div>
+                                <div className="flex items-center justify-between mt-1">
+                                  <span style={{ fontSize:8,color:'rgba(255,255,255,0.18)' }}>
+                                    {key.last_used_at
+                                      ? `Last used ${new Date(key.last_used_at).toLocaleDateString('en-US', { month:'short', day:'numeric' })}`
+                                      : 'Never used'
+                                    }
+                                  </span>
+                                  <span style={{ fontSize:8,fontWeight:700,color:colors.bar }}>{Math.round(pct)}%</span>
+                                </div>
+                              </>
+                            )}
                           </div>
 
                           <div className="flex items-center gap-1.5 pt-2" style={{ borderTop:'1px solid rgba(255,255,255,0.05)' }}>
