@@ -37,7 +37,7 @@ export const WAN_LIMITS = {
   guidance_scale: { min: 0, max: 10 },
   guidance_scale_2: { min: 0, max: 10 },
   flow_shift: { min: 0.5, max: 15 },
-  frame_multiplier: ["32", "64", "128"],
+  frame_multiplier: ["16", "32", "64", "128"],
 };
 
 export class WanRateLimitError extends Error {
