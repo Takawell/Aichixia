@@ -156,10 +156,13 @@ export default function AdminDashboard() {
   const [pinVerifying, setPinVerifying] = useState(false);
   const [pinSuccess, setPinSuccess] = useState(false);
   const [newPromo, setNewPromo] = useState({ code: '', plan_type: 'pro', duration_days: 30, max_uses: 100 });
-  const [editUser, setEditUser] = useState({ plan: 'free', plan_expires_at: '', display_name: '' });
+  const [editUser, setEditUser] = useState({ plan: 'free', plan_expires_at: '' });
   const [editingKeyId, setEditingKeyId] = useState<string | null>(null);
   const [editRateLimit, setEditRateLimit] = useState('');
   const [rateLimitSaving, setRateLimitSaving] = useState(false);
+  const [showEditNameModal, setShowEditNameModal] = useState(false);
+  const [editNameValue, setEditNameValue] = useState('');
+  const [nameSaving, setNameSaving] = useState(false);
   const [activeChartLine, setActiveChartLine] = useState<ChartLine>('requests');
   const [showKeysModal, setShowKeysModal] = useState(false);
   const [keysModalVisible, setKeysModalVisible] = useState(false);
@@ -170,11 +173,7 @@ export default function AdminDashboard() {
 
   const openUserDetail = (user: User) => {
     setSelectedUser(user);
-    setEditUser({
-      plan: user.plan,
-      plan_expires_at: user.plan_expires_at ? new Date(user.plan_expires_at).toISOString().slice(0, 16) : '',
-      display_name: user.display_name || '',
-    });
+    setEditUser({ plan: user.plan, plan_expires_at: user.plan_expires_at ? new Date(user.plan_expires_at).toISOString().slice(0, 16) : '' });
     setActiveChartLine('requests');
     setShowUserDetailModal(true);
     requestAnimationFrame(() => requestAnimationFrame(() => setUserDetailVisible(true)));
@@ -182,6 +181,8 @@ export default function AdminDashboard() {
 
   const closeUserDetail = () => {
     setUserDetailVisible(false);
+    setShowEditNameModal(false);
+    setEditNameValue('');
     setTimeout(() => { setShowUserDetailModal(false); setSelectedUser(null); }, 300);
   };
 
@@ -338,44 +339,51 @@ export default function AdminDashboard() {
     else showToast('Failed to update promo code', 'error');
   };
 
-  const handleSaveUser = async () => {
+  const handleUpdateUserPlan = async () => {
     if (!selectedUser) return;
     setActionLoading(true);
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) { setActionLoading(false); return; }
-    const token = session.access_token;
+    const res = await fetch('/api/console/admin', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+      body: JSON.stringify({ action: 'update-user-plan', user_id: selectedUser.user_id, plan: editUser.plan, plan_expires_at: editUser.plan_expires_at || null }),
+    });
+    setActionLoading(false);
+    if (res.ok) { closeUserDetail(); fetchAllData(true); showToast('User plan updated successfully', 'success'); }
+    else showToast('Failed to update user plan', 'error');
+  };
 
-    const nameChanged = editUser.display_name.trim() !== (selectedUser.display_name || '');
-    const planChanged =
-      editUser.plan !== selectedUser.plan ||
-      (editUser.plan_expires_at || null) !==
-        (selectedUser.plan_expires_at ? new Date(selectedUser.plan_expires_at).toISOString().slice(0, 16) : null);
+  const openEditNameModal = () => {
+    if (!selectedUser) return;
+    setEditNameValue(selectedUser.display_name || '');
+    setShowEditNameModal(true);
+  };
 
-    try {
-      if (nameChanged) {
-        if (!editUser.display_name.trim()) { showToast('Name cannot be empty', 'error'); setActionLoading(false); return; }
-        const res = await fetch('/api/console/admin', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ action: 'update-user-profile', user_id: selectedUser.user_id, display_name: editUser.display_name.trim() }),
-        });
-        if (!res.ok) throw new Error('name');
-      }
-      if (planChanged) {
-        const res = await fetch('/api/console/admin', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ action: 'update-user-plan', user_id: selectedUser.user_id, plan: editUser.plan, plan_expires_at: editUser.plan_expires_at || null }),
-        });
-        if (!res.ok) throw new Error('plan');
-      }
-      setActionLoading(false);
-      closeUserDetail();
+  const closeEditNameModal = () => {
+    setShowEditNameModal(false);
+    setEditNameValue('');
+  };
+
+  const handleUpdateDisplayName = async () => {
+    if (!selectedUser) return;
+    if (!editNameValue.trim()) { showToast('Name cannot be empty', 'error'); return; }
+    setNameSaving(true);
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { setNameSaving(false); return; }
+    const res = await fetch('/api/console/admin', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+      body: JSON.stringify({ action: 'update-user-profile', user_id: selectedUser.user_id, display_name: editNameValue.trim() }),
+    });
+    setNameSaving(false);
+    if (res.ok) {
+      setSelectedUser({ ...selectedUser, display_name: editNameValue.trim() });
+      closeEditNameModal();
       fetchAllData(true);
-      showToast('User updated successfully', 'success');
-    } catch {
-      setActionLoading(false);
-      showToast('Failed to update user', 'error');
+      showToast('Name updated successfully', 'success');
+    } else {
+      showToast('Failed to update name', 'error');
     }
   };
 
@@ -1126,9 +1134,17 @@ export default function AdminDashboard() {
                       </div>
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-bold text-slate-800 dark:text-white leading-tight truncate max-w-[160px]">
-                        {selectedUser.display_name || 'No Name'}
-                      </p>
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-sm font-bold text-slate-800 dark:text-white leading-tight truncate max-w-[130px]">
+                          {selectedUser.display_name || 'No Name'}
+                        </p>
+                        <button
+                          onClick={openEditNameModal}
+                          className="flex-shrink-0 w-5 h-5 rounded-md flex items-center justify-center bg-sky-50 dark:bg-sky-900/30 hover:bg-sky-100 dark:hover:bg-sky-900/50 transition-colors"
+                        >
+                          <FiEdit2 className="text-sky-500" style={{ fontSize: 9 }} />
+                        </button>
+                      </div>
                       <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate max-w-[160px]">{selectedUser.email}</p>
                       <div className={`inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-md border text-[10px] font-bold ${getPlanBadge(selectedUser.plan)}`}>
                         <PlanIcon style={{ fontSize: 9 }} />
@@ -1246,16 +1262,6 @@ export default function AdminDashboard() {
                   </div>
                   <div className="space-y-2">
                     <div>
-                      <label className="block text-[9px] font-semibold text-sky-600 dark:text-sky-500 uppercase tracking-wider mb-1">Name</label>
-                      <input
-                        type="text"
-                        value={editUser.display_name}
-                        onChange={e => setEditUser({ ...editUser, display_name: e.target.value })}
-                        placeholder="Display name"
-                        className="w-full px-3 py-2 bg-sky-50/60 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800/50 rounded-xl text-xs text-slate-800 dark:text-white placeholder:text-slate-400 outline-none focus:border-sky-500 dark:focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all"
-                      />
-                    </div>
-                    <div>
                       <label className="block text-[9px] font-semibold text-sky-600 dark:text-sky-500 uppercase tracking-wider mb-1">Plan</label>
                       <select
                         value={editUser.plan}
@@ -1286,7 +1292,7 @@ export default function AdminDashboard() {
                       Cancel
                     </button>
                     <button
-                      onClick={handleSaveUser}
+                      onClick={handleUpdateUserPlan}
                       disabled={actionLoading}
                       className="relative flex-1 px-4 py-2 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white rounded-xl font-semibold transition-all text-xs disabled:opacity-50 flex items-center justify-center gap-1.5 overflow-hidden"
                       style={{ boxShadow: '0 4px 16px rgba(14,165,233,0.35)' }}
@@ -1318,6 +1324,50 @@ export default function AdminDashboard() {
           </div>
         );
       })()}
+
+      {showEditNameModal && selectedUser && (
+        <div
+          className="fixed inset-0 z-[70] flex items-center justify-center p-4"
+          style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
+          onClick={closeEditNameModal}
+        >
+          <div
+            className="w-full max-w-xs bg-white dark:bg-slate-900 rounded-2xl border border-sky-100/80 dark:border-sky-900/40 shadow-2xl shadow-sky-500/10 p-4"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-sm font-bold text-slate-800 dark:text-white">Edit Name</p>
+              <button onClick={closeEditNameModal} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+                <FiX className="text-sm text-slate-500 dark:text-slate-400" />
+              </button>
+            </div>
+            <input
+              type="text"
+              value={editNameValue}
+              onChange={e => setEditNameValue(e.target.value)}
+              placeholder="Display name"
+              autoFocus
+              className="w-full px-3 py-2 bg-sky-50/60 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800/50 rounded-xl text-xs text-slate-800 dark:text-white placeholder:text-slate-400 outline-none focus:border-sky-500 dark:focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all mb-3"
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={closeEditNameModal}
+                disabled={nameSaving}
+                className="flex-1 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleUpdateDisplayName}
+                disabled={nameSaving}
+                className="flex-1 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-sky-500 to-blue-500 text-white hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-1.5"
+              >
+                {nameSaving ? <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : 'Save'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showKeysModal && selectedUser && (() => {
         const getRateLimitColor = (used: number, limit: number) => {
