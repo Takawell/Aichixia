@@ -17,7 +17,7 @@ export type WanParams = {
   quality?: number;
   scheduler?: string;
   flow_shift?: number;
-  frame_multiplier?: string;
+  frame_multiplier?: string | number;
   safe_mode?: boolean;
   lora_groups?: any[];
   video_component?: boolean;
@@ -37,7 +37,7 @@ export const WAN_LIMITS = {
   guidance_scale: { min: 0, max: 10 },
   guidance_scale_2: { min: 0, max: 10 },
   flow_shift: { min: 0.5, max: 15 },
-  frame_multiplier: ["16", "32", "64", "128"],
+  frame_multiplier: [16, 32, 64, 128],
 };
 
 export class WanRateLimitError extends Error {
@@ -62,7 +62,7 @@ let clientPromise: Promise<Client> | null = null;
 
 async function getClient(): Promise<Client> {
   if (!clientPromise) {
-    clientPromise = Client.connect(WAN22_SPACE, HF_TOKEN ? { hf_token: HF_TOKEN as `hf_${string}` } : undefined);
+    clientPromise = Client.connect(WAN22_SPACE, HF_TOKEN ? { token: HF_TOKEN as `hf_${string}` } : undefined);
   }
   return clientPromise;
 }
@@ -79,9 +79,9 @@ export async function generateVideo(params: WanParams): Promise<WanResult> {
   const guidanceScale = clamp(params.guidance_scale ?? 6.5, WAN_LIMITS.guidance_scale.min, WAN_LIMITS.guidance_scale.max);
   const guidanceScale2 = clamp(params.guidance_scale_2 ?? 1, WAN_LIMITS.guidance_scale_2.min, WAN_LIMITS.guidance_scale_2.max);
   const flowShift = clamp(params.flow_shift ?? 3, WAN_LIMITS.flow_shift.min, WAN_LIMITS.flow_shift.max);
-  const frameMultiplier = WAN_LIMITS.frame_multiplier.includes(params.frame_multiplier ?? "")
-    ? (params.frame_multiplier as string)
-    : "128";
+  const frameMultiplier = WAN_LIMITS.frame_multiplier.includes(Number(params.frame_multiplier))
+    ? Number(params.frame_multiplier)
+    : 128;
 
   try {
     const client = await getClient();
