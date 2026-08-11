@@ -1304,8 +1304,8 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
   const [videoSteps, setVideoSteps] = useState(6);
   const [videoGuidanceScale, setVideoGuidanceScale] = useState(6.5);
   const [videoGuidanceScale2, setVideoGuidanceScale2] = useState(1);
-  const [videoSeed, setVideoSeed] = useState(0);
-  const [videoRandomizeSeed, setVideoRandomizeSeed] = useState(true);
+  const [videoSeed, setVideoSeed] = useState(42);
+  const [videoRandomizeSeed, setVideoRandomizeSeed] = useState(false);
   const [videoQuality, setVideoQuality] = useState(6);
   const [videoScheduler, setVideoScheduler] = useState('UniPCMultistep');
   const [videoFlowShift, setVideoFlowShift] = useState(3);
@@ -1380,7 +1380,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
   const handleDownloadVideo = () => {
     if (!videoResult?.video) return;
     const link = document.createElement('a');
-    link.href = typeof videoResult.video === 'string' ? videoResult.video : (videoResult.video as any)?.url ?? '';
+    link.href = videoResult.video;
     link.download = `video-${Date.now()}.mp4`;
     document.body.appendChild(link); link.click(); document.body.removeChild(link);
   };
@@ -2683,7 +2683,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                     <div className="rounded-lg overflow-hidden">
                       <video
                         controls
-                        src={typeof videoResult.video === 'string' ? videoResult.video : (videoResult.video as any)?.url}
+                        src={videoResult.video}
                         className="w-full h-auto rounded-lg shadow-lg"
                       />
                     </div>
