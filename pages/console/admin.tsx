@@ -216,7 +216,9 @@ export default function AdminDashboard() {
   useEffect(() => {
     if (!showUserDetailModal) return;
     const handler = (e: MouseEvent) => {
-      if (userDetailRef.current && !userDetailRef.current.contains(e.target as Node)) closeUserDetail();
+      const target = e.target as HTMLElement;
+      if (target.closest('[data-modal="edit-name"]')) return;
+      if (userDetailRef.current && !userDetailRef.current.contains(target)) closeUserDetail();
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
@@ -1336,6 +1338,7 @@ export default function AdminDashboard() {
 
       {showEditNameModal && selectedUser && (
         <div
+          data-modal="edit-name"
           className="fixed inset-0 z-[80] flex items-center justify-center p-4"
           style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
           onClick={closeEditNameModal}
