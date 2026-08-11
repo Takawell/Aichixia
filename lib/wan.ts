@@ -24,8 +24,8 @@ export type WanParams = {
 };
 
 export type WanResult = {
-  video: any;
-  downloadFile: any;
+  video: string;
+  downloadFile: string;
   seed: number;
 };
 
@@ -58,6 +58,17 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
 }
 
+function resolveFileUrl(file: any): string {
+  if (!file) return "";
+  if (typeof file === "string") return file;
+  if (typeof file.url === "string" && file.url) return file.url;
+  if (typeof file.path === "string" && file.path) {
+    const base = WAN22_SPACE.startsWith("http") ? WAN22_SPACE : `https://huggingface.co/spaces/${WAN22_SPACE}`;
+    return `${base.replace(/\/$/, "")}/file=${file.path.replace(/^\//, "")}`;
+  }
+  return "";
+}
+
 let clientPromise: Promise<Client> | null = null;
 
 async function getClient(): Promise<Client> {
@@ -74,7 +85,7 @@ export async function generateVideo(params: WanParams): Promise<WanResult> {
 
   const duration = clamp(params.duration_seconds ?? 3.5, WAN_LIMITS.duration_seconds.min, WAN_LIMITS.duration_seconds.max);
   const quality = clamp(params.quality ?? 6, WAN_LIMITS.quality.min, WAN_LIMITS.quality.max);
-  const seed = clamp(params.seed ?? 0, WAN_LIMITS.seed.min, WAN_LIMITS.seed.max);
+  const seed = clamp(params.seed ?? 42, WAN_LIMITS.seed.min, WAN_LIMITS.seed.max);
   const steps = clamp(params.steps ?? 6, WAN_LIMITS.steps.min, WAN_LIMITS.steps.max);
   const guidanceScale = clamp(params.guidance_scale ?? 6.5, WAN_LIMITS.guidance_scale.min, WAN_LIMITS.guidance_scale.max);
   const guidanceScale2 = clamp(params.guidance_scale_2 ?? 1, WAN_LIMITS.guidance_scale_2.min, WAN_LIMITS.guidance_scale_2.max);
@@ -96,7 +107,7 @@ export async function generateVideo(params: WanParams): Promise<WanResult> {
       guidance_scale: guidanceScale,
       guidance_scale_2: guidanceScale2,
       seed,
-      randomize_seed: params.randomize_seed ?? true,
+      randomize_seed: params.randomize_seed ?? false,
       quality,
       scheduler: params.scheduler ?? "UniPCMultistep",
       flow_shift: flowShift,
@@ -109,8 +120,8 @@ export async function generateVideo(params: WanParams): Promise<WanResult> {
     const data = result.data as any[];
 
     return {
-      video: data[0],
-      downloadFile: data[1],
+      video: resolveFileUrl(data[0]),
+      downloadFile: resolveFileUrl(data[1]),
       seed: data[2],
     };
   } catch (error: any) {
