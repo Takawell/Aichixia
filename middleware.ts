@@ -66,7 +66,7 @@ export async function middleware(request: NextRequest) {
         error: "API rate limit exceeded.",
         code: "rate_limit_exceeded",
         retryAfter,
-        limit: "20 requests per minute",
+        limit: "10 requests per minute",
         remaining: 0,
       },
       {
