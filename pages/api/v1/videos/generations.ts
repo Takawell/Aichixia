@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { generateVideo, WanRateLimitError, WanQuotaError } from "@/lib/wan";
 import { generateVideo as generateHailuoVideo, HailuoRateLimitError, HailuoQuotaError } from "@/lib/hailuo";
+import { generateVideo as generateFuntasticVideo, FuntasticRateLimitError, FuntasticQuotaError } from "@/lib/funtastic";
 import { verifyApiKey, incrementUsage, logRequest, updateDailyUsage } from "@/lib/console-utils";
 import { getServiceSupabase } from "@/lib/supabase";
 
@@ -16,12 +17,13 @@ export const config = {
 const MODEL_MAPPING: Record<string, { provider: string }> = {
   "wan2.2-i2v": { provider: "wan22" },
   "hailuo-h3": { provider: "hailuo" },
+  "funtastic-3": { provider: "funtastic" },
 };
 
 const LOCKED_MODELS_PRO = ['wan2.2-i2v', 'hailuo-h3'];
 
-const RATE_LIMIT_ERRORS = [WanRateLimitError, HailuoRateLimitError];
-const QUOTA_ERRORS = [WanQuotaError, HailuoQuotaError];
+const RATE_LIMIT_ERRORS = [WanRateLimitError, HailuoRateLimitError, FuntasticRateLimitError];
+const QUOTA_ERRORS = [WanQuotaError, HailuoQuotaError, FuntasticQuotaError];
 
 function isRateLimitError(error: any): boolean {
   return RATE_LIMIT_ERRORS.some((ErrorClass) => error instanceof ErrorClass);
@@ -133,6 +135,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     canvas,
     duration,
     upsample,
+    ratio,
+    aspect_ratio,
+    sound,
+    ai_sound,
   } = req.body;
 
   if (!model || typeof model !== "string") {
@@ -198,7 +204,52 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
   }
 
+  if (model.toLowerCase() === "funtastic-3" && (!prompt || typeof prompt !== "string")) {
+    await incrementUsage(apiKeyData.id);
+    await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, false);
+    await logRequest({
+      api_key_id: apiKeyData.id, user_id: apiKeyData.user_id,
+      model, endpoint: '/api/v1/videos/generations',
+      status: 400, tokens_used: 0, error_message: 'prompt is required',
+      ip_address: ipAddress, user_agent: userAgent,
+    });
+    return res.status(400).json({
+      error: { message: "prompt is required and must be a string", type: "invalid_request_error", param: "prompt", code: null },
+    });
+  }
+
   try {
+    if (model.toLowerCase() === "funtastic-3") {
+      const result = await generateFuntasticVideo({
+        prompt,
+        ratio,
+        aspect_ratio,
+        sound,
+        ai_sound,
+      });
+
+      const latency = Date.now() - startTime;
+
+      await incrementUsage(apiKeyData.id);
+      await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, true);
+      await logRequest({
+        api_key_id: apiKeyData.id, user_id: apiKeyData.user_id,
+        model, endpoint: '/api/v1/videos/generations',
+        status: 200, latency_ms: latency, tokens_used: 0,
+        ip_address: ipAddress, user_agent: userAgent,
+      });
+
+      return res.status(200).json({
+        id: `video-${Date.now()}`,
+        object: "video.generation",
+        created: Math.floor(Date.now() / 1000),
+        model,
+        data: {
+          video: result.video,
+        },
+      });
+    }
+
     if (model.toLowerCase() === "hailuo-h3") {
       const inputImageBlob = input_image ? await fetchAsBlob(input_image) : undefined;
       const lastImageBlob = last_image ? await fetchAsBlob(last_image) : undefined;
