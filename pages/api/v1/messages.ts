@@ -27,6 +27,7 @@ import { chatStepfun, streamStepfun, StepfunRateLimitError, StepfunQuotaError } 
 import { chatNemotron, streamNemotron, NemotronRateLimitError, NemotronQuotaError } from "@/lib/nemotron";
 import { chatGpt55, Gpt55RateLimitError, Gpt55QuotaError } from "@/lib/gpt-5-5";
 import { chatGemma, streamGemma, GemmaRateLimitError, GemmaQuotaError } from "@/lib/gemma";
+import { chatHaiku, HaikuRateLimitError, HaikuQuotaError } from "@/lib/haiku";
 import { verifyApiKey, incrementUsage, logRequest, updateDailyUsage } from "@/lib/console-utils";
 import { getServiceSupabase } from "@/lib/supabase";
 
@@ -55,6 +56,7 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "gpt-5-mini": { fn: chatOpenAI, provider: "openai" },
   "claude-sonnet-4.6": { fn: chatClaude, provider: "claude" },
   "claude-opus-4.8": { fn: chatOpus, provider: "opus" },
+  "claude-haiku-4.5": { fn: chatHaiku, provider: "haiku" },
   "gemini-3-flash": { fn: chatGemini, provider: "gemini" },
   "kimi-k2.6": { fn: chatKimi, provider: "kimi" },
   "glm-5.2": { fn: chatGlm, provider: "glm" },
@@ -100,7 +102,7 @@ const RATE_LIMIT_ERRORS = [
   LlamaRateLimitError, MistralRateLimitError, MimoRateLimitError, PhiRateLimitError,
   MinimaxRateLimitError, GrokRateLimitError, GrokFastRateLimitError, ZhipuRateLimitError,
   AichixiaRateLimitError, StepfunRateLimitError, NemotronRateLimitError, Gpt55RateLimitError, OpusRateLimitError,
-  GemmaRateLimitError,
+  GemmaRateLimitError, HaikuRateLimitError,
 ];
 
 const QUOTA_ERRORS = [
@@ -110,7 +112,7 @@ const QUOTA_ERRORS = [
   LlamaQuotaError, MistralQuotaError, MimoQuotaError, PhiQuotaError,
   MinimaxQuotaError, GrokQuotaError, GrokFastQuotaError, ZhipuQuotaError,
   AichixiaQuotaError, StepfunQuotaError, NemotronQuotaError, Gpt55QuotaError, OpusQuotaError,
-  GemmaQuotaError,
+  GemmaQuotaError, HaikuQuotaError,
 ];
 
 function isRateLimitError(error: any): boolean {
