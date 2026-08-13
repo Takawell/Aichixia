@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { FiCopy, FiCheck, FiLock, FiZap, FiCpu, FiTrendingUp, FiDollarSign, FiSearch, FiStar, FiInfo, FiImage, FiX, FiExternalLink, FiMic } from 'react-icons/fi';
 import { SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiAirbrake, SiMaze, SiXiaomi, SiFlux, SiImagedotsc, SiSecurityscorecard, SiLapce, SiAudiomack, SiSoundcloud, SiSpotify, SiVorondesign, SiNvidia, SiElevenlabs } from 'react-icons/si';
-import { RiOpenaiFill } from 'react-icons/ri';
+import { RiOpenaiFill, RiCameraLensAiFill } from 'react-icons/ri';
 import { GiSpermWhale, GiPowerLightning, GiClover, GiFire, } from 'react-icons/gi';
 import { DiBower } from 'react-icons/di';
 import { TbSquareLetterZ, TbLetterM } from 'react-icons/tb';
@@ -510,6 +510,20 @@ const AVAILABLE_MODELS = [
     contextWindow: 'N/A',
     pricing: 'Premium',
     features: ['Text-to-video', 'Image-to-video', 'Synced soundtrack'],
+    endpoint: 'https://www.aichixia.xyz/api/v1/videos/generations',
+  },
+  {
+    id: 'funtastic-3',
+    name: 'Funtastic 3',
+    icon: RiCameraLensAiFill,
+    color: 'from-indigo-500 to-violet-600',
+    category: 'Video Generation',
+    description: 'Fast text-to-video generation with optional synchronized sound from Luma AI',
+    speed: 5,
+    quality: 3,
+    contextWindow: 'N/A',
+    pricing: 'Standard',
+    features: ['Text-to-video', 'Fast generation', 'Optional sound'],
     endpoint: 'https://www.aichixia.xyz/api/v1/videos/generations',
   },
   {

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { FiPlay, FiCopy, FiCheck, FiChevronDown, FiZap, FiCode, FiTerminal, FiSettings, FiClock, FiCpu, FiAlertCircle, FiRotateCcw, FiEye, FiEyeOff, FiImage, FiVolume2, FiDownload, FiPause, FiX, FiUpload, FiMaximize2, FiMinimize2, FiLayout, FiMinus, FiSmile, FiFrown, FiAlertTriangle, FiThumbsDown, FiBell, FiActivity, FiFastForward, FiSliders, FiMonitor, FiLayers, FiTarget, FiHash, FiXCircle, FiMic, FiGlobe, FiFileText, FiDatabase, FiTrash2, FiMessageSquare } from 'react-icons/fi';
 import { SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiAirbrake, SiFlux, SiLapce, SiSecurityscorecard, SiDigikeyelectronics, SiMatternet, SiMaze, SiImagedotsc, SiAudiomack, SiSoundcloud, SiSpotify, SiVorondesign, SiNvidia, SiElevenlabs } from 'react-icons/si';
-import { RiOpenaiFill } from 'react-icons/ri';
+import { RiOpenaiFill, RiCameraLensAiFill } from 'react-icons/ri';
 import { GiSpermWhale, GiPowerLightning, GiClover, GiCloverSpiked, GiFire } from 'react-icons/gi';
 import { DiBower } from 'react-icons/di';
 import { TbSquareLetterZ, TbLetterM } from 'react-icons/tb';
@@ -77,6 +77,7 @@ const IMAGE_MODELS: AnyModel[] = [
 const VIDEO_MODELS: AnyModel[] = [
   { id: 'wan2.2-i2v', name: 'Wan 2.2 I2V', provider: 'Alibaba', icon: SiAlibabacloud, color: 'from-purple-500 to-pink-500', pricing: 'Premium', context: '—', type: 'video', endpoint: `${base}/api/v1/videos/generations`, requiresPro: true },
   { id: 'hailuo-h3', name: 'Hailuo H3', provider: 'MiniMax', icon: SiMaze, color: 'from-cyan-600 to-blue-600', pricing: 'Premium', context: '—', type: 'video', endpoint: `${base}/api/v1/videos/generations`, requiresPro: true },
+  { id: 'funtastic-3', name: 'Funtastic 3', provider: 'Luma AI', icon: RiCameraLensAiFill, color: 'from-indigo-500 to-violet-600', pricing: 'Standard', context: '—', type: 'video', endpoint: `${base}/api/v1/videos/generations` },
 ];
 
 const TTS_MODELS: AnyModel[] = [
@@ -1509,6 +1510,12 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
   const hailuoFirstInputRef = useRef<HTMLInputElement>(null);
   const hailuoLastInputRef = useRef<HTMLInputElement>(null);
 
+  const [funtasticPrompt, setFuntasticPrompt] = useState('A vibrant 2D anime girl with twin pigtails and a pastel sailor uniform, performing an energetic J-pop idol dance with sharp hand movements and happy facial expressions, bright neon stage background with flashing colorful lights, dynamic low-angle camera, smooth fluid motion, high quality anime aesthetic.');
+  const [funtasticRatio, setFuntasticRatio] = useState('16:9');
+  const [funtasticAspectRatio, setFuntasticAspectRatio] = useState('16:9');
+  const [funtasticSound, setFuntasticSound] = useState(2);
+  const [funtasticAiSound, setFuntasticAiSound] = useState(2);
+
   const [memoryEnabled, setMemoryEnabled] = useState(false);
   const [memories, setMemories] = useState<MemoryMessage[]>([]);
   const [showMemoryPanel, setShowMemoryPanel] = useState(false);
@@ -1719,6 +1726,26 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
             steps: hailuoSteps,
             seed: hailuoSeed,
             upsample: hailuoUpsample,
+          }),
+        });
+        const { data, error: parseError } = await safeParseJson(res);
+        setLatency(Date.now() - t0);
+        if (parseError) { setError(parseError); return; }
+        if (!res.ok) { setError(data?.error?.message || `Error ${res.status}`); return; }
+        setVideoResult(data.data ?? null); setActiveTab('response'); return;
+      }
+
+      if (selectedModel.id === 'funtastic-3') {
+        const res = await fetch(selectedModel.endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+          body: JSON.stringify({
+            model: selectedModel.id,
+            prompt: funtasticPrompt,
+            ratio: funtasticRatio,
+            aspect_ratio: funtasticAspectRatio,
+            sound: funtasticSound,
+            ai_sound: funtasticAiSound,
           }),
         });
         const { data, error: parseError } = await safeParseJson(res);
@@ -2541,6 +2568,73 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                     onChange={e => setHailuoSeed(parseInt(e.target.value) || 0)}
                     className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[10px] sm:text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:border-blue-300 dark:focus:border-blue-400 outline-none transition-all"
                   />
+                </div>
+              </div>
+            )}
+
+            {selectedModel.id === 'funtastic-3' && (
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1">Prompt</label>
+                  <textarea
+                    value={funtasticPrompt}
+                    onChange={e => setFuntasticPrompt(e.target.value)}
+                    rows={4}
+                    placeholder="A vibrant 2D anime girl with twin pigtails and a pastel sailor uniform, performing an energetic J-pop idol dance..."
+                    className="w-full px-2.5 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[10px] sm:text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:border-blue-300 dark:focus:border-blue-400 focus:ring-1 focus:ring-blue-300/20 outline-none transition-all resize-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-2.5">
+                  <div>
+                    <label className="block text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1.5">Ratio</label>
+                    <select
+                      value={funtasticRatio}
+                      onChange={e => setFuntasticRatio(e.target.value)}
+                      className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[10px] sm:text-xs text-zinc-900 dark:text-white focus:border-blue-300 dark:focus:border-blue-400 outline-none transition-all cursor-pointer"
+                    >
+                      <option value="auto">auto</option>
+                      <option value="1:1">1:1</option>
+                      <option value="16:9">16:9</option>
+                      <option value="9:16">9:16</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1.5">Aspect Ratio</label>
+                    <select
+                      value={funtasticAspectRatio}
+                      onChange={e => setFuntasticAspectRatio(e.target.value)}
+                      className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[10px] sm:text-xs text-zinc-900 dark:text-white focus:border-blue-300 dark:focus:border-blue-400 outline-none transition-all cursor-pointer"
+                    >
+                      <option value="auto">auto</option>
+                      <option value="1:1">1:1</option>
+                      <option value="16:9">16:9</option>
+                      <option value="9:16">9:16</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2.5">
+                  <div>
+                    <label className="block text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1">Sound</label>
+                    <input
+                      type="number"
+                      value={funtasticSound}
+                      onChange={e => setFuntasticSound(parseInt(e.target.value) || 0)}
+                      className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[10px] sm:text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:border-blue-300 dark:focus:border-blue-400 outline-none transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1">AI Sound</label>
+                    <input
+                      type="number"
+                      value={funtasticAiSound}
+                      onChange={e => setFuntasticAiSound(parseInt(e.target.value) || 0)}
+                      className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[10px] sm:text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:border-blue-300 dark:focus:border-blue-400 outline-none transition-all"
+                    />
+                  </div>
                 </div>
               </div>
             )}
