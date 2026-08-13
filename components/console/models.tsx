@@ -1,58 +1,14 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { FiCopy, FiCheck, FiLock, FiZap, FiCpu, FiTrendingUp, FiDollarSign, FiSearch, FiStar, FiInfo, FiImage, FiX, FiExternalLink, FiMic } from 'react-icons/fi';
-import { SiAirbrake, SiFlux, SiImagedotsc, SiSecurityscorecard, SiLapce, SiAudiomack, SiSoundcloud, SiSpotify, SiVorondesign } from 'react-icons/si';
-import { RiCameraLensAiFill } from 'react-icons/ri';
-import { GiPowerLightning, GiFire } from 'react-icons/gi';
+import { SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiDigikeyelectronics, SiAirbrake, SiMaze, SiXiaomi, SiFlux, SiImagedotsc, SiSecurityscorecard, SiLapce, SiAudiomack, SiSoundcloud, SiSpotify, SiVorondesign, SiNvidia, SiElevenlabs } from 'react-icons/si';
+import { RiOpenaiFill, RiCameraLensAiFill } from 'react-icons/ri';
+import { GiSpermWhale, GiPowerLightning, GiClover, GiFire, } from 'react-icons/gi';
+import { DiBower } from 'react-icons/di';
+import { TbSquareLetterZ, TbLetterM } from 'react-icons/tb';
+import { TiVendorMicrosoft } from "react-icons/ti";
 import { HiSpeakerWave } from 'react-icons/hi2';
-import {
-  OpenAI,
-  Mistral,
-  DeepSeek,
-  Claude,
-  Gemini,
-  Gemma,
-  Grok,
-  Microsoft,
-  Glm,
-  Moonshot,
-  Stepfun,
-  Nvidia,
-  Qwen,
-  Minimax,
-  Meta,
-  XiaomiMiMo,
-  Groq,
-  Cohere,
-  ElevenLabs,
-} from '@lobehub/icons';
-
-const wrapBrandIcon = (BrandIcon: any) => {
-  const WrappedIcon = ({ className }: { className?: string }) => (
-    <BrandIcon.Avatar size="1em" className={className} />
-  );
-  return WrappedIcon;
-};
-
-const OpenAIIcon = wrapBrandIcon(OpenAI);
-const MistralIcon = wrapBrandIcon(Mistral);
-const DeepSeekIcon = wrapBrandIcon(DeepSeek);
-const ClaudeIcon = wrapBrandIcon(Claude);
-const GeminiIcon = wrapBrandIcon(Gemini);
-const GemmaIcon = wrapBrandIcon(Gemma);
-const GrokIcon = wrapBrandIcon(Grok);
-const MicrosoftIcon = wrapBrandIcon(Microsoft);
-const GlmIcon = wrapBrandIcon(Glm);
-const MoonshotIcon = wrapBrandIcon(Moonshot);
-const StepfunIcon = wrapBrandIcon(Stepfun);
-const NvidiaIcon = wrapBrandIcon(Nvidia);
-const QwenIcon = wrapBrandIcon(Qwen);
-const MinimaxIcon = wrapBrandIcon(Minimax);
-const MetaIcon = wrapBrandIcon(Meta);
-const XiaomiMiMoIcon = wrapBrandIcon(XiaomiMiMo);
-const GroqIcon = wrapBrandIcon(Groq);
-const CohereIcon = wrapBrandIcon(Cohere);
-const ElevenLabsIcon = wrapBrandIcon(ElevenLabs);
+import { FaXTwitter } from 'react-icons/fa6';
 
 type UserSettings = {
   plan: 'free' | 'pro' | 'enterprise';
@@ -82,7 +38,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'gpt-5-mini',
     name: 'GPT-5 Mini',
-    icon: OpenAIIcon,
+    icon: RiOpenaiFill,
     color: 'from-emerald-600 to-green-600',
     category: 'Text Generation',
     description: 'Balanced performance for general tasks',
@@ -111,7 +67,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'mistral-large-3-675b-instruct',
     name: 'Mistral Large 3 675B',
-    icon: MistralIcon,
+    icon: TbLetterM,
     color: 'from-orange-600 to-amber-600',
     category: 'Text Generation',
     limited: true,
@@ -126,7 +82,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'deepseek-v3.2',
     name: 'DeepSeek V3.2',
-    icon: DeepSeekIcon,
+    icon: GiSpermWhale,
     color: 'from-cyan-600 to-blue-600',
     category: 'Text Generation',
     requiresPlan: 'pro',
@@ -141,7 +97,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'deepseek-v4-flash',
     name: 'DeepSeek V4 Flash',
-    icon: DeepSeekIcon,
+    icon: GiSpermWhale,
     color: 'from-cyan-600 to-teal-600',
     category: 'Text Generation',
     description: 'Previous generation DeepSeek model',
@@ -155,7 +111,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'claude-sonnet-4.6',
     name: 'Claude Sonnet 4.6',
-    icon: ClaudeIcon,
+    icon: SiAnthropic,
     color: 'from-orange-600 to-amber-700',
     category: 'Text Generation',
     requiresPlan: 'pro',
@@ -170,7 +126,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'claude-opus-4.8',
     name: 'Claude Opus 4.8',
-    icon: ClaudeIcon,
+    icon: SiAnthropic,
     color: 'from-orange-600 to-amber-700',
     category: 'Text Generation',
     limited: true,
@@ -185,7 +141,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'claude-haiku-4.5',
     name: 'Claude Haiku 4.5',
-    icon: ClaudeIcon,
+    icon: SiAnthropic,
     color: 'from-orange-500 to-amber-600',
     category: 'Text Generation',
     description: 'Fast, lightweight Claude model for everyday tasks',
@@ -199,7 +155,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'gemini-3-flash',
     name: 'Gemini 3 Flash',
-    icon: GeminiIcon,
+    icon: SiGooglegemini,
     color: 'from-indigo-600 to-purple-600',
     category: 'Text Generation',
     description: 'Multimodal understanding and accuracy',
@@ -213,7 +169,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'grok-3',
     name: 'Grok 3',
-    icon: GrokIcon,
+    icon: FaXTwitter,
     color: 'from-slate-600 to-zinc-800',
     category: 'Text Generation',
     description: "xAI's flagship model with real-time data",
@@ -227,7 +183,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'phi-4-multimodal-instruct',
     name: 'Phi 4 Multimodal',
-    icon: MicrosoftIcon,
+    icon: TiVendorMicrosoft,
     color: 'from-cyan-500 to-blue-700',
     category: 'Text Generation',
     description: 'Microsoft compact 5.6B multimodal model capable of understanding text, images, and audio in a single unified architecture',
@@ -241,7 +197,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'glm-5.2',
     name: 'GLM 5.2',
-    icon: GlmIcon,
+    icon: TbSquareLetterZ,
     color: 'from-blue-700 to-indigo-900',
     category: 'Text Generation',
     requiresPlan: 'pro',
@@ -256,7 +212,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'glm-4.7-flash',
     name: 'GLM 4.7 Flash',
-    icon: GlmIcon,
+    icon: TbSquareLetterZ,
     color: 'from-blue-700 to-indigo-900',
     category: 'Text Generation',
     description: 'very fast suitable for real time apps',
@@ -270,7 +226,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'gemma-4-31b',
     name: 'Gemma 4 31B',
-    icon: GemmaIcon,
+    icon: SiGooglegemini,
     color: 'from-indigo-600 to-purple-600',
     category: 'Text Generation',
     description: 'Lightweight open model with strong general performance',
@@ -284,7 +240,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'kimi-k2.6',
     name: 'Kimi K2.6',
-    icon: MoonshotIcon,
+    icon: SiDigikeyelectronics,
     color: 'from-blue-600 to-cyan-600',
     category: 'Text Generation',
     requiresPlan: 'pro',
@@ -299,7 +255,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'step-3.7-flash',
     name: 'Step 3.7 Flash',
-    icon: StepfunIcon,
+    icon: DiBower,
     color: 'from-blue-500 to-blue-700',
     category: 'Text Generation',
     description: 'StepFun vision-language model with native multimodal, agentic, and coding capabilities.',
@@ -313,7 +269,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'nemotron-3-ultra-550b-a55b',
     name: 'Nemotron 3 Ultra 550B',
-    icon: NvidiaIcon,
+    icon: SiNvidia,
     color: 'from-emerald-600 to-green-600',
     category: 'Text Generation',
     description: 'Large-scale mixture-of-experts model for complex reasoning',
@@ -327,7 +283,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'qwen3.6-27b',
     name: 'Qwen3.6 27B',
-    icon: QwenIcon,
+    icon: SiAlibabacloud,
     color: 'from-purple-500 to-pink-500',
     category: 'Text Generation',
     description: 'Qwen 3.6 27B is a 27-billion-parameter multimodal model from Alibaba Qwen series.',
@@ -341,7 +297,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'qwen3-coder-480b',
     name: 'Qwen3 Coder 480B',
-    icon: QwenIcon,
+    icon: SiAlibabacloud,
     color: 'from-purple-600 to-fuchsia-600',
     category: 'Text Generation',
     requiresPlan: 'pro',
@@ -356,7 +312,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'minimax-m3',
     name: 'MiniMax M3',
-    icon: MinimaxIcon,
+    icon: SiMaze,
     color: 'from-cyan-600 to-blue-600',
     category: 'Text Generation',
     requiresPlan: 'pro',
@@ -371,7 +327,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'llama-3.3-70b',
     name: 'Llama 3.3 70B',
-    icon: MetaIcon,
+    icon: SiMeta,
     color: 'from-blue-600 to-indigo-700',
     category: 'Text Generation',
     description: 'Efficient open-source powerhouse',
@@ -385,7 +341,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'gpt-oss-120b',
     name: 'GPT-OSS 120B',
-    icon: OpenAIIcon,
+    icon: RiOpenaiFill,
     color: 'from-pink-600 to-rose-600',
     category: 'Text Generation',
     description: 'Large open-source with browser search',
@@ -399,7 +355,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'mimo-v2-flash',
     name: 'MiMo V2 Flash',
-    icon: XiaomiMiMoIcon,
+    icon: SiXiaomi,
     color: 'from-blue-600 to-purple-600',
     category: 'Text Generation',
     description: 'Efficient 309B MoE model for reasoning and coding tasks',
@@ -413,7 +369,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'groq-compound',
     name: 'Groq Compound',
-    icon: GroqIcon,
+    icon: GiPowerLightning,
     color: 'from-orange-600 to-red-600',
     category: 'Text Generation',
     description: 'Multi-model agentic system with tools',
@@ -427,7 +383,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'cohere-command-a',
     name: 'Cohere Command A',
-    icon: CohereIcon,
+    icon: GiClover,
     color: 'from-emerald-600 to-teal-600',
     category: 'Text Generation',
     description: 'Enterprise-grade with excellent tool use',
@@ -441,7 +397,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'grok-4-fast',
     name: 'Grok 4 Fast',
-    icon: GrokIcon,
+    icon: FaXTwitter,
     color: 'from-zinc-700 to-slate-900',
     category: 'Text Generation',
     requiresPlan: 'pro',
@@ -456,7 +412,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'gpt-5.2',
     name: 'GPT-5.2',
-    icon: OpenAIIcon,
+    icon: RiOpenaiFill,
     color: 'from-green-500 to-emerald-600',
     category: 'Text Generation',
     limited: true,
@@ -471,7 +427,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'gpt-5.5',
     name: 'GPT-5.5',
-    icon: OpenAIIcon,
+    icon: RiOpenaiFill,
     color: 'from-green-600 to-teal-600',
     category: 'Text Generation',
     requiresPlan: 'pro',
@@ -528,7 +484,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'nano-image',
     name: 'Nano Banana Pro',
-    icon: GeminiIcon,
+    icon: SiGooglegemini,
     color: 'from-yellow-400 to-orange-400',
     category: 'Image Generation',
     requiresPlan: 'pro',
@@ -543,7 +499,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'wan2.2-i2v',
     name: 'Wan 2.2 I2V',
-    icon: QwenIcon,
+    icon: SiAlibabacloud,
     color: 'from-purple-500 to-pink-500',
     category: 'Video Generation',
     requiresPlan: 'pro',
@@ -558,7 +514,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'hailuo-h3',
     name: 'Hailuo H3',
-    icon: MinimaxIcon,
+    icon: SiMaze,
     color: 'from-cyan-600 to-blue-600',
     category: 'Video Generation',
     requiresPlan: 'pro',
@@ -677,7 +633,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'alexandra-tts',
     name: 'Alexandra TTS',
-    icon: ElevenLabsIcon,
+    icon: SiElevenlabs,
     color: 'from-slate-600 to-zinc-800',
     category: 'Text-to-Speech',
     requiresPlan: 'pro',
@@ -693,7 +649,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'eve-tts',
     name: 'Eve TTS',
-    icon: ElevenLabsIcon,
+    icon: SiElevenlabs,
     color: 'from-zinc-600 to-slate-800',
     category: 'Text-to-Speech',
     requiresPlan: 'pro',
@@ -709,7 +665,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'whisper-large-v3',
     name: 'Whisper Large V3',
-    icon: OpenAIIcon,
+    icon: RiOpenaiFill,
     color: 'from-teal-500 to-emerald-600',
     category: 'Speech-to-Text',
     description: 'High-accuracy multilingual transcription and translation powered by Groq. Supports 99+ languages with verbose JSON output including segments and timestamps.',
@@ -723,7 +679,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'whisper-large-v3-turbo',
     name: 'Whisper V3 Turbo',
-    icon: OpenAIIcon,
+    icon: RiOpenaiFill,
     color: 'from-emerald-500 to-teal-400',
     category: 'Speech-to-Text',
     description: 'Faster variant of Whisper Large V3 with near-identical accuracy. Optimized for low-latency transcription at reduced cost.',
