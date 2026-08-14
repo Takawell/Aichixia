@@ -1,32 +1,14 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { FiCopy, FiCheck, FiLock, FiZap, FiCpu, FiTrendingUp, FiDollarSign, FiSearch, FiStar, FiInfo, FiImage, FiX, FiExternalLink, FiMic } from 'react-icons/fi';
-import { SiAirbrake, SiSecurityscorecard, SiLapce, SiAudiomack, SiSoundcloud, SiSpotify, SiVorondesign, SiImagedotsc } from 'react-icons/si';
-import { GiFire } from 'react-icons/gi';
+import { SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiMistralai, SiXiaomi, SiAirbrake, SiMaze, SiFlux, SiImagedotsc, SiSecurityscorecard, SiLapce, SiAudiomack, SiSoundcloud, SiSpotify, SiVorondesign, SiNvidia, SiElevenlabs } from 'react-icons/si';
+import { RiOpenaiFill, RiCameraLensAiFill, RiMoonFill } from 'react-icons/ri';
+import { GiSpermWhale, GiPowerLightning, GiClover, GiFire, } from 'react-icons/gi';
+import { DiBower } from 'react-icons/di';
+import { TbSquareLetterZ } from 'react-icons/tb';
+import { TiVendorMicrosoft } from "react-icons/ti";
 import { HiSpeakerWave } from 'react-icons/hi2';
-import {
-  OpenAI,
-  Mistral,
-  DeepSeek,
-  Claude,
-  Gemini,
-  Gemma,
-  Grok,
-  Microsoft,
-  Zhipu,
-  Moonshot,
-  Stepfun,
-  Nvidia,
-  Qwen,
-  Minimax,
-  Meta,
-  XiaomiMiMo,
-  Groq,
-  Cohere,
-  Flux,
-  DreamMachine,
-  ElevenLabs,
-} from '@lobehub/icons';
+import { FaXTwitter } from 'react-icons/fa6';
 
 type UserSettings = {
   plan: 'free' | 'pro' | 'enterprise';
@@ -55,9 +37,10 @@ const LANGUAGE_FLAGS: Record<string, string> = {
 const AVAILABLE_MODELS = [
   {
     id: 'gpt-5-mini',
-    isLobe: true,
     name: 'GPT-5 Mini',
-    icon: OpenAI,
+    icon: RiOpenaiFill,
+    logoSlug: 'openai',
+    invertDark: true,
     color: 'from-emerald-600 to-green-600',
     category: 'Text Generation',
     description: 'Balanced performance for general tasks',
@@ -85,9 +68,10 @@ const AVAILABLE_MODELS = [
   },
   {
     id: 'mistral-large-3-675b-instruct',
-    isLobe: true,
     name: 'Mistral Large 3 675B',
-    icon: Mistral.Color,
+    icon: SiMistralai,
+    logoSlug: 'mistral',
+    invertDark: false,
     color: 'from-orange-600 to-amber-600',
     category: 'Text Generation',
     limited: true,
@@ -101,9 +85,10 @@ const AVAILABLE_MODELS = [
   },
   {
     id: 'deepseek-v3.2',
-    isLobe: true,
     name: 'DeepSeek V3.2',
-    icon: DeepSeek.Color,
+    icon: GiSpermWhale,
+    logoSlug: 'deepseek',
+    invertDark: false,
     color: 'from-cyan-600 to-blue-600',
     category: 'Text Generation',
     requiresPlan: 'pro',
@@ -117,9 +102,10 @@ const AVAILABLE_MODELS = [
   },
   {
     id: 'deepseek-v4-flash',
-    isLobe: true,
     name: 'DeepSeek V4 Flash',
-    icon: DeepSeek.Color,
+    icon: GiSpermWhale,
+    logoSlug: 'deepseek',
+    invertDark: false,
     color: 'from-cyan-600 to-teal-600',
     category: 'Text Generation',
     description: 'Previous generation DeepSeek model',
@@ -132,9 +118,10 @@ const AVAILABLE_MODELS = [
   },
   {
     id: 'claude-sonnet-4.6',
-    isLobe: true,
     name: 'Claude Sonnet 4.6',
-    icon: Claude.Color,
+    icon: SiAnthropic,
+    logoSlug: 'anthropic',
+    invertDark: false,
     color: 'from-orange-600 to-amber-700',
     category: 'Text Generation',
     requiresPlan: 'pro',
@@ -148,9 +135,10 @@ const AVAILABLE_MODELS = [
   },
   {
     id: 'claude-opus-4.8',
-    isLobe: true,
     name: 'Claude Opus 4.8',
-    icon: Claude.Color,
+    icon: SiAnthropic,
+    logoSlug: 'anthropic',
+    invertDark: false,
     color: 'from-orange-600 to-amber-700',
     category: 'Text Generation',
     limited: true,
@@ -164,9 +152,10 @@ const AVAILABLE_MODELS = [
   },
   {
     id: 'claude-haiku-4.5',
-    isLobe: true,
     name: 'Claude Haiku 4.5',
-    icon: Claude.Color,
+    icon: SiAnthropic,
+    logoSlug: 'anthropic',
+    invertDark: false,
     color: 'from-orange-500 to-amber-600',
     category: 'Text Generation',
     description: 'Fast, lightweight Claude model for everyday tasks',
@@ -179,9 +168,10 @@ const AVAILABLE_MODELS = [
   },
   {
     id: 'gemini-3-flash',
-    isLobe: true,
     name: 'Gemini 3 Flash',
-    icon: Gemini.Color,
+    icon: SiGooglegemini,
+    logoSlug: 'gemini',
+    invertDark: false,
     color: 'from-indigo-600 to-purple-600',
     category: 'Text Generation',
     description: 'Multimodal understanding and accuracy',
@@ -194,9 +184,10 @@ const AVAILABLE_MODELS = [
   },
   {
     id: 'grok-3',
-    isLobe: true,
     name: 'Grok 3',
-    icon: Grok,
+    icon: FaXTwitter,
+    logoSlug: 'xai',
+    invertDark: true,
     color: 'from-slate-600 to-zinc-800',
     category: 'Text Generation',
     description: "xAI's flagship model with real-time data",
@@ -209,9 +200,10 @@ const AVAILABLE_MODELS = [
   },
   {
     id: 'phi-4-multimodal-instruct',
-    isLobe: true,
     name: 'Phi 4 Multimodal',
-    icon: Microsoft.Color,
+    icon: TiVendorMicrosoft,
+    logoSlug: 'microsoft',
+    invertDark: false,
     color: 'from-cyan-500 to-blue-700',
     category: 'Text Generation',
     description: 'Microsoft compact 5.6B multimodal model capable of understanding text, images, and audio in a single unified architecture',
@@ -224,9 +216,10 @@ const AVAILABLE_MODELS = [
   },
   {
     id: 'glm-5.2',
-    isLobe: true,
     name: 'GLM 5.2',
-    icon: Zhipu.Color,
+    icon: TbSquareLetterZ,
+    logoSlug: 'zhipu',
+    invertDark: false,
     color: 'from-blue-700 to-indigo-900',
     category: 'Text Generation',
     requiresPlan: 'pro',
@@ -240,9 +233,10 @@ const AVAILABLE_MODELS = [
   },
   {
     id: 'glm-4.7-flash',
-    isLobe: true,
     name: 'GLM 4.7 Flash',
-    icon: Zhipu.Color,
+    icon: TbSquareLetterZ,
+    logoSlug: 'zhipu',
+    invertDark: false,
     color: 'from-blue-700 to-indigo-900',
     category: 'Text Generation',
     description: 'very fast suitable for real time apps',
@@ -255,9 +249,10 @@ const AVAILABLE_MODELS = [
   },
   {
     id: 'gemma-4-31b',
-    isLobe: true,
     name: 'Gemma 4 31B',
-    icon: Gemma.Color,
+    icon: SiGooglegemini,
+    logoSlug: 'gemini',
+    invertDark: false,
     color: 'from-indigo-600 to-purple-600',
     category: 'Text Generation',
     description: 'Lightweight open model with strong general performance',
@@ -270,9 +265,10 @@ const AVAILABLE_MODELS = [
   },
   {
     id: 'kimi-k2.6',
-    isLobe: true,
     name: 'Kimi K2.6',
-    icon: Moonshot,
+    icon: RiMoonFill,
+    logoSlug: 'kimi',
+    invertDark: true,
     color: 'from-blue-600 to-cyan-600',
     category: 'Text Generation',
     requiresPlan: 'pro',
@@ -286,9 +282,10 @@ const AVAILABLE_MODELS = [
   },
   {
     id: 'step-3.7-flash',
-    isLobe: true,
     name: 'Step 3.7 Flash',
-    icon: Stepfun,
+    icon: DiBower,
+    logoSlug: 'stepfun',
+    invertDark: true,
     color: 'from-blue-500 to-blue-700',
     category: 'Text Generation',
     description: 'StepFun vision-language model with native multimodal, agentic, and coding capabilities.',
@@ -301,9 +298,10 @@ const AVAILABLE_MODELS = [
   },
   {
     id: 'nemotron-3-ultra-550b-a55b',
-    isLobe: true,
     name: 'Nemotron 3 Ultra 550B',
-    icon: Nvidia.Color,
+    icon: SiNvidia,
+    logoSlug: 'nvidia',
+    invertDark: false,
     color: 'from-emerald-600 to-green-600',
     category: 'Text Generation',
     description: 'Large-scale mixture-of-experts model for complex reasoning',
@@ -316,9 +314,10 @@ const AVAILABLE_MODELS = [
   },
   {
     id: 'qwen3.6-27b',
-    isLobe: true,
     name: 'Qwen3.6 27B',
-    icon: Qwen.Color,
+    icon: SiAlibabacloud,
+    logoSlug: 'qwen',
+    invertDark: false,
     color: 'from-purple-500 to-pink-500',
     category: 'Text Generation',
     description: 'Qwen 3.6 27B is a 27-billion-parameter multimodal model from Alibaba Qwen series.',
@@ -331,9 +330,10 @@ const AVAILABLE_MODELS = [
   },
   {
     id: 'qwen3-coder-480b',
-    isLobe: true,
     name: 'Qwen3 Coder 480B',
-    icon: Qwen.Color,
+    icon: SiAlibabacloud,
+    logoSlug: 'qwen',
+    invertDark: false,
     color: 'from-purple-600 to-fuchsia-600',
     category: 'Text Generation',
     requiresPlan: 'pro',
@@ -347,9 +347,10 @@ const AVAILABLE_MODELS = [
   },
   {
     id: 'minimax-m3',
-    isLobe: true,
     name: 'MiniMax M3',
-    icon: Minimax.Color,
+    icon: SiMaze,
+    logoSlug: 'minimax',
+    invertDark: false,
     color: 'from-cyan-600 to-blue-600',
     category: 'Text Generation',
     requiresPlan: 'pro',
@@ -363,9 +364,10 @@ const AVAILABLE_MODELS = [
   },
   {
     id: 'llama-3.3-70b',
-    isLobe: true,
     name: 'Llama 3.3 70B',
-    icon: Meta.Color,
+    icon: SiMeta,
+    logoSlug: 'meta',
+    invertDark: false,
     color: 'from-blue-600 to-indigo-700',
     category: 'Text Generation',
     description: 'Efficient open-source powerhouse',
@@ -378,9 +380,10 @@ const AVAILABLE_MODELS = [
   },
   {
     id: 'gpt-oss-120b',
-    isLobe: true,
     name: 'GPT-OSS 120B',
-    icon: OpenAI,
+    icon: RiOpenaiFill,
+    logoSlug: 'openai',
+    invertDark: true,
     color: 'from-pink-600 to-rose-600',
     category: 'Text Generation',
     description: 'Large open-source with browser search',
@@ -393,9 +396,10 @@ const AVAILABLE_MODELS = [
   },
   {
     id: 'mimo-v2-flash',
-    isLobe: true,
     name: 'MiMo V2 Flash',
-    icon: XiaomiMiMo,
+    icon: SiXiaomi,
+    logoSlug: 'xiaomi',
+    invertDark: false,
     color: 'from-blue-600 to-purple-600',
     category: 'Text Generation',
     description: 'Efficient 309B MoE model for reasoning and coding tasks',
@@ -408,9 +412,10 @@ const AVAILABLE_MODELS = [
   },
   {
     id: 'groq-compound',
-    isLobe: true,
     name: 'Groq Compound',
-    icon: Groq,
+    icon: GiPowerLightning,
+    logoSlug: 'groq',
+    invertDark: true,
     color: 'from-orange-600 to-red-600',
     category: 'Text Generation',
     description: 'Multi-model agentic system with tools',
@@ -423,9 +428,10 @@ const AVAILABLE_MODELS = [
   },
   {
     id: 'cohere-command-a',
-    isLobe: true,
     name: 'Cohere Command A',
-    icon: Cohere.Color,
+    icon: GiClover,
+    logoSlug: 'cohere',
+    invertDark: true,
     color: 'from-emerald-600 to-teal-600',
     category: 'Text Generation',
     description: 'Enterprise-grade with excellent tool use',
@@ -438,9 +444,10 @@ const AVAILABLE_MODELS = [
   },
   {
     id: 'grok-4-fast',
-    isLobe: true,
     name: 'Grok 4 Fast',
-    icon: Grok,
+    icon: FaXTwitter,
+    logoSlug: 'xai',
+    invertDark: true,
     color: 'from-zinc-700 to-slate-900',
     category: 'Text Generation',
     requiresPlan: 'pro',
@@ -454,9 +461,10 @@ const AVAILABLE_MODELS = [
   },
   {
     id: 'gpt-5.2',
-    isLobe: true,
     name: 'GPT-5.2',
-    icon: OpenAI,
+    icon: RiOpenaiFill,
+    logoSlug: 'openai',
+    invertDark: true,
     color: 'from-green-500 to-emerald-600',
     category: 'Text Generation',
     limited: true,
@@ -470,9 +478,10 @@ const AVAILABLE_MODELS = [
   },
   {
     id: 'gpt-5.5',
-    isLobe: true,
     name: 'GPT-5.5',
-    icon: OpenAI,
+    icon: RiOpenaiFill,
+    logoSlug: 'openai',
+    invertDark: true,
     color: 'from-green-600 to-teal-600',
     category: 'Text Generation',
     requiresPlan: 'pro',
@@ -486,9 +495,10 @@ const AVAILABLE_MODELS = [
   },
   {
     id: 'flux-2-dev',
-    isLobe: true,
     name: 'Flux 2',
-    icon: Flux,
+    icon: SiFlux,
+    logoSlug: 'flux',
+    invertDark: true,
     color: 'from-purple-500 to-pink-500',
     category: 'Image Generation',
     description: 'Photorealistic image generation',
@@ -530,8 +540,9 @@ const AVAILABLE_MODELS = [
   {
     id: 'nano-image',
     name: 'Nano Banana Pro',
-    isLobe: true,
-    icon: Gemini.Color,
+    icon: SiGooglegemini,
+    logoSlug: 'gemini',
+    invertDark: false,
     color: 'from-yellow-400 to-orange-400',
     category: 'Image Generation',
     requiresPlan: 'pro',
@@ -545,9 +556,10 @@ const AVAILABLE_MODELS = [
   },
   {
     id: 'wan2.2-i2v',
-    isLobe: true,
     name: 'Wan 2.2 I2V',
-    icon: Qwen.Color,
+    icon: SiAlibabacloud,
+    logoSlug: 'qwen',
+    invertDark: false,
     color: 'from-purple-500 to-pink-500',
     category: 'Video Generation',
     requiresPlan: 'pro',
@@ -561,9 +573,10 @@ const AVAILABLE_MODELS = [
   },
   {
     id: 'hailuo-h3',
-    isLobe: true,
     name: 'Hailuo H3',
-    icon: Minimax.Color,
+    icon: SiMaze,
+    logoSlug: 'minimax',
+    invertDark: false,
     color: 'from-cyan-600 to-blue-600',
     category: 'Video Generation',
     requiresPlan: 'pro',
@@ -577,12 +590,11 @@ const AVAILABLE_MODELS = [
   },
   {
     id: 'funtastic-3',
-    isLobe: true,
     name: 'Funtastic 3',
-    icon: DreamMachine,
+    icon: RiCameraLensAiFill,
     color: 'from-indigo-500 to-violet-600',
     category: 'Video Generation',
-    description: 'Fast text-to-video generation with optional synchronized sound from DreamMachine AI',
+    description: 'Fast text-to-video generation with optional synchronized sound from Luma AI',
     speed: 5,
     quality: 3,
     contextWindow: 'N/A',
@@ -682,9 +694,10 @@ const AVAILABLE_MODELS = [
   },
   {
     id: 'alexandra-tts',
-    isLobe: true,
     name: 'Alexandra TTS',
-    icon: ElevenLabs,
+    icon: SiElevenlabs,
+    logoSlug: 'elevenlabs',
+    invertDark: true,
     color: 'from-slate-600 to-zinc-800',
     category: 'Text-to-Speech',
     requiresPlan: 'pro',
@@ -699,9 +712,10 @@ const AVAILABLE_MODELS = [
   },
   {
     id: 'eve-tts',
-    isLobe: true,
     name: 'Eve TTS',
-    icon: ElevenLabs,
+    icon: SiElevenlabs,
+    logoSlug: 'elevenlabs',
+    invertDark: true,
     color: 'from-zinc-600 to-slate-800',
     category: 'Text-to-Speech',
     requiresPlan: 'pro',
@@ -716,9 +730,10 @@ const AVAILABLE_MODELS = [
   },
   {
     id: 'whisper-large-v3',
-    isLobe: true,
     name: 'Whisper Large V3',
-    icon: OpenAI,
+    icon: RiOpenaiFill,
+    logoSlug: 'openai',
+    invertDark: true,
     color: 'from-teal-500 to-emerald-600',
     category: 'Speech-to-Text',
     description: 'High-accuracy multilingual transcription and translation powered by Groq. Supports 99+ languages with verbose JSON output including segments and timestamps.',
@@ -731,9 +746,10 @@ const AVAILABLE_MODELS = [
   },
   {
     id: 'whisper-large-v3-turbo',
-    isLobe: true,
     name: 'Whisper V3 Turbo',
-    icon: OpenAI,
+    icon: RiOpenaiFill,
+    logoSlug: 'openai',
+    invertDark: true,
     color: 'from-emerald-500 to-teal-400',
     category: 'Speech-to-Text',
     description: 'Faster variant of Whisper Large V3 with near-identical accuracy. Optimized for low-latency transcription at reduced cost.',
@@ -784,6 +800,23 @@ const CATEGORY_ICONS: Record<string, any> = {
   'Image Generation': FiImage,
   'Text-to-Speech': HiSpeakerWave,
   'Speech-to-Text': FiMic,
+};
+
+const BrandIcon = ({ model, className }: { model: any; className?: string }) => {
+  const [failed, setFailed] = useState(false);
+  const Icon = model.icon;
+  if (!model.logoSlug || failed) {
+    return <Icon className={className} />;
+  }
+  return (
+    <img
+      src={`https://unpkg.com/@lobehub/icons-static-svg@latest/icons/${model.logoSlug}.svg`}
+      alt={model.name}
+      loading="lazy"
+      onError={() => setFailed(true)}
+      className={`${className} object-contain ${model.invertDark ? 'dark:invert' : ''}`}
+    />
+  );
 };
 
 export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
@@ -888,7 +921,6 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-3">
                     {models.map((model) => {
                       const locked = isModelLocked(model);
-                      const Icon = model.icon;
                       const pricingConfig = PRICING_CONFIG[model.pricing as keyof typeof PRICING_CONFIG];
                       const displayValue = getDisplayValue(model);
                       return (
@@ -915,15 +947,9 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
 
                           <div className="p-3 sm:p-4">
                             <div className="flex items-start gap-2 sm:gap-2.5 mb-2.5 sm:mb-3">
-                              {(model as any).isLobe ? (
-                                <div className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 flex-shrink-0 group-hover:scale-110 transition-transform text-zinc-900 dark:text-white">
-                                  <Icon size={20} />
-                                </div>
-                              ) : (
-                                <div className={`p-1.5 sm:p-2 bg-gradient-to-br ${model.color} rounded-lg shadow-lg flex-shrink-0 group-hover:scale-110 transition-transform`}>
-                                  <Icon className="text-white text-sm sm:text-base" />
-                                </div>
-                              )}
+                              <div className="p-1.5 sm:p-2 flex-shrink-0 group-hover:scale-110 transition-transform">
+                                <BrandIcon model={model} className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-700 dark:text-zinc-300" />
+                              </div>
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-1.5 mb-0.5 sm:mb-1">
                                   <h5 className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-white truncate">{model.name}</h5>
@@ -1053,15 +1079,9 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
             <div className="p-5 sm:p-6">
               <div className="flex items-start justify-between mb-5">
                 <div className="flex items-center gap-3">
-                  {(activeModal as any).isLobe ? (
-                    <div className="flex items-center justify-center w-10 h-10 flex-shrink-0 text-zinc-900 dark:text-white">
-                      <activeModal.icon size={28} />
-                    </div>
-                  ) : (
-                    <div className={`p-2.5 bg-gradient-to-br ${activeModal.color} rounded-xl shadow-lg flex-shrink-0`}>
-                      <activeModal.icon className="text-white text-base sm:text-lg" />
-                    </div>
-                  )}
+                  <div className="p-2.5 flex-shrink-0">
+                    <BrandIcon model={activeModal} className="w-5 h-5 sm:w-6 sm:h-6 text-zinc-700 dark:text-zinc-300" />
+                  </div>
                   <div>
                     <div className="flex items-center gap-2">
                       <h3 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white">{activeModal.name}</h3>
