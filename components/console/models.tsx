@@ -803,19 +803,28 @@ const CATEGORY_ICONS: Record<string, any> = {
 };
 
 const BrandIcon = ({ model, className }: { model: any; className?: string }) => {
+  const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
   const Icon = model.icon;
-  if (!model.logoSlug || failed) {
-    return <Icon className={className} />;
-  }
+  const showImg = !!model.logoSlug && !failed;
   return (
-    <img
-      src={`https://unpkg.com/@lobehub/icons-static-svg@latest/icons/${model.logoSlug}.svg`}
-      alt={model.name}
-      loading="lazy"
-      onError={() => setFailed(true)}
-      className={`${className} object-contain ${model.invertDark ? 'dark:invert' : ''}`}
-    />
+    <span className={`relative inline-block ${className}`}>
+      {(!showImg || !loaded) && (
+        <Icon className="absolute inset-0 w-full h-full" />
+      )}
+      {showImg && (
+        <img
+          src={`https://unpkg.com/@lobehub/icons-static-svg@latest/icons/${model.logoSlug}.svg`}
+          alt={model.name}
+          loading="lazy"
+          draggable={false}
+          onContextMenu={(e) => e.preventDefault()}
+          onLoad={() => setLoaded(true)}
+          onError={() => setFailed(true)}
+          className={`absolute inset-0 w-full h-full object-contain transition-opacity duration-200 ${loaded ? 'opacity-100' : 'opacity-0'} ${model.invertDark ? 'dark:invert' : ''}`}
+        />
+      )}
+    </span>
   );
 };
 
