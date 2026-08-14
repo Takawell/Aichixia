@@ -57,7 +57,7 @@ const AVAILABLE_MODELS = [
     id: 'gpt-5-mini',
     isLobe: true,
     name: 'GPT-5 Mini',
-    icon: OpenAI.Color,
+    icon: OpenAI,
     color: 'from-emerald-600 to-green-600',
     category: 'Text Generation',
     description: 'Balanced performance for general tasks',
@@ -380,7 +380,7 @@ const AVAILABLE_MODELS = [
     id: 'gpt-oss-120b',
     isLobe: true,
     name: 'GPT-OSS 120B',
-    icon: OpenAI.Color,
+    icon: OpenAI,
     color: 'from-pink-600 to-rose-600',
     category: 'Text Generation',
     description: 'Large open-source with browser search',
@@ -456,7 +456,7 @@ const AVAILABLE_MODELS = [
     id: 'gpt-5.2',
     isLobe: true,
     name: 'GPT-5.2',
-    icon: OpenAI.Color,
+    icon: OpenAI,
     color: 'from-green-500 to-emerald-600',
     category: 'Text Generation',
     limited: true,
@@ -472,7 +472,7 @@ const AVAILABLE_MODELS = [
     id: 'gpt-5.5',
     isLobe: true,
     name: 'GPT-5.5',
-    icon: OpenAI.Color,
+    icon: OpenAI,
     color: 'from-green-600 to-teal-600',
     category: 'Text Generation',
     requiresPlan: 'pro',
@@ -718,7 +718,7 @@ const AVAILABLE_MODELS = [
     id: 'whisper-large-v3',
     isLobe: true,
     name: 'Whisper Large V3',
-    icon: OpenAI.Color,
+    icon: OpenAI,
     color: 'from-teal-500 to-emerald-600',
     category: 'Speech-to-Text',
     description: 'High-accuracy multilingual transcription and translation powered by Groq. Supports 99+ languages with verbose JSON output including segments and timestamps.',
@@ -733,7 +733,7 @@ const AVAILABLE_MODELS = [
     id: 'whisper-large-v3-turbo',
     isLobe: true,
     name: 'Whisper V3 Turbo',
-    icon: OpenAI.Color,
+    icon: OpenAI,
     color: 'from-emerald-500 to-teal-400',
     category: 'Speech-to-Text',
     description: 'Faster variant of Whisper Large V3 with near-identical accuracy. Optimized for low-latency transcription at reduced cost.',
@@ -916,7 +916,7 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
                           <div className="p-3 sm:p-4">
                             <div className="flex items-start gap-2 sm:gap-2.5 mb-2.5 sm:mb-3">
                               {(model as any).isLobe ? (
-                                <div className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 flex-shrink-0 group-hover:scale-110 transition-transform">
+                                <div className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 flex-shrink-0 group-hover:scale-110 transition-transform text-zinc-900 dark:text-white">
                                   <Icon size={20} />
                                 </div>
                               ) : (
@@ -1054,7 +1054,7 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
               <div className="flex items-start justify-between mb-5">
                 <div className="flex items-center gap-3">
                   {(activeModal as any).isLobe ? (
-                    <div className="flex items-center justify-center w-10 h-10 flex-shrink-0">
+                    <div className="flex items-center justify-center w-10 h-10 flex-shrink-0 text-zinc-900 dark:text-white">
                       <activeModal.icon size={28} />
                     </div>
                   ) : (
