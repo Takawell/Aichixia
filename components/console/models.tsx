@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { FiCopy, FiCheck, FiLock, FiZap, FiCpu, FiTrendingUp, FiDollarSign, FiSearch, FiStar, FiInfo, FiImage, FiX, FiExternalLink, FiMic } from 'react-icons/fi';
 import { SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiMistralai, SiXiaomi, SiAirbrake, SiMaze, SiFlux, SiImagedotsc, SiSecurityscorecard, SiLapce, SiAudiomack, SiSoundcloud, SiSpotify, SiVorondesign, SiNvidia, SiElevenlabs } from 'react-icons/si';
@@ -802,34 +802,43 @@ const CATEGORY_ICONS: Record<string, any> = {
   'Speech-to-Text': FiMic,
 };
 
+const brandSvgCache: Record<string, string> = {};
+
 const BrandIcon = ({ model, className }: { model: any; className?: string }) => {
-  const [loaded, setLoaded] = useState(false);
+  const [svg, setSvg] = useState<string | null>(model.logoSlug ? brandSvgCache[model.logoSlug] ?? null : null);
   const [failed, setFailed] = useState(false);
   const Icon = model.icon;
-  const showImg = !!model.logoSlug && !failed;
+
+  useEffect(() => {
+    if (!model.logoSlug || brandSvgCache[model.logoSlug]) return;
+    let cancelled = false;
+    fetch(`https://unpkg.com/@lobehub/icons-static-svg@latest/icons/${model.logoSlug}.svg`)
+      .then((res) => {
+        if (!res.ok) throw new Error('missing');
+        return res.text();
+      })
+      .then((text) => {
+        const clean = text.replace(/<script[\s\S]*?<\/script>/gi, '');
+        brandSvgCache[model.logoSlug] = clean;
+        if (!cancelled) setSvg(clean);
+      })
+      .catch(() => {
+        if (!cancelled) setFailed(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [model.logoSlug]);
+
+  if (!model.logoSlug || failed || !svg) {
+    return <Icon className={className} />;
+  }
+
   return (
-    <span className={`relative inline-block ${className}`}>
-      {(!showImg || !loaded) && (
-        <Icon className="absolute inset-0 w-full h-full" />
-      )}
-      {showImg && (
-        <span
-          className="absolute inset-0 rounded-md bg-white p-[3px] flex items-center justify-center transition-opacity duration-200"
-          style={{ opacity: loaded ? 1 : 0 }}
-        >
-          <img
-            src={`https://unpkg.com/@lobehub/icons-static-svg@latest/icons/${model.logoSlug}.svg`}
-            alt={model.name}
-            loading="lazy"
-            draggable={false}
-            onContextMenu={(e) => e.preventDefault()}
-            onLoad={() => setLoaded(true)}
-            onError={() => setFailed(true)}
-            className="w-full h-full object-contain"
-          />
-        </span>
-      )}
-    </span>
+    <span
+      className={`inline-flex items-center justify-center [&>svg]:w-full [&>svg]:h-full ${className}`}
+      dangerouslySetInnerHTML={{ __html: svg }}
+    />
   );
 };
 
