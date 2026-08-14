@@ -813,16 +813,21 @@ const BrandIcon = ({ model, className }: { model: any; className?: string }) => 
         <Icon className="absolute inset-0 w-full h-full" />
       )}
       {showImg && (
-        <img
-          src={`https://unpkg.com/@lobehub/icons-static-svg@latest/icons/${model.logoSlug}.svg`}
-          alt={model.name}
-          loading="lazy"
-          draggable={false}
-          onContextMenu={(e) => e.preventDefault()}
-          onLoad={() => setLoaded(true)}
-          onError={() => setFailed(true)}
-          className={`absolute inset-0 w-full h-full object-contain transition-opacity duration-200 ${loaded ? 'opacity-100' : 'opacity-0'} ${model.invertDark ? 'dark:invert' : ''}`}
-        />
+        <span
+          className="absolute inset-0 rounded-md bg-white p-[3px] flex items-center justify-center transition-opacity duration-200"
+          style={{ opacity: loaded ? 1 : 0 }}
+        >
+          <img
+            src={`https://unpkg.com/@lobehub/icons-static-svg@latest/icons/${model.logoSlug}.svg`}
+            alt={model.name}
+            loading="lazy"
+            draggable={false}
+            onContextMenu={(e) => e.preventDefault()}
+            onLoad={() => setLoaded(true)}
+            onError={() => setFailed(true)}
+            className="w-full h-full object-contain"
+          />
+        </span>
       )}
     </span>
   );
