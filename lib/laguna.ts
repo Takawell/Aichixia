@@ -49,7 +49,7 @@ export async function chatLaguna(
         content: m.content,
       })),
       temperature: opts?.temperature ?? 0.8,
-      max_tokens: opts?.maxTokens ?? 12096,
+      max_tokens: opts?.maxTokens ?? 8096,
     });
 
     const reply =
