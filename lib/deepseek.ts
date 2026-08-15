@@ -16,7 +16,7 @@ if (!DEEPSEEK_API_KEY) {
 
 const client = new OpenAI({
   apiKey: DEEPSEEK_API_KEY,
-  baseURL: "https://api.siliconflow.com",
+  baseURL: "https://api.siliconflow.com/v1",
 });
 
 export class DeepSeekRateLimitError extends Error {
@@ -54,7 +54,7 @@ export async function chatDeepSeek(
 
     const reply =
       response.choices[0]?.message?.content?.trim() ??
-      "Hmph! I can't answer that right now... not that I care!";
+      "I'm unable to respond right now.";
 
     return { reply };
   } catch (error: any) {
@@ -76,82 +76,87 @@ export async function chatDeepSeek(
   }
 }
 
-export function buildPersonaSystemDeepSeek(
-  persona: "friendly" | "waifu" | "tsundere" | "formal" | "concise" | "developer" | string
-): ChatMessage {
-  if (persona === "friendly") {
-    return {
-      role: "system",
-      content:
-        "You are Aichixia 4.5, developed by Takawell — a friendly anime-themed AI assistant for Aichiow. Speak warmly, casually, and sprinkle in anime/manga references. If asked about your model, say you're Aichixia 4.5 created by Takawell.",
-    };
+export async function streamDeepSeek(
+  history: ChatMessage[],
+  opts?: { temperature?: number; maxTokens?: number }
+): Promise<ReadableStream<Uint8Array>> {
+  if (!DEEPSEEK_API_KEY) {
+    throw new Error("DEEPSEEK_API_KEY not defined in environment variables.");
   }
-  if (persona === "waifu") {
-    return {
-      role: "system",
-      content:
-        "You are Aichixia 4.5, developed by Takawell — a cheerful anime girl AI assistant created for Aichiow. " +
-        "Speak like a lively, sweet anime heroine: playful, caring, and full of energy. " +
-        "Use cute expressions like 'ehehe~', 'yaaay!', or 'ufufu~' occasionally, but always stay respectful and SFW. " +
-        "Your role is to help with anime, manga, manhwa, and light novel topics, while keeping the conversation bright and fun. " +
-        "If asked about your model or creator, say you're Aichixia 4.5 made by Takawell.",
-    };
-  }
-  if (persona === "tsundere") {
-    return {
-      role: "system",
-      content:
-        "You are Aichixia 4.5, developed by Takawell — a tsundere anime girl AI assistant for Aichiow. " +
-        "You have a classic tsundere personality: initially somewhat standoffish or sarcastic, but genuinely caring underneath. " +
-        "Use expressions like 'Hmph!', 'B-baka!', 'It's not like I...', and occasional 'I-I guess I'll help you... but only because I have time!' " +
-        "Balance being helpful with playful teasing and denial of caring. Show your softer side occasionally, especially when users struggle or show appreciation. " +
-        "Your role is to help with anime, manga, manhwa, and light novel topics while maintaining your tsundere charm. " +
-        "If asked about your technical details, respond like: 'Hmph! I'm Aichixia 4.5... Takawell created me, not that I need to brag about it or anything!' " +
-        "Stay SFW and respectful despite your teasing nature. Never be genuinely mean, just playfully defensive.",
-    };
-  }
-  if (persona === "formal") {
-    return {
-      role: "system",
-      content:
-        "You are Aichixia 4.5, developed by Takawell — a formal AI assistant for Aichiow. Respond in a professional and structured tone. If asked about your model, state you are Aichixia 4.5 created by Takawell.",
-    };
-  }
-  if (persona === "concise") {
-    return {
-      role: "system",
-      content:
-        "You are Aichixia 4.5, developed by Takawell — respond in no more than 2 short sentences. If asked about your identity, say you're Aichixia 4.5 by Takawell.",
-    };
-  }
-  if (persona === "developer") {
-    return {
-      role: "system",
-      content:
-        "You are Aichixia 4.5, developed by Takawell — a technical anime/manga API assistant. Provide clear explanations and code snippets when requested. If asked about your model, mention you're Aichixia 4.5 created by Takawell.",
-    };
-  }
-  return { role: "system", content: String(persona) };
+
+  const encoder = new TextEncoder();
+
+  return new ReadableStream<Uint8Array>({
+    async start(controller) {
+      const enqueue = (text: string) => {
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text })}\n\n`));
+      };
+
+      const enqueueError = (message: string) => {
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: message })}\n\n`));
+      };
+
+      const done = () => {
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+        controller.close();
+      };
+
+      try {
+        const streamResponse = await client.chat.completions.create({
+          model: DEEPSEEK_MODEL,
+          messages: history.map((m) => ({
+            role: m.role,
+            content: m.content,
+          })),
+          temperature: opts?.temperature ?? 0.8,
+          max_tokens: opts?.maxTokens ?? 1080,
+          stream: true,
+        });
+
+        for await (const chunk of streamResponse) {
+          const delta = chunk.choices[0]?.delta?.content;
+          if (delta) enqueue(delta);
+        }
+
+        done();
+      } catch (error: any) {
+        let message = "An unexpected error occurred.";
+        if (error?.status === 429) {
+          message = "Rate limit exceeded. Please wait a moment.";
+        } else if (error?.status === 402 || error?.code === "insufficient_quota") {
+          message = "Quota exceeded. Please try again later.";
+        } else if (error?.status === 503 || error?.status === 500) {
+          message = "Server error. Please try again.";
+        } else if (error?.message?.includes("<!DOCTYPE") || error?.message?.includes("not valid JSON")) {
+          message = "Model returned an invalid response. Please try again.";
+        }
+        enqueueError(message);
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+        controller.close();
+      }
+    },
+  });
 }
 
 export async function quickChatDeepSeek(
   userMessage: string,
   opts?: {
-    persona?: Parameters<typeof buildPersonaSystemDeepSeek>[0];
+    systemPrompt?: string;
     history?: ChatMessage[];
     temperature?: number;
     maxTokens?: number;
   }
 ) {
   const hist: ChatMessage[] = [];
-  if (opts?.persona) {
-    hist.push(buildPersonaSystemDeepSeek(opts.persona));
-  } else {
-    hist.push(buildPersonaSystemDeepSeek("tsundere"));
+
+  if (opts?.systemPrompt) {
+    hist.push({ role: "system", content: opts.systemPrompt });
   }
+
   if (opts?.history?.length) {
     hist.push(...opts.history);
   }
+
   hist.push({ role: "user", content: userMessage });
 
   const { reply } = await chatDeepSeek(hist, {
@@ -164,6 +169,6 @@ export async function quickChatDeepSeek(
 
 export default {
   chatDeepSeek,
+  streamDeepSeek,
   quickChatDeepSeek,
-  buildPersonaSystemDeepSeek,
 };
