@@ -28,6 +28,7 @@ import { chatNemotron, streamNemotron, NemotronRateLimitError, NemotronQuotaErro
 import { chatGpt55, Gpt55RateLimitError, Gpt55QuotaError } from "@/lib/gpt-5-5";
 import { chatGemma, streamGemma, GemmaRateLimitError, GemmaQuotaError } from "@/lib/gemma";
 import { chatHaiku, HaikuRateLimitError, HaikuQuotaError } from "@/lib/haiku";
+import { chatLaguna, streamLaguna, LagunaRateLimitError, LagunaQuotaError } from "@/lib/laguna";
 import { verifyApiKey, incrementUsage, logRequest, updateDailyUsage } from "@/lib/console-utils";
 import { getServiceSupabase } from "@/lib/supabase";
 
@@ -79,6 +80,7 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "nemotron-3-ultra-550b-a55b": { fn: chatNemotron, provider: "nemotron" },
   "aichixia-flash": { fn: chatAichixia, provider: "aichixia" },
   "gemma-4-31b": { fn: chatGemma, provider: "gemma" },
+  "laguna-s-2.1": { fn: chatLaguna, provider: "laguna" },
 };
 
 const STREAM_MODEL_MAPPING: Record<string, StreamFunction> = {
@@ -91,9 +93,10 @@ const STREAM_MODEL_MAPPING: Record<string, StreamFunction> = {
   "deepseek-v4-flash": streamDeepSeekV,
   "glm-5.2": streamGlm,
   "gemma-4-31b": streamGemma,
+  "laguna-s-2.1": streamLaguna,
 };
 
-const LOCKED_MODELS_PRO = ['deepseek-v3.2', 'minimax-m3', 'qwen3-coder-480b', 'claude-sonnet-4.6', 'glm-5.2', 'aichixia-flash', 'grok-4-fast', 'kimi-k2.6', 'gpt-5.5'];
+const LOCKED_MODELS_PRO = ['deepseek-v3.2', 'minimax-m3', 'qwen3-coder-480b', 'claude-sonnet-4.6', 'glm-5.2', 'aichixia-flash', 'grok-4-fast', 'kimi-k2.6', 'gpt-5.5', 'laguna-s-2.1'];
 
 const RATE_LIMIT_ERRORS = [
   OpenAIRateLimitError, KimiRateLimitError, GlmRateLimitError, GPTRateLimitError,
@@ -102,7 +105,7 @@ const RATE_LIMIT_ERRORS = [
   LlamaRateLimitError, MistralRateLimitError, MimoRateLimitError, PhiRateLimitError,
   MinimaxRateLimitError, GrokRateLimitError, GrokFastRateLimitError, ZhipuRateLimitError,
   AichixiaRateLimitError, StepfunRateLimitError, NemotronRateLimitError, Gpt55RateLimitError, OpusRateLimitError,
-  GemmaRateLimitError, HaikuRateLimitError,
+  GemmaRateLimitError, HaikuRateLimitError, LagunaRateLimitError,
 ];
 
 const QUOTA_ERRORS = [
@@ -112,7 +115,7 @@ const QUOTA_ERRORS = [
   LlamaQuotaError, MistralQuotaError, MimoQuotaError, PhiQuotaError,
   MinimaxQuotaError, GrokQuotaError, GrokFastQuotaError, ZhipuQuotaError,
   AichixiaQuotaError, StepfunQuotaError, NemotronQuotaError, Gpt55QuotaError, OpusQuotaError,
-  GemmaQuotaError, HaikuQuotaError,
+  GemmaQuotaError, HaikuQuotaError, LagunaQuotaError,
 ];
 
 function isRateLimitError(error: any): boolean {
