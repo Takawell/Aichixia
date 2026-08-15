@@ -65,6 +65,7 @@ const TEXT_MODELS: AnyModel[] = [
   { id: 'grok-4-fast', name: 'Grok 4 Fast', provider: 'xAI', logoSlug: 'xai', icon: FaXTwitter, color: 'from-zinc-700 to-slate-900', pricing: 'Premium', context: '2M', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
   { id: 'step-3.7-flash', name: 'Step 3.7 Flash', provider: 'StepFun', logoSlug: 'stepfun', icon: DiBower, color: 'from-blue-500 to-blue-700', pricing: 'Standard', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'nemotron-3-ultra-550b-a55b', name: 'Nemotron 3 Ultra 550B', provider: 'NVIDIA', logoSlug: 'nvidia', icon: SiNvidia, color: 'from-emerald-600 to-green-600', pricing: 'Premium', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'laguna-s-2.1', name: 'Laguna S 2.1', provider: 'Poolside', icon: FiZap, color: 'from-sky-600 to-blue-700', pricing: 'Premium', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
   { id: 'gpt-5.2', name: 'GPT-5.2', provider: 'OpenAI', logoSlug: 'openai', icon: RiOpenaiFill, color: 'from-green-500 to-emerald-600', pricing: 'Standard', context: '400K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, limited: true },
   { id: 'gpt-5.5', name: 'GPT-5.5', provider: 'OpenAI', logoSlug: 'openai', icon: RiOpenaiFill, color: 'from-green-600 to-teal-600', pricing: 'Premium', context: '400K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
 ];
