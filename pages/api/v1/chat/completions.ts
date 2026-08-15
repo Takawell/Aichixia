@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { encode } from 'gpt-tokenizer';
-import { chatGemini } from "@/lib/gemini";
+import { chatGemini, streamGemini, GeminiRateLimitError, GeminiQuotaError } from "@/lib/gemini";
 import { chatAichixia, AichixiaRateLimitError, AichixiaQuotaError } from "@/lib/aichixia";
 import { chatOpenAI, OpenAIRateLimitError, OpenAIQuotaError } from "@/lib/openai";
 import { chatKimi, streamKimi, KimiRateLimitError, KimiQuotaError } from "@/lib/kimi";
@@ -8,14 +8,14 @@ import { chatGlm, streamGlm, GlmRateLimitError, GlmQuotaError } from "@/lib/glm"
 import { chatGPT, GPTRateLimitError, GPTQuotaError } from "@/lib/gpt";
 import { chatClaude, ClaudeRateLimitError, ClaudeQuotaError } from "@/lib/claude";
 import { chatOpus, OpusRateLimitError, OpusQuotaError } from "@/lib/opus";
-import { chatCohere, CohereRateLimitError, CohereQuotaError } from "@/lib/cohere";
-import { chatDeepSeek, DeepSeekRateLimitError, DeepSeekQuotaError } from "@/lib/deepseek";
+import { chatCohere, streamCohere, CohereRateLimitError, CohereQuotaError } from "@/lib/cohere";
+import { chatDeepSeek, streamDeepSeek, DeepSeekRateLimitError, DeepSeekQuotaError } from "@/lib/deepseek";
 import { chatDeepSeekV, streamDeepSeekV, DeepSeekVRateLimitError, DeepSeekVQuotaError } from "@/lib/deepseek-v";
 import { chatQwen, QwenRateLimitError, QwenQuotaError } from "@/lib/qwen";
 import { chatQwenV2, QwenV2RateLimitError, QwenV2QuotaError } from "@/lib/qwen3";
 import { chatGptOss, streamGptOss, GptOssRateLimitError, GptOssQuotaError } from "@/lib/gpt-oss";
 import { chatCompound, CompoundRateLimitError, CompoundQuotaError } from "@/lib/compound";
-import { chatLlama, LlamaRateLimitError, LlamaQuotaError } from "@/lib/llama";
+import { chatLlama, streamLlama, LlamaRateLimitError, LlamaQuotaError } from "@/lib/llama";
 import { chatMistral, streamMistral, MistralRateLimitError, MistralQuotaError } from "@/lib/mistral";
 import { chatMimo, MimoRateLimitError, MimoQuotaError } from "@/lib/mimo";
 import { chatMinimax, streamMinimax, MinimaxRateLimitError, MinimaxQuotaError } from "@/lib/minimax";
@@ -94,6 +94,10 @@ const STREAM_MODEL_MAPPING: Record<string, StreamFunction> = {
   "glm-5.2": streamGlm,
   "gemma-4-31b": streamGemma,
   "laguna-s-2.1": streamLaguna,
+  "cohere-command-a": streamCohere,
+  "gemini-3-flash": streamGemini,
+  "llama-3.3-70b": streamLlama,
+  "deepseek-v3.2": streamDeepSeek,
 };
 
 const LOCKED_MODELS_PRO = ['deepseek-v3.2', 'qwen3-coder-480b', 'minimax-m3', 'claude-sonnet-4.6', 'glm-5.2', 'aichixia-flash', 'grok-4-fast', 'kimi-k2.6', 'gpt-5.5', 'laguna-s-2.1'];
@@ -105,7 +109,7 @@ const RATE_LIMIT_ERRORS = [
   LlamaRateLimitError, MistralRateLimitError, MimoRateLimitError, PhiRateLimitError,
   MinimaxRateLimitError, GrokRateLimitError, GrokFastRateLimitError, ZhipuRateLimitError,
   AichixiaRateLimitError, StepfunRateLimitError, NemotronRateLimitError, Gpt55RateLimitError, OpusRateLimitError,
-  GemmaRateLimitError, HaikuRateLimitError, LagunaRateLimitError,
+  GemmaRateLimitError, HaikuRateLimitError, LagunaRateLimitError, GeminiRateLimitError,
 ];
 
 const QUOTA_ERRORS = [
@@ -115,7 +119,7 @@ const QUOTA_ERRORS = [
   LlamaQuotaError, MistralQuotaError, MimoQuotaError, PhiQuotaError,
   MinimaxQuotaError, GrokQuotaError, GrokFastQuotaError, ZhipuQuotaError,
   AichixiaQuotaError, StepfunQuotaError, NemotronQuotaError, Gpt55QuotaError, OpusQuotaError,
-  GemmaQuotaError, HaikuQuotaError, LagunaQuotaError,
+  GemmaQuotaError, HaikuQuotaError, LagunaQuotaError, GeminiQuotaError,
 ];
 
 function isRateLimitError(error: any): boolean {
