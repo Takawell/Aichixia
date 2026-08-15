@@ -318,14 +318,20 @@ export default function Notice() {
                         display: 'inline-block',
                       }}
                     />
-                    In Progress
+                    Resolved
                   </span>
                 </div>
                 <p style={{ fontSize: 12, fontWeight: 600, color: headingColor, marginBottom: 5, lineHeight: 1.4 }}>
-                  Streaming is currently under maintenance
+                  Streaming is back and fully supported
                 </p>
                 <p style={{ fontSize: 11, color: bodyColor, lineHeight: 1.65 }}>
-                  We're actively working to restore the streaming feature. Responses may appear slower or non-streamed during this period. We appreciate your patience.
+                  Streaming support has been restored and is now working as expected. You can check the list of supported models in our{' '}
+                  <a
+                    href="/docs"
+                    style={{ color: badgeColor, fontWeight: 600, textDecoration: 'underline', cursor: 'pointer' }}
+                  >
+                    docs
+                  </a>.
                 </p>
               </div>
               <div
@@ -341,7 +347,7 @@ export default function Notice() {
               >
                 <FiZap size={12} style={{ color: zapColor, flexShrink: 0 }} />
                 <p style={{ fontSize: 11, color: noteColor, lineHeight: 1.55 }}>
-                  All other features remain fully operational. Follow our updates for restoration status.
+                  All features are now fully operational. Thanks for bearing with us during the maintenance.
                 </p>
               </div>
             </div>
