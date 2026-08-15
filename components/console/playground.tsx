@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { FiPlay, FiCopy, FiCheck, FiChevronDown, FiZap, FiCode, FiTerminal, FiSettings, FiClock, FiCpu, FiAlertCircle, FiRotateCcw, FiEye, FiEyeOff, FiImage, FiVolume2, FiDownload, FiPause, FiX, FiUpload, FiMaximize2, FiMinimize2, FiLayout, FiMinus, FiSmile, FiFrown, FiAlertTriangle, FiThumbsDown, FiBell, FiActivity, FiFastForward, FiSliders, FiMonitor, FiLayers, FiTarget, FiHash, FiXCircle, FiMic, FiGlobe, FiFileText, FiDatabase, FiTrash2, FiMessageSquare } from 'react-icons/fi';
-import { SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiAirbrake, SiFlux, SiLapce, SiSecurityscorecard, SiDigikeyelectronics, SiMatternet, SiMaze, SiImagedotsc, SiAudiomack, SiSoundcloud, SiSpotify, SiVorondesign, SiNvidia, SiElevenlabs } from 'react-icons/si';
-import { RiOpenaiFill, RiCameraLensAiFill } from 'react-icons/ri';
+import { SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiMistralai, SiXiaomi, SiAirbrake, SiFlux, SiLapce, SiSecurityscorecard, SiMaze, SiImagedotsc, SiAudiomack, SiSoundcloud, SiSpotify, SiVorondesign, SiNvidia, SiElevenlabs } from 'react-icons/si';
+import { RiOpenaiFill, RiCameraLensAiFill, RiMoonFill } from 'react-icons/ri';
 import { GiSpermWhale, GiPowerLightning, GiClover, GiCloverSpiked, GiFire } from 'react-icons/gi';
 import { DiBower } from 'react-icons/di';
-import { TbSquareLetterZ, TbLetterM } from 'react-icons/tb';
+import { TbSquareLetterZ } from 'react-icons/tb';
 import { TiVendorMicrosoft } from "react-icons/ti";
 import { FaXTwitter } from 'react-icons/fa6';
 
@@ -19,6 +19,7 @@ type AnyModel = {
   name: string;
   provider: string;
   icon: any;
+  logoSlug?: string;
   color: string;
   pricing: string;
   context: string;
@@ -38,46 +39,46 @@ type MemoryMessage = {
 const STREAM_CAPABLE_MODELS = new Set(['kimi-k2.6', 'mistral-large-3-675b-instruct', 'minimax-m3', 'step-3.7-flash', 'nemotron-3-ultra-550b-a55b', 'gpt-oss-120b', 'deepseek-v4-flash', 'gemma-4-31b', 'glm-5.2']);
 
 const TEXT_MODELS: AnyModel[] = [
-  { id: 'gpt-5-mini', name: 'GPT-5 Mini', provider: 'OpenAI', icon: RiOpenaiFill, color: 'from-emerald-500 to-green-600', pricing: 'Budget', context: '400K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'gpt-5-mini', name: 'GPT-5 Mini', provider: 'OpenAI', logoSlug: 'openai', icon: RiOpenaiFill, color: 'from-emerald-500 to-green-600', pricing: 'Budget', context: '400K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'aichixia-flash', name: 'Aichixia 114B', provider: 'Aichiverse', icon: SiAirbrake, color: 'from-blue-600 via-blue-800 to-slate-900', pricing: 'Standard', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
-  { id: 'mistral-large-3-675b-instruct', name: 'Mistral Large 3 675B', provider: 'Mistral AI', icon: TbLetterM, color: 'from-orange-500 to-amber-500', pricing: 'Premium', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'deepseek-v3.2', name: 'DeepSeek V3.2', provider: 'DeepSeek', icon: GiSpermWhale, color: 'from-cyan-500 to-blue-600', pricing: 'Premium', context: '128K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
-  { id: 'deepseek-v4-flash', name: 'DeepSeek V4 Flash', provider: 'DeepSeek', icon: GiSpermWhale, color: 'from-cyan-600 to-teal-600', pricing: 'Standard', context: '1M', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'claude-sonnet-4.6', name: 'Claude Sonnet 4.6', provider: 'Anthropic', icon: SiAnthropic, color: 'from-orange-500 to-amber-600', pricing: 'Premium', context: '1M', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
-  { id: 'claude-opus-4.8', name: 'Claude Opus 4.8', provider: 'Anthropic', icon: SiAnthropic, color: 'from-orange-500 to-amber-600', pricing: 'Premium', context: '1M', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'claude-haiku-4.5', name: 'Claude Haiku 4.5', provider: 'Anthropic', icon: SiAnthropic, color: 'from-orange-400 to-amber-500', pricing: 'Standard', context: '200K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'gemini-3-flash', name: 'Gemini 3 Flash', provider: 'Google', icon: SiGooglegemini, color: 'from-indigo-500 to-purple-600', pricing: 'Budget', context: '1M', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'phi-4-multimodal-instruct', name: 'Phi 4 Multimodal', provider: 'microsoft', icon: TiVendorMicrosoft, color: 'from-cyan-500 to-blue-700', pricing: 'Budget', context: '128k', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'grok-3', name: 'Grok 3', provider: 'xAI', icon: FaXTwitter, color: 'from-slate-600 to-zinc-700', pricing: 'Premium', context: '1M', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'glm-5.2', name: 'GLM 5.2', provider: 'Zhipu', icon: TbSquareLetterZ, color: 'from-blue-700 to-indigo-800', pricing: 'Premium', context: '200K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
-  { id: 'kimi-k2.6', name: 'Kimi K2.6', provider: 'Moonshot', icon: SiDigikeyelectronics, color: 'from-blue-500 to-cyan-600', pricing: 'Premium', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'glm-4.7-flash', name: 'GLM 4.7 Flash', provider: 'Zhipu', icon: TbSquareLetterZ, color: 'from-blue-700 to-indigo-800', pricing: 'Standard', context: '131K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
-  { id: 'gemma-4-31b', name: 'Gemma 4 31B', provider: 'Google', icon: SiGooglegemini, color: 'from-indigo-500 to-purple-600', pricing: 'Budget', context: '128K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'qwen3.6-27b', name: 'Qwen3.6 27B', provider: 'Alibaba', icon: SiMatternet, color: 'from-purple-500 to-pink-500', pricing: 'Standard', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'qwen3-coder-480b', name: 'Qwen3 Coder 480B', provider: 'Alibaba', icon: SiMatternet, color: 'from-purple-600 to-fuchsia-600', pricing: 'Premium', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
-  { id: 'minimax-m3', name: 'MiniMax M3', provider: 'MiniMax', icon: SiMaze, color: 'from-cyan-600 to-blue-600', pricing: 'Premium', context: '204K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
-  { id: 'llama-3.3-70b', name: 'Llama 3.3 70B', provider: 'Meta', icon: SiMeta, color: 'from-blue-600 to-indigo-700', pricing: 'Standard', context: '130K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'gpt-oss-120b', name: 'GPT-OSS 120B', provider: 'OpenAI', icon: RiOpenaiFill, color: 'from-pink-600 to-rose-600', pricing: 'Budget', context: '128K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'mimo-v2-flash', name: 'MiMo V2 Flash', provider: 'Xiaomi', icon: FiZap, color: 'from-blue-600 to-purple-600', pricing: 'Budget', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'groq-compound', name: 'Groq Compound', provider: 'Groq', icon: GiPowerLightning, color: 'from-orange-600 to-red-600', pricing: 'Standard', context: '131K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'cohere-command-a', name: 'Cohere Command A', provider: 'Cohere', icon: GiClover, color: 'from-emerald-600 to-teal-600', pricing: 'Standard', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'grok-4-fast', name: 'Grok 4 Fast', provider: 'xAI', icon: FaXTwitter, color: 'from-zinc-700 to-slate-900', pricing: 'Premium', context: '2M', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
-  { id: 'step-3.7-flash', name: 'Step 3.7 Flash', provider: 'StepFun', icon: DiBower, color: 'from-blue-500 to-blue-700', pricing: 'Standard', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'nemotron-3-ultra-550b-a55b', name: 'Nemotron 3 Ultra 550B', provider: 'NVIDIA', icon: SiNvidia, color: 'from-emerald-600 to-green-600', pricing: 'Premium', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'gpt-5.2', name: 'GPT-5.2', provider: 'OpenAI', icon: RiOpenaiFill, color: 'from-green-500 to-emerald-600', pricing: 'Standard', context: '400K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, limited: true },
-  { id: 'gpt-5.5', name: 'GPT-5.5', provider: 'OpenAI', icon: RiOpenaiFill, color: 'from-green-600 to-teal-600', pricing: 'Premium', context: '400K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
+  { id: 'mistral-large-3-675b-instruct', name: 'Mistral Large 3 675B', provider: 'Mistral AI', logoSlug: 'mistral', icon: SiMistralai, color: 'from-orange-500 to-amber-500', pricing: 'Premium', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'deepseek-v3.2', name: 'DeepSeek V3.2', provider: 'DeepSeek', logoSlug: 'deepseek', icon: GiSpermWhale, color: 'from-cyan-500 to-blue-600', pricing: 'Premium', context: '128K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
+  { id: 'deepseek-v4-flash', name: 'DeepSeek V4 Flash', provider: 'DeepSeek', logoSlug: 'deepseek', icon: GiSpermWhale, color: 'from-cyan-600 to-teal-600', pricing: 'Standard', context: '1M', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'claude-sonnet-4.6', name: 'Claude Sonnet 4.6', provider: 'Anthropic', logoSlug: 'anthropic', icon: SiAnthropic, color: 'from-orange-500 to-amber-600', pricing: 'Premium', context: '1M', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
+  { id: 'claude-opus-4.8', name: 'Claude Opus 4.8', provider: 'Anthropic', logoSlug: 'anthropic', icon: SiAnthropic, color: 'from-orange-500 to-amber-600', pricing: 'Premium', context: '1M', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'claude-haiku-4.5', name: 'Claude Haiku 4.5', provider: 'Anthropic', logoSlug: 'anthropic', icon: SiAnthropic, color: 'from-orange-400 to-amber-500', pricing: 'Standard', context: '200K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'gemini-3-flash', name: 'Gemini 3 Flash', provider: 'Google', logoSlug: 'gemini', icon: SiGooglegemini, color: 'from-indigo-500 to-purple-600', pricing: 'Budget', context: '1M', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'phi-4-multimodal-instruct', name: 'Phi 4 Multimodal', provider: 'microsoft', logoSlug: 'microsoft', icon: TiVendorMicrosoft, color: 'from-cyan-500 to-blue-700', pricing: 'Budget', context: '128k', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'grok-3', name: 'Grok 3', provider: 'xAI', logoSlug: 'xai', icon: FaXTwitter, color: 'from-slate-600 to-zinc-700', pricing: 'Premium', context: '1M', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'glm-5.2', name: 'GLM 5.2', provider: 'Zhipu', logoSlug: 'zhipu', icon: TbSquareLetterZ, color: 'from-blue-700 to-indigo-800', pricing: 'Premium', context: '200K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
+  { id: 'kimi-k2.6', name: 'Kimi K2.6', provider: 'Moonshot', logoSlug: 'kimi', icon: RiMoonFill, color: 'from-blue-500 to-cyan-600', pricing: 'Premium', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'glm-4.7-flash', name: 'GLM 4.7 Flash', provider: 'Zhipu', logoSlug: 'zhipu', icon: TbSquareLetterZ, color: 'from-blue-700 to-indigo-800', pricing: 'Standard', context: '131K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
+  { id: 'gemma-4-31b', name: 'Gemma 4 31B', provider: 'Google', logoSlug: 'gemini', icon: SiGooglegemini, color: 'from-indigo-500 to-purple-600', pricing: 'Budget', context: '128K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'qwen3.6-27b', name: 'Qwen3.6 27B', provider: 'Alibaba', logoSlug: 'qwen', icon: SiAlibabacloud, color: 'from-purple-500 to-pink-500', pricing: 'Standard', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'qwen3-coder-480b', name: 'Qwen3 Coder 480B', provider: 'Alibaba', logoSlug: 'qwen', icon: SiAlibabacloud, color: 'from-purple-600 to-fuchsia-600', pricing: 'Premium', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
+  { id: 'minimax-m3', name: 'MiniMax M3', provider: 'MiniMax', logoSlug: 'minimax', icon: SiMaze, color: 'from-cyan-600 to-blue-600', pricing: 'Premium', context: '204K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
+  { id: 'llama-3.3-70b', name: 'Llama 3.3 70B', provider: 'Meta', logoSlug: 'meta', icon: SiMeta, color: 'from-blue-600 to-indigo-700', pricing: 'Standard', context: '130K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'gpt-oss-120b', name: 'GPT-OSS 120B', provider: 'OpenAI', logoSlug: 'openai', icon: RiOpenaiFill, color: 'from-pink-600 to-rose-600', pricing: 'Budget', context: '128K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'mimo-v2-flash', name: 'MiMo V2 Flash', provider: 'Xiaomi', logoSlug: 'xiaomi', icon: SiXiaomi, color: 'from-blue-600 to-purple-600', pricing: 'Budget', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'groq-compound', name: 'Groq Compound', provider: 'Groq', logoSlug: 'groq', icon: GiPowerLightning, color: 'from-orange-600 to-red-600', pricing: 'Standard', context: '131K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'cohere-command-a', name: 'Cohere Command A', provider: 'Cohere', logoSlug: 'cohere', icon: GiClover, color: 'from-emerald-600 to-teal-600', pricing: 'Standard', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'grok-4-fast', name: 'Grok 4 Fast', provider: 'xAI', logoSlug: 'xai', icon: FaXTwitter, color: 'from-zinc-700 to-slate-900', pricing: 'Premium', context: '2M', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
+  { id: 'step-3.7-flash', name: 'Step 3.7 Flash', provider: 'StepFun', logoSlug: 'stepfun', icon: DiBower, color: 'from-blue-500 to-blue-700', pricing: 'Standard', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'nemotron-3-ultra-550b-a55b', name: 'Nemotron 3 Ultra 550B', provider: 'NVIDIA', logoSlug: 'nvidia', icon: SiNvidia, color: 'from-emerald-600 to-green-600', pricing: 'Premium', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'gpt-5.2', name: 'GPT-5.2', provider: 'OpenAI', logoSlug: 'openai', icon: RiOpenaiFill, color: 'from-green-500 to-emerald-600', pricing: 'Standard', context: '400K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, limited: true },
+  { id: 'gpt-5.5', name: 'GPT-5.5', provider: 'OpenAI', logoSlug: 'openai', icon: RiOpenaiFill, color: 'from-green-600 to-teal-600', pricing: 'Premium', context: '400K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
 ];
 
 const IMAGE_MODELS: AnyModel[] = [
-  { id: 'flux-2-dev', name: 'Flux 2', provider: 'Black Forest', icon: SiFlux, color: 'from-purple-500 to-pink-500', pricing: 'Standard', context: '—', type: 'image', endpoint: `${base}/api/v1/images/generations` },
+  { id: 'flux-2-dev', name: 'Flux 2', provider: 'Black Forest', logoSlug: 'flux', icon: SiFlux, color: 'from-purple-500 to-pink-500', pricing: 'Standard', context: '—', type: 'image', endpoint: `${base}/api/v1/images/generations` },
   { id: 'lucid-origin', name: 'Lucid Origin', provider: 'Lucid', icon: SiImagedotsc, color: 'from-teal-500 to-cyan-600', pricing: 'Standard', context: '—', type: 'image', endpoint: `${base}/api/v1/images/generations` },
   { id: 'phoenix-1.0', name: 'Phoenix 1.0', provider: 'Phoenix', icon: GiFire, color: 'from-red-500 to-orange-500', pricing: 'Budget', context: '—', type: 'image', endpoint: `${base}/api/v1/images/generations` },
-  { id: 'nano-image', name: 'Nano Banana Pro', provider: 'Nano', icon: SiGooglegemini, color: 'from-yellow-400 to-orange-400', pricing: 'Budget', context: '—', type: 'image', endpoint: `${base}/api/v1/images/generations`, requiresPro: true },
+  { id: 'nano-image', name: 'Nano Banana Pro', provider: 'Nano', logoSlug: 'gemini', icon: SiGooglegemini, color: 'from-yellow-400 to-orange-400', pricing: 'Budget', context: '—', type: 'image', endpoint: `${base}/api/v1/images/generations`, requiresPro: true },
 ];
 
 const VIDEO_MODELS: AnyModel[] = [
-  { id: 'wan2.2-i2v', name: 'Wan 2.2 I2V', provider: 'Alibaba', icon: SiAlibabacloud, color: 'from-purple-500 to-pink-500', pricing: 'Premium', context: '—', type: 'video', endpoint: `${base}/api/v1/videos/generations`, requiresPro: true },
-  { id: 'hailuo-h3', name: 'Hailuo H3', provider: 'MiniMax', icon: SiMaze, color: 'from-cyan-600 to-blue-600', pricing: 'Premium', context: '—', type: 'video', endpoint: `${base}/api/v1/videos/generations`, requiresPro: true },
+  { id: 'wan2.2-i2v', name: 'Wan 2.2 I2V', provider: 'Alibaba', logoSlug: 'qwen', icon: SiAlibabacloud, color: 'from-purple-500 to-pink-500', pricing: 'Premium', context: '—', type: 'video', endpoint: `${base}/api/v1/videos/generations`, requiresPro: true },
+  { id: 'hailuo-h3', name: 'Hailuo H3', provider: 'MiniMax', logoSlug: 'minimax', icon: SiMaze, color: 'from-cyan-600 to-blue-600', pricing: 'Premium', context: '—', type: 'video', endpoint: `${base}/api/v1/videos/generations`, requiresPro: true },
   { id: 'funtastic-3', name: 'Funtastic 3', provider: 'Luma AI', icon: RiCameraLensAiFill, color: 'from-indigo-500 to-violet-600', pricing: 'Standard', context: '—', type: 'video', endpoint: `${base}/api/v1/videos/generations` },
 ];
 
@@ -88,14 +89,54 @@ const TTS_MODELS: AnyModel[] = [
   { id: 'catherine-tts', name: 'Catherine TTS', provider: 'Typecast', icon: SiSoundcloud, color: 'from-sky-500 to-indigo-500', pricing: 'Standard', context: '—', type: 'tts', endpoint: `${base}/api/v1/audio/speech` },
   { id: 'nana-tts', name: 'Nana TTS', provider: 'Typecast', icon: SiSpotify, color: 'from-emerald-500 to-teal-500', pricing: 'Standard', context: '—', type: 'tts', endpoint: `${base}/api/v1/audio/speech` },
   { id: 'stephanie-tts', name: 'Stephanie TTS', provider: 'Typecast', icon: SiVorondesign, color: 'from-amber-500 to-orange-500', pricing: 'Standard', context: '—', type: 'tts', endpoint: `${base}/api/v1/audio/speech` },
-  { id: 'alexandra-tts', name: 'Alexandra TTS', provider: 'ElevenLabs', icon: SiElevenlabs, color: 'from-slate-600 to-zinc-800', pricing: 'Premium', context: '—', type: 'tts', endpoint: `${base}/api/v1/audio/speech`, requiresPro: true },
-  { id: 'eve-tts', name: 'Eve TTS', provider: 'ElevenLabs', icon: SiElevenlabs, color: 'from-zinc-600 to-slate-800', pricing: 'Premium', context: '—', type: 'tts', endpoint: `${base}/api/v1/audio/speech`, requiresPro: true },
+  { id: 'alexandra-tts', name: 'Alexandra TTS', provider: 'ElevenLabs', logoSlug: 'elevenlabs', icon: SiElevenlabs, color: 'from-slate-600 to-zinc-800', pricing: 'Premium', context: '—', type: 'tts', endpoint: `${base}/api/v1/audio/speech`, requiresPro: true },
+  { id: 'eve-tts', name: 'Eve TTS', provider: 'ElevenLabs', logoSlug: 'elevenlabs', icon: SiElevenlabs, color: 'from-zinc-600 to-slate-800', pricing: 'Premium', context: '—', type: 'tts', endpoint: `${base}/api/v1/audio/speech`, requiresPro: true },
 ];
 
 const STT_MODELS: AnyModel[] = [
-  { id: 'whisper-large-v3', name: 'Whisper Large V3', provider: 'OpenAI', icon: RiOpenaiFill, color: 'from-teal-500 to-emerald-600', pricing: 'Standard', context: '—', type: 'stt', endpoint: `${base}/api/v1/audio/transcriptions` },
-  { id: 'whisper-large-v3-turbo', name: 'Whisper V3 Turbo', provider: 'OpenAI', icon: RiOpenaiFill, color: 'from-emerald-500 to-teal-400', pricing: 'Budget', context: '—', type: 'stt', endpoint: `${base}/api/v1/audio/transcriptions` },
+  { id: 'whisper-large-v3', name: 'Whisper Large V3', provider: 'OpenAI', logoSlug: 'openai', icon: RiOpenaiFill, color: 'from-teal-500 to-emerald-600', pricing: 'Standard', context: '—', type: 'stt', endpoint: `${base}/api/v1/audio/transcriptions` },
+  { id: 'whisper-large-v3-turbo', name: 'Whisper V3 Turbo', provider: 'OpenAI', logoSlug: 'openai', icon: RiOpenaiFill, color: 'from-emerald-500 to-teal-400', pricing: 'Budget', context: '—', type: 'stt', endpoint: `${base}/api/v1/audio/transcriptions` },
 ];
+
+const brandSvgCache: Record<string, string> = {};
+
+const BrandIcon = ({ model, className }: { model: any; className?: string }) => {
+  const [svg, setSvg] = useState<string | null>(model.logoSlug ? brandSvgCache[model.logoSlug] ?? null : null);
+  const [failed, setFailed] = useState(false);
+  const Icon = model.icon;
+
+  useEffect(() => {
+    if (!model.logoSlug || brandSvgCache[model.logoSlug]) return;
+    let cancelled = false;
+    fetch(`https://unpkg.com/@lobehub/icons-static-svg@latest/icons/${model.logoSlug}.svg`)
+      .then((res) => {
+        if (!res.ok) throw new Error('missing');
+        return res.text();
+      })
+      .then((text) => {
+        const clean = text.replace(/<script[\s\S]*?<\/script>/gi, '');
+        brandSvgCache[model.logoSlug] = clean;
+        if (!cancelled) setSvg(clean);
+      })
+      .catch(() => {
+        if (!cancelled) setFailed(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [model.logoSlug]);
+
+  if (!model.logoSlug || failed || !svg) {
+    return <Icon className={className} />;
+  }
+
+  return (
+    <span
+      className={`inline-flex items-center justify-center [&>svg]:w-full [&>svg]:h-full ${className}`}
+      dangerouslySetInnerHTML={{ __html: svg }}
+    />
+  );
+};
 
 const PRICING_STYLE: Record<string, string> = {
   Premium: 'text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20 border-rose-200 dark:border-rose-800',
@@ -1949,7 +1990,6 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
 
   const responseText = isStreaming ? streamingText : (response?.choices?.[0]?.message?.content ?? '');
   const tokensUsed = response?.usage?.total_tokens ?? null;
-  const ModelIcon = selectedModel.icon as any;
   const tabModels = modelsForTab();
 
   return (
@@ -1992,7 +2032,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
               >
                 <div className="flex items-center gap-1.5 min-w-0 flex-1">
                   <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-gradient-to-br ${selectedModel.color} flex items-center justify-center flex-shrink-0 shadow-sm`}>
-                    <ModelIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />
+                    <BrandIcon model={selectedModel} className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />
                   </div>
                   <div className="min-w-0 flex-1 flex flex-col items-start">
                     <div className="flex items-center gap-1 flex-wrap">
@@ -2036,14 +2076,13 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                     {tabModels.length === 0 ? (
                       <p className="text-center text-[10px] text-zinc-400 py-4">No models found</p>
                     ) : tabModels.map(model => {
-                      const Icon = model.icon as any;
                       return (
                         <button
                           key={model.id}
                           onClick={() => { setSelectedModel(model); setModelOpen(false); setModelSearch(''); clearResult(); setTtsLanguage(model.id === 'alexandra-tts' ? 'ind' : model.id === 'eve-tts' ? 'kor' : 'eng'); }}
                           className={`w-full flex items-center gap-1.5 px-2 py-1.5 rounded-lg transition-all duration-150 text-left ${selectedModel.id === model.id ? 'bg-blue-50 dark:bg-blue-800/20 border border-blue-100 dark:border-blue-700' : 'hover:bg-zinc-50 dark:hover:bg-zinc-800'}`}
                         >
-                          <div className={`w-5 h-5 rounded-md bg-gradient-to-br ${model.color} flex items-center justify-center flex-shrink-0`}><Icon className="w-2.5 h-2.5 text-white" /></div>
+                          <div className={`w-5 h-5 rounded-md bg-gradient-to-br ${model.color} flex items-center justify-center flex-shrink-0`}><BrandIcon model={model} className="w-2.5 h-2.5 text-white" /></div>
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-1 flex-wrap">
                               <span className="text-[10px] font-semibold text-zinc-900 dark:text-white truncate">{model.name}</span>
@@ -3101,7 +3140,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                   <div className="space-y-2 fade-in">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1.5">
-                        <div className={`w-4 h-4 rounded bg-gradient-to-br ${selectedModel.color} flex items-center justify-center`}><ModelIcon className="w-2 h-2 text-white" /></div>
+                        <div className={`w-4 h-4 rounded bg-gradient-to-br ${selectedModel.color} flex items-center justify-center`}><BrandIcon model={selectedModel} className="w-2 h-2 text-white" /></div>
                         <span className="text-[10px] font-semibold text-zinc-600 dark:text-zinc-400">{selectedModel.name}</span>
                       </div>
                       <button onClick={handleDownloadImage} className="flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-semibold text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors">
@@ -3119,7 +3158,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                   <div className="space-y-2 fade-in">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1.5">
-                        <div className={`w-4 h-4 rounded bg-gradient-to-br ${selectedModel.color} flex items-center justify-center`}><ModelIcon className="w-2 h-2 text-white" /></div>
+                        <div className={`w-4 h-4 rounded bg-gradient-to-br ${selectedModel.color} flex items-center justify-center`}><BrandIcon model={selectedModel} className="w-2 h-2 text-white" /></div>
                         <span className="text-[10px] font-semibold text-zinc-600 dark:text-zinc-400">{selectedModel.name}</span>
                       </div>
                       <button onClick={handleDownloadVideo} className="flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-semibold text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors">
@@ -3156,7 +3195,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                 {audioUrl && (
                   <div className="space-y-3 fade-in">
                     <div className="flex items-center gap-1.5">
-                      <div className={`w-4 h-4 rounded bg-gradient-to-br ${selectedModel.color} flex items-center justify-center`}><ModelIcon className="w-2 h-2 text-white" /></div>
+                      <div className={`w-4 h-4 rounded bg-gradient-to-br ${selectedModel.color} flex items-center justify-center`}><BrandIcon model={selectedModel} className="w-2 h-2 text-white" /></div>
                       <span className="text-[10px] font-semibold text-zinc-600 dark:text-zinc-400">{selectedModel.name}</span>
                     </div>
                     <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/40">
@@ -3181,7 +3220,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                   <div className="space-y-3 fade-in">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1.5">
-                        <div className={`w-4 h-4 rounded bg-gradient-to-br ${selectedModel.color} flex items-center justify-center`}><ModelIcon className="w-2 h-2 text-white" /></div>
+                        <div className={`w-4 h-4 rounded bg-gradient-to-br ${selectedModel.color} flex items-center justify-center`}><BrandIcon model={selectedModel} className="w-2 h-2 text-white" /></div>
                         <span className="text-[10px] font-semibold text-zinc-600 dark:text-zinc-400">{selectedModel.name}</span>
                         <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 font-bold border border-teal-200 dark:border-teal-800/50">
                           {sttTask === 'translations' ? 'Translation' : 'Transcription'}
@@ -3245,7 +3284,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                   <div className="space-y-2 fade-in">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1.5">
-                        <div className={`w-4 h-4 rounded bg-gradient-to-br ${selectedModel.color} flex items-center justify-center`}><ModelIcon className="w-2 h-2 text-white" /></div>
+                        <div className={`w-4 h-4 rounded bg-gradient-to-br ${selectedModel.color} flex items-center justify-center`}><BrandIcon model={selectedModel} className="w-2 h-2 text-white" /></div>
                         <span className="text-[10px] font-semibold text-zinc-600 dark:text-zinc-400">{selectedModel.name}</span>
                         {isStreaming && (
                           <span className="flex items-center gap-1 text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-500 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
