@@ -100,7 +100,7 @@ const STREAM_MODEL_MAPPING: Record<string, StreamFunction> = {
   "deepseek-v3.2": streamDeepSeek,
 };
 
-const LOCKED_MODELS_PRO = ['deepseek-v3.2', 'qwen3-coder-480b', 'minimax-m3', 'claude-sonnet-4.6', 'glm-5.2', 'aichixia-flash', 'grok-4-fast', 'kimi-k2.6', 'gpt-5.5', 'laguna-s-2.1', 'claude-opus-4.8'];
+const LOCKED_MODELS_PRO = ['deepseek-v3.2', 'qwen3-coder-480b', 'minimax-m3', 'claude-sonnet-4.6', 'glm-5.2', 'aichixia-flash', 'grok-4-fast', 'kimi-k2.6', 'gpt-5.2', 'gpt-5.5', 'laguna-s-2.1', 'claude-opus-4.8'];
 
 const RATE_LIMIT_ERRORS = [
   OpenAIRateLimitError, KimiRateLimitError, GlmRateLimitError, GPTRateLimitError,
@@ -449,7 +449,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         error: { message: "Quota exceeded. Please check your plan.", type: "insufficient_quota", param: null, code: "insufficient_quota" },
       });
     }
-
+    
     return res.status(500).json({
       error: { message: err.message || "Internal server error", type: "server_error", param: null, code: null },
     });
