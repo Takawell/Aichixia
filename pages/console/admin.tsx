@@ -997,7 +997,6 @@ export default function AdminDashboard() {
       </div>
     );
   }
-  }
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#070a0f]">
