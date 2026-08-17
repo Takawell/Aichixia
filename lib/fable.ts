@@ -2,9 +2,21 @@ import OpenAI from "openai";
 
 export type Role = "user" | "assistant" | "system";
 
+export type TextPart = {
+  type: "text";
+  text: string;
+};
+
+export type ImagePart = {
+  type: "image_url";
+  image_url: { url: string };
+};
+
+export type ContentPart = TextPart | ImagePart;
+
 export type ChatMessage = {
   role: Role;
-  content: string;
+  content: string | ContentPart[];
 };
 
 const XKIRO_API_KEY = process.env.XKIRO_API_KEY;
@@ -18,6 +30,24 @@ const client = new OpenAI({
   apiKey: XKIRO_API_KEY,
   baseURL: "https://api.xkiro.com/v1",
 });
+
+export function buildImageMessage(
+  text: string,
+  imageUrls: string[]
+): ChatMessage {
+  const parts: ContentPart[] = [{ type: "text", text }];
+  for (const url of imageUrls) {
+    parts.push({ type: "image_url", image_url: { url } });
+  }
+  return { role: "user", content: parts };
+}
+
+export function buildBase64ImageUrl(
+  base64Data: string,
+  mediaType: string
+): string {
+  return `data:${mediaType};base64,${base64Data}`;
+}
 
 export class FableRateLimitError extends Error {
   constructor(message: string) {
@@ -148,6 +178,7 @@ export async function quickChatFable(
     history?: ChatMessage[];
     temperature?: number;
     maxTokens?: number;
+    imageUrls?: string[];
   }
 ) {
   const hist: ChatMessage[] = [];
@@ -160,7 +191,11 @@ export async function quickChatFable(
     hist.push(...opts.history);
   }
 
-  hist.push({ role: "user", content: userMessage });
+  if (opts?.imageUrls?.length) {
+    hist.push(buildImageMessage(userMessage, opts.imageUrls));
+  } else {
+    hist.push({ role: "user", content: userMessage });
+  }
 
   const { reply } = await chatFable(hist, {
     temperature: opts?.temperature,
@@ -174,4 +209,6 @@ export default {
   chatFable,
   streamFable,
   quickChatFable,
+  buildImageMessage,
+  buildBase64ImageUrl,
 };
