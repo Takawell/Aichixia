@@ -145,7 +145,7 @@ export async function streamFable(
           max_tokens: opts?.maxTokens ?? 2048,
           stream: true,
         };
-        const streamResponse = await client.chat.completions.create(streamRequestBody);
+        const streamResponse = await client.chat.completions.create(streamRequestBody) as AsyncIterable<any>;
 
         for await (const chunk of streamResponse) {
           const delta = chunk.choices[0]?.delta?.content;
