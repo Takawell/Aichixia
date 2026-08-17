@@ -1,6 +1,6 @@
 {
   "name": "aichixia-api",
-  "version": "5.7.0",
+  "version": "2.2.8",
   "private": true,
   "scripts": {
     "dev": "next dev",
