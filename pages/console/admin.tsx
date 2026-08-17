@@ -513,7 +513,7 @@ export default function AdminDashboard() {
               </div>
               <div className="absolute inset-2 rounded-full border border-dashed border-sky-400/30 dark:border-sky-400/40 animate-spin-slow" />
               <div className="relative z-10 transform hover:scale-110 transition-transform duration-500">
-                <svg width="64" height="64" viewBox="0 0 48 48" fill="none" className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 drop-shadow-2xl">
+                <svg width="40" height="40" viewBox="0 0 48 48" fill="none" className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 drop-shadow-2xl">
                   <defs>
                     <linearGradient id="adminLogoGrad" x1="4" y1="42" x2="44" y2="4" gradientUnits="userSpaceOnUse">
                       <stop offset="0%" stopColor="#0ea5e9" />

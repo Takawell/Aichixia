@@ -11,7 +11,6 @@ import Models from '@/components/console/models';
 import Settings from '@/components/console/settings';
 import Playground from '@/components/console/playground';
 import Notice from '@/components/console/notice';
-import Image from 'next/image';
 
 type ApiKey = {
   id: string;
@@ -482,14 +481,17 @@ export default function Console() {
               <div className="absolute inset-3 rounded-full border border-dashed border-sky-400/30 dark:border-sky-400/40 animate-spin-slow" />
 
               <div className="relative z-10 transform hover:scale-110 transition-transform duration-500">
-                <Image
-                  src="/logo.png"
-                  alt="Aichixia"
-                  width={80}
-                  height={80}
-                  className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 drop-shadow-2xl"
-                  priority
-                />
+                <svg width="40" height="40" viewBox="0 0 48 48" fill="none" className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 drop-shadow-2xl">
+                  <defs>
+                    <linearGradient id="indexLogoGrad" x1="4" y1="42" x2="44" y2="4" gradientUnits="userSpaceOnUse">
+                      <stop offset="0%" stopColor="#0ea5e9" />
+                      <stop offset="55%" stopColor="#6366f1" />
+                      <stop offset="100%" stopColor="#a855f7" />
+                    </linearGradient>
+                  </defs>
+                  <path d="M24 4 L44 42 H35.5 L24 19 L12.5 42 H4 Z" fill="url(#indexLogoGrad)" />
+                  <path d="M17.5 30 H30.5 L33.5 36 H14.5 Z" fill="url(#indexLogoGrad)" opacity="0.55" />
+                </svg>
               </div>
             </div>
           </div>
