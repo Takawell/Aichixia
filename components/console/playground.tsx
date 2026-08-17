@@ -109,7 +109,22 @@ const BrandIcon = ({ model, className }: { model: any; className?: string }) => 
   const Icon = model.icon;
 
   useEffect(() => {
-    if (!model.logoSlug || brandSvgCache[model.logoSlug]) return;
+    if (!model.logoSlug) {
+      setSvg(null);
+      setFailed(false);
+      return;
+    }
+
+    const cached = brandSvgCache[model.logoSlug];
+    if (cached) {
+      setSvg(cached);
+      setFailed(false);
+      return;
+    }
+
+    setSvg(null);
+    setFailed(false);
+
     let cancelled = false;
     fetch(`https://unpkg.com/@lobehub/icons-static-svg@latest/icons/${model.logoSlug}.svg`)
       .then((res) => {
