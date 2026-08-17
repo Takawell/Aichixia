@@ -29,6 +29,7 @@ import { chatGpt55, Gpt55RateLimitError, Gpt55QuotaError } from "@/lib/gpt-5-5";
 import { chatGemma, streamGemma, GemmaRateLimitError, GemmaQuotaError } from "@/lib/gemma";
 import { chatHaiku, HaikuRateLimitError, HaikuQuotaError } from "@/lib/haiku";
 import { chatLaguna, streamLaguna, LagunaRateLimitError, LagunaQuotaError } from "@/lib/laguna";
+import { chatFable, streamFable, FableRateLimitError, FableQuotaError } from "@/lib/fable";
 import { verifyApiKey, incrementUsage, logRequest, updateDailyUsage } from "@/lib/console-utils";
 import { getServiceSupabase } from "@/lib/supabase";
 
@@ -58,6 +59,7 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "claude-sonnet-4.6": { fn: chatClaude, provider: "claude" },
   "claude-opus-4.8": { fn: chatOpus, provider: "opus" },
   "claude-haiku-4.5": { fn: chatHaiku, provider: "haiku" },
+  "claude-fable-5": { fn: chatFable, provider: "fable" },
   "gemini-3-flash": { fn: chatGemini, provider: "gemini" },
   "kimi-k2.6": { fn: chatKimi, provider: "kimi" },
   "glm-5.2": { fn: chatGlm, provider: "glm" },
@@ -98,9 +100,11 @@ const STREAM_MODEL_MAPPING: Record<string, StreamFunction> = {
   "gemini-3-flash": streamGemini,
   "llama-3.3-70b": streamLlama,
   "deepseek-v3.2": streamDeepSeek,
+  "claude-fable-5": streamFable,
 };
 
 const LOCKED_MODELS_PRO = ['deepseek-v3.2', 'qwen3-coder-480b', 'minimax-m3', 'claude-sonnet-4.6', 'glm-5.2', 'aichixia-flash', 'grok-4-fast', 'kimi-k2.6', 'gpt-5.2', 'gpt-5.5', 'laguna-s-2.1', 'claude-opus-4.8'];
+const LOCKED_MODELS_ENTERPRISE = ['claude-fable-5'];
 
 const RATE_LIMIT_ERRORS = [
   OpenAIRateLimitError, KimiRateLimitError, GlmRateLimitError, GPTRateLimitError,
@@ -109,7 +113,7 @@ const RATE_LIMIT_ERRORS = [
   LlamaRateLimitError, MistralRateLimitError, MimoRateLimitError, PhiRateLimitError,
   MinimaxRateLimitError, GrokRateLimitError, GrokFastRateLimitError, ZhipuRateLimitError,
   AichixiaRateLimitError, StepfunRateLimitError, NemotronRateLimitError, Gpt55RateLimitError, OpusRateLimitError,
-  GemmaRateLimitError, HaikuRateLimitError, LagunaRateLimitError, GeminiRateLimitError,
+  GemmaRateLimitError, HaikuRateLimitError, LagunaRateLimitError, GeminiRateLimitError, FableRateLimitError,
 ];
 
 const QUOTA_ERRORS = [
@@ -119,7 +123,7 @@ const QUOTA_ERRORS = [
   LlamaQuotaError, MistralQuotaError, MimoQuotaError, PhiQuotaError,
   MinimaxQuotaError, GrokQuotaError, GrokFastQuotaError, ZhipuQuotaError,
   AichixiaQuotaError, StepfunQuotaError, NemotronQuotaError, Gpt55QuotaError, OpusQuotaError,
-  GemmaQuotaError, HaikuQuotaError, LagunaQuotaError, GeminiQuotaError,
+  GemmaQuotaError, HaikuQuotaError, LagunaQuotaError, GeminiQuotaError, FableQuotaError,
 ];
 
 function isRateLimitError(error: any): boolean {
@@ -157,10 +161,26 @@ async function checkModelAccess(userId: string, model: string): Promise<{ allowe
     .eq('user_id', userId)
     .single();
 
-  if (error || !settings) return { allowed: true };
+  const modelLower = model.toLowerCase();
+
+  if (error || !settings) {
+    if (LOCKED_MODELS_ENTERPRISE.includes(modelLower) || LOCKED_MODELS_PRO.includes(modelLower)) {
+      return {
+        allowed: false,
+        error: `Unable to verify plan for model '${model}'.`,
+      };
+    }
+    return { allowed: true };
+  }
 
   const userPlan = settings.plan;
-  const modelLower = model.toLowerCase();
+
+  if (LOCKED_MODELS_ENTERPRISE.includes(modelLower) && userPlan !== 'enterprise') {
+    return {
+      allowed: false,
+      error: `Model '${model}' requires Enterprise plan. Upgrade your plan at https://aichixia.xyz/console`,
+    };
+  }
 
   if (userPlan === 'free' && LOCKED_MODELS_PRO.includes(modelLower)) {
     return {
@@ -449,7 +469,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         error: { message: "Quota exceeded. Please check your plan.", type: "insufficient_quota", param: null, code: "insufficient_quota" },
       });
     }
-    
+
     return res.status(500).json({
       error: { message: err.message || "Internal server error", type: "server_error", param: null, code: null },
     });
