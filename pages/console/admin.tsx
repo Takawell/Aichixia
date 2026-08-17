@@ -489,123 +489,148 @@ export default function AdminDashboard() {
 
   if (initialLoading) {
     return (
-      <div style={{ position:'fixed', inset:0, display:'flex', alignItems:'center', justifyContent:'center', background:'#05070d', overflow:'hidden', padding:16 }}>
-        <style>{`
-          @keyframes lsFadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
-          @keyframes lsFadeIn{from{opacity:0;}to{opacity:1;}}
-          @keyframes lsSpinCW{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
-          @keyframes lsSpinCCW{from{transform:rotate(360deg);}to{transform:rotate(0deg);}}
-          @keyframes lsPulseGlow{0%,100%{opacity:0.4;transform:translate(-50%,-50%) scale(1);}50%{opacity:0.75;transform:translate(-50%,-50%) scale(1.15);}}
-          @keyframes lsShimmer{0%{left:-120%;}100%{left:120%;}}
-          @keyframes lsGradientMove{0%,100%{background-position:0% 50%;}50%{background-position:100% 50%;}}
-          @keyframes lsDotPulse{0%,80%,100%{transform:scale(0.6);opacity:0.35;}40%{transform:scale(1);opacity:1;}}
-          @keyframes lsScan{0%{top:-2px;opacity:0;}6%{opacity:1;}94%{opacity:0.7;}100%{top:100%;opacity:0;}}
-          .ls-layer0{animation:lsFadeIn 0.6s ease both;}
-          .ls-layer1{animation:lsFadeUp 0.6s cubic-bezier(0.16,1,0.3,1) 0.05s both;}
-          .ls-layer2{animation:lsFadeUp 0.6s cubic-bezier(0.16,1,0.3,1) 0.15s both;}
-          .ls-layer3{animation:lsFadeUp 0.6s cubic-bezier(0.16,1,0.3,1) 0.25s both;}
-          .ls-orbit-cw{animation:lsSpinCW 16s linear infinite;}
-          .ls-orbit-ccw{animation:lsSpinCCW 22s linear infinite;}
-          .ls-glow{position:absolute;top:50%;left:50%;animation:lsPulseGlow 3.2s ease-in-out infinite;}
-          .ls-scan{animation:lsScan 2.6s ease-in-out infinite;}
-          .ls-bar-shimmer{position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.35),transparent);animation:lsShimmer 1.8s ease-in-out infinite;}
-          .ls-title-grad{background:linear-gradient(90deg,#e2e8f0,#7dd3fc,#818cf8,#e2e8f0);background-size:280% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:lsGradientMove 4s ease infinite;}
-          .ls-dot{width:5px;height:5px;border-radius:99px;background:#38bdf8;display:inline-block;animation:lsDotPulse 1.3s ease-in-out infinite;}
-        `}</style>
-
-        <div style={{ position:'absolute', inset:0, pointerEvents:'none' }}>
-          <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse 70% 55% at 50% 40%,rgba(56,189,248,0.14) 0%,rgba(56,189,248,0.05) 40%,transparent 70%)' }} />
-          <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse 40% 30% at 85% 85%,rgba(129,140,248,0.08) 0%,transparent 60%)' }} />
-          <div style={{ position:'absolute', inset:0, backgroundImage:'linear-gradient(rgba(56,189,248,0.035) 1px,transparent 1px),linear-gradient(90deg,rgba(56,189,248,0.035) 1px,transparent 1px)', backgroundSize:'56px 56px', maskImage:'radial-gradient(ellipse 80% 70% at 50% 50%,black 20%,transparent 80%)' }} />
-          <div className="ls-scan" style={{ position:'absolute', left:0, right:0, height:'2px', background:'linear-gradient(90deg,transparent 0%,rgba(56,189,248,0) 20%,rgba(56,189,248,0.18) 50%,rgba(56,189,248,0) 80%,transparent 100%)' }} />
+      <div className="fixed inset-0 bg-gradient-to-br from-slate-50 via-blue-50/30 to-sky-50/20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900 flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(14,165,233,0.08),transparent_60%)] dark:bg-[radial-gradient(circle_at_50%_50%,rgba(14,165,233,0.2),transparent_60%)]" />
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-0 left-1/4 w-80 h-80 bg-sky-300/15 dark:bg-sky-500/10 rounded-full blur-3xl animate-float" />
+          <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-blue-300/15 dark:bg-blue-500/10 rounded-full blur-3xl animate-float-delayed" />
+        </div>
+        <div className="absolute inset-0 opacity-40 dark:opacity-60">
+          <div className="absolute top-1/3 left-1/3 w-1.5 h-1.5 bg-sky-400 rounded-full animate-twinkle" />
+          <div className="absolute top-2/3 left-1/4 w-1 h-1 bg-blue-400 rounded-full animate-twinkle-delayed" />
+          <div className="absolute top-1/2 right-1/3 w-1.5 h-1.5 bg-cyan-400 rounded-full animate-twinkle" style={{ animationDelay: '1s' }} />
+          <div className="absolute bottom-1/3 right-1/4 w-1 h-1 bg-indigo-400 rounded-full animate-twinkle-delayed" style={{ animationDelay: '1.5s' }} />
         </div>
 
-        <div style={{ position:'relative', zIndex:1, width:'100%', maxWidth:380, display:'flex', flexDirection:'column', alignItems:'center', textAlign:'center' }}>
-
-          <div className="ls-layer1" style={{ position:'relative', width:88, height:88, marginBottom:28 }}>
-            <div className="ls-glow" style={{ width:190, height:190, borderRadius:'50%', background:'radial-gradient(circle,rgba(56,189,248,0.16) 0%,transparent 65%)' }} />
-            <svg className="ls-orbit-cw" style={{ position:'absolute', inset:-14, width:'calc(100% + 28px)', height:'calc(100% + 28px)' }} viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(56,189,248,0.22)" strokeWidth="0.7" strokeDasharray="5 4" />
-            </svg>
-            <svg className="ls-orbit-ccw" style={{ position:'absolute', inset:-7, width:'calc(100% + 14px)', height:'calc(100% + 14px)' }} viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(129,140,248,0.16)" strokeWidth="1" strokeDasharray="2 7" />
-            </svg>
-            <div style={{ position:'absolute', inset:0, borderRadius:'50%', background:'linear-gradient(135deg,rgba(56,189,248,0.16),rgba(129,140,248,0.1))', border:'1.5px solid rgba(56,189,248,0.3)', display:'flex', alignItems:'center', justifyContent:'center', backdropFilter:'blur(10px)', boxShadow:'0 0 40px rgba(56,189,248,0.25), inset 0 1px 0 rgba(255,255,255,0.08)' }}>
-              <svg width="38" height="38" viewBox="0 0 48 48" fill="none">
-                <defs>
-                  <linearGradient id="lsLogoGrad" x1="4" y1="42" x2="44" y2="4" gradientUnits="userSpaceOnUse">
-                    <stop offset="0%" stopColor="#38bdf8" />
-                    <stop offset="55%" stopColor="#818cf8" />
-                    <stop offset="100%" stopColor="#c084fc" />
-                  </linearGradient>
-                </defs>
-                <path d="M24 4 L44 42 H35.5 L24 19 L12.5 42 H4 Z" fill="url(#lsLogoGrad)" />
-                <path d="M17.5 30 H30.5 L33.5 36 H14.5 Z" fill="url(#lsLogoGrad)" opacity="0.55" />
-              </svg>
+        <div className="relative z-10 flex flex-col items-center gap-6 sm:gap-8 px-4 w-full max-w-md">
+          <div className="relative group">
+            <div className="absolute -inset-6 bg-gradient-to-r from-sky-400/20 via-blue-500/20 to-cyan-400/20 dark:from-sky-400/30 dark:via-blue-500/30 dark:to-cyan-400/30 rounded-full blur-2xl animate-pulse-slow" />
+            <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center">
+              <div className="absolute inset-0">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="absolute inset-0 rounded-full border border-sky-400/20 dark:border-sky-400/30" style={{ animation: `ping ${2 + i * 0.5}s cubic-bezier(0, 0, 0.2, 1) infinite`, animationDelay: `${i * 0.3}s` }} />
+                ))}
+              </div>
+              <div className="absolute inset-2 rounded-full border border-dashed border-sky-400/30 dark:border-sky-400/40 animate-spin-slow" />
+              <div className="relative z-10 transform hover:scale-110 transition-transform duration-500">
+                <svg width="64" height="64" viewBox="0 0 48 48" fill="none" className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 drop-shadow-2xl">
+                  <defs>
+                    <linearGradient id="adminLogoGrad" x1="4" y1="42" x2="44" y2="4" gradientUnits="userSpaceOnUse">
+                      <stop offset="0%" stopColor="#0ea5e9" />
+                      <stop offset="55%" stopColor="#6366f1" />
+                      <stop offset="100%" stopColor="#a855f7" />
+                    </linearGradient>
+                  </defs>
+                  <path d="M24 4 L44 42 H35.5 L24 19 L12.5 42 H4 Z" fill="url(#adminLogoGrad)" />
+                  <path d="M17.5 30 H30.5 L33.5 36 H14.5 Z" fill="url(#adminLogoGrad)" opacity="0.55" />
+                </svg>
+              </div>
             </div>
           </div>
 
-          <div className="ls-layer2" style={{ marginBottom:8 }}>
-            <h1 className="ls-title-grad" style={{ fontSize:'clamp(22px,5vw,30px)', fontWeight:900, letterSpacing:'-0.04em', lineHeight:1.1, margin:0 }}>
-              {loadingStep === 5 ? 'Admin Ready' : 'Admin Dashboard'}
-            </h1>
-            <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8, marginTop:10 }}>
-              <div style={{ height:1, width:28, background:'linear-gradient(90deg,transparent,rgba(56,189,248,0.5),transparent)' }} />
-              <div style={{ width:4, height:4, borderRadius:99, background:'#38bdf8' }} />
-              <div style={{ height:1, width:28, background:'linear-gradient(90deg,transparent,rgba(56,189,248,0.5),transparent)' }} />
+          <div className="text-center space-y-2 sm:space-y-3">
+            <div className="space-y-1.5">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-black bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 dark:from-white dark:via-slate-200 dark:to-white bg-clip-text text-transparent animate-gradient">
+                {loadingStep === 5 ? 'Admin Ready' : 'Admin Dashboard'}
+              </h1>
+              <div className="flex items-center justify-center gap-2">
+                <div className="h-px w-6 sm:w-10 bg-gradient-to-r from-transparent via-sky-500 to-transparent" />
+                <div className="w-1 h-1 rounded-full bg-sky-500 animate-pulse" />
+                <div className="h-px w-6 sm:w-10 bg-gradient-to-r from-transparent via-sky-500 to-transparent" />
+              </div>
             </div>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium max-w-xs">
+              {loadingStep === 5 ? 'System initialized successfully' : 'Establishing secure admin connection'}
+            </p>
           </div>
 
-          <p className="ls-layer2" style={{ fontSize:13, color:'rgba(255,255,255,0.4)', fontWeight:400, marginBottom:32, maxWidth:260, lineHeight:1.6 }}>
-            {loadingStep === 5 ? 'System initialized successfully' : 'Establishing secure admin connection'}
-          </p>
-
-          <div className="ls-layer3" style={{ width:'100%' }}>
-            <div style={{ position:'relative', marginBottom:22 }}>
-              <div style={{ height:6, borderRadius:99, background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.06)', overflow:'hidden' }}>
-                <div style={{ height:'100%', borderRadius:99, width:`${loadingProgress}%`, background:`linear-gradient(90deg,#38bdf8,#818cf8)`, position:'relative', overflow:'hidden', transition:'width 500ms ease-out', boxShadow:'0 0 12px rgba(56,189,248,0.5)' }}>
-                  <div className="ls-bar-shimmer" />
+          <div className="w-full space-y-5 sm:space-y-6">
+            <div className="relative">
+              <div className="h-2 sm:h-2.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden shadow-inner">
+                <div className={`h-full bg-gradient-to-r ${loadingSteps[loadingStep].color} rounded-full transition-all duration-500 ease-out relative overflow-hidden`} style={{ width: `${loadingProgress}%` }}>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
                 </div>
               </div>
-              <div style={{ position:'absolute', top:-24, left:0, right:0, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-                <span style={{ fontSize:13, fontWeight:800, background:'linear-gradient(90deg,#38bdf8,#818cf8)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>{Math.round(loadingProgress)}%</span>
-                <span style={{ display:'flex', gap:4 }}>
-                  <span className="ls-dot" style={{ animationDelay:'0ms' }} />
-                  <span className="ls-dot" style={{ animationDelay:'180ms' }} />
-                  <span className="ls-dot" style={{ animationDelay:'360ms' }} />
-                </span>
+              <div className="absolute -top-7 sm:-top-8 left-0 right-0 flex items-center justify-between px-1">
+                <div className="text-xs sm:text-sm font-bold text-transparent bg-gradient-to-r from-sky-600 to-blue-600 dark:from-sky-400 dark:to-blue-400 bg-clip-text">{Math.round(loadingProgress)}%</div>
+                <div className="flex gap-1">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className={`w-1 h-1 rounded-full bg-gradient-to-r ${loadingSteps[loadingStep].color}`} style={{ animation: `bounce 1s ease-in-out infinite`, animationDelay: `${i * 0.15}s` }} />
+                  ))}
+                </div>
               </div>
             </div>
 
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(6,1fr)', gap:6, marginBottom:20 }}>
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
               {loadingSteps.map((step, idx) => {
                 const StepIcon = step.icon;
                 const isActive = idx === loadingStep;
                 const isComplete = idx < loadingStep;
                 return (
-                  <div key={idx} style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:6 }}>
-                    <div style={{ position:'relative', width:30, height:30, borderRadius:9, display:'flex', alignItems:'center', justifyContent:'center', transition:'all 400ms ease', transform:isActive?'scale(1.12)':'scale(1)', background:isActive?'linear-gradient(135deg,#38bdf8,#818cf8)':isComplete?'rgba(52,211,153,0.12)':'rgba(255,255,255,0.04)', border:isComplete?'1px solid rgba(52,211,153,0.3)':isActive?'none':'1px solid rgba(255,255,255,0.07)', boxShadow:isActive?'0 4px 16px rgba(56,189,248,0.4)':'none' }}>
-                      {isComplete ? <FiCheck style={{ fontSize:13, color:'#34d399' }} /> : <StepIcon style={{ fontSize:13, color:isActive?'#fff':'rgba(255,255,255,0.28)' }} />}
+                  <div key={idx} className="relative flex flex-col items-center gap-1.5">
+                    <div className={`relative transition-all duration-500 ${isActive ? 'scale-110' : 'scale-100'}`}>
+                      <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center transition-all duration-500 ${isActive ? `bg-gradient-to-br ${step.color} shadow-lg shadow-sky-500/30` : isComplete ? 'bg-emerald-500/10 dark:bg-emerald-500/20 border border-emerald-500/20' : 'bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800'}`}>
+                        <StepIcon className={`w-4 h-4 transition-colors duration-500 ${isActive ? 'text-white' : isComplete ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-600'}`} />
+                      </div>
+                      {isActive && (
+                        <>
+                          <div className="absolute -inset-1 bg-sky-500/20 rounded-lg animate-ping" />
+                          <div className={`absolute -inset-1.5 bg-gradient-to-br ${step.color} opacity-20 rounded-lg blur animate-pulse`} />
+                        </>
+                      )}
+                      {isComplete && (
+                        <div className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 rounded-full flex items-center justify-center shadow-lg">
+                          <FiCheck className="w-2 h-2 text-white" />
+                        </div>
+                      )}
                     </div>
-                    <div style={{ width:'100%', height:2, borderRadius:99, background:isComplete?'rgba(52,211,153,0.4)':isActive?'linear-gradient(90deg,#38bdf8,#818cf8)':'rgba(255,255,255,0.07)' }} />
+                    <div className={`w-full h-0.5 rounded-full transition-all duration-500 ${isComplete ? 'bg-emerald-500/30' : isActive ? `bg-gradient-to-r ${step.color} opacity-50` : 'bg-slate-200 dark:bg-slate-800'}`} />
                   </div>
                 );
               })}
             </div>
 
-            <div style={{ display:'flex', alignItems:'center', gap:12, padding:'12px 14px', borderRadius:14, background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.07)', backdropFilter:'blur(20px)' }}>
-              <div style={{ flexShrink:0, width:26, height:26, borderRadius:9, display:'flex', alignItems:'center', justifyContent:'center', background:'linear-gradient(135deg,#38bdf8,#818cf8)', boxShadow:'0 4px 14px rgba(56,189,248,0.4)' }}>
-                {loadingStep === 5 ? <FiCheck style={{ fontSize:13, color:'#fff' }} /> : <div style={{ width:6, height:6, borderRadius:99, background:'#fff' }} />}
+            <div className="flex items-start gap-2.5 p-3 sm:p-4 rounded-xl bg-gradient-to-br from-slate-100/50 to-slate-50/50 dark:from-slate-900/50 dark:to-slate-950/50 border border-slate-200/50 dark:border-slate-800/50 backdrop-blur-sm">
+              <div className={`flex-shrink-0 w-6 h-6 rounded-lg flex items-center justify-center bg-gradient-to-br ${loadingSteps[loadingStep].color} shadow-lg`}>
+                {loadingStep === 5 ? <FiCheck className="w-3.5 h-3.5 text-white" /> : <div className="w-2 h-2 bg-white rounded-full animate-pulse" />}
               </div>
-              <div style={{ flex:1, minWidth:0, textAlign:'left' }}>
-                <p style={{ fontSize:12.5, fontWeight:700, margin:0, marginBottom:2, color:loadingStep===5?'#34d399':'#f1f5f9' }}>{loadingSteps[loadingStep].text}</p>
-                <span style={{ fontSize:10.5, color:'rgba(255,255,255,0.32)', fontWeight:500 }}>{loadingStep === 5 ? 'Ready to use' : 'Processing...'}</span>
+              <div className="flex-1 min-w-0">
+                <p className={`text-sm font-bold mb-0.5 ${loadingStep === 5 ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-800 dark:text-slate-200'}`}>{loadingSteps[loadingStep].text}</p>
+                <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-500">
+                  {loadingStep !== 5 && (
+                    <div className="flex gap-0.5">
+                      {[...Array(3)].map((_, i) => (
+                        <div key={i} className="w-0.5 h-0.5 bg-slate-400 dark:bg-slate-600 rounded-full animate-bounce" style={{ animationDelay: `${i * 0.2}s` }} />
+                      ))}
+                    </div>
+                  )}
+                  <span className="font-medium">{loadingStep === 5 ? 'Ready to use' : 'Processing...'}</span>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="ls-layer3" style={{ marginTop:26, fontSize:11, color:'rgba(255,255,255,0.22)', fontWeight:600, letterSpacing:'0.04em' }}>Aichixia Admin Portal</div>
+          <div className="text-[10px] sm:text-xs text-slate-400 dark:text-slate-600 font-medium">Aichixia Admin Portal</div>
         </div>
+
+        <style jsx>{`
+          @keyframes shimmer { 0%{transform:translateX(-100%);} 100%{transform:translateX(100%);} }
+          @keyframes float { 0%,100%{transform:translateY(0) scale(1);} 50%{transform:translateY(-15px) scale(1.05);} }
+          @keyframes float-delayed { 0%,100%{transform:translateY(0) scale(1);} 50%{transform:translateY(-20px) scale(1.08);} }
+          @keyframes twinkle { 0%,100%{opacity:.3;transform:scale(1);} 50%{opacity:1;transform:scale(1.5);} }
+          @keyframes twinkle-delayed { 0%,100%{opacity:.2;transform:scale(1);} 50%{opacity:.8;transform:scale(1.3);} }
+          @keyframes gradient { 0%,100%{background-position:0% 50%;} 50%{background-position:100% 50%;} }
+          @keyframes pulse-slow { 0%,100%{opacity:.6;} 50%{opacity:1;} }
+          @keyframes spin-slow { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
+          .animate-shimmer { animation:shimmer 2s ease-in-out infinite; }
+          .animate-float { animation:float 8s ease-in-out infinite; }
+          .animate-float-delayed { animation:float-delayed 10s ease-in-out infinite; }
+          .animate-twinkle { animation:twinkle 3s ease-in-out infinite; }
+          .animate-twinkle-delayed { animation:twinkle-delayed 3s ease-in-out infinite; }
+          .animate-gradient { background-size:200% 200%; animation:gradient 3s ease infinite; }
+          .animate-pulse-slow { animation:pulse-slow 3s ease-in-out infinite; }
+          .animate-spin-slow { animation:spin-slow 8s linear infinite; }
+        `}</style>
       </div>
     );
   }
@@ -748,250 +773,204 @@ export default function AdminDashboard() {
     const filledCount = pinDigits.filter(Boolean).length;
 
     return (
-      <div style={{ position:'fixed', inset:0, display:'flex', alignItems:'center', justifyContent:'center', padding:16, background:'#05070d', overflow:'hidden' }}>
+      <div style={{ position:'fixed',inset:0,display:'flex',alignItems:'center',justifyContent:'center',padding:'16px',background:'#060810',overflow:'hidden' }}>
         <style>{`
-          @keyframes pnFadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
-          @keyframes pnFadeIn{from{opacity:0;}to{opacity:1;}}
-          @keyframes pnShake{0%,100%{transform:translateX(0);}10%{transform:translateX(-11px);}25%{transform:translateX(10px);}40%{transform:translateX(-7px);}55%{transform:translateX(6px);}70%{transform:translateX(-4px);}85%{transform:translateX(3px);}}
-          @keyframes pnSpinCW{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
-          @keyframes pnSpinCCW{from{transform:rotate(360deg);}to{transform:rotate(0deg);}}
-          @keyframes pnSuccessPop{0%{transform:scale(0.3) rotate(-16deg);opacity:0;}55%{transform:scale(1.2) rotate(4deg);}80%{transform:scale(0.94) rotate(-2deg);}100%{transform:scale(1) rotate(0deg);opacity:1;}}
-          @keyframes pnErrIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
-          @keyframes pnGlow{0%,100%{opacity:0.45;transform:translate(-50%,-50%) scale(1);}50%{opacity:0.85;transform:translate(-50%,-50%) scale(1.16);}}
-          @keyframes pnScan{0%{top:0%;opacity:0;}10%{opacity:1;}90%{opacity:1;}100%{top:100%;opacity:0;}}
-          @keyframes pnShimmer{0%{left:-100%;}100%{left:200%;}}
-          @keyframes pnDotPulse{0%,80%,100%{transform:scale(0.6);opacity:0.4;}40%{transform:scale(1);opacity:1;}}
-          @keyframes pnCellPop{from{opacity:0;transform:scale(0.6) translateY(10px);}to{opacity:1;transform:scale(1) translateY(0);}}
-          @keyframes pnRingPulse{0%{transform:scale(1);opacity:0.6;}100%{transform:scale(1.75);opacity:0;}}
-          @keyframes pnFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
-          .pn-shell{animation:pnFadeUp 0.6s cubic-bezier(0.16,1,0.3,1) both;}
-          .pn-panel-in{animation:pnFadeIn 0.7s ease 0.1s both;}
-          .pn-shake{animation:pnShake 0.55s cubic-bezier(0.36,0.07,0.19,0.97) both;}
-          .pn-orbit-cw{animation:pnSpinCW 16s linear infinite;}
-          .pn-orbit-ccw{animation:pnSpinCCW 22s linear infinite;}
-          .pn-float{animation:pnFloat 5s ease-in-out infinite;}
-          .pn-aura{position:absolute;top:50%;left:50%;animation:pnGlow 3.6s ease-in-out infinite;}
-          .pn-scan{animation:pnScan 2.6s ease-in-out infinite;}
-          .pn-success-icon{animation:pnSuccessPop 0.5s cubic-bezier(0.34,1.56,0.64,1) both;}
-          .pn-err-msg{animation:pnErrIn 0.22s cubic-bezier(0.22,1,0.36,1) both;}
-          .pn-ring-pulse{animation:pnRingPulse 1.6s ease-out infinite;}
-          .pn-cell{
-            width:48px;height:58px;border-radius:16px;
-            background:rgba(255,255,255,0.045);
-            border:1.5px solid rgba(255,255,255,0.09);
-            font-size:22px;font-weight:800;color:#7dd3fc;
+          @keyframes pinCardIn{from{opacity:0;transform:translateY(32px) scale(0.94);}to{opacity:1;transform:translateY(0) scale(1);}}
+          @keyframes pinShakeAnim{0%,100%{transform:translateX(0);}10%{transform:translateX(-12px);}25%{transform:translateX(11px);}40%{transform:translateX(-8px);}55%{transform:translateX(7px);}70%{transform:translateX(-4px);}85%{transform:translateX(3px);}}
+          @keyframes pinSpinCW{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+          @keyframes pinSpinCCW{from{transform:rotate(360deg);}to{transform:rotate(0deg);}}
+          @keyframes pinSuccessPop{0%{transform:scale(0.3) rotate(-20deg);opacity:0;}55%{transform:scale(1.25) rotate(5deg);}80%{transform:scale(0.92) rotate(-2deg);}100%{transform:scale(1) rotate(0deg);opacity:1;}}
+          @keyframes pinErrIn{from{opacity:0;transform:translateY(-6px) scale(0.95);}to{opacity:1;transform:translateY(0) scale(1);}}
+          @keyframes pinGridIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+          @keyframes pinAura{0%,100%{opacity:0.5;transform:translate(-50%,-50%) scale(1);}50%{opacity:1;transform:translate(-50%,-50%) scale(1.18);}}
+          @keyframes pinScanLine{0%{top:0%;opacity:0;}10%{opacity:1;}90%{opacity:1;}100%{top:100%;opacity:0;}}
+          @keyframes pinBtnShimmer{0%{left:-100%;}100%{left:200%;}}
+          @keyframes pinDotPulse{0%,80%,100%{transform:scale(0.6);opacity:0.4;}40%{transform:scale(1);opacity:1;}}
+          @keyframes pinCellIn{from{opacity:0;transform:scale(0.7) translateY(8px);}to{opacity:1;transform:scale(1) translateY(0);}}
+          @keyframes pinRingPulse{0%{transform:scale(1);opacity:0.6;}100%{transform:scale(1.7);opacity:0;}}
+          .pin-card{animation:pinCardIn 0.55s cubic-bezier(0.16,1,0.3,1) both;}
+          .pin-shake{animation:pinShakeAnim 0.55s cubic-bezier(0.36,0.07,0.19,0.97) both;}
+          .pin-orbit-cw{animation:pinSpinCW 12s linear infinite;}
+          .pin-orbit-ccw{animation:pinSpinCCW 20s linear infinite;}
+          .pin-aura{position:absolute;top:50%;left:50%;animation:pinAura 3.5s ease-in-out infinite;}
+          .pin-scan{animation:pinScanLine 2.5s ease-in-out infinite;}
+          .pin-success-icon{animation:pinSuccessPop 0.5s cubic-bezier(0.34,1.56,0.64,1) both;}
+          .pin-err-msg{animation:pinErrIn 0.22s cubic-bezier(0.22,1,0.36,1) both;}
+          .pin-ring-pulse{animation:pinRingPulse 1.6s ease-out infinite;}
+          .pin-cell{
+            width:46px;height:58px;border-radius:14px;
+            background:rgba(255,255,255,0.04);
+            border:1.5px solid rgba(255,255,255,0.08);
+            font-size:22px;font-weight:800;color:#38bdf8;
             text-align:center;outline:none;caret-color:transparent;
-            backdrop-filter:blur(12px);
             transition:border-color 200ms,box-shadow 200ms,background 200ms,transform 150ms;
-            animation:pnCellPop 0.4s cubic-bezier(0.22,1,0.36,1) both;
+            animation:pinCellIn 0.4s cubic-bezier(0.22,1,0.36,1) both;
           }
-          .pn-cell:focus{
-            border-color:rgba(56,189,248,0.75);
-            box-shadow:0 0 0 4px rgba(56,189,248,0.13),0 0 24px rgba(56,189,248,0.25);
-            background:rgba(56,189,248,0.07);
-            transform:scale(1.06) translateY(-2px);
+          .pin-cell:focus{
+            border-color:rgba(56,189,248,0.7);
+            box-shadow:0 0 0 3px rgba(56,189,248,0.15),0 0 20px rgba(56,189,248,0.2);
+            background:rgba(56,189,248,0.06);
+            transform:scale(1.08) translateY(-2px);
           }
-          .pn-cell.filled{
-            border-color:rgba(56,189,248,0.55);
-            background:rgba(56,189,248,0.09);
+          .pin-cell.filled{
+            border-color:rgba(56,189,248,0.5);
+            background:rgba(56,189,248,0.08);
             color:#38bdf8;
-            text-shadow:0 0 12px rgba(56,189,248,0.6);
+            text-shadow:0 0 10px rgba(56,189,248,0.6);
           }
-          .pn-cell.err{
+          .pin-cell.err{
             border-color:rgba(248,113,113,0.65)!important;
-            box-shadow:0 0 0 4px rgba(248,113,113,0.12)!important;
-            background:rgba(248,113,113,0.07)!important;
+            box-shadow:0 0 0 3px rgba(248,113,113,0.12)!important;
+            background:rgba(248,113,113,0.06)!important;
             color:#f87171!important;
             text-shadow:0 0 10px rgba(248,113,113,0.5)!important;
             transform:scale(1)!important;
           }
-          .pn-cell.success-cell{
+          .pin-cell.success-cell{
             border-color:rgba(52,211,153,0.6)!important;
-            box-shadow:0 0 0 4px rgba(52,211,153,0.12)!important;
-            background:rgba(52,211,153,0.08)!important;
+            box-shadow:0 0 0 3px rgba(52,211,153,0.12)!important;
+            background:rgba(52,211,153,0.07)!important;
             color:#34d399!important;
             text-shadow:0 0 10px rgba(52,211,153,0.5)!important;
           }
-          .pn-progress-bar{height:3px;border-radius:99px;transition:width 220ms cubic-bezier(0.22,1,0.36,1),background 400ms;}
-          .pn-btn{
-            width:100%;padding:15px;border-radius:16px;border:none;
+          .pin-progress-bar{height:2px;background:linear-gradient(90deg,#38bdf8,#818cf8);border-radius:99px;transition:width 200ms cubic-bezier(0.22,1,0.36,1);}
+          .pin-btn{
+            width:100%;padding:14px;border-radius:14px;border:none;
             font-size:13.5px;font-weight:700;letter-spacing:0.01em;
             cursor:pointer;position:relative;overflow:hidden;
             transition:opacity 180ms,transform 180ms,box-shadow 250ms,background 400ms;
             color:#fff;
           }
-          .pn-btn::before{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.14),transparent);}
-          .pn-btn:not(:disabled):hover::before{animation:pnShimmer 0.7s ease forwards;}
-          .pn-btn:not(:disabled):hover{transform:translateY(-1.5px);opacity:0.94;}
-          .pn-btn:not(:disabled):active{transform:scale(0.975);}
-          .pn-btn:disabled{opacity:0.28;cursor:not-allowed;}
-          .pn-back-btn{background:none;border:none;cursor:pointer;font-size:11.5px;font-weight:500;color:rgba(255,255,255,0.24);transition:color 180ms;padding:0;letter-spacing:0.02em;display:inline-flex;align-items:center;gap:5px;}
-          .pn-back-btn:hover{color:rgba(255,255,255,0.6);}
-          .pn-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.45);display:inline-block;animation:pnDotPulse 1.2s ease-in-out infinite;}
-          .pn-brand-title{background:linear-gradient(90deg,#e2e8f0,#7dd3fc,#818cf8);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
-          @media(max-width:400px){ .pn-cell{width:41px;height:52px;border-radius:13px;font-size:19px;} }
-          @media(max-width:340px){ .pn-cell{width:35px;height:46px;border-radius:11px;font-size:17px;} }
+          .pin-btn::before{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent);transition:none;}
+          .pin-btn:not(:disabled):hover::before{animation:pinBtnShimmer 0.7s ease forwards;}
+          .pin-btn:not(:disabled):hover{transform:translateY(-1.5px);opacity:0.93;}
+          .pin-btn:not(:disabled):active{transform:scale(0.975);}
+          .pin-btn:disabled{opacity:0.28;cursor:not-allowed;}
+          .pin-back-btn{background:none;border:none;cursor:pointer;font-size:11.5px;font-weight:500;color:rgba(255,255,255,0.22);transition:color 180ms;padding:0;letter-spacing:0.02em;}
+          .pin-back-btn:hover{color:rgba(255,255,255,0.55);}
+          .pin-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.4);display:inline-block;animation:pinDotPulse 1.2s ease-in-out infinite;}
+          @media(max-width:400px){
+            .pin-cell{width:40px;height:52px;border-radius:12px;}
+          }
+          @media(max-width:340px){
+            .pin-cell{width:35px;height:46px;border-radius:10px;}
+          }
         `}</style>
 
-        <div style={{ position:'absolute', inset:0, overflow:'hidden', pointerEvents:'none' }}>
-          <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse 70% 60% at 22% 35%,rgba(56,189,248,0.12) 0%,transparent 65%)' }} />
-          <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse 55% 45% at 85% 80%,rgba(129,140,248,0.08) 0%,transparent 60%)' }} />
-          <div style={{ position:'absolute', inset:0, backgroundImage:'linear-gradient(rgba(56,189,248,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(56,189,248,0.03) 1px,transparent 1px)', backgroundSize:'56px 56px', maskImage:'radial-gradient(ellipse 80% 70% at 50% 50%,black 20%,transparent 80%)' }} />
+        <div style={{ position:'absolute',inset:0,overflow:'hidden',pointerEvents:'none' }}>
+          <div style={{ position:'absolute',inset:0,background:'radial-gradient(ellipse 70% 60% at 50% 40%,rgba(14,165,233,0.09) 0%,transparent 70%)' }} />
+          <div style={{ position:'absolute',inset:0,background:'radial-gradient(ellipse 50% 40% at 80% 80%,rgba(129,140,248,0.06) 0%,transparent 60%)' }} />
+          <div style={{ position:'absolute',top:'20%',left:'15%',width:180,height:180,borderRadius:'50%',background:'rgba(56,189,248,0.04)',filter:'blur(50px)' }} />
+          <div style={{ position:'absolute',bottom:'15%',right:'10%',width:220,height:220,borderRadius:'50%',background:'rgba(129,140,248,0.04)',filter:'blur(60px)' }} />
+          <div style={{ position:'absolute',inset:0,backgroundImage:'radial-gradient(circle,rgba(255,255,255,0.025) 1px,transparent 1px)',backgroundSize:'28px 28px',maskImage:'radial-gradient(ellipse 80% 70% at 50% 50%,black 30%,transparent 80%)' }} />
         </div>
 
-        <div className="pn-shell" style={{ position:'relative', zIndex:1, width:'100%', maxWidth:820, display:'flex', borderRadius:28, overflow:'hidden', background:'rgba(12,15,24,0.72)', backdropFilter:'blur(40px) saturate(160%)', border:'1px solid rgba(255,255,255,0.08)', boxShadow:'0 50px 120px rgba(0,0,0,0.85), inset 0 1px 0 rgba(255,255,255,0.06)' }}>
+        <div className="pin-card" style={{ background:'rgba(10,12,20,0.92)',backdropFilter:'blur(40px) saturate(150%)',border:'1px solid rgba(255,255,255,0.07)',borderRadius:24,maxWidth:340,width:'100%',padding:'32px 24px 24px',boxShadow:'0 40px 100px rgba(0,0,0,0.85),0 0 0 1px rgba(255,255,255,0.04),inset 0 1px 0 rgba(255,255,255,0.06)',position:'relative',overflow:'hidden' }}>
 
-          <div className="pn-panel-in" style={{ position:'relative', flex:'1 1 42%', display:'none', flexDirection:'column', justifyContent:'space-between', padding:'40px 36px', background:'linear-gradient(160deg,rgba(56,189,248,0.1),rgba(129,140,248,0.05) 60%,transparent)', borderRight:'1px solid rgba(255,255,255,0.07)' }}>
-            <style>{`@media(min-width:720px){.pn-side-panel{display:flex!important;}}`}</style>
-            <div className="pn-side-panel" style={{ display:'contents' }}>
-              <div>
-                <div className="pn-float" style={{ position:'relative', width:56, height:56, marginBottom:28 }}>
-                  <div className="pn-aura" style={{ width:130, height:130, borderRadius:'50%', background:'radial-gradient(circle,rgba(56,189,248,0.16) 0%,transparent 70%)' }} />
-                  <div style={{ position:'absolute', inset:0, borderRadius:16, background:'linear-gradient(135deg,rgba(56,189,248,0.18),rgba(129,140,248,0.1))', border:'1.5px solid rgba(56,189,248,0.3)', display:'flex', alignItems:'center', justifyContent:'center', backdropFilter:'blur(10px)', boxShadow:'0 8px 30px rgba(56,189,248,0.25)' }}>
-                    <svg width="30" height="30" viewBox="0 0 48 48" fill="none">
-                      <defs>
-                        <linearGradient id="pnLogoGrad" x1="4" y1="42" x2="44" y2="4" gradientUnits="userSpaceOnUse">
-                          <stop offset="0%" stopColor="#38bdf8" />
-                          <stop offset="55%" stopColor="#818cf8" />
-                          <stop offset="100%" stopColor="#c084fc" />
-                        </linearGradient>
-                      </defs>
-                      <path d="M24 4 L44 42 H35.5 L24 19 L12.5 42 H4 Z" fill="url(#pnLogoGrad)" />
-                      <path d="M17.5 30 H30.5 L33.5 36 H14.5 Z" fill="url(#pnLogoGrad)" opacity="0.55" />
-                    </svg>
-                  </div>
-                </div>
-                <h1 className="pn-brand-title" style={{ fontSize:26, fontWeight:900, letterSpacing:'-0.04em', lineHeight:1.15, marginBottom:14 }}>
-                  Restricted<br />Control Panel
-                </h1>
-                <p style={{ fontSize:13, color:'rgba(255,255,255,0.4)', lineHeight:1.75, maxWidth:260 }}>
-                  This workspace holds sensitive operational data. Verification is required every session to keep it secure.
-                </p>
-              </div>
-              <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
-                {[
-                  { icon: FiShield, label: 'End-to-end verified session' },
-                  { icon: FiLock, label: '6-digit rotating admin PIN' },
-                  { icon: FiDatabase, label: 'Encrypted access logs' },
-                ].map((row, i) => {
-                  const RowIcon = row.icon;
-                  return (
-                    <div key={i} style={{ display:'flex', alignItems:'center', gap:10 }}>
-                      <div style={{ width:26, height:26, borderRadius:9, flexShrink:0, display:'flex', alignItems:'center', justifyContent:'center', background:'rgba(56,189,248,0.1)', border:'1px solid rgba(56,189,248,0.2)' }}>
-                        <RowIcon style={{ fontSize:12, color:'#38bdf8' }} />
-                      </div>
-                      <span style={{ fontSize:11.5, color:'rgba(255,255,255,0.4)', fontWeight:500 }}>{row.label}</span>
-                    </div>
-                  );
-                })}
+          <div style={{ position:'absolute',top:0,left:0,right:0,height:'1px',background:'linear-gradient(90deg,transparent,rgba(56,189,248,0.4),rgba(129,140,248,0.4),transparent)' }} />
+
+          {!pinSuccess && !pinVerifying && (
+            <div className="pin-scan" style={{ position:'absolute',left:0,right:0,height:'1px',background:'linear-gradient(90deg,transparent,rgba(56,189,248,0.25),transparent)',pointerEvents:'none' }} />
+          )}
+
+          <div style={{ display:'flex',justifyContent:'center',marginBottom:24 }}>
+            <div style={{ position:'relative',width:72,height:72 }}>
+              <div className="pin-aura" style={{ width:130,height:130,borderRadius:'50%',background:pinSuccess?'radial-gradient(circle,rgba(52,211,153,0.12) 0%,transparent 70%)':pinError?'radial-gradient(circle,rgba(248,113,113,0.1) 0%,transparent 70%)':'radial-gradient(circle,rgba(56,189,248,0.1) 0%,transparent 70%)',transition:'background 500ms' }} />
+
+              <svg style={{ position:'absolute',inset:-14,width:'calc(100% + 28px)',height:'calc(100% + 28px)' }} viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="46" fill="none" stroke={pinSuccess?'rgba(52,211,153,0.18)':pinError?'rgba(248,113,113,0.18)':'rgba(56,189,248,0.15)'} strokeWidth="0.8" strokeDasharray="4 3" style={{ transformOrigin:'50% 50%',animation:'pinSpinCW 18s linear infinite',transition:'stroke 400ms' }} />
+              </svg>
+              <svg style={{ position:'absolute',inset:-8,width:'calc(100% + 16px)',height:'calc(100% + 16px)' }} viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="46" fill="none" stroke={pinSuccess?'rgba(52,211,153,0.1)':pinError?'rgba(248,113,113,0.1)':'rgba(129,140,248,0.12)'} strokeWidth="1" strokeDasharray="2 6" style={{ transformOrigin:'50% 50%',animation:'pinSpinCCW 12s linear infinite',transition:'stroke 400ms' }} />
+              </svg>
+
+              {pinSuccess && (
+                <>
+                  <div className="pin-ring-pulse" style={{ position:'absolute',inset:-4,borderRadius:'50%',border:'1.5px solid rgba(52,211,153,0.4)' }} />
+                  <div className="pin-ring-pulse" style={{ position:'absolute',inset:-4,borderRadius:'50%',border:'1.5px solid rgba(52,211,153,0.25)',animationDelay:'0.4s' }} />
+                </>
+              )}
+
+              <div style={{ position:'absolute',inset:0,borderRadius:'50%',background:pinSuccess?'linear-gradient(135deg,rgba(52,211,153,0.15),rgba(16,185,129,0.1))':pinError?'linear-gradient(135deg,rgba(248,113,113,0.15),rgba(239,68,68,0.1))':'linear-gradient(135deg,rgba(56,189,248,0.12),rgba(129,140,248,0.08))',border:`1.5px solid ${pinSuccess?'rgba(52,211,153,0.4)':pinError?'rgba(248,113,113,0.4)':'rgba(56,189,248,0.25)'}`,display:'flex',alignItems:'center',justifyContent:'center',backdropFilter:'blur(8px)',transition:'all 400ms' }}>
+                {pinSuccess
+                  ? <FiCheckCircle className="pin-success-icon" style={{ fontSize:28,color:'#34d399' }} />
+                  : <FiShield style={{ fontSize:26,color:pinError?'#f87171':'#38bdf8',transition:'color 300ms',filter:pinError?'drop-shadow(0 0 8px rgba(248,113,113,0.6))':'drop-shadow(0 0 8px rgba(56,189,248,0.5))' }} />
+                }
               </div>
             </div>
           </div>
 
-          <div style={{ position:'relative', flex:'1 1 58%', padding:'36px 28px 28px', display:'flex', flexDirection:'column' }}>
+          <div style={{ textAlign:'center',marginBottom:22 }}>
+            <h2 style={{ fontSize:19,fontWeight:800,letterSpacing:'-0.04em',marginBottom:6,color:pinSuccess?'#34d399':pinError?'#f87171':'#f1f5f9',transition:'color 350ms',lineHeight:1.2 }}>
+              {pinSuccess ? 'Access Granted' : 'Admin Verification'}
+            </h2>
+            <p style={{ fontSize:12,color:'rgba(255,255,255,0.3)',lineHeight:1.7,margin:0,fontWeight:400 }}>
+              {pinSuccess ? 'Initializing secure dashboard...' : pinError ? 'Incorrect PIN — try again' : 'Enter your 6-digit admin PIN'}
+            </p>
+          </div>
 
-            {!pinSuccess && !pinVerifying && (
-              <div className="pn-scan" style={{ position:'absolute', left:0, right:0, height:'1px', background:'linear-gradient(90deg,transparent,rgba(56,189,248,0.3),transparent)', pointerEvents:'none' }} />
-            )}
-
-            <div style={{ display:'flex', justifyContent:'center', marginBottom:22 }}>
-              <div style={{ position:'relative', width:66, height:66 }}>
-                <div className="pn-aura" style={{ width:120, height:120, borderRadius:'50%', background:pinSuccess?'radial-gradient(circle,rgba(52,211,153,0.14) 0%,transparent 70%)':pinError?'radial-gradient(circle,rgba(248,113,113,0.12) 0%,transparent 70%)':'radial-gradient(circle,rgba(56,189,248,0.12) 0%,transparent 70%)', transition:'background 500ms' }} />
-                <svg className="pn-orbit-cw" style={{ position:'absolute', inset:-13, width:'calc(100% + 26px)', height:'calc(100% + 26px)' }} viewBox="0 0 100 100">
-                  <circle cx="50" cy="50" r="46" fill="none" stroke={pinSuccess?'rgba(52,211,153,0.2)':pinError?'rgba(248,113,113,0.2)':'rgba(56,189,248,0.18)'} strokeWidth="0.8" strokeDasharray="4 3" style={{ transition:'stroke 400ms' }} />
-                </svg>
-                <svg className="pn-orbit-ccw" style={{ position:'absolute', inset:-7, width:'calc(100% + 14px)', height:'calc(100% + 14px)' }} viewBox="0 0 100 100">
-                  <circle cx="50" cy="50" r="46" fill="none" stroke={pinSuccess?'rgba(52,211,153,0.12)':pinError?'rgba(248,113,113,0.12)':'rgba(129,140,248,0.14)'} strokeWidth="1" strokeDasharray="2 6" style={{ transition:'stroke 400ms' }} />
-                </svg>
-                {pinSuccess && (
-                  <>
-                    <div className="pn-ring-pulse" style={{ position:'absolute', inset:-4, borderRadius:'50%', border:'1.5px solid rgba(52,211,153,0.4)' }} />
-                    <div className="pn-ring-pulse" style={{ position:'absolute', inset:-4, borderRadius:'50%', border:'1.5px solid rgba(52,211,153,0.25)', animationDelay:'0.4s' }} />
-                  </>
-                )}
-                <div style={{ position:'absolute', inset:0, borderRadius:'50%', background:pinSuccess?'linear-gradient(135deg,rgba(52,211,153,0.16),rgba(16,185,129,0.1))':pinError?'linear-gradient(135deg,rgba(248,113,113,0.16),rgba(239,68,68,0.1))':'linear-gradient(135deg,rgba(56,189,248,0.13),rgba(129,140,248,0.08))', border:`1.5px solid ${pinSuccess?'rgba(52,211,153,0.4)':pinError?'rgba(248,113,113,0.4)':'rgba(56,189,248,0.26)'}`, display:'flex', alignItems:'center', justifyContent:'center', backdropFilter:'blur(10px)', transition:'all 400ms' }}>
-                  {pinSuccess
-                    ? <FiCheckCircle className="pn-success-icon" style={{ fontSize:26, color:'#34d399' }} />
-                    : <FiShield style={{ fontSize:24, color:pinError?'#f87171':'#38bdf8', transition:'color 300ms', filter:pinError?'drop-shadow(0 0 8px rgba(248,113,113,0.6))':'drop-shadow(0 0 8px rgba(56,189,248,0.5))' }} />
-                  }
-                </div>
-              </div>
+          <div style={{ marginBottom:6 }}>
+            <div style={{ display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:8 }}>
+              <span style={{ fontSize:10,color:'rgba(255,255,255,0.2)',fontWeight:600,letterSpacing:'0.08em',textTransform:'uppercase' }}>Security Code</span>
+              <span style={{ fontSize:10,color:pinError?'#f87171':filledCount===6?'#34d399':'rgba(255,255,255,0.2)',fontWeight:600,transition:'color 250ms' }}>{filledCount}/6</span>
             </div>
+            <div style={{ marginBottom:4,height:2,background:'rgba(255,255,255,0.06)',borderRadius:99,overflow:'hidden' }}>
+              <div className="pin-progress-bar" style={{ width:`${(filledCount/6)*100}%`,background:pinSuccess?'linear-gradient(90deg,#34d399,#10b981)':pinError?'linear-gradient(90deg,#f87171,#fb923c)':'linear-gradient(90deg,#38bdf8,#818cf8)',transition:'background 400ms' }} />
+            </div>
+          </div>
 
-            <div style={{ textAlign:'center', marginBottom:24 }}>
-              <h2 style={{ fontSize:19, fontWeight:800, letterSpacing:'-0.04em', marginBottom:6, color:pinSuccess?'#34d399':pinError?'#f87171':'#f1f5f9', transition:'color 350ms', lineHeight:1.2 }}>
-                {pinSuccess ? 'Access Granted' : 'Admin Verification'}
-              </h2>
-              <p style={{ fontSize:12, color:'rgba(255,255,255,0.35)', lineHeight:1.7, margin:0, fontWeight:400 }}>
-                {pinSuccess ? 'Initializing secure dashboard...' : pinError ? 'Incorrect PIN — try again' : 'Enter your 6-digit admin PIN to continue'}
+          <div className={pinShake ? 'pin-shake' : ''} style={{ display:'flex',gap:6,justifyContent:'center',marginBottom:16 }}>
+            {pinDigits.map((d, i) => (
+              <input
+                key={i} id={`pin-${i}`} type="password" inputMode="numeric" maxLength={1} value={d}
+                disabled={pinVerifying || pinSuccess}
+                className={['pin-cell', d?'filled':'', pinError?'err':'', pinSuccess?'success-cell':''].filter(Boolean).join(' ')}
+                onChange={e => handlePinInput(i, e.target.value)}
+                onKeyDown={e => handlePinKey(i, e)}
+                autoFocus={i === 0} autoComplete="off"
+                style={{ animationDelay:`${i * 0.06}s` }}
+              />
+            ))}
+          </div>
+
+          <div style={{ minHeight:20,marginBottom:14,textAlign:'center' }}>
+            {pinError && !pinVerifying && (
+              <p className="pin-err-msg" style={{ fontSize:11.5,color:'#f87171',margin:0,display:'flex',alignItems:'center',justifyContent:'center',gap:5,fontWeight:500 }}>
+                <FiAlertCircle style={{ fontSize:12,flexShrink:0 }} />
+                Incorrect PIN. Please try again.
               </p>
-            </div>
+            )}
+          </div>
 
-            <div style={{ marginBottom:8, maxWidth:340, marginLeft:'auto', marginRight:'auto', width:'100%' }}>
-              <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:8 }}>
-                <span style={{ fontSize:10, color:'rgba(255,255,255,0.22)', fontWeight:600, letterSpacing:'0.08em', textTransform:'uppercase' }}>Security Code</span>
-                <span style={{ fontSize:10, color:pinError?'#f87171':filledCount===6?'#34d399':'rgba(255,255,255,0.22)', fontWeight:600, transition:'color 250ms' }}>{filledCount}/6</span>
-              </div>
-              <div style={{ marginBottom:20, height:3, background:'rgba(255,255,255,0.06)', borderRadius:99, overflow:'hidden' }}>
-                <div className="pn-progress-bar" style={{ width:`${(filledCount/6)*100}%`, background:pinSuccess?'linear-gradient(90deg,#34d399,#10b981)':pinError?'linear-gradient(90deg,#f87171,#fb923c)':'linear-gradient(90deg,#38bdf8,#818cf8)' }} />
-              </div>
-            </div>
+          <button
+            className="pin-btn"
+            disabled={filledCount < 6 || pinVerifying || pinSuccess}
+            onClick={() => verifyPin(pinDigits.join(''))}
+            style={{ background:pinSuccess?'linear-gradient(135deg,#34d399,#10b981,#059669)':pinError?'linear-gradient(135deg,#f87171,#ef4444)':'linear-gradient(135deg,#38bdf8,#818cf8,#3b82f6)',boxShadow:pinSuccess?'0 6px 24px rgba(52,211,153,0.35)':pinError?'0 6px 20px rgba(248,113,113,0.3)':'0 6px 24px rgba(56,189,248,0.3)',transition:'background 400ms,box-shadow 400ms' }}
+          >
+            {pinVerifying ? (
+              <span style={{ display:'flex',alignItems:'center',justifyContent:'center',gap:10 }}>
+                <span className="pin-dot" style={{ animationDelay:'0ms' }} />
+                <span className="pin-dot" style={{ animationDelay:'180ms' }} />
+                <span className="pin-dot" style={{ animationDelay:'360ms' }} />
+              </span>
+            ) : pinSuccess ? (
+              <span style={{ display:'flex',alignItems:'center',justifyContent:'center',gap:7 }}>
+                <FiCheckCircle style={{ fontSize:14 }} />
+                Access Granted
+              </span>
+            ) : (
+              <span style={{ display:'flex',alignItems:'center',justifyContent:'center',gap:7 }}>
+                <FiShield style={{ fontSize:13 }} />
+                Verify PIN
+              </span>
+            )}
+          </button>
 
-            <div className={pinShake ? 'pn-shake' : ''} style={{ display:'flex', gap:8, justifyContent:'center', marginBottom:18, flexWrap:'nowrap' }}>
-              {pinDigits.map((d, i) => (
-                <input
-                  key={i} id={`pin-${i}`} type="password" inputMode="numeric" maxLength={1} value={d}
-                  disabled={pinVerifying || pinSuccess}
-                  className={['pn-cell', d?'filled':'', pinError?'err':'', pinSuccess?'success-cell':''].filter(Boolean).join(' ')}
-                  onChange={e => handlePinInput(i, e.target.value)}
-                  onKeyDown={e => handlePinKey(i, e)}
-                  autoFocus={i === 0} autoComplete="off"
-                  style={{ animationDelay:`${i * 0.06}s` }}
-                />
-              ))}
-            </div>
-
-            <div style={{ minHeight:20, marginBottom:12, textAlign:'center' }}>
-              {pinError && !pinVerifying && (
-                <p className="pn-err-msg" style={{ fontSize:11.5, color:'#f87171', margin:0, display:'flex', alignItems:'center', justifyContent:'center', gap:5, fontWeight:500 }}>
-                  <FiAlertCircle style={{ fontSize:12, flexShrink:0 }} />
-                  Incorrect PIN. Please try again.
-                </p>
-              )}
-            </div>
-
-            <div style={{ maxWidth:340, marginLeft:'auto', marginRight:'auto', width:'100%' }}>
-              <button
-                className="pn-btn"
-                disabled={filledCount < 6 || pinVerifying || pinSuccess}
-                onClick={() => verifyPin(pinDigits.join(''))}
-                style={{ background:pinSuccess?'linear-gradient(135deg,#34d399,#10b981,#059669)':pinError?'linear-gradient(135deg,#f87171,#ef4444)':'linear-gradient(135deg,#38bdf8,#818cf8,#3b82f6)', boxShadow:pinSuccess?'0 8px 28px rgba(52,211,153,0.35)':pinError?'0 8px 24px rgba(248,113,113,0.3)':'0 8px 28px rgba(56,189,248,0.32)', transition:'background 400ms,box-shadow 400ms' }}
-              >
-                {pinVerifying ? (
-                  <span style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:10 }}>
-                    <span className="pn-dot" style={{ animationDelay:'0ms' }} />
-                    <span className="pn-dot" style={{ animationDelay:'180ms' }} />
-                    <span className="pn-dot" style={{ animationDelay:'360ms' }} />
-                  </span>
-                ) : pinSuccess ? (
-                  <span style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:7 }}>
-                    <FiCheckCircle style={{ fontSize:14 }} />
-                    Access Granted
-                  </span>
-                ) : (
-                  <span style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:7 }}>
-                    <FiShield style={{ fontSize:13 }} />
-                    Verify PIN
-                  </span>
-                )}
-              </button>
-
-              <div style={{ textAlign:'center', marginTop:18 }}>
-                <button className="pn-back-btn" onClick={() => window.location.href='/console'}>
-                  <span>←</span> Back to Console
-                </button>
-              </div>
-            </div>
+          <div style={{ textAlign:'center',marginTop:16 }}>
+            <button className="pin-back-btn" onClick={() => window.location.href='/console'}>
+              ← Back to Console
+            </button>
           </div>
         </div>
       </div>
