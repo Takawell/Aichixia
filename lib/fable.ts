@@ -134,7 +134,7 @@ export async function streamFable(
       };
 
       try {
-        const streamResponse = await client.chat.completions.create({
+        const streamRequestBody: any = {
           model: FABLE_MODEL,
           messages: history.map((m) => ({
             role: m.role,
@@ -144,7 +144,8 @@ export async function streamFable(
           top_p: 0.95,
           max_tokens: opts?.maxTokens ?? 2048,
           stream: true,
-        });
+        };
+        const streamResponse = await client.chat.completions.create(streamRequestBody);
 
         for await (const chunk of streamResponse) {
           const delta = chunk.choices[0]?.delta?.content;
