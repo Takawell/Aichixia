@@ -37,7 +37,7 @@ type MemoryMessage = {
   timestamp: number;
 };
 
-const STREAM_CAPABLE_MODELS = new Set(['kimi-k2.6', 'mistral-large-3-675b-instruct', 'minimax-m3', 'step-3.7-flash', 'nemotron-3-ultra-550b-a55b', 'gpt-oss-120b', 'deepseek-v4-flash', 'gemma-4-31b', 'glm-5.2', 'laguna-s-2.1', 'cohere-command-a', 'gemini-3-flash', 'llama-3.3-70b', 'deepseek-v3.2', 'claude-fable-5']);
+const STREAM_CAPABLE_MODELS = new Set(['kimi-k2.6', 'mistral-large-3-675b-instruct', 'minimax-m3', 'step-3.7-flash', 'nemotron-3-ultra-550b-a55b', 'gpt-oss-120b', 'deepseek-v4-flash', 'gemma-4-31b', 'glm-5.2', 'laguna-s-2.1', 'cohere-command-a', 'gemini-3-flash', 'llama-3.3-70b', 'deepseek-v3.2', 'claude-fable-5', 'qwen3-coder-plus', 'mimo-v2.5-pro']);
 
 const TEXT_MODELS: AnyModel[] = [
   { id: 'gpt-5-mini', name: 'GPT-5 Mini', provider: 'OpenAI', logoSlug: 'openai', icon: RiOpenaiFill, color: 'from-emerald-500 to-green-600', pricing: 'Budget', context: '400K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
@@ -57,11 +57,11 @@ const TEXT_MODELS: AnyModel[] = [
   { id: 'glm-4.7-flash', name: 'GLM 4.7 Flash', provider: 'Zhipu', logoSlug: 'zhipu', icon: TbSquareLetterZ, color: 'from-blue-700 to-indigo-800', pricing: 'Standard', context: '131K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
   { id: 'gemma-4-31b', name: 'Gemma 4 31B', provider: 'Google', logoSlug: 'gemini', icon: SiGooglegemini, color: 'from-indigo-500 to-purple-600', pricing: 'Budget', context: '128K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'qwen3.6-27b', name: 'Qwen3.6 27B', provider: 'Alibaba', logoSlug: 'qwen', icon: SiAlibabacloud, color: 'from-purple-500 to-pink-500', pricing: 'Standard', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'qwen3-coder-480b', name: 'Qwen3 Coder 480B', provider: 'Alibaba', logoSlug: 'qwen', icon: SiAlibabacloud, color: 'from-purple-600 to-fuchsia-600', pricing: 'Premium', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
+  { id: 'qwen3-coder-plus', name: 'Qwen3 Coder Plus 480B', provider: 'Alibaba', logoSlug: 'qwen', icon: SiAlibabacloud, color: 'from-purple-600 to-fuchsia-600', pricing: 'Premium', context: '1M', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'minimax-m3', name: 'MiniMax M3', provider: 'MiniMax', logoSlug: 'minimax', icon: SiMaze, color: 'from-cyan-600 to-blue-600', pricing: 'Premium', context: '204K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
   { id: 'llama-3.3-70b', name: 'Llama 3.3 70B', provider: 'Meta', logoSlug: 'meta', icon: SiMeta, color: 'from-blue-600 to-indigo-700', pricing: 'Standard', context: '130K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'gpt-oss-120b', name: 'GPT-OSS 120B', provider: 'OpenAI', logoSlug: 'openai', icon: RiOpenaiFill, color: 'from-pink-600 to-rose-600', pricing: 'Budget', context: '128K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'mimo-v2-flash', name: 'MiMo V2 Flash', provider: 'Xiaomi', logoSlug: 'xiaomi', icon: SiXiaomi, color: 'from-blue-600 to-purple-600', pricing: 'Budget', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'mimo-v2.5-pro', name: 'MiMo V2.5 Pro', provider: 'Xiaomi', logoSlug: 'xiaomi', icon: SiXiaomi, color: 'from-blue-600 to-purple-600', pricing: 'Premium', context: '1M', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
   { id: 'groq-compound', name: 'Groq Compound', provider: 'Groq', logoSlug: 'groq', icon: GiPowerLightning, color: 'from-orange-600 to-red-600', pricing: 'Standard', context: '131K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'cohere-command-a', name: 'Cohere Command A', provider: 'Cohere', logoSlug: 'cohere', icon: GiClover, color: 'from-emerald-600 to-teal-600', pricing: 'Standard', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'grok-4-fast', name: 'Grok 4 Fast', provider: 'xAI', logoSlug: 'xai', icon: FaXTwitter, color: 'from-zinc-700 to-slate-900', pricing: 'Premium', context: '2M', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
