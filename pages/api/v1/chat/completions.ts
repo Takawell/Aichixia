@@ -11,13 +11,13 @@ import { chatOpus, OpusRateLimitError, OpusQuotaError } from "@/lib/opus";
 import { chatCohere, streamCohere, CohereRateLimitError, CohereQuotaError } from "@/lib/cohere";
 import { chatDeepSeek, streamDeepSeek, DeepSeekRateLimitError, DeepSeekQuotaError } from "@/lib/deepseek";
 import { chatDeepSeekV, streamDeepSeekV, DeepSeekVRateLimitError, DeepSeekVQuotaError } from "@/lib/deepseek-v";
-import { chatQwen, QwenRateLimitError, QwenQuotaError } from "@/lib/qwen";
+import { chatQwen, streamQwen, QwenRateLimitError, QwenQuotaError } from "@/lib/qwen";
 import { chatQwenV2, QwenV2RateLimitError, QwenV2QuotaError } from "@/lib/qwen3";
 import { chatGptOss, streamGptOss, GptOssRateLimitError, GptOssQuotaError } from "@/lib/gpt-oss";
 import { chatCompound, CompoundRateLimitError, CompoundQuotaError } from "@/lib/compound";
 import { chatLlama, streamLlama, LlamaRateLimitError, LlamaQuotaError } from "@/lib/llama";
 import { chatMistral, streamMistral, MistralRateLimitError, MistralQuotaError } from "@/lib/mistral";
-import { chatMimo, MimoRateLimitError, MimoQuotaError } from "@/lib/mimo";
+import { chatMimo, streamMimo, MimoRateLimitError, MimoQuotaError } from "@/lib/mimo";
 import { chatMinimax, streamMinimax, MinimaxRateLimitError, MinimaxQuotaError } from "@/lib/minimax";
 import { chatGrokFast, GrokFastRateLimitError, GrokFastQuotaError } from "@/lib/grok-fast";
 import { chatGrok, GrokRateLimitError, GrokQuotaError } from "@/lib/grok";
@@ -67,11 +67,11 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "gpt-5.5": { fn: chatGpt55, provider: "gpt55" },
   "mistral-large-3-675b-instruct": { fn: chatMistral, provider: "mistral" },
   "qwen3.6-27b": { fn: chatQwenV2, provider: "qwen3" },
-  "qwen3-coder-480b": { fn: chatQwen, provider: "qwen" },
+  "qwen3-coder-plus": { fn: chatQwen, provider: "qwen" },
   "minimax-m3": { fn: chatMinimax, provider: "minimax" },
   "llama-3.3-70b": { fn: chatLlama, provider: "llama" },
   "gpt-oss-120b": { fn: chatGptOss, provider: "gptoss" },
-  "mimo-v2-flash": { fn: chatMimo, provider: "mimo" },
+  "mimo-v2.5-pro": { fn: chatMimo, provider: "mimo" },
   "phi-4-multimodal-instruct": { fn: chatPhi, provider: "phi" },
   "groq-compound": { fn: chatCompound, provider: "compound" },
   "cohere-command-a": { fn: chatCohere, provider: "cohere" },
@@ -101,9 +101,11 @@ const STREAM_MODEL_MAPPING: Record<string, StreamFunction> = {
   "llama-3.3-70b": streamLlama,
   "deepseek-v3.2": streamDeepSeek,
   "claude-fable-5": streamFable,
+  "mimo-v2.5-pro": streamMimo,
+  "qwen3-coder-plus": streamQwen,
 };
 
-const LOCKED_MODELS_PRO = ['deepseek-v3.2', 'qwen3-coder-480b', 'minimax-m3', 'claude-sonnet-4.6', 'glm-5.2', 'aichixia-flash', 'grok-4-fast', 'kimi-k2.6', 'gpt-5.2', 'gpt-5.5', 'laguna-s-2.1', 'claude-opus-4.8'];
+const LOCKED_MODELS_PRO = ['deepseek-v3.2', 'mimo-v2.5-pro', 'minimax-m3', 'claude-sonnet-4.6', 'glm-5.2', 'aichixia-flash', 'grok-4-fast', 'kimi-k2.6', 'gpt-5.2', 'gpt-5.5', 'laguna-s-2.1', 'claude-opus-4.8'];
 const LOCKED_MODELS_ENTERPRISE = ['claude-fable-5'];
 
 const RATE_LIMIT_ERRORS = [
