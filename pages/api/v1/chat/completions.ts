@@ -30,6 +30,7 @@ import { chatGemma, streamGemma, GemmaRateLimitError, GemmaQuotaError } from "@/
 import { chatHaiku, HaikuRateLimitError, HaikuQuotaError } from "@/lib/haiku";
 import { chatLaguna, streamLaguna, LagunaRateLimitError, LagunaQuotaError } from "@/lib/laguna";
 import { chatFable, streamFable, FableRateLimitError, FableQuotaError } from "@/lib/fable";
+import { chatInkling, streamInkling, InklingRateLimitError, InklingQuotaError } from "@/lib/inkling";
 import { verifyApiKey, incrementUsage, logRequest, updateDailyUsage } from "@/lib/console-utils";
 import { getServiceSupabase } from "@/lib/supabase";
 
@@ -65,7 +66,7 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "glm-5.2": { fn: chatGlm, provider: "glm" },
   "gpt-5.2": { fn: chatGPT, provider: "gpt" },
   "gpt-5.5": { fn: chatGpt55, provider: "gpt55" },
-  "mistral-large-3-675b-instruct": { fn: chatMistral, provider: "mistral" },
+  "mistral-large-latest": { fn: chatMistral, provider: "mistral" },
   "qwen3.6-27b": { fn: chatQwenV2, provider: "qwen3" },
   "qwen3-coder-plus": { fn: chatQwen, provider: "qwen" },
   "minimax-m3": { fn: chatMinimax, provider: "minimax" },
@@ -83,11 +84,12 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "aichixia-flash": { fn: chatAichixia, provider: "aichixia" },
   "gemma-4-31b": { fn: chatGemma, provider: "gemma" },
   "laguna-s-2.1": { fn: chatLaguna, provider: "laguna" },
+  "thinkingmachines/inkling": { fn: chatInkling, provider: "inkling" },
 };
 
 const STREAM_MODEL_MAPPING: Record<string, StreamFunction> = {
   "kimi-k2.6": streamKimi,
-  "mistral-large-3-675b-instruct": streamMistral,
+  "mistral-large-latest": streamMistral,
   "minimax-m3": streamMinimax,
   "step-3.7-flash": streamStepfun,
   "nemotron-3-ultra-550b-a55b": streamNemotron,
@@ -103,9 +105,10 @@ const STREAM_MODEL_MAPPING: Record<string, StreamFunction> = {
   "claude-fable-5": streamFable,
   "mimo-v2.5-pro": streamMimo,
   "qwen3-coder-plus": streamQwen,
+  "thinkingmachines/inkling": streamInkling,
 };
 
-const LOCKED_MODELS_PRO = ['deepseek-v3.2', 'mimo-v2.5-pro', 'minimax-m3', 'claude-sonnet-4.6', 'glm-5.2', 'aichixia-flash', 'grok-4-fast', 'kimi-k2.6', 'gpt-5.2', 'gpt-5.5', 'laguna-s-2.1', 'claude-opus-4.8'];
+const LOCKED_MODELS_PRO = ['deepseek-v3.2', 'mimo-v2.5-pro', 'claude-sonnet-4.6', 'glm-5.2', 'aichixia-flash', 'grok-4-fast', 'kimi-k2.6', 'gpt-5.2', 'gpt-5.5', 'laguna-s-2.1', 'claude-opus-4.8', 'thinkingmachines/inkling'];
 const LOCKED_MODELS_ENTERPRISE = ['claude-fable-5'];
 
 const RATE_LIMIT_ERRORS = [
@@ -116,6 +119,7 @@ const RATE_LIMIT_ERRORS = [
   MinimaxRateLimitError, GrokRateLimitError, GrokFastRateLimitError, ZhipuRateLimitError,
   AichixiaRateLimitError, StepfunRateLimitError, NemotronRateLimitError, Gpt55RateLimitError, OpusRateLimitError,
   GemmaRateLimitError, HaikuRateLimitError, LagunaRateLimitError, GeminiRateLimitError, FableRateLimitError,
+  InklingRateLimitError,
 ];
 
 const QUOTA_ERRORS = [
@@ -126,6 +130,7 @@ const QUOTA_ERRORS = [
   MinimaxQuotaError, GrokQuotaError, GrokFastQuotaError, ZhipuQuotaError,
   AichixiaQuotaError, StepfunQuotaError, NemotronQuotaError, Gpt55QuotaError, OpusQuotaError,
   GemmaQuotaError, HaikuQuotaError, LagunaQuotaError, GeminiQuotaError, FableQuotaError,
+  InklingQuotaError,
 ];
 
 function isRateLimitError(error: any): boolean {
