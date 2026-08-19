@@ -8,7 +8,7 @@ export type ChatMessage = {
 };
 
 const MISTRAL_API_KEY = process.env.MISTRAL_API_KEY;
-const MISTRAL_MODEL = process.env.MISTRAL_MODEL || "mistralai/mistral-large-3-675b-instruct-2512";
+const MISTRAL_MODEL = process.env.MISTRAL_MODEL || "mistral-large-latest";
 
 if (!MISTRAL_API_KEY) {
   console.warn("[lib/mistral] Warning: MISTRAL_API_KEY not set in env.");
@@ -16,7 +16,7 @@ if (!MISTRAL_API_KEY) {
 
 const client = new OpenAI({
   apiKey: MISTRAL_API_KEY,
-  baseURL: "https://integrate.api.nvidia.com/v1",
+  baseURL: "https://api.mistral.ai/v1",
 });
 
 export class MistralRateLimitError extends Error {
@@ -63,7 +63,7 @@ export async function chatMistral(
         `Mistral rate limit exceeded: ${error.message}`
       );
     }
-    if (error?.status === 402 || error?.code === "insufficient_quota") {
+    if (error?.status === 402 || error?.code === "insufficient_quota" || error?.message?.includes("quota")) {
       throw new MistralQuotaError(
         `Mistral quota exceeded: ${error.message}`
       );
@@ -123,7 +123,7 @@ export async function streamMistral(
         let message = "An unexpected error occurred.";
         if (error?.status === 429) {
           message = "Rate limit exceeded. Please wait a moment.";
-        } else if (error?.status === 402 || error?.code === "insufficient_quota") {
+        } else if (error?.status === 402 || error?.code === "insufficient_quota" || error?.message?.includes("quota")) {
           message = "Quota exceeded. Please try again later.";
         } else if (error?.status === 503 || error?.status === 500) {
           message = "Server error. Please try again.";
