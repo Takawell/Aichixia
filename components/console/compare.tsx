@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
-import { FiPlay, FiCopy, FiCheck, FiChevronDown, FiZap, FiSettings, FiClock, FiPlus, FiX, FiAlertCircle, FiHash, FiTrash2, FiRotateCcw, FiEye, FiEyeOff, FiThumbsUp, FiSquare } from 'react-icons/fi';
-import { SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiMistralai, SiXiaomi, SiSecurityscorecard, SiMaze, SiNvidia } from 'react-icons/si';
+import { useState, useRef, useEffect, useCallback, useMemo, memo } from 'react';
+import { FiPlay, FiCopy, FiCheck, FiChevronDown, FiZap, FiSettings, FiClock, FiPlus, FiX, FiAlertCircle, FiHash, FiTrash2, FiRotateCcw, FiEye, FiEyeOff, FiThumbsUp, FiSquare, FiDownload, FiMaximize2, FiMinimize2, FiSliders, FiTarget, FiActivity, FiBarChart2, FiShuffle, FiStar, FiCpu } from 'react-icons/fi';
+import { SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiMistralai, SiXiaomi, SiAirbrake, SiMaze, SiNvidia } from 'react-icons/si';
 import { RiOpenaiFill, RiMoonFill } from 'react-icons/ri';
 import { GiSpermWhale, GiPowerLightning, GiClover } from 'react-icons/gi';
 import { DiBower } from 'react-icons/di';
@@ -27,48 +27,48 @@ type AnyModel = {
 const STREAM_CAPABLE_MODELS = new Set(['kimi-k2.6', 'mistral-large-latest', 'minimax-m3', 'step-3.7-flash', 'nemotron-3-ultra-550b-a55b', 'gpt-oss-120b', 'deepseek-v4-flash', 'gemma-4-31b', 'glm-5.2', 'laguna-s-2.1', 'cohere-command-a', 'gemini-3-flash', 'llama-3.3-70b', 'deepseek-v3.2', 'claude-fable-5', 'qwen3-coder-plus', 'mimo-v2.5-pro', 'thinkingmachines/inkling', 'glm-4.7-flash', 'llama-4-scout-17b-16e-instruct']);
 
 const TEXT_MODELS: AnyModel[] = [
-  { id: 'gpt-5-mini', name: 'GPT-5 Mini', provider: 'OpenAI', icon: RiOpenaiFill, color: 'from-emerald-500 to-green-600', pricing: 'Budget', context: '400K', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'aichixia-flash', name: 'Aichixia 114B', provider: 'Aichiverse', icon: SiSecurityscorecard, color: 'from-blue-600 via-blue-800 to-slate-900', pricing: 'Standard', context: '256K', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
-  { id: 'mistral-large-latest', name: 'Mistral Large', provider: 'Mistral AI', icon: SiMistralai, color: 'from-orange-500 to-amber-500', pricing: 'Premium', context: '256K', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'deepseek-v3.2', name: 'DeepSeek V3.2', provider: 'DeepSeek', icon: GiSpermWhale, color: 'from-cyan-500 to-blue-600', pricing: 'Premium', context: '128K', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
-  { id: 'deepseek-v4-flash', name: 'DeepSeek V4 Flash', provider: 'DeepSeek', icon: GiSpermWhale, color: 'from-cyan-600 to-teal-600', pricing: 'Standard', context: '1M', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'claude-sonnet-4.6', name: 'Claude Sonnet 4.6', provider: 'Anthropic', icon: SiAnthropic, color: 'from-orange-500 to-amber-600', pricing: 'Premium', context: '1M', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
-  { id: 'claude-opus-4.8', name: 'Claude Opus 4.8', provider: 'Anthropic', icon: SiAnthropic, color: 'from-orange-500 to-amber-600', pricing: 'Premium', context: '1M', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
-  { id: 'claude-fable-5', name: 'Claude Fable 5', provider: 'Anthropic', icon: SiAnthropic, color: 'from-orange-600 to-amber-700', pricing: 'Premium', context: '1M', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true, requiresEnterprise: true },
-  { id: 'claude-haiku-4.5', name: 'Claude Haiku 4.5', provider: 'Anthropic', icon: SiAnthropic, color: 'from-orange-400 to-amber-500', pricing: 'Standard', context: '200K', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'gemini-3-flash', name: 'Gemini 3 Flash', provider: 'Google', icon: SiGooglegemini, color: 'from-indigo-500 to-purple-600', pricing: 'Budget', context: '1M', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'gpt-5-mini', name: 'GPT-5 Mini', provider: 'OpenAI', logoSlug: 'openai', icon: RiOpenaiFill, color: 'from-emerald-500 to-green-600', pricing: 'Budget', context: '400K', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'aichixia-flash', name: 'Aichixia 114B', provider: 'Aichiverse', icon: SiAirbrake, color: 'from-blue-600 via-blue-800 to-slate-900', pricing: 'Standard', context: '256K', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
+  { id: 'mistral-large-latest', name: 'Mistral Large', provider: 'Mistral AI', logoSlug: 'mistral', icon: SiMistralai, color: 'from-orange-500 to-amber-500', pricing: 'Premium', context: '256K', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'deepseek-v3.2', name: 'DeepSeek V3.2', provider: 'DeepSeek', logoSlug: 'deepseek', icon: GiSpermWhale, color: 'from-cyan-500 to-blue-600', pricing: 'Premium', context: '128K', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
+  { id: 'deepseek-v4-flash', name: 'DeepSeek V4 Flash', provider: 'DeepSeek', logoSlug: 'deepseek', icon: GiSpermWhale, color: 'from-cyan-600 to-teal-600', pricing: 'Standard', context: '1M', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'claude-sonnet-4.6', name: 'Claude Sonnet 4.6', provider: 'Anthropic', logoSlug: 'anthropic', icon: SiAnthropic, color: 'from-orange-500 to-amber-600', pricing: 'Premium', context: '1M', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
+  { id: 'claude-opus-4.8', name: 'Claude Opus 4.8', provider: 'Anthropic', logoSlug: 'anthropic', icon: SiAnthropic, color: 'from-orange-500 to-amber-600', pricing: 'Premium', context: '1M', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
+  { id: 'claude-fable-5', name: 'Claude Fable 5', provider: 'Anthropic', logoSlug: 'anthropic', icon: SiAnthropic, color: 'from-orange-600 to-amber-700', pricing: 'Premium', context: '1M', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true, requiresEnterprise: true },
+  { id: 'claude-haiku-4.5', name: 'Claude Haiku 4.5', provider: 'Anthropic', logoSlug: 'anthropic', icon: SiAnthropic, color: 'from-orange-400 to-amber-500', pricing: 'Standard', context: '200K', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'gemini-3-flash', name: 'Gemini 3 Flash', provider: 'Google', logoSlug: 'gemini', icon: SiGooglegemini, color: 'from-indigo-500 to-purple-600', pricing: 'Budget', context: '1M', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'phi-4-multimodal-instruct', name: 'Phi 4 Multimodal', provider: 'Microsoft', icon: TiVendorMicrosoft, color: 'from-cyan-500 to-blue-700', pricing: 'Budget', context: '128K', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'grok-3', name: 'Grok 3', provider: 'xAI', icon: FaXTwitter, color: 'from-slate-600 to-zinc-700', pricing: 'Premium', context: '1M', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'glm-5.2', name: 'GLM 5.2', provider: 'Zhipu', icon: TbSquareLetterZ, color: 'from-blue-700 to-indigo-800', pricing: 'Premium', context: '200K', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
   { id: 'kimi-k2.6', name: 'Kimi K2.6', provider: 'Moonshot', icon: RiMoonFill, color: 'from-blue-500 to-cyan-600', pricing: 'Premium', context: '256K', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
   { id: 'glm-4.7-flash', name: 'GLM 4.7 Flash', provider: 'Zhipu', icon: TbSquareLetterZ, color: 'from-blue-700 to-indigo-800', pricing: 'Standard', context: '131K', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
-  { id: 'gemma-4-31b', name: 'Gemma 4 31B', provider: 'Google', icon: SiGooglegemini, color: 'from-indigo-500 to-purple-600', pricing: 'Budget', context: '128K', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'qwen3.6-27b', name: 'Qwen3.6 27B', provider: 'Alibaba', icon: SiAlibabacloud, color: 'from-purple-500 to-pink-500', pricing: 'Standard', context: '256K', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'qwen3-coder-plus', name: 'Qwen3 Coder Plus 480B', provider: 'Alibaba', icon: SiAlibabacloud, color: 'from-purple-600 to-fuchsia-600', pricing: 'Premium', context: '1M', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'minimax-m3', name: 'MiniMax M3', provider: 'MiniMax', icon: SiMaze, color: 'from-cyan-600 to-blue-600', pricing: 'Premium', context: '204K', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'thinkingmachines/inkling', name: 'Inkling', provider: 'Thinking Machines', icon: SiNvidia, color: 'from-yellow-500 to-orange-500', pricing: 'Premium', context: '256K', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
-  { id: 'llama-3.3-70b', name: 'Llama 3.3 70B', provider: 'Meta', icon: SiMeta, color: 'from-blue-600 to-indigo-700', pricing: 'Standard', context: '130K', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'gpt-oss-120b', name: 'GPT-OSS 120B', provider: 'OpenAI', icon: RiOpenaiFill, color: 'from-pink-600 to-rose-600', pricing: 'Budget', context: '128K', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'mimo-v2.5-pro', name: 'MiMo V2.5 Pro', provider: 'Xiaomi', icon: SiXiaomi, color: 'from-blue-600 to-purple-600', pricing: 'Premium', context: '1M', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
+  { id: 'gemma-4-31b', name: 'Gemma 4 31B', provider: 'Google', logoSlug: 'gemini', icon: SiGooglegemini, color: 'from-indigo-500 to-purple-600', pricing: 'Budget', context: '128K', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'qwen3.6-27b', name: 'Qwen3.6 27B', provider: 'Alibaba', logoSlug: 'qwen', icon: SiAlibabacloud, color: 'from-purple-500 to-pink-500', pricing: 'Standard', context: '256K', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'qwen3-coder-plus', name: 'Qwen3 Coder Plus 480B', provider: 'Alibaba', logoSlug: 'qwen', icon: SiAlibabacloud, color: 'from-purple-600 to-fuchsia-600', pricing: 'Premium', context: '1M', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'minimax-m3', name: 'MiniMax M3', provider: 'MiniMax', logoSlug: 'minimax', icon: SiMaze, color: 'from-cyan-600 to-blue-600', pricing: 'Premium', context: '204K', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'thinkingmachines/inkling', name: 'Inkling', provider: 'Thinking Machines', logoSlug: 'huggingface', icon: SiNvidia, color: 'from-yellow-500 to-orange-500', pricing: 'Premium', context: '256K', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
+  { id: 'llama-3.3-70b', name: 'Llama 3.3 70B', provider: 'Meta', logoSlug: 'meta', icon: SiMeta, color: 'from-blue-600 to-indigo-700', pricing: 'Standard', context: '130K', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'gpt-oss-120b', name: 'GPT-OSS 120B', provider: 'OpenAI', logoSlug: 'openai', icon: RiOpenaiFill, color: 'from-pink-600 to-rose-600', pricing: 'Budget', context: '128K', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'mimo-v2.5-pro', name: 'MiMo V2.5 Pro', provider: 'Xiaomi', logoSlug: 'xiaomi', icon: SiXiaomi, color: 'from-blue-600 to-purple-600', pricing: 'Premium', context: '1M', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
   { id: 'groq-compound', name: 'Groq Compound', provider: 'Groq', icon: GiPowerLightning, color: 'from-orange-600 to-red-600', pricing: 'Standard', context: '131K', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'cohere-command-a', name: 'Cohere Command A', provider: 'Cohere', icon: GiClover, color: 'from-emerald-600 to-teal-600', pricing: 'Standard', context: '256K', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'cohere-command-a', name: 'Cohere Command A', provider: 'Cohere', logoSlug: 'cohere', icon: GiClover, color: 'from-emerald-600 to-teal-600', pricing: 'Standard', context: '256K', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'grok-4-fast', name: 'Grok 4 Fast', provider: 'xAI', icon: FaXTwitter, color: 'from-zinc-700 to-slate-900', pricing: 'Premium', context: '2M', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
   { id: 'step-3.7-flash', name: 'Step 3.7 Flash', provider: 'StepFun', icon: DiBower, color: 'from-blue-500 to-blue-700', pricing: 'Standard', context: '256K', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'nemotron-3-ultra-550b-a55b', name: 'Nemotron 3 Ultra 550B', provider: 'NVIDIA', icon: SiNvidia, color: 'from-emerald-600 to-green-600', pricing: 'Premium', context: '256K', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'nemotron-3-ultra-550b-a55b', name: 'Nemotron 3 Ultra 550B', provider: 'NVIDIA', logoSlug: 'nvidia', icon: SiNvidia, color: 'from-emerald-600 to-green-600', pricing: 'Premium', context: '256K', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'laguna-s-2.1', name: 'Laguna S 2.1', provider: 'Poolside', icon: FiZap, color: 'from-sky-600 to-blue-700', pricing: 'Premium', context: '256K', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
-  { id: 'gpt-5.2', name: 'GPT-5.2', provider: 'OpenAI', icon: RiOpenaiFill, color: 'from-green-500 to-emerald-600', pricing: 'Standard', context: '400K', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
-  { id: 'gpt-5.5', name: 'GPT-5.5', provider: 'OpenAI', icon: RiOpenaiFill, color: 'from-green-600 to-teal-600', pricing: 'Premium', context: '400K', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
+  { id: 'gpt-5.2', name: 'GPT-5.2', provider: 'OpenAI', logoSlug: 'openai', icon: RiOpenaiFill, color: 'from-green-500 to-emerald-600', pricing: 'Standard', context: '400K', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
+  { id: 'gpt-5.5', name: 'GPT-5.5', provider: 'OpenAI', logoSlug: 'openai', icon: RiOpenaiFill, color: 'from-green-600 to-teal-600', pricing: 'Premium', context: '400K', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
 ];
 
 const PRICING_STYLE: Record<string, string> = {
-  Premium: 'text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20 border-rose-200 dark:border-rose-800',
-  Standard: 'text-blue-400 dark:text-blue-300 bg-blue-50 dark:bg-blue-800/20 border-blue-100 dark:border-blue-700',
-  Budget: 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800',
+  Premium: 'text-rose-600 dark:text-rose-400 bg-rose-50/80 dark:bg-rose-500/10 border-rose-200/80 dark:border-rose-500/30',
+  Standard: 'text-blue-500 dark:text-blue-300 bg-blue-50/80 dark:bg-blue-500/10 border-blue-200/80 dark:border-blue-500/30',
+  Budget: 'text-emerald-600 dark:text-emerald-400 bg-emerald-50/80 dark:bg-emerald-500/10 border-emerald-200/80 dark:border-emerald-500/30',
 };
 
 const brandSvgCache: Record<string, string> = {};
 
-const BrandIcon = ({ model, className }: { model: AnyModel; className?: string }) => {
+const BrandIcon = memo(({ model, className }: { model: AnyModel; className?: string }) => {
   const [svg, setSvg] = useState<string | null>(model.logoSlug ? brandSvgCache[model.logoSlug] ?? null : null);
   const [failed, setFailed] = useState(false);
   const Icon = model.icon;
@@ -92,7 +92,8 @@ const BrandIcon = ({ model, className }: { model: AnyModel; className?: string }
 
   if (!model.logoSlug || failed || !svg) return <Icon className={className} />;
   return <span className={`inline-flex items-center justify-center [&>svg]:w-full [&>svg]:h-full ${className}`} dangerouslySetInnerHTML={{ __html: svg }} />;
-};
+});
+BrandIcon.displayName = 'BrandIcon';
 
 async function safeParseJson(res: Response): Promise<{ data: any; error: string | null }> {
   const contentType = res.headers.get('content-type') ?? '';
@@ -116,7 +117,7 @@ function renderInline(str: string, keyPrefix: string): React.ReactNode[] {
     if (m.index > last) parts.push(str.slice(last, m.index));
     const raw = m[0];
     const k = `${keyPrefix}-${m.index}`;
-    if (raw.startsWith('`')) parts.push(<code key={k} className="px-1 py-0.5 rounded bg-blue-50 dark:bg-blue-900/20 text-blue-500 dark:text-blue-300 font-mono text-[10px] border border-blue-100 dark:border-blue-900/40">{raw.slice(1, -1)}</code>);
+    if (raw.startsWith('`')) parts.push(<code key={k} className="px-1 py-0.5 rounded bg-blue-500/10 text-blue-500 dark:text-blue-300 font-mono text-[10px] border border-blue-500/20">{raw.slice(1, -1)}</code>);
     else if (raw.startsWith('**')) parts.push(<strong key={k} className="font-bold text-zinc-900 dark:text-white">{raw.slice(2, -2)}</strong>);
     else parts.push(<em key={k} className="italic">{raw.slice(1, -1)}</em>);
     last = m.index + raw.length;
@@ -133,13 +134,12 @@ function MiniMarkdown({ text }: { text: string }) {
   while (i < lines.length) {
     const line = lines[i];
     if (line.trim().startsWith('```')) {
-      const lang = line.trim().slice(3);
       const code: string[] = [];
       i++;
       while (i < lines.length && !lines[i].trim().startsWith('```')) { code.push(lines[i]); i++; }
       i++;
       blocks.push(
-        <pre key={key++} className="my-2 rounded-lg bg-zinc-950 border border-zinc-800 p-2.5 overflow-x-auto">
+        <pre key={key++} className="my-2 rounded-xl bg-zinc-950/90 border border-white/10 p-2.5 overflow-x-auto">
           <code className="text-[10px] font-mono text-zinc-200 whitespace-pre">{code.join('\n')}</code>
         </pre>
       );
@@ -176,35 +176,27 @@ function MiniMarkdown({ text }: { text: string }) {
   return <>{blocks}</>;
 }
 
-type SlotStatus = 'idle' | 'loading' | 'streaming' | 'done' | 'error';
+type SlotStatus = 'idle' | 'connecting' | 'streaming' | 'done' | 'error' | 'aborted';
 
-type CompareSlot = {
-  uid: string;
-  model: AnyModel;
-  status: SlotStatus;
-  text: string;
-  error: string | null;
-  latencyMs: number | null;
-  promptTokens: number | null;
-  completionTokens: number | null;
-  totalTokens: number | null;
-  liked: boolean;
+type RunConfig = {
+  prompt: string;
+  systemPrompt: string;
+  temperature: number;
+  maxTokens: number;
+  apiKey: string;
+  runId: number;
 };
 
-const makeSlot = (model: AnyModel): CompareSlot => ({
-  uid: `${model.id}-${Math.random().toString(36).slice(2, 9)}`,
-  model,
-  status: 'idle',
-  text: '',
-  error: null,
-  latencyMs: null,
-  promptTokens: null,
-  completionTokens: null,
-  totalTokens: null,
-  liked: false,
-});
+type SlotSummary = {
+  uid: string;
+  status: SlotStatus;
+  latencyMs: number | null;
+  totalTokens: number | null;
+  liked: boolean;
+  charCount: number;
+};
 
-function ModelPicker({ value, onChange, exclude }: { value: AnyModel; onChange: (m: AnyModel) => void; exclude: string[] }) {
+function ModelPicker({ value, onChange, exclude, disabled }: { value: AnyModel; onChange: (m: AnyModel) => void; exclude: string[]; disabled: boolean }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
   const ref = useRef<HTMLDivElement>(null);
@@ -215,56 +207,57 @@ function ModelPicker({ value, onChange, exclude }: { value: AnyModel; onChange: 
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  const filtered = TEXT_MODELS.filter(m => (m.name.toLowerCase().includes(search.toLowerCase()) || m.provider.toLowerCase().includes(search.toLowerCase())));
+  const filtered = useMemo(() => TEXT_MODELS.filter(m => m.name.toLowerCase().includes(search.toLowerCase()) || m.provider.toLowerCase().includes(search.toLowerCase())), [search]);
 
   return (
     <div ref={ref} className="relative flex-1 min-w-0">
       <button
-        onClick={() => setOpen(!open)}
-        className="w-full flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-blue-300 dark:hover:border-blue-500/60 transition-colors duration-150"
+        onClick={() => !disabled && setOpen(!open)}
+        disabled={disabled}
+        className="w-full flex items-center gap-2 px-2.5 py-2 rounded-xl bg-white/60 dark:bg-white/[0.04] backdrop-blur-xl border border-white/40 dark:border-white/10 hover:border-blue-300/70 dark:hover:border-blue-400/40 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed shadow-sm"
       >
-        <div className={`w-5 h-5 rounded-md bg-gradient-to-br ${value.color} flex items-center justify-center flex-shrink-0 shadow-sm`}>
-          <BrandIcon model={value} className="w-2.5 h-2.5 text-white" />
+        <div className={`w-6 h-6 rounded-lg bg-gradient-to-br ${value.color} flex items-center justify-center flex-shrink-0 shadow-md ring-1 ring-white/20`}>
+          <BrandIcon model={value} className="w-3 h-3 text-white" />
         </div>
         <div className="min-w-0 flex-1 text-left">
-          <div className="text-[10.5px] font-bold text-zinc-900 dark:text-white truncate leading-tight">{value.name}</div>
-          <div className="text-[9px] text-zinc-500 truncate leading-tight">{value.provider}</div>
+          <div className="text-[11px] font-bold text-zinc-900 dark:text-white truncate leading-tight tracking-tight">{value.name}</div>
+          <div className="text-[9px] text-zinc-500 dark:text-zinc-400 truncate leading-tight">{value.provider}</div>
         </div>
-        <FiChevronDown className={`w-3 h-3 text-zinc-400 flex-shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+        <FiChevronDown className={`w-3.5 h-3.5 text-zinc-400 flex-shrink-0 transition-transform duration-300 ${open ? 'rotate-180' : ''}`} />
       </button>
 
       {open && (
-        <div className="compare-slide-down absolute top-full left-0 mt-1.5 w-[min(85vw,300px)] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-2xl z-50 overflow-hidden">
-          <div className="p-2 border-b border-zinc-100 dark:border-zinc-800">
+        <div className="cmp-pop absolute top-full left-0 mt-2 w-[min(88vw,310px)] bg-white/90 dark:bg-zinc-900/90 backdrop-blur-2xl border border-white/50 dark:border-white/10 rounded-2xl shadow-2xl z-50 overflow-hidden">
+          <div className="p-2 border-b border-zinc-100/80 dark:border-white/5">
             <input
               autoFocus
               type="text"
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search models..."
-              className="w-full px-2.5 py-1.5 text-[11px] bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg outline-none focus:border-blue-300 dark:focus:border-blue-400 text-zinc-900 dark:text-white placeholder-zinc-400 transition-colors"
+              className="w-full px-3 py-2 text-[11px] bg-zinc-100/70 dark:bg-white/5 border border-transparent rounded-xl outline-none focus:border-blue-300 dark:focus:border-blue-400/50 text-zinc-900 dark:text-white placeholder-zinc-400 transition-all"
             />
           </div>
-          <div className="max-h-64 overflow-y-auto p-1.5 space-y-0.5">
+          <div className="max-h-64 overflow-y-auto p-1.5 space-y-0.5 cmp-scroll">
             {filtered.length === 0 ? (
               <p className="text-center text-[10px] text-zinc-400 py-4">No models found</p>
             ) : filtered.map(m => {
-              const disabled = exclude.includes(m.id) && m.id !== value.id;
+              const isDisabled = exclude.includes(m.id) && m.id !== value.id;
               return (
                 <button
                   key={m.id}
-                  disabled={disabled}
+                  disabled={isDisabled}
                   onClick={() => { onChange(m); setOpen(false); setSearch(''); }}
-                  className={`w-full flex items-center gap-1.5 px-2 py-1.5 rounded-lg transition-colors duration-150 text-left ${disabled ? 'opacity-30 cursor-not-allowed' : m.id === value.id ? 'bg-blue-50 dark:bg-blue-800/20 border border-blue-100 dark:border-blue-700' : 'hover:bg-zinc-50 dark:hover:bg-zinc-800'}`}
+                  className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-xl transition-colors duration-150 text-left ${isDisabled ? 'opacity-30 cursor-not-allowed' : m.id === value.id ? 'bg-blue-500/10 border border-blue-400/30' : 'hover:bg-zinc-100/80 dark:hover:bg-white/5 border border-transparent'}`}
                 >
-                  <div className={`w-5 h-5 rounded-md bg-gradient-to-br ${m.color} flex items-center justify-center flex-shrink-0`}>
-                    <BrandIcon model={m} className="w-2.5 h-2.5 text-white" />
+                  <div className={`w-6 h-6 rounded-lg bg-gradient-to-br ${m.color} flex items-center justify-center flex-shrink-0 shadow-sm`}>
+                    <BrandIcon model={m} className="w-3 h-3 text-white" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="text-[10.5px] font-semibold text-zinc-900 dark:text-white truncate">{m.name}</div>
                     <div className="text-[9px] text-zinc-500 truncate">{m.provider} · {m.context}</div>
                   </div>
-                  <span className={`text-[8px] font-bold px-1 py-0.5 rounded border flex-shrink-0 ${PRICING_STYLE[m.pricing]}`}>{m.pricing}</span>
+                  <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded-full border flex-shrink-0 ${PRICING_STYLE[m.pricing]}`}>{m.pricing}</span>
                 </button>
               );
             })}
@@ -275,106 +268,383 @@ function ModelPicker({ value, onChange, exclude }: { value: AnyModel; onChange: 
   );
 }
 
-function StatusBadge({ status }: { status: SlotStatus }) {
-  if (status === 'idle') return <span className="flex items-center gap-1 text-[9px] font-semibold text-zinc-400"><span className="w-1.5 h-1.5 rounded-full bg-zinc-300 dark:bg-zinc-700" />Idle</span>;
-  if (status === 'loading') return <span className="flex items-center gap-1 text-[9px] font-semibold text-amber-500"><span className="w-1.5 h-1.5 rounded-full bg-amber-400 compare-pulse" />Connecting</span>;
-  if (status === 'streaming') return <span className="flex items-center gap-1 text-[9px] font-semibold text-blue-400"><span className="w-1.5 h-1.5 rounded-full bg-blue-400 compare-pulse" />Streaming</span>;
-  if (status === 'error') return <span className="flex items-center gap-1 text-[9px] font-semibold text-rose-500"><span className="w-1.5 h-1.5 rounded-full bg-rose-500" />Failed</span>;
-  return <span className="flex items-center gap-1 text-[9px] font-semibold text-emerald-500"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />Done</span>;
+function StatusPill({ status }: { status: SlotStatus }) {
+  const map: Record<SlotStatus, { dot: string; text: string; label: string; pulse: boolean }> = {
+    idle: { dot: 'bg-zinc-300 dark:bg-zinc-700', text: 'text-zinc-400 dark:text-zinc-500', label: 'Idle', pulse: false },
+    connecting: { dot: 'bg-amber-400', text: 'text-amber-500', label: 'Connecting', pulse: true },
+    streaming: { dot: 'bg-blue-400', text: 'text-blue-500 dark:text-blue-300', label: 'Streaming', pulse: true },
+    done: { dot: 'bg-emerald-400', text: 'text-emerald-600 dark:text-emerald-400', label: 'Complete', pulse: false },
+    error: { dot: 'bg-rose-500', text: 'text-rose-500', label: 'Failed', pulse: false },
+    aborted: { dot: 'bg-zinc-400', text: 'text-zinc-400', label: 'Stopped', pulse: false },
+  };
+  const s = map[status];
+  return (
+    <span className={`flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider ${s.text}`}>
+      <span className={`relative w-1.5 h-1.5 rounded-full ${s.dot}`}>
+        {s.pulse && <span className={`absolute inset-0 rounded-full ${s.dot} cmp-ping`} />}
+      </span>
+      {s.label}
+    </span>
+  );
 }
 
-function SlotCard({ slot, onModelChange, onRemove, onToggleLike, exclude, canRemove, apiKey }: {
-  slot: CompareSlot;
-  onModelChange: (m: AnyModel) => void;
-  onRemove: () => void;
-  onToggleLike: () => void;
+type SlotCardHandle = { stop: () => void };
+
+const SlotCard = memo(function SlotCard({
+  uid, model, config, exclude, canRemove, onModelChange, onRemove, onReport, registerHandle,
+}: {
+  uid: string;
+  model: AnyModel;
+  config: RunConfig;
   exclude: string[];
   canRemove: boolean;
-  apiKey: string;
+  onModelChange: (m: AnyModel) => void;
+  onRemove: () => void;
+  onReport: (s: SlotSummary) => void;
+  registerHandle: (uid: string, handle: SlotCardHandle | null) => void;
 }) {
+  const [status, setStatus] = useState<SlotStatus>('idle');
+  const [text, setText] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [latencyMs, setLatencyMs] = useState<number | null>(null);
+  const [totalTokens, setTotalTokens] = useState<number | null>(null);
+  const [liked, setLiked] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const [, forceTick] = useState(0);
+
+  const bufferRef = useRef('');
+  const rafRef = useRef<number | null>(null);
+  const controllerRef = useRef<AbortController | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const startRef = useRef(0);
+  const runIdRef = useRef(0);
+  const elapsedTimerRef = useRef<number | null>(null);
+
+  const flush = useCallback(() => {
+    setText(bufferRef.current);
+    rafRef.current = null;
+  }, []);
+
+  const pushChunk = useCallback((chunk: string) => {
+    bufferRef.current += chunk;
+    if (rafRef.current == null) {
+      rafRef.current = requestAnimationFrame(flush);
+    }
+  }, [flush]);
 
   useEffect(() => {
-    if (slot.status === 'streaming' && scrollRef.current) {
+    if (status === 'streaming' && scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [slot.text, slot.status]);
+  }, [text, status]);
+
+  useEffect(() => {
+    if (status === 'connecting' || status === 'streaming') {
+      elapsedTimerRef.current = window.setInterval(() => forceTick(t => t + 1), 100);
+    } else if (elapsedTimerRef.current) {
+      window.clearInterval(elapsedTimerRef.current);
+      elapsedTimerRef.current = null;
+    }
+    return () => { if (elapsedTimerRef.current) window.clearInterval(elapsedTimerRef.current); };
+  }, [status]);
+
+  const stop = useCallback(() => {
+    controllerRef.current?.abort();
+    if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
+    setStatus(prev => (prev === 'streaming' || prev === 'connecting' ? 'aborted' : prev));
+  }, []);
+
+  useEffect(() => {
+    registerHandle(uid, { stop });
+    return () => registerHandle(uid, null);
+  }, [uid, stop, registerHandle]);
+
+  const run = useCallback(async () => {
+    controllerRef.current?.abort();
+    if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
+    const controller = new AbortController();
+    controllerRef.current = controller;
+    const myRunId = ++runIdRef.current;
+
+    bufferRef.current = '';
+    setText('');
+    setError(null);
+    setLatencyMs(null);
+    setTotalTokens(null);
+    setLiked(false);
+    setStatus('connecting');
+    startRef.current = Date.now();
+
+    const msgs: any[] = [];
+    if (config.systemPrompt.trim()) msgs.push({ role: 'system', content: config.systemPrompt });
+    msgs.push({ role: 'user', content: config.prompt });
+
+    const canStream = STREAM_CAPABLE_MODELS.has(model.id);
+
+    try {
+      if (canStream) {
+        let res: Response;
+        try {
+          res = await fetch(model.endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${config.apiKey}` },
+            body: JSON.stringify({ model: model.id, messages: msgs, temperature: config.temperature, max_tokens: config.maxTokens, stream: true }),
+            signal: controller.signal,
+          });
+        } catch (e: any) {
+          if (e.name === 'AbortError' || runIdRef.current !== myRunId) return;
+          setStatus('error'); setError(e?.message || 'Network error'); setLatencyMs(Date.now() - startRef.current);
+          return;
+        }
+
+        if (runIdRef.current !== myRunId) return;
+
+        if (!res.ok || !res.body) {
+          const { data, error: parseError } = await safeParseJson(res);
+          if (runIdRef.current !== myRunId) return;
+          setStatus('error');
+          setError(parseError || data?.error?.message || `Error ${res.status}`);
+          setLatencyMs(Date.now() - startRef.current);
+          return;
+        }
+
+        setStatus('streaming');
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        let fullText = '';
+        let streamErrored = false;
+
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            if (runIdRef.current !== myRunId) { reader.cancel(); return; }
+            if (!value) continue;
+            buffer += decoder.decode(value, { stream: true });
+            const parts = buffer.split('\n\n');
+            buffer = parts.pop() || '';
+            for (const part of parts) {
+              if (!part.startsWith('data: ')) continue;
+              const payload = part.slice(6).trim();
+              if (!payload || payload === '[DONE]') continue;
+              try {
+                const parsed = JSON.parse(payload);
+                if (typeof parsed?.text === 'string' && parsed.text.length) {
+                  fullText += parsed.text;
+                  pushChunk(parsed.text);
+                }
+                if (parsed?.error) { streamErrored = true; setStatus('error'); setError(String(parsed.error)); }
+              } catch { continue; }
+            }
+          }
+        } catch (e: any) {
+          if (e.name !== 'AbortError' && !fullText && runIdRef.current === myRunId) {
+            setStatus('error'); setError(e?.message || 'Stream interrupted'); setLatencyMs(Date.now() - startRef.current);
+            return;
+          }
+        }
+
+        if (runIdRef.current !== myRunId) return;
+        if (rafRef.current != null) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
+        setText(fullText);
+
+        if (fullText && !streamErrored) {
+          const approxPrompt = Math.ceil(config.prompt.length / 4);
+          const approxCompletion = Math.ceil(fullText.length / 4);
+          const elapsed = Date.now() - startRef.current;
+          setStatus('done');
+          setLatencyMs(elapsed);
+          setTotalTokens(approxPrompt + approxCompletion);
+          onReport({ uid, status: 'done', latencyMs: elapsed, totalTokens: approxPrompt + approxCompletion, liked: false, charCount: fullText.length });
+        }
+        return;
+      }
+
+      setStatus('connecting');
+      const res = await fetch(model.endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${config.apiKey}` },
+        body: JSON.stringify({ model: model.id, messages: msgs, temperature: config.temperature, max_tokens: config.maxTokens }),
+        signal: controller.signal,
+      });
+      if (runIdRef.current !== myRunId) return;
+      const { data, error: parseError } = await safeParseJson(res);
+      if (runIdRef.current !== myRunId) return;
+      const elapsed = Date.now() - startRef.current;
+      if (parseError) { setStatus('error'); setError(parseError); setLatencyMs(elapsed); return; }
+      if (!res.ok) { setStatus('error'); setError(data?.error?.message || `Error ${res.status}`); setLatencyMs(elapsed); return; }
+      const txt = data?.choices?.[0]?.message?.content ?? '';
+      setText(txt);
+      setStatus('done');
+      setLatencyMs(elapsed);
+      const tk = data?.usage?.total_tokens ?? null;
+      setTotalTokens(tk);
+      onReport({ uid, status: 'done', latencyMs: elapsed, totalTokens: tk, liked: false, charCount: txt.length });
+    } catch (e: any) {
+      if (e.name === 'AbortError' || runIdRef.current !== myRunId) return;
+      setStatus('error'); setError(e?.message || 'Network error'); setLatencyMs(Date.now() - startRef.current);
+    }
+  }, [model, config, pushChunk, onReport, uid]);
+
+  useEffect(() => {
+    if (config.runId > 0) run();
+    return () => { controllerRef.current?.abort(); if (rafRef.current != null) cancelAnimationFrame(rafRef.current); };
+  }, [config.runId]);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(slot.text);
+    navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 1600);
   };
 
+  const handleDownload = () => {
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `${model.id}-response.txt`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const toggleLike = () => {
+    setLiked(v => {
+      const next = !v;
+      onReport({ uid, status, latencyMs, totalTokens, liked: next, charCount: text.length });
+      return next;
+    });
+  };
+
+  const elapsedLive = status === 'streaming' || status === 'connecting' ? Date.now() - startRef.current : latencyMs;
+  const wordsPerSec = status === 'streaming' && elapsedLive ? (text.split(/\s+/).filter(Boolean).length / (elapsedLive / 1000)).toFixed(1) : null;
+
   return (
-    <div className={`compare-fade-in flex flex-col rounded-2xl border transition-all duration-300 overflow-hidden bg-white/90 dark:bg-zinc-950 ${slot.status === 'streaming' ? 'border-blue-300 dark:border-blue-500/50 shadow-[0_0_0_3px_rgba(96,165,250,0.08)]' : slot.status === 'error' ? 'border-rose-200 dark:border-rose-900/50' : slot.liked ? 'border-emerald-300 dark:border-emerald-600/50' : 'border-zinc-200 dark:border-zinc-800'}`}>
-      <div className="flex items-center gap-2 px-2.5 py-2 border-b border-zinc-100 dark:border-zinc-800/70 bg-zinc-50/60 dark:bg-zinc-900/40 flex-shrink-0">
-        <ModelPicker value={slot.model} onChange={onModelChange} exclude={exclude} />
-        {canRemove && (
-          <button onClick={onRemove} className="w-6 h-6 flex-shrink-0 flex items-center justify-center rounded-md text-zinc-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors duration-150">
-            <FiX className="w-3.5 h-3.5" />
+    <div className={`cmp-card cmp-fade-in group relative flex flex-col rounded-3xl border overflow-hidden transition-all duration-500 ${expanded ? 'fixed inset-2 sm:inset-6 z-[70]' : ''} ${
+      status === 'streaming' ? 'border-blue-300/60 dark:border-blue-400/40 shadow-[0_0_0_1px_rgba(96,165,250,0.15),0_20px_60px_-15px_rgba(59,130,246,0.25)]'
+      : status === 'error' ? 'border-rose-300/50 dark:border-rose-500/30 shadow-[0_10px_40px_-15px_rgba(244,63,94,0.2)]'
+      : liked ? 'border-emerald-300/60 dark:border-emerald-500/40 shadow-[0_0_0_1px_rgba(52,211,153,0.15),0_20px_50px_-18px_rgba(16,185,129,0.25)]'
+      : 'border-white/50 dark:border-white/10 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_30px_-12px_rgba(0,0,0,0.5)]'
+    } bg-white/70 dark:bg-zinc-950/60 backdrop-blur-2xl`}>
+      <div className="pointer-events-none absolute inset-0 opacity-[0.03] dark:opacity-[0.06]" style={{ backgroundImage: 'radial-gradient(circle at 20% 0%, currentColor 0.5px, transparent 0.5px)', backgroundSize: '14px 14px' }} />
+      {status === 'streaming' && <div className="cmp-scanline pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-blue-400/10 to-transparent" />}
+
+      <div className="relative flex items-center gap-2 px-3 py-2.5 border-b border-white/40 dark:border-white/5 flex-shrink-0">
+        <ModelPicker value={model} onChange={onModelChange} exclude={exclude} disabled={status === 'streaming' || status === 'connecting'} />
+        <div className="flex items-center gap-1 flex-shrink-0">
+          <button onClick={() => setExpanded(v => !v)} className="w-7 h-7 flex items-center justify-center rounded-lg text-zinc-400 hover:text-blue-500 hover:bg-blue-500/10 transition-colors duration-200">
+            {expanded ? <FiMinimize2 className="w-3.5 h-3.5" /> : <FiMaximize2 className="w-3.5 h-3.5" />}
           </button>
-        )}
+          {canRemove && (
+            <button onClick={onRemove} className="w-7 h-7 flex items-center justify-center rounded-lg text-zinc-400 hover:text-rose-500 hover:bg-rose-500/10 transition-colors duration-200">
+              <FiX className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
       </div>
 
-      <div className="flex items-center justify-between px-2.5 py-1.5 border-b border-zinc-100 dark:border-zinc-800/70 flex-shrink-0">
-        <StatusBadge status={slot.status} />
-        <div className="flex items-center gap-2">
-          {slot.latencyMs != null && (
-            <span className="flex items-center gap-0.5 text-[9px] font-semibold text-zinc-400 tabular-nums">
-              <FiClock className="w-2.5 h-2.5" />{slot.latencyMs < 1000 ? `${slot.latencyMs}ms` : `${(slot.latencyMs / 1000).toFixed(1)}s`}
+      <div className="relative flex items-center justify-between px-3 py-2 border-b border-white/40 dark:border-white/5 flex-shrink-0">
+        <StatusPill status={status} />
+        <div className="flex items-center gap-2.5">
+          {wordsPerSec && (
+            <span className="flex items-center gap-0.5 text-[9px] font-bold text-blue-400 tabular-nums">
+              <FiActivity className="w-2.5 h-2.5" />{wordsPerSec}w/s
             </span>
           )}
-          {slot.totalTokens != null && (
+          {elapsedLive != null && (
             <span className="flex items-center gap-0.5 text-[9px] font-semibold text-zinc-400 tabular-nums">
-              <FiHash className="w-2.5 h-2.5" />{slot.totalTokens}
+              <FiClock className="w-2.5 h-2.5" />{elapsedLive < 1000 ? `${elapsedLive}ms` : `${(elapsedLive / 1000).toFixed(1)}s`}
+            </span>
+          )}
+          {totalTokens != null && (
+            <span className="flex items-center gap-0.5 text-[9px] font-semibold text-zinc-400 tabular-nums">
+              <FiHash className="w-2.5 h-2.5" />{totalTokens}
             </span>
           )}
         </div>
       </div>
 
-      <div ref={scrollRef} className="flex-1 min-h-[160px] max-h-[360px] overflow-y-auto px-3 py-2.5 scroll-smooth">
-        {slot.status === 'idle' && (
-          <div className="h-full flex items-center justify-center text-center py-6">
+      <div ref={scrollRef} className={`relative flex-1 overflow-y-auto px-3.5 py-3 cmp-scroll ${expanded ? '' : 'min-h-[180px] max-h-[380px]'}`}>
+        {status === 'idle' && (
+          <div className="h-full flex flex-col items-center justify-center text-center py-8 gap-2">
+            <div className={`w-10 h-10 rounded-2xl bg-gradient-to-br ${model.color} opacity-20 flex items-center justify-center`}>
+              <FiCpu className="w-4 h-4 text-current" />
+            </div>
             <p className="text-[10.5px] text-zinc-400 dark:text-zinc-600">Waiting to run</p>
           </div>
         )}
-        {slot.status === 'loading' && !slot.text && (
-          <div className="space-y-2 pt-1">
-            <div className="h-2.5 rounded-full bg-zinc-100 dark:bg-zinc-800 compare-shimmer w-[85%]" />
-            <div className="h-2.5 rounded-full bg-zinc-100 dark:bg-zinc-800 compare-shimmer w-[70%]" />
-            <div className="h-2.5 rounded-full bg-zinc-100 dark:bg-zinc-800 compare-shimmer w-[92%]" />
-            <div className="h-2.5 rounded-full bg-zinc-100 dark:bg-zinc-800 compare-shimmer w-[55%]" />
+        {status === 'connecting' && !text && (
+          <div className="space-y-2.5 pt-1">
+            <div className="h-2.5 rounded-full bg-gradient-to-r from-zinc-200 via-zinc-100 to-zinc-200 dark:from-zinc-800 dark:via-zinc-700 dark:to-zinc-800 cmp-shimmer w-[85%]" />
+            <div className="h-2.5 rounded-full bg-gradient-to-r from-zinc-200 via-zinc-100 to-zinc-200 dark:from-zinc-800 dark:via-zinc-700 dark:to-zinc-800 cmp-shimmer w-[70%]" />
+            <div className="h-2.5 rounded-full bg-gradient-to-r from-zinc-200 via-zinc-100 to-zinc-200 dark:from-zinc-800 dark:via-zinc-700 dark:to-zinc-800 cmp-shimmer w-[92%]" />
           </div>
         )}
-        {slot.text && <MiniMarkdown text={slot.text} />}
-        {slot.status === 'streaming' && slot.text && <span className="inline-block w-1.5 h-3.5 bg-blue-400 compare-caret align-middle ml-0.5" />}
-        {slot.status === 'error' && (
-          <div className="flex items-start gap-1.5 rounded-lg bg-rose-50 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-900/40 px-2.5 py-2 mt-1">
+        {text && <MiniMarkdown text={text} />}
+        {status === 'streaming' && text && <span className="inline-block w-[3px] h-3.5 bg-blue-400 cmp-caret align-middle ml-0.5 rounded-full" />}
+        {status === 'error' && (
+          <div className="flex items-start gap-2 rounded-xl bg-rose-500/5 border border-rose-300/40 dark:border-rose-500/20 px-3 py-2.5 mt-1">
             <FiAlertCircle className="w-3.5 h-3.5 text-rose-500 flex-shrink-0 mt-0.5" />
-            <p className="text-[10.5px] text-rose-600 dark:text-rose-400 leading-relaxed break-words">{slot.error}</p>
+            <p className="text-[10.5px] text-rose-600 dark:text-rose-400 leading-relaxed break-words">{error}</p>
+          </div>
+        )}
+        {status === 'aborted' && !text && (
+          <div className="h-full flex items-center justify-center py-8">
+            <p className="text-[10.5px] text-zinc-400">Generation stopped</p>
           </div>
         )}
       </div>
 
-      <div className="flex items-center justify-between px-2.5 py-1.5 border-t border-zinc-100 dark:border-zinc-800/70 flex-shrink-0">
+      <div className="relative flex items-center justify-between px-3 py-2 border-t border-white/40 dark:border-white/5 flex-shrink-0">
         <button
-          onClick={onToggleLike}
-          disabled={!slot.text}
-          className={`flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-bold transition-colors duration-150 disabled:opacity-30 disabled:cursor-not-allowed ${slot.liked ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-500' : 'text-zinc-400 hover:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/10'}`}
+          onClick={toggleLike}
+          disabled={!text}
+          className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[9px] font-bold transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed ${liked ? 'bg-emerald-500/15 text-emerald-500' : 'text-zinc-400 hover:text-emerald-500 hover:bg-emerald-500/10'}`}
         >
-          <FiThumbsUp className={`w-3 h-3 ${slot.liked ? 'fill-current' : ''}`} />
-          {slot.liked ? 'Best answer' : 'Mark best'}
+          <FiThumbsUp className={`w-3 h-3 transition-transform duration-200 ${liked ? 'fill-current scale-110' : ''}`} />
+          {liked ? 'Best answer' : 'Mark best'}
         </button>
-        <button
-          onClick={handleCopy}
-          disabled={!slot.text}
-          className="flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-semibold text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors duration-150 disabled:opacity-30 disabled:cursor-not-allowed"
-        >
-          {copied ? <FiCheck className="w-3 h-3 text-emerald-500" /> : <FiCopy className="w-3 h-3" />}
-          {copied ? 'Copied' : 'Copy'}
-        </button>
+        <div className="flex items-center gap-1">
+          <button onClick={handleDownload} disabled={!text} className="flex items-center gap-1 px-2 py-1.5 rounded-xl text-[9px] font-semibold text-zinc-500 dark:text-zinc-400 hover:bg-zinc-500/10 transition-colors duration-150 disabled:opacity-30 disabled:cursor-not-allowed">
+            <FiDownload className="w-3 h-3" />
+          </button>
+          <button onClick={handleCopy} disabled={!text} className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[9px] font-semibold text-zinc-500 dark:text-zinc-400 hover:bg-zinc-500/10 transition-colors duration-150 disabled:opacity-30 disabled:cursor-not-allowed">
+            {copied ? <FiCheck className="w-3 h-3 text-emerald-500" /> : <FiCopy className="w-3 h-3" />}
+            {copied ? 'Copied' : 'Copy'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+function StatBar({ summaries, models, uids }: { summaries: Record<string, SlotSummary>; models: AnyModel[]; uids: string[] }) {
+  const done = uids.map((uid, i) => ({ uid, model: models[i], s: summaries[uid] })).filter(x => x.s && x.s.status === 'done');
+  if (done.length < 2) return null;
+  const fastest = done.reduce((a, b) => ((a.s.latencyMs ?? Infinity) < (b.s.latencyMs ?? Infinity) ? a : b));
+  const maxLatency = Math.max(...done.map(x => x.s.latencyMs ?? 0), 1);
+
+  return (
+    <div className="cmp-fade-in bg-white/70 dark:bg-zinc-950/60 backdrop-blur-2xl rounded-2xl border border-white/50 dark:border-white/10 p-3.5 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_30px_-12px_rgba(0,0,0,0.5)]">
+      <div className="flex items-center gap-1.5 mb-3">
+        <FiBarChart2 className="w-3 h-3 text-blue-400" />
+        <span className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Latency comparison</span>
+      </div>
+      <div className="space-y-2">
+        {done.map(({ uid, model, s }) => {
+          const pct = Math.max(6, ((s.latencyMs ?? 0) / maxLatency) * 100);
+          const isFastest = uid === fastest.uid;
+          return (
+            <div key={uid} className="flex items-center gap-2">
+              <span className="text-[9px] font-semibold text-zinc-500 dark:text-zinc-400 w-20 truncate flex-shrink-0">{model.name}</span>
+              <div className="flex-1 h-2 rounded-full bg-zinc-100 dark:bg-zinc-800/80 overflow-hidden">
+                <div className={`cmp-grow h-full rounded-full ${isFastest ? 'bg-gradient-to-r from-emerald-400 to-emerald-500' : 'bg-gradient-to-r from-blue-400 to-blue-500'}`} style={{ width: `${pct}%` }} />
+              </div>
+              <span className={`text-[9px] font-bold tabular-nums w-12 text-right flex-shrink-0 ${isFastest ? 'text-emerald-500' : 'text-zinc-400'}`}>{(s.latencyMs ?? 0) < 1000 ? `${s.latencyMs}ms` : `${((s.latencyMs ?? 0) / 1000).toFixed(1)}s`}</span>
+              {isFastest && <FiStar className="w-3 h-3 text-emerald-400 flex-shrink-0" />}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -388,201 +658,125 @@ export default function Compare({ keys }: { keys?: { key: string; name: string; 
   const [showSystem, setShowSystem] = useState(false);
   const [temperature, setTemperature] = useState(0.7);
   const [maxTokens, setMaxTokens] = useState(1024);
+  const [models, setModels] = useState<AnyModel[]>([TEXT_MODELS[5], TEXT_MODELS[9]]);
+  const [uids, setUids] = useState<string[]>(['slot-a', 'slot-b']);
+  const [runId, setRunId] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
-  const [slots, setSlots] = useState<CompareSlot[]>([makeSlot(TEXT_MODELS[5]), makeSlot(TEXT_MODELS[9])]);
   const [error, setError] = useState<string | null>(null);
-  const abortRefs = useRef<Record<string, AbortController>>({});
+  const [summaries, setSummaries] = useState<Record<string, SlotSummary>>({});
+  const handlesRef = useRef<Record<string, SlotCardHandle>>({});
+  const pendingRef = useRef(0);
 
-  const usedIds = slots.map(s => s.model.id);
+  const usedIds = models.map(m => m.id);
 
-  const updateSlot = (uid: string, patch: Partial<CompareSlot>) => {
-    setSlots(prev => prev.map(s => (s.uid === uid ? { ...s, ...patch } : s)));
-  };
+  const registerHandle = useCallback((uid: string, handle: SlotCardHandle | null) => {
+    if (handle) handlesRef.current[uid] = handle;
+    else delete handlesRef.current[uid];
+  }, []);
+
+  const handleReport = useCallback((s: SlotSummary) => {
+    setSummaries(prev => ({ ...prev, [s.uid]: s }));
+    if (s.status === 'done' || s.status === 'error') {
+      pendingRef.current = Math.max(0, pendingRef.current - 1);
+      if (pendingRef.current === 0) setIsRunning(false);
+    }
+  }, []);
 
   const addSlot = () => {
-    if (slots.length >= 4) return;
+    if (models.length >= 4) return;
     const next = TEXT_MODELS.find(m => !usedIds.includes(m.id)) ?? TEXT_MODELS[0];
-    setSlots(prev => [...prev, makeSlot(next)]);
+    const uid = `slot-${Date.now()}`;
+    setModels(prev => [...prev, next]);
+    setUids(prev => [...prev, uid]);
   };
 
-  const removeSlot = (uid: string) => {
-    const ctrl = abortRefs.current[uid];
-    if (ctrl) ctrl.abort();
-    setSlots(prev => prev.filter(s => s.uid !== uid));
+  const removeSlot = (idx: number) => {
+    setModels(prev => prev.filter((_, i) => i !== idx));
+    setUids(prev => prev.filter((_, i) => i !== idx));
   };
 
-  const changeSlotModel = (uid: string, model: AnyModel) => {
-    setSlots(prev => prev.map(s => (s.uid === uid ? { ...makeSlot(model), uid } : s)));
+  const changeSlotModel = (idx: number, m: AnyModel) => {
+    setModels(prev => prev.map((mm, i) => (i === idx ? m : mm)));
   };
 
-  const toggleLike = (uid: string) => {
-    setSlots(prev => prev.map(s => (s.uid === uid ? { ...s, liked: !s.liked } : { ...s, liked: false })));
-  };
-
-  const runOne = useCallback(async (slot: CompareSlot) => {
-    const controller = new AbortController();
-    abortRefs.current[slot.uid] = controller;
-    const t0 = Date.now();
-    const msgs: any[] = [];
-    if (systemPrompt.trim()) msgs.push({ role: 'system', content: systemPrompt });
-    msgs.push({ role: 'user', content: prompt });
-
-    const canStream = STREAM_CAPABLE_MODELS.has(slot.model.id);
-
-    updateSlot(slot.uid, { status: 'loading', text: '', error: null, latencyMs: null, totalTokens: null, liked: false });
-
-    try {
-      if (canStream) {
-        let res: Response;
-        try {
-          res = await fetch(slot.model.endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-            body: JSON.stringify({ model: slot.model.id, messages: msgs, temperature, max_tokens: maxTokens, stream: true }),
-            signal: controller.signal,
-          });
-        } catch (e: any) {
-          if (e.name === 'AbortError') return;
-          updateSlot(slot.uid, { status: 'error', error: e?.message || 'Network error', latencyMs: Date.now() - t0 });
-          return;
-        }
-
-        if (!res.ok || !res.body) {
-          const { data, error: parseError } = await safeParseJson(res);
-          updateSlot(slot.uid, { status: 'error', error: parseError || data?.error?.message || `Error ${res.status}`, latencyMs: Date.now() - t0 });
-          return;
-        }
-
-        updateSlot(slot.uid, { status: 'streaming' });
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = '';
-        let fullText = '';
-
-        try {
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            if (!value) continue;
-            buffer += decoder.decode(value, { stream: true });
-            const parts = buffer.split('\n\n');
-            buffer = parts.pop() || '';
-            for (const part of parts) {
-              if (!part.startsWith('data: ')) continue;
-              const payload = part.slice(6).trim();
-              if (!payload || payload === '[DONE]') continue;
-              try {
-                const parsed = JSON.parse(payload);
-                if (typeof parsed?.text === 'string') { fullText += parsed.text; updateSlot(slot.uid, { text: fullText }); }
-                if (parsed?.error) updateSlot(slot.uid, { status: 'error', error: String(parsed.error) });
-              } catch { continue; }
-            }
-          }
-        } catch (e: any) {
-          if (e.name !== 'AbortError' && !fullText) {
-            updateSlot(slot.uid, { status: 'error', error: e?.message || 'Stream interrupted', latencyMs: Date.now() - t0 });
-            return;
-          }
-        }
-
-        if (fullText) {
-          const approxPrompt = Math.ceil(prompt.length / 4);
-          const approxCompletion = Math.ceil(fullText.length / 4);
-          updateSlot(slot.uid, {
-            status: 'done',
-            latencyMs: Date.now() - t0,
-            promptTokens: approxPrompt,
-            completionTokens: approxCompletion,
-            totalTokens: approxPrompt + approxCompletion,
-          });
-        }
-        return;
-      }
-
-      const res = await fetch(slot.model.endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-        body: JSON.stringify({ model: slot.model.id, messages: msgs, temperature, max_tokens: maxTokens }),
-        signal: controller.signal,
-      });
-      const { data, error: parseError } = await safeParseJson(res);
-      if (parseError) { updateSlot(slot.uid, { status: 'error', error: parseError, latencyMs: Date.now() - t0 }); return; }
-      if (!res.ok) { updateSlot(slot.uid, { status: 'error', error: data?.error?.message || `Error ${res.status}`, latencyMs: Date.now() - t0 }); return; }
-      const txt = data?.choices?.[0]?.message?.content ?? '';
-      updateSlot(slot.uid, {
-        status: 'done',
-        text: txt,
-        latencyMs: Date.now() - t0,
-        promptTokens: data?.usage?.prompt_tokens ?? null,
-        completionTokens: data?.usage?.completion_tokens ?? null,
-        totalTokens: data?.usage?.total_tokens ?? null,
-      });
-    } catch (e: any) {
-      if (e.name === 'AbortError') return;
-      updateSlot(slot.uid, { status: 'error', error: e?.message || 'Network error', latencyMs: Date.now() - t0 });
-    }
-  }, [apiKey, prompt, systemPrompt, temperature, maxTokens]);
-
-  const runAll = async () => {
+  const runAll = () => {
     if (!apiKey.trim()) { setError('Please enter your API key'); return; }
     if (!prompt.trim()) { setError('Please enter a prompt'); return; }
     setError(null);
+    setSummaries({});
+    pendingRef.current = uids.length;
     setIsRunning(true);
-    await Promise.allSettled(slots.map(runOne));
-    setIsRunning(false);
+    setRunId(id => id + 1);
   };
 
   const stopAll = () => {
-    Object.values(abortRefs.current).forEach(c => c.abort());
+    Object.values(handlesRef.current).forEach(h => h.stop());
+    pendingRef.current = 0;
     setIsRunning(false);
-    setSlots(prev => prev.map(s => (s.status === 'loading' || s.status === 'streaming' ? { ...s, status: 'idle' } : s)));
   };
 
   const resetAll = () => {
-    setSlots(prev => prev.map(s => ({ ...makeSlot(s.model), uid: s.uid })));
+    setRunId(0);
+    setSummaries({});
     setError(null);
+    setUids(prev => prev.map((_, i) => `slot-${Date.now()}-${i}`));
   };
 
-  const gridCols = slots.length <= 2 ? 'sm:grid-cols-2' : slots.length === 3 ? 'sm:grid-cols-2 xl:grid-cols-3' : 'sm:grid-cols-2 xl:grid-cols-4';
+  const config: RunConfig = useMemo(() => ({ prompt, systemPrompt, temperature, maxTokens, apiKey, runId }), [prompt, systemPrompt, temperature, maxTokens, apiKey, runId]);
+
+  const gridCols = models.length <= 2 ? 'sm:grid-cols-2' : models.length === 3 ? 'sm:grid-cols-2 xl:grid-cols-3' : 'sm:grid-cols-2 xl:grid-cols-4';
 
   return (
     <div className="space-y-3 sm:space-y-4 min-h-0 w-full max-w-full">
       <style>{`
-        @keyframes compareFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes compareSlideDown { from { opacity: 0; transform: translateY(-6px) scaleY(0.97); } to { opacity: 1; transform: translateY(0) scaleY(1); } }
-        @keyframes comparePulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.75); } }
-        @keyframes compareShimmer { 0%, 100% { opacity: 0.35; } 50% { opacity: 0.9; } }
-        @keyframes compareCaretBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-        @keyframes compareRunPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(96,165,250,0.35); } 50% { box-shadow: 0 0 0 6px rgba(96,165,250,0); } }
-        .compare-fade-in { animation: compareFadeIn 0.25s ease-out; }
-        .compare-slide-down { animation: compareSlideDown 0.16s ease-out; transform-origin: top; }
-        .compare-pulse { animation: comparePulse 1.1s ease-in-out infinite; }
-        .compare-shimmer { animation: compareShimmer 1.3s ease-in-out infinite; }
-        .compare-caret { animation: compareCaretBlink 0.85s step-start infinite; }
-        .compare-run-active { animation: compareRunPulse 1.6s ease-in-out infinite; }
+        @keyframes cmpFadeIn { from { opacity: 0; transform: translateY(8px) scale(0.99); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes cmpPop { from { opacity: 0; transform: translateY(-8px) scale(0.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes cmpPing { 0% { transform: scale(1); opacity: 0.7; } 75%, 100% { transform: scale(2.4); opacity: 0; } }
+        @keyframes cmpShimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+        @keyframes cmpCaretBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        @keyframes cmpRunGlow { 0%, 100% { box-shadow: 0 0 0 0 rgba(96,165,250,0.4), 0 8px 24px -8px rgba(59,130,246,0.5); } 50% { box-shadow: 0 0 0 8px rgba(96,165,250,0), 0 8px 24px -8px rgba(59,130,246,0.5); } }
+        @keyframes cmpScanline { 0% { transform: translateY(-100%); } 100% { transform: translateY(400%); } }
+        @keyframes cmpGrow { from { width: 0; } }
+        @keyframes cmpFloat { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-6px); } }
+        .cmp-fade-in { animation: cmpFadeIn 0.4s cubic-bezier(0.16,1,0.3,1); }
+        .cmp-pop { animation: cmpPop 0.18s cubic-bezier(0.16,1,0.3,1); transform-origin: top; }
+        .cmp-ping { animation: cmpPing 1.4s cubic-bezier(0,0,0.2,1) infinite; }
+        .cmp-shimmer { background-size: 200% 100%; animation: cmpShimmer 1.6s ease-in-out infinite; }
+        .cmp-caret { animation: cmpCaretBlink 0.8s step-start infinite; }
+        .cmp-run-active { animation: cmpRunGlow 2s ease-in-out infinite; }
+        .cmp-scanline { animation: cmpScanline 2.5s ease-in-out infinite; }
+        .cmp-grow { animation: cmpGrow 0.8s cubic-bezier(0.16,1,0.3,1); }
+        .cmp-float { animation: cmpFloat 4s ease-in-out infinite; }
+        .cmp-card { transition: transform 0.3s cubic-bezier(0.16,1,0.3,1); }
+        .cmp-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
+        .cmp-scroll::-webkit-scrollbar-thumb { background: rgba(148,163,184,0.35); border-radius: 999px; }
+        .cmp-scroll::-webkit-scrollbar-track { background: transparent; }
         @media (prefers-reduced-motion: reduce) {
-          .compare-fade-in, .compare-slide-down, .compare-pulse, .compare-shimmer, .compare-caret, .compare-run-active { animation: none !important; }
+          .cmp-fade-in, .cmp-pop, .cmp-ping, .cmp-shimmer, .cmp-caret, .cmp-run-active, .cmp-scanline, .cmp-grow, .cmp-float, .cmp-card { animation: none !important; transition: none !important; }
         }
       `}</style>
 
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white">Compare Models</h2>
+          <h2 className="text-sm sm:text-base font-black text-zinc-900 dark:text-white tracking-tight">Compare Models</h2>
           <p className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Run one prompt across multiple models side by side</p>
         </div>
-        <div className="flex items-center gap-1.5">
-          <div className={`w-1.5 h-1.5 rounded-full ${isRunning ? 'bg-blue-400 compare-pulse' : 'bg-emerald-500'}`} />
-          <span className={`text-[10px] font-semibold ${isRunning ? 'text-blue-400' : 'text-emerald-600 dark:text-emerald-400'}`}>{isRunning ? 'Running' : 'Live'}</span>
+        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/60 dark:bg-white/5 backdrop-blur-xl border border-white/50 dark:border-white/10">
+          <div className={`relative w-1.5 h-1.5 rounded-full ${isRunning ? 'bg-blue-400' : 'bg-emerald-500'}`}>
+            {isRunning && <span className="absolute inset-0 rounded-full bg-blue-400 cmp-ping" />}
+          </div>
+          <span className={`text-[10px] font-bold ${isRunning ? 'text-blue-400' : 'text-emerald-600 dark:text-emerald-400'}`}>{isRunning ? 'Running' : 'Live'}</span>
         </div>
       </div>
 
-      <div className="bg-white/80 dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800 p-3 sm:p-4 space-y-3">
-        <div className="flex items-center gap-1.5">
+      <div className="relative bg-white/70 dark:bg-zinc-950/60 backdrop-blur-2xl rounded-3xl border border-white/50 dark:border-white/10 p-3.5 sm:p-4 space-y-3.5 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_30px_-12px_rgba(0,0,0,0.5)] overflow-hidden">
+        <div className="pointer-events-none absolute -top-24 -right-24 w-56 h-56 rounded-full bg-blue-400/10 blur-3xl cmp-float" />
+        <div className="relative flex items-center gap-1.5">
           <FiSettings className="w-3 h-3 text-zinc-400" />
           <span className="text-[10px] sm:text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Shared configuration</span>
         </div>
 
-        <div className="grid sm:grid-cols-2 gap-3">
+        <div className="relative grid sm:grid-cols-2 gap-3">
           <div>
             <label className="block text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1">API Key</label>
             <div className="relative">
@@ -591,98 +785,98 @@ export default function Compare({ keys }: { keys?: { key: string; name: string; 
                 value={apiKey}
                 onChange={e => setApiKey(e.target.value)}
                 placeholder="acv-••••••••••••••••"
-                className="w-full pr-8 px-2.5 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[10px] sm:text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:border-blue-300 dark:focus:border-blue-400 focus:ring-1 focus:ring-blue-300/20 outline-none transition-all"
+                className="w-full pr-9 px-3 py-2.5 rounded-xl bg-white/60 dark:bg-white/[0.04] border border-white/50 dark:border-white/10 text-[10px] sm:text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:border-blue-300 dark:focus:border-blue-400/50 focus:ring-2 focus:ring-blue-300/20 outline-none transition-all"
               />
-              <button onClick={() => setShowKey(!showKey)} className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">
+              <button onClick={() => setShowKey(!showKey)} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors">
                 {showKey ? <FiEyeOff className="w-3 h-3" /> : <FiEye className="w-3 h-3" />}
               </button>
             </div>
             {keys && keys.length > 0 && (
-              <div className="mt-1 flex flex-wrap gap-1">
+              <div className="mt-1.5 flex flex-wrap gap-1">
                 {keys.filter(k => k.is_active).slice(0, 3).map(k => (
-                  <button key={k.key} onClick={() => setApiKey(k.key)} className="text-[9px] px-1.5 py-0.5 rounded-md bg-blue-50 dark:bg-blue-800/20 text-blue-400 dark:text-blue-300 border border-blue-100 dark:border-blue-700 hover:bg-blue-50 dark:hover:bg-blue-800/30 transition-colors font-medium">{k.name}</button>
+                  <button key={k.key} onClick={() => setApiKey(k.key)} className="text-[9px] px-2 py-1 rounded-lg bg-blue-500/10 text-blue-500 dark:text-blue-300 border border-blue-400/20 hover:bg-blue-500/20 transition-colors font-semibold">{k.name}</button>
                 ))}
               </div>
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="flex items-center justify-between text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1">
-                Temperature <span className="text-zinc-400 font-normal tabular-nums">{temperature.toFixed(1)}</span>
-              </label>
-              <input
-                type="range" min={0} max={2} step={0.1} value={temperature}
-                onChange={e => setTemperature(parseFloat(e.target.value))}
-                className="w-full accent-blue-400"
+          <div>
+            <button onClick={() => setShowSystem(!showSystem)} className="flex items-center gap-1 text-[10px] sm:text-xs font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors mb-1">
+              <FiChevronDown className={`w-3 h-3 transition-transform duration-200 ${showSystem ? 'rotate-180' : ''}`} />
+              System prompt <span className="text-[9px] font-normal text-zinc-400">(optional, applied to all)</span>
+            </button>
+            {showSystem ? (
+              <textarea
+                value={systemPrompt}
+                onChange={e => setSystemPrompt(e.target.value)}
+                rows={2}
+                placeholder="You are a helpful assistant..."
+                className="cmp-pop w-full px-3 py-2.5 rounded-xl bg-white/60 dark:bg-white/[0.04] border border-white/50 dark:border-white/10 text-[10px] sm:text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:border-blue-300 dark:focus:border-blue-400/50 focus:ring-2 focus:ring-blue-300/20 outline-none transition-all resize-none"
               />
-            </div>
-            <div>
-              <label className="block text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1">Max tokens</label>
-              <input
-                type="number" min={1} max={8192} value={maxTokens}
-                onChange={e => setMaxTokens(Math.max(1, parseInt(e.target.value) || 1))}
-                className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[10.5px] text-zinc-900 dark:text-white focus:border-blue-300 dark:focus:border-blue-400 outline-none transition-all tabular-nums"
-              />
-            </div>
+            ) : (
+              <div className="h-[42px] flex items-center px-3 text-[10px] text-zinc-400">No system prompt set</div>
+            )}
           </div>
         </div>
 
-        <div>
-          <button onClick={() => setShowSystem(!showSystem)} className="flex items-center gap-1 text-[10px] sm:text-xs font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors mb-1">
-            <FiChevronDown className={`w-3 h-3 transition-transform duration-200 ${showSystem ? 'rotate-180' : ''}`} />
-            System prompt <span className="text-[9px] font-normal text-zinc-400">(optional, applied to all)</span>
-          </button>
-          {showSystem && (
-            <textarea
-              value={systemPrompt}
-              onChange={e => setSystemPrompt(e.target.value)}
-              rows={2}
-              placeholder="You are a helpful assistant..."
-              className="compare-slide-down w-full px-2.5 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[10px] sm:text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:border-blue-300 dark:focus:border-blue-400 focus:ring-1 focus:ring-blue-300/20 outline-none transition-all resize-none"
-            />
-          )}
+        <div className="relative grid grid-cols-2 gap-3">
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 flex items-center gap-1"><FiSliders className="w-3 h-3" />Temperature</label>
+              <span className="text-[10px] font-bold text-blue-500 dark:text-blue-300 tabular-nums">{temperature.toFixed(1)}</span>
+            </div>
+            <input type="range" min="0" max="2" step="0.1" value={temperature} onChange={e => setTemperature(parseFloat(e.target.value))} className="w-full h-1 rounded-full appearance-none bg-zinc-200 dark:bg-zinc-800 accent-blue-400 cursor-pointer" />
+            <div className="flex justify-between mt-0.5"><span className="text-[8px] text-zinc-400">Precise</span><span className="text-[8px] text-zinc-400">Creative</span></div>
+          </div>
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 flex items-center gap-1"><FiTarget className="w-3 h-3" />Max Tokens</label>
+              <span className="text-[10px] font-bold text-blue-500 dark:text-blue-300 tabular-nums">{maxTokens}</span>
+            </div>
+            <input type="range" min="64" max="4096" step="64" value={maxTokens} onChange={e => setMaxTokens(parseInt(e.target.value))} className="w-full h-1 rounded-full appearance-none bg-zinc-200 dark:bg-zinc-800 accent-blue-400 cursor-pointer" />
+            <div className="flex justify-between mt-0.5"><span className="text-[8px] text-zinc-400">64</span><span className="text-[8px] text-zinc-400">4096</span></div>
+          </div>
         </div>
 
-        <div>
+        <div className="relative">
           <label className="block text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1">Prompt</label>
           <textarea
             value={prompt}
             onChange={e => setPrompt(e.target.value)}
             rows={3}
             placeholder="Ask something to compare across models..."
-            className="w-full px-2.5 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[10px] sm:text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:border-blue-300 dark:focus:border-blue-400 focus:ring-1 focus:ring-blue-300/20 outline-none transition-all resize-none"
+            className="w-full px-3 py-2.5 rounded-xl bg-white/60 dark:bg-white/[0.04] border border-white/50 dark:border-white/10 text-[10px] sm:text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:border-blue-300 dark:focus:border-blue-400/50 focus:ring-2 focus:ring-blue-300/20 outline-none transition-all resize-none"
           />
         </div>
 
         {error && (
-          <div className="flex items-start gap-1.5 rounded-lg bg-rose-50 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-900/40 px-2.5 py-2 compare-fade-in">
+          <div className="relative flex items-start gap-1.5 rounded-xl bg-rose-500/5 border border-rose-300/40 dark:border-rose-500/20 px-3 py-2.5 cmp-fade-in">
             <FiAlertCircle className="w-3.5 h-3.5 text-rose-500 flex-shrink-0 mt-0.5" />
             <p className="text-[10.5px] text-rose-600 dark:text-rose-400 leading-relaxed">{error}</p>
           </div>
         )}
 
-        <div className="flex items-center gap-2 pt-0.5">
+        <div className="relative flex items-center gap-2 pt-0.5">
           <button
             onClick={isRunning ? stopAll : runAll}
-            className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-[11px] sm:text-xs font-bold text-white transition-all duration-200 ${isRunning ? 'bg-rose-500 hover:bg-rose-600' : 'bg-blue-400 hover:bg-blue-500 compare-run-active'}`}
+            className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-[11px] sm:text-xs font-bold text-white transition-all duration-300 ${isRunning ? 'bg-rose-500 hover:bg-rose-600' : 'bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600 cmp-run-active'}`}
           >
             {isRunning ? <FiSquare className="w-3 h-3" /> : <FiPlay className="w-3 h-3" />}
-            {isRunning ? 'Stop all' : `Run on ${slots.length} model${slots.length > 1 ? 's' : ''}`}
+            {isRunning ? 'Stop all' : `Run on ${models.length} model${models.length > 1 ? 's' : ''}`}
           </button>
           <button
             onClick={resetAll}
             disabled={isRunning}
-            className="flex items-center justify-center gap-1 px-3 py-2 rounded-lg text-[11px] sm:text-xs font-semibold text-zinc-500 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex items-center justify-center gap-1 px-3 py-2.5 rounded-xl text-[11px] sm:text-xs font-semibold text-zinc-500 dark:text-zinc-400 bg-white/60 dark:bg-white/5 border border-white/50 dark:border-white/10 hover:bg-white/90 dark:hover:bg-white/10 transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <FiRotateCcw className="w-3 h-3" />
             Reset
           </button>
-          {slots.length < 4 && (
+          {models.length < 4 && (
             <button
               onClick={addSlot}
               disabled={isRunning}
-              className="flex items-center justify-center gap-1 px-3 py-2 rounded-lg text-[11px] sm:text-xs font-semibold text-blue-500 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="flex items-center justify-center gap-1 px-3 py-2.5 rounded-xl text-[11px] sm:text-xs font-semibold text-blue-500 dark:text-blue-300 bg-blue-500/10 border border-blue-400/20 hover:bg-blue-500/20 transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <FiPlus className="w-3 h-3" />
               Add
@@ -691,17 +885,21 @@ export default function Compare({ keys }: { keys?: { key: string; name: string; 
         </div>
       </div>
 
+      <StatBar summaries={summaries} models={models} uids={uids} />
+
       <div className={`grid grid-cols-1 ${gridCols} gap-3`}>
-        {slots.map(slot => (
+        {models.map((model, idx) => (
           <SlotCard
-            key={slot.uid}
-            slot={slot}
-            onModelChange={m => changeSlotModel(slot.uid, m)}
-            onRemove={() => removeSlot(slot.uid)}
-            onToggleLike={() => toggleLike(slot.uid)}
+            key={uids[idx]}
+            uid={uids[idx]}
+            model={model}
+            config={config}
             exclude={usedIds}
-            canRemove={slots.length > 2}
-            apiKey={apiKey}
+            canRemove={models.length > 2}
+            onModelChange={m => changeSlotModel(idx, m)}
+            onRemove={() => removeSlot(idx)}
+            onReport={handleReport}
+            registerHandle={registerHandle}
           />
         ))}
       </div>
