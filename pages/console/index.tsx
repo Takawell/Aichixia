@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { supabase } from '@/lib/supabase';
-import { FiKey, FiActivity, FiSettings, FiLogOut, FiMenu, FiRefreshCw, FiTrendingUp, FiZap, FiLayers, FiAlertCircle, FiShield, FiLock, FiCheck, FiCpu, FiDatabase, FiCode, FiX, FiMail, FiUser, FiChevronRight, FiEye, FiEyeOff } from 'react-icons/fi';
+import { FiKey, FiActivity, FiSettings, FiLogOut, FiMenu, FiRefreshCw, FiTrendingUp, FiZap, FiLayers, FiAlertCircle, FiShield, FiLock, FiCheck, FiCpu, FiDatabase, FiCode, FiX, FiMail, FiUser, FiChevronRight, FiEye, FiEyeOff, FiGitBranch } from 'react-icons/fi';
 import { FaKeybase } from 'react-icons/fa';
 import ThemeToggle from '@/components/ThemeToggle';
 import Overview from '@/components/console/overview';
@@ -10,6 +10,7 @@ import Activity from '@/components/console/activity';
 import Models from '@/components/console/models';
 import Settings from '@/components/console/settings';
 import Playground from '@/components/console/playground';
+import Compare from '@/components/console/compare';
 import Notice from '@/components/console/notice';
 
 type ApiKey = {
@@ -65,7 +66,7 @@ type UserSettings = {
   is_admin: boolean;
 };
 
-type TabType = 'overview' | 'keys' | 'activity' | 'settings' | 'models' | 'playground';
+type TabType = 'overview' | 'keys' | 'activity' | 'settings' | 'models' | 'playground' | 'compare';
 
 export default function Console() {
   const router = useRouter();
@@ -129,7 +130,7 @@ export default function Console() {
 
   useEffect(() => {
     const tab = router.query.tab as TabType;
-    if (tab && ['overview', 'keys', 'activity', 'settings', 'models', 'playground'].includes(tab)) {
+    if (tab && ['overview', 'keys', 'activity', 'settings', 'models', 'playground', 'compare'].includes(tab)) {
       setActiveTab(tab);
     }
   }, [router.query.tab]);
@@ -762,6 +763,7 @@ export default function Console() {
               { tab: 'activity',    icon: FiActivity,   label: 'Activity'    },
               { tab: 'models',      icon: FiLayers,     label: 'Models'      },
               { tab: 'playground',  icon: FiCode,       label: 'Playground'  },
+              { tab: 'compare',     icon: FiGitBranch,  label: 'Compare'     },
               { tab: 'settings',    icon: FiSettings,   label: 'Settings'    },
             ] as { tab: TabType; icon: any; label: string }[]).map(({ tab, icon: Icon, label }) => {
               const active = activeTab === tab;
@@ -863,6 +865,7 @@ export default function Console() {
                     {activeTab === 'activity' && 'Recent Activity'}
                     {activeTab === 'models' && 'Available Models'}
                     {activeTab === 'playground' && 'API Playground'}
+                    {activeTab === 'compare' && 'Compare Models'}
                     {activeTab === 'settings' && 'Settings'}
                   </h2>
                   <p className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 truncate">
@@ -871,6 +874,7 @@ export default function Console() {
                     {activeTab === 'activity' && 'View recent requests'}
                     {activeTab === 'models' && 'Browse AI models'}
                     {activeTab === 'playground' && 'Test models live with your API key'}
+                    {activeTab === 'compare' && 'Run one prompt across multiple models side by side'}
                     {activeTab === 'settings' && 'Configure your account'}
                   </p>
                 </div>
@@ -932,6 +936,10 @@ export default function Console() {
 
             {activeTab === 'playground' && (
               <Playground keys={keys} />
+            )}
+
+            {activeTab === 'compare' && (
+              <Compare keys={keys} />
             )}
 
             {activeTab === 'settings' && (
