@@ -10,7 +10,7 @@ import { FaXTwitter } from 'react-icons/fa6';
 
 const base = 'https://www.aichixia.xyz';
 
-const VISION_MODEL_IDS = new Set(['gpt-5.2', 'kimi-k2.6', 'grok-4-fast', 'phi-4-multimodal-instruct', 'qwen3.6-27b', 'step-3.7-flash', 'claude-fable-5', 'thinkingmachines/inkling', 'llama-4-scout-17b-16e-instruct']);
+const VISION_MODEL_IDS = new Set(['gpt-5.2', 'kimi-k2.6', 'gemini-3-flash', 'grok-4-fast', 'phi-4-multimodal-instruct', 'qwen3.6-27b', 'step-3.7-flash', 'claude-fable-5', 'thinkingmachines/inkling', 'llama-4-scout-17b-16e-instruct']);
 
 type ModelType = 'text' | 'image' | 'video' | 'tts' | 'stt';
 
