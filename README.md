@@ -6,17 +6,17 @@
 
 ### The Unified AI API Platform
 
-**One key. 40+ models. Zero vendor lock-in.**
+**One key. 30+ models. Zero vendor lock-in.**
 
 <p>
 <a href="https://www.aichixia.xyz"><img src="https://img.shields.io/badge/Live-aichixia.xyz-3b82f6?style=for-the-badge&logo=vercel&logoColor=white" alt="Live" /></a>
 <a href="https://nextjs.org"><img src="https://img.shields.io/badge/Next.js-14-000000?style=for-the-badge&logo=next.js&logoColor=white" alt="Next.js" /></a>
 <a href="https://www.typescriptlang.org"><img src="https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" /></a>
 <a href="https://supabase.com"><img src="https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase" /></a>
-<a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-fbbf24?style=for-the-badge" alt="License" /></a>
+<a href="LICENSE"><img src="https://img.shields.io/badge/License-AGPL--3.0-A42E2B?style=for-the-badge" alt="License" /></a>
 </p>
 
-Access **26+ text models**, **image generation**, and **8 text-to-speech voices** — Claude, GPT, Gemini, Grok, DeepSeek, Qwen, NVIDIA, ElevenLabs, and more — through one OpenAI-compatible API. Swap providers by changing a single string.
+Access **30+ text models**, **image generation**, and **8 text-to-speech voices** — Claude, GPT, Gemini, Grok, DeepSeek, Mistral, Qwen, NVIDIA, ElevenLabs, and more — through one gateway that speaks both the **OpenAI** and **Anthropic** SDK formats natively.
 
 [**Live Demo**](https://www.aichixia.xyz) &nbsp;·&nbsp; [**API Docs**](https://www.aichixia.xyz/docs) &nbsp;·&nbsp; [**Console**](https://www.aichixia.xyz/console) &nbsp;·&nbsp; [**Playground**](https://www.aichixia.xyz/#playground)
 
@@ -51,7 +51,7 @@ Test prompts, compare models, and copy working code in 12 languages — right in
 Every request logged with latency, tokens, and status. Usage stats out of the box.
 
 **Generous free tier**
-Most models are free forever. Pro unlocks frontier models like Claude Sonnet and DeepSeek V3.2.
+Most models are free forever. Pro and Enterprise unlock frontier models like Claude Opus and Claude Fable 5.
 
 </td>
 </tr>
@@ -70,7 +70,8 @@ Most models are free forever. Pro unlocks frontier models like Claude Sonnet and
 | **Database & Auth** | Supabase (PostgreSQL) |
 | **Styling** | Tailwind CSS |
 | **Deployment** | Vercel |
-| **Text Providers** | OpenAI · Anthropic · Google · xAI · DeepSeek · Mistral · Zhipu · Alibaba · Meta · Moonshot · MiniMax · Cohere · Groq · Microsoft · StepFun · NVIDIA |
+| **Text Providers** | OpenAI · Anthropic · Google · xAI · DeepSeek · Mistral AI · Zhipu · Alibaba · Meta · Moonshot · MiniMax · Cohere · Groq · Microsoft · StepFun · NVIDIA · Poolside · Thinking Machines |
+| **Aggregator Gateways** | xKiro (multi-model relay) |
 | **Image Providers** | Cloudflare AI (Flux, Leonardo) · Google |
 | **Voice Providers** | Typecast · ElevenLabs |
 
@@ -91,13 +92,13 @@ Authorization: Bearer YOUR_API_KEY
 import OpenAI from "openai";
 
 const client = new OpenAI({
- apiKey: "YOUR_API_KEY",
- baseURL: "https://www.aichixia.xyz/api/v1",
+  apiKey: "YOUR_API_KEY",
+  baseURL: "https://www.aichixia.xyz/api/v1",
 });
 
 const response = await client.chat.completions.create({
- model: "claude-opus-4.8",
- messages: [{ role: "user", content: "Hello!" }],
+  model: "claude-opus-4.8",
+  messages: [{ role: "user", content: "Hello!" }],
 });
 
 console.log(response.choices[0].message.content);
@@ -114,14 +115,14 @@ x-api-key: YOUR_API_KEY
 import Anthropic from "@anthropic-ai/sdk";
 
 const client = new Anthropic({
- apiKey: "YOUR_API_KEY",
- baseURL: "https://www.aichixia.xyz/api/v1",
+  apiKey: "YOUR_API_KEY",
+  baseURL: "https://www.aichixia.xyz/api/v1",
 });
 
 const message = await client.messages.create({
- model: "grok-3",
- max_tokens: 1024,
- messages: [{ role: "user", content: "Hello!" }],
+  model: "claude-fable-5",
+  max_tokens: 1024,
+  messages: [{ role: "user", content: "Hello!" }],
 });
 
 console.log(message.content[0].text);
@@ -136,11 +137,11 @@ Authorization: Bearer YOUR_API_KEY
 
 ```json
 {
- "model": "flux-2-dev",
- "prompt": "A serene mountain landscape at sunset",
- "size": "1024x1024",
- "steps": 30,
- "response_format": "b64_json"
+  "model": "flux-2-dev",
+  "prompt": "A serene mountain landscape at sunset",
+  "size": "1024x1024",
+  "steps": 30,
+  "response_format": "b64_json"
 }
 ```
 
@@ -153,13 +154,13 @@ Authorization: Bearer YOUR_API_KEY
 
 ```json
 {
- "model": "starling-tts",
- "input": "Hello, this is Aichixia speaking.",
- "language": "eng",
- "emotion": "happy",
- "volume": 100,
- "pitch": 0,
- "tempo": 1.0
+  "model": "starling-tts",
+  "input": "Hello, this is Aichixia speaking.",
+  "language": "eng",
+  "emotion": "happy",
+  "volume": 100,
+  "pitch": 0,
+  "tempo": 1.0
 }
 ```
 
@@ -168,13 +169,13 @@ Authorization: Bearer YOUR_API_KEY
 
 ```json
 {
- "model": "alexandra-tts",
- "input": "Hello, this is Aichixia speaking.",
- "language": "eng",
- "stability": 0.5,
- "similarity_boost": 0.75,
- "style": 0,
- "speaker_boost": true
+  "model": "alexandra-tts",
+  "input": "Hello, this is Aichixia speaking.",
+  "language": "eng",
+  "stability": 0.5,
+  "similarity_boost": 0.75,
+  "style": 0,
+  "speaker_boost": true
 }
 ```
 
@@ -194,18 +195,18 @@ Authorization: Bearer YOUR_API_KEY
 | `gpt-5-mini` | GPT-5 Mini | OpenAI | 400K |
 | `gpt-5.2` | GPT-5.2 | OpenAI | 400K |
 | `gpt-oss-120b` | GPT-OSS 120B | OpenAI | 131K |
-| `claude-opus-4.8` | Claude Opus 4.8 | Anthropic | 200K |
+| `claude-haiku-4.5` | Claude Haiku 4.5 | Anthropic | 200K |
 | `gemini-3-flash` | Gemini 3 Flash | Google | 1M |
 | `grok-3` | Grok 3 | xAI | 1M |
 | `deepseek-v4-flash` | DeepSeek V4 Flash | DeepSeek | 128K |
-| `mistral-large-3-675b-instruct` | Mistral Large 3 675B | Mistral AI | 128K |
+| `mistral-large-latest` | Mistral Large | Mistral AI | 256K |
 | `glm-4.7-flash` | GLM 4.7 Flash | Zhipu | 131K |
 | `qwen3.6-27b` | Qwen3.6 27B | Alibaba | 256K |
+| `qwen3-coder-plus` | Qwen3 Coder Plus | Alibaba | 256K |
+| `minimax-m3` | MiniMax M3 | MiniMax | 204K |
 | `llama-3.3-70b` | Llama 3.3 70B | Meta | 130K |
-| `mimo-v2-flash` | MiMo V2 Flash | Xiaomi | 256K |
 | `groq-compound` | Groq Compound | Groq | 131K |
 | `cohere-command-a` | Cohere Command A | Cohere | 256K |
-| `copilot` | Microsoft Copilot | Microsoft | 128K |
 | `phi-4-multimodal-instruct` | Phi 4 Multimodal | Microsoft | 128K |
 | `step-3.7-flash` | Step 3.7 Flash | StepFun | 256K |
 | `nemotron-3-ultra-550b-a55b` | Nemotron 3 Ultra 550B | NVIDIA | 256K |
@@ -218,17 +219,31 @@ Authorization: Bearer YOUR_API_KEY
 | Model ID | Name | Provider | Context |
 |:--|:--|:--|:--:|
 | `claude-sonnet-4.6` | Claude Sonnet 4.6 | Anthropic | 200K |
+| `claude-opus-4.8` | Claude Opus 4.8 | Anthropic | 1M |
 | `grok-4-fast` | Grok 4 Fast | xAI | 2M |
 | `deepseek-v3.2` | DeepSeek V3.2 | DeepSeek | 128K |
-| `glm-4.7` | GLM 4.7 | Zhipu | 200K |
-| `qwen3-coder-480b` | Qwen3 Coder 480B | Alibaba | 256K |
-| `minimax-m2.7` | MiniMax M2.7 | MiniMax | 200K |
+| `glm-5.2` | GLM 5.2 | Zhipu | 200K |
 | `kimi-k2.6` | Kimi K2.6 | Moonshot | 256K |
+| `gpt-5.5` | GPT-5.5 | OpenAI | 400K |
+| `mimo-v2.5-pro` | MiMo V2.5 Pro | Xiaomi | 256K |
+| `laguna-s-2.1` | Laguna S 2.1 | Poolside | 256K |
+| `thinkingmachines/inkling` | Inkling | Thinking Machines | 256K |
 | `aichixia-flash` | Aichixia 114B | Aichiverse | 256K |
 
 </details>
 
-> **Vision-capable models:** `gemini-3-flash` · `gpt-5.2` · `aichixia-flash` · `grok-4-fast`
+<details open>
+<summary><b>Enterprise tier</b></summary>
+
+| Model ID | Name | Provider | Context |
+|:--|:--|:--|:--:|
+| `claude-fable-5` | Claude Fable 5 | Anthropic | 1M |
+
+</details>
+
+> **Vision-capable models:** `gpt-5.2` · `kimi-k2.6` · `gemini-3-flash` · `grok-4-fast` · `phi-4-multimodal-instruct` · `qwen3.6-27b` · `step-3.7-flash` · `claude-fable-5` · `thinkingmachines/inkling`
+>
+> **Streaming-capable models:** `kimi-k2.6` · `mistral-large-latest` · `minimax-m3` · `step-3.7-flash` · `nemotron-3-ultra-550b-a55b` · `gpt-oss-120b` · `deepseek-v4-flash` · `glm-5.2` · `gemma-4-31b` · `laguna-s-2.1` · `cohere-command-a` · `gemini-3-flash` · `llama-3.3-70b` · `deepseek-v3.2` · `claude-fable-5` · `mimo-v2.5-pro` · `qwen3-coder-plus` · `thinkingmachines/inkling`
 
 ### Image Generation
 
@@ -258,43 +273,44 @@ Authorization: Bearer YOUR_API_KEY
 
 ```mermaid
 graph TB
- subgraph Client["Client"]
- A[Web App / SDK / HTTP]
- end
+  subgraph Client["Client"]
+  A[Web App / SDK / HTTP]
+  end
 
- subgraph Gateway["Aichixia API Gateway — Next.js"]
- B[Auth & API Key Verification]
- C[Plan & Rate Limiter]
- D[Request Router]
- end
+  subgraph Gateway["Aichixia API Gateway — Next.js"]
+  B[Auth & API Key Verification]
+  C[Plan & Rate Limiter]
+  D[Request Router]
+  end
 
- subgraph Endpoints["Endpoints"]
- E["/api/v1/chat/completions"]
- F["/api/v1/messages"]
- G["/api/v1/images/generations"]
- H["/api/v1/audio/speech"]
- end
+  subgraph Endpoints["Endpoints"]
+  E["/api/v1/chat/completions"]
+  F["/api/v1/messages"]
+  G["/api/v1/images/generations"]
+  H["/api/v1/audio/speech"]
+  end
 
- subgraph Providers["AI Providers"]
- I["OpenAI · Anthropic · Google"]
- J["xAI · DeepSeek · Mistral · NVIDIA"]
- K["Zhipu · Alibaba · Meta · StepFun"]
- L["Cloudflare AI · Typecast · ElevenLabs"]
- end
+  subgraph Providers["AI Providers"]
+  I["OpenAI · Anthropic · Google"]
+  J["xAI · DeepSeek · Mistral AI · NVIDIA"]
+  K["Zhipu · Alibaba · Meta · StepFun"]
+  L["xKiro · Poolside · Thinking Machines"]
+  M["Cloudflare AI · Typecast · ElevenLabs"]
+  end
 
- subgraph Storage["Supabase"]
- M[("API Keys")]
- N[("Request Logs")]
- O[("Usage Stats")]
- end
+  subgraph Storage["Supabase"]
+  N[("API Keys")]
+  O[("Request Logs")]
+  P[("Usage Stats")]
+  end
 
- A --> B --> C --> D
- D --> E & F & G & H
- E & F --> I & J & K
- G --> L
- H --> L
- B --> M
- D --> N & O
+  A --> B --> C --> D
+  D --> E & F & G & H
+  E & F --> I & J & K & L
+  G --> M
+  H --> M
+  B --> N
+  D --> O & P
 ```
 
 <br />
@@ -304,60 +320,65 @@ graph TB
 ```
 aichixia/
 ├── pages/
-│ ├── index.tsx # Landing page
-│ ├── docs.tsx # API documentation
+│ ├── index.tsx                     # Landing page
+│ ├── docs.tsx                      # API documentation
 │ ├── api/
 │ │ ├── v1/
 │ │ │ ├── chat/
-│ │ │ │ └── completions.ts # OpenAI-compatible chat endpoint
-│ │ │ ├── messages.ts # Anthropic-compatible endpoint
+│ │ │ │ └── completions.ts          # OpenAI-compatible chat endpoint
+│ │ │ ├── messages.ts               # Anthropic-compatible endpoint
 │ │ │ ├── images/
-│ │ │ │ └── generations.ts # Image generation endpoint
+│ │ │ │ └── generations.ts          # Image generation endpoint
 │ │ │ └── audio/
-│ │ │ └── speech.ts # Text-to-speech endpoint
+│ │ │   └── speech.ts               # Text-to-speech endpoint
 │ │ └── console/
-│ │ ├── keys.ts # API key management
-│ │ ├── stats.ts # Usage statistics
-│ │ └── profile.ts # User profile
+│ │   ├── keys.ts                   # API key management
+│ │   ├── stats.ts                  # Usage statistics
+│ │   └── profile.ts                # User profile
 │ └── console/
-│ └── index.tsx # Developer console
+│   └── index.tsx                   # Developer console
 ├── components/
 │ └── console/
-│ ├── overview.tsx
-│ ├── apikeys.tsx
-│ ├── activity.tsx
-│ ├── models.tsx
-│ ├── playground.tsx
-│ └── settings.tsx
+│   ├── overview.tsx
+│   ├── apikeys.tsx
+│   ├── activity.tsx
+│   ├── models.tsx
+│   ├── playground.tsx
+│   └── settings.tsx
 ├── lib/
 │ ├── supabase.ts
-│ ├── console-utils.ts # API key verification, logging
-│ ├── openai.ts / gpt.ts # GPT-5 Mini / GPT-5.2
-│ ├── claude.ts / opus.ts # Claude Sonnet 4.6 / Opus 4.8
-│ ├── gemini.ts # Gemini 3 Flash
-│ ├── grok.ts / grok-fast.ts # Grok 3 / Grok 4 Fast
-│ ├── deepseek.ts / deepseek-v.ts # DeepSeek V3.2 / V4 Flash
-│ ├── mistral.ts # Mistral Large 3
-│ ├── kimi.ts # Kimi K2.6
-│ ├── glm.ts / zhipu.ts # GLM 4.7 / GLM 4.7 Flash
-│ ├── qwen.ts / qwen3.ts # Qwen3 Coder / Qwen3.6
-│ ├── minimax.ts # MiniMax M2.7
-│ ├── llama.ts # Llama 3.3 70B
-│ ├── gpt-oss.ts # GPT-OSS 120B
-│ ├── mimo.ts # MiMo V2 Flash
-│ ├── compound.ts # Groq Compound
-│ ├── cohere.ts # Cohere Command A
-│ ├── copilot.ts # Microsoft Copilot
-│ ├── phi.ts # Phi 4 Multimodal
-│ ├── stepfun.ts # Step 3.7 Flash
-│ ├── nemotron.ts # Nemotron 3 Ultra 550B
-│ ├── aichixia.ts # Aichixia 114B
-│ ├── flux.ts / lucid.ts # Image generation
-│ ├── phoenix.ts / nano.ts # Image generation
-│ ├── starling.ts / lindsay.ts # Typecast TTS
-│ ├── miu.ts / catherine.ts # Typecast TTS
-│ ├── nana.ts / stephanie.ts # Typecast TTS
-│ └── alexandra.ts / eve.ts # ElevenLabs TTS
+│ ├── console-utils.ts              # API key verification, logging
+│ ├── openai.ts / gpt.ts            # GPT-5 Mini / GPT-5.2
+│ ├── gpt-5-5.ts                    # GPT-5.5
+│ ├── claude.ts / opus.ts           # Claude Sonnet 4.6 / Opus 4.8
+│ ├── haiku.ts                      # Claude Haiku 4.5
+│ ├── fable.ts                      # Claude Fable 5 (via xKiro)
+│ ├── gemini.ts                     # Gemini 3 Flash
+│ ├── grok.ts / grok-fast.ts        # Grok 3 / Grok 4 Fast
+│ ├── deepseek.ts / deepseek-v.ts   # DeepSeek V3.2 / V4 Flash
+│ ├── mistral.ts                    # Mistral Large (official API)
+│ ├── kimi.ts                       # Kimi K2.6
+│ ├── glm.ts / zhipu.ts             # GLM 5.2 / GLM 4.7 Flash
+│ ├── qwen.ts / qwen3.ts            # Qwen3 Coder Plus / Qwen3.6 (via xKiro)
+│ ├── minimax.ts                    # MiniMax M3
+│ ├── llama.ts                      # Llama 3.3 70B
+│ ├── gpt-oss.ts                    # GPT-OSS 120B
+│ ├── mimo.ts                       # MiMo V2.5 Pro (via xKiro)
+│ ├── laguna.ts                     # Laguna S 2.1 (Poolside)
+│ ├── inkling.ts                    # Inkling (Thinking Machines, via NVIDIA)
+│ ├── compound.ts                   # Groq Compound
+│ ├── cohere.ts                     # Cohere Command A
+│ ├── phi.ts                        # Phi 4 Multimodal
+│ ├── stepfun.ts                    # Step 3.7 Flash
+│ ├── nemotron.ts                   # Nemotron 3 Ultra 550B
+│ ├── gemma.ts                      # Gemma 4 31B
+│ ├── aichixia.ts                   # Aichixia 114B
+│ ├── flux.ts / lucid.ts            # Image generation
+│ ├── phoenix.ts / nano.ts          # Image generation
+│ ├── starling.ts / lindsay.ts      # Typecast TTS
+│ ├── miu.ts / catherine.ts         # Typecast TTS
+│ ├── nana.ts / stephanie.ts        # Typecast TTS
+│ └── alexandra.ts / eve.ts         # ElevenLabs TTS
 └── public/
 ```
 
@@ -389,19 +410,23 @@ NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 
-# Text Models
+# Text Models — direct providers
 OPENAI_API_KEY=
 ANTHROPIC_API_KEY=
 GEMINI_API_KEY=
 XAI_API_KEY=
 DEEPSEEK_API_KEY=
+MISTRAL_API_KEY=
 KIMI_API_KEY=
 MINIMAX_API_KEY=
 COHERE_API_KEY=
 STEPFUN_API_KEY=
-NEMOTRON_API_KEY=
+NVIDIA_API_KEY=
 
-# Cloudflare AI (Mistral, GLM, Llama, MiMo, Groq Compound)
+# Text Models — via xKiro gateway (Claude Fable 5, Qwen3 Coder Plus, MiMo V2.5 Pro)
+XKIRO_API_KEY=
+
+# Cloudflare AI (GLM, Llama, Groq Compound)
 CLOUDFLARE_API_KEY=
 CLOUDFLARE_ACCOUNT_ID=
 ZHIPU_API_KEY=
@@ -457,55 +482,6 @@ CREATE TABLE IF NOT EXISTS daily_usage (
   error_count integer DEFAULT 0,
   created_at timestamp with time zone DEFAULT NOW(),
   UNIQUE(api_key_id, date)
-);
-
-CREATE TABLE IF NOT EXISTS promo_codes (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-  code text UNIQUE NOT NULL,
-  plan_type text NOT NULL,
-  duration_days integer NOT NULL,
-  max_uses integer,
-  used_count integer DEFAULT 0,
-  is_active boolean DEFAULT true,
-  created_by uuid,
-  created_at timestamp with time zone DEFAULT NOW(),
-  updated_at timestamp with time zone DEFAULT NOW()
-);
-
-CREATE TABLE IF NOT EXISTS promo_redemptions (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-  promo_code_id uuid NOT NULL REFERENCES promo_codes(id) ON DELETE CASCADE,
-  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  redeemed_at timestamp with time zone DEFAULT NOW(),
-  expires_at timestamp with time zone NOT NULL,
-  UNIQUE(promo_code_id, user_id)
-);
-
-CREATE TABLE IF NOT EXISTS request_logs (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-  api_key_id uuid NOT NULL REFERENCES api_keys(id) ON DELETE CASCADE,
-  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  model text NOT NULL,
-  endpoint text NOT NULL,
-  status integer NOT NULL,
-  latency_ms integer,
-  tokens_used integer DEFAULT 0,
-  error_message text,
-  ip_address text,
-  user_agent text,
-  created_at timestamp with time zone DEFAULT NOW()
-);
-
-CREATE TABLE IF NOT EXISTS user_settings (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id uuid UNIQUE NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  plan text DEFAULT 'free',
-  plan_expires_at timestamp with time zone,
-  is_admin boolean DEFAULT false,
-  email_notifications boolean DEFAULT true,
-  theme text DEFAULT 'system',
-  created_at timestamp with time zone DEFAULT NOW(),
-  updated_at timestamp with time zone DEFAULT NOW()
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS api_keys_pkey ON public.api_keys USING btree (id);
@@ -723,14 +699,15 @@ The built-in developer console at `/console` includes:
 
 ## Plans
 
-| Feature | Free | Pro |
-|:--|:--:|:--:|
-| API Keys | Up to 2 | Up to 2 |
-| Daily Requests | 1,000 / day | 4,000 / day |
-| All free models | | |
-| Pro models (Claude Sonnet, DeepSeek V3.2, Kimi K2.6...) | | |
-| Pro voices (Alexandra, Eve) | | |
-| Priority access | | |
+| Feature | Free | Pro | Enterprise |
+|:--|:--:|:--:|:--:|
+| API Keys | Up to 2 | Up to 2 | Custom |
+| Daily Requests | 1,000 / day | 4,000 / day | Custom |
+| All free models | ✓ | ✓ | ✓ |
+| Pro models (Claude Opus, Kimi K2.6, Inkling...) | | ✓ | ✓ |
+| Enterprise models (Claude Fable 5) | | | ✓ |
+| Pro voices (Alexandra, Eve) | | ✓ | ✓ |
+| Priority access | | ✓ | ✓ |
 
 Need more? **Enterprise** plans are available with custom limits — [contact us](mailto:contact@aichixia.xyz).
 
@@ -760,7 +737,7 @@ Pull requests are welcome. For major changes, open an issue first to discuss wha
 
 <div align="center">
 
-**MIT** © [Takawell](https://github.com/Takawell)
+**AGPL-3.0** © [Takawell](https://github.com/Takawell)
 
 <sub>Built with too many API keys and not enough sleep.</sub>
 
