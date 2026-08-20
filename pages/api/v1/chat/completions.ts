@@ -21,7 +21,8 @@ import { chatMimo, streamMimo, MimoRateLimitError, MimoQuotaError } from "@/lib/
 import { chatMinimax, streamMinimax, MinimaxRateLimitError, MinimaxQuotaError } from "@/lib/minimax";
 import { chatGrokFast, GrokFastRateLimitError, GrokFastQuotaError } from "@/lib/grok-fast";
 import { chatGrok, GrokRateLimitError, GrokQuotaError } from "@/lib/grok";
-import { chatZhipu, ZhipuRateLimitError, ZhipuQuotaError } from "@/lib/zhipu";
+import { chatZhipu, streamZhipu, ZhipuRateLimitError, ZhipuQuotaError } from "@/lib/zhipu";
+import { chatScout, streamScout, ScoutRateLimitError, ScoutQuotaError } from "@/lib/scout";
 import { chatPhi, PhiRateLimitError, PhiQuotaError } from "@/lib/phi";
 import { chatStepfun, streamStepfun, StepfunRateLimitError, StepfunQuotaError } from "@/lib/stepfun";
 import { chatNemotron, streamNemotron, NemotronRateLimitError, NemotronQuotaError } from "@/lib/nemotron";
@@ -85,6 +86,7 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "gemma-4-31b": { fn: chatGemma, provider: "gemma" },
   "laguna-s-2.1": { fn: chatLaguna, provider: "laguna" },
   "thinkingmachines/inkling": { fn: chatInkling, provider: "inkling" },
+  "llama-4-scout-17b-16e-instruct": { fn: chatScout, provider: "scout" },
 };
 
 const STREAM_MODEL_MAPPING: Record<string, StreamFunction> = {
@@ -106,6 +108,8 @@ const STREAM_MODEL_MAPPING: Record<string, StreamFunction> = {
   "mimo-v2.5-pro": streamMimo,
   "qwen3-coder-plus": streamQwen,
   "thinkingmachines/inkling": streamInkling,
+  "glm-4.7-flash": streamZhipu,
+  "llama-4-scout-17b-16e-instruct": streamScout,
 };
 
 const LOCKED_MODELS_PRO = ['deepseek-v3.2', 'mimo-v2.5-pro', 'claude-sonnet-4.6', 'glm-5.2', 'aichixia-flash', 'grok-4-fast', 'kimi-k2.6', 'gpt-5.2', 'gpt-5.5', 'laguna-s-2.1', 'claude-opus-4.8', 'thinkingmachines/inkling'];
@@ -119,7 +123,7 @@ const RATE_LIMIT_ERRORS = [
   MinimaxRateLimitError, GrokRateLimitError, GrokFastRateLimitError, ZhipuRateLimitError,
   AichixiaRateLimitError, StepfunRateLimitError, NemotronRateLimitError, Gpt55RateLimitError, OpusRateLimitError,
   GemmaRateLimitError, HaikuRateLimitError, LagunaRateLimitError, GeminiRateLimitError, FableRateLimitError,
-  InklingRateLimitError,
+  InklingRateLimitError, ScoutRateLimitError,
 ];
 
 const QUOTA_ERRORS = [
@@ -130,7 +134,7 @@ const QUOTA_ERRORS = [
   MinimaxQuotaError, GrokQuotaError, GrokFastQuotaError, ZhipuQuotaError,
   AichixiaQuotaError, StepfunQuotaError, NemotronQuotaError, Gpt55QuotaError, OpusQuotaError,
   GemmaQuotaError, HaikuQuotaError, LagunaQuotaError, GeminiQuotaError, FableQuotaError,
-  InklingQuotaError,
+  InklingQuotaError, ScoutQuotaError,
 ];
 
 function isRateLimitError(error: any): boolean {
