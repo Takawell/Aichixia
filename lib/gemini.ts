@@ -39,9 +39,6 @@ if (!GEMINI_API_KEY) {
 const client = new OpenAI({
   apiKey: GEMINI_API_KEY,
   baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
-  defaultHeaders: {
-    "x-goog-api-client": "aichixia-gemini/1.0.0",
-  },
 });
 
 export function buildImageMessage(
@@ -91,46 +88,30 @@ function normalizeMessages(history: ChatMessage[]) {
   }));
 }
 
-function buildRequestBody(
-  history: ChatMessage[],
-  opts: GeminiOptions = {}
-) {
-  const body: Record<string, any> = {
-    model: GEMINI_MODEL,
-    messages: normalizeMessages(history),
-    temperature: opts.temperature ?? 0.8,
-    top_p: opts.topP ?? 0.95,
-    max_tokens: opts.maxTokens ?? 8192,
+function buildExtraBody(opts: GeminiOptions) {
+  if (!opts.extraBody && opts.topK === undefined) {
+    return undefined;
+  }
+
+  return {
+    ...(opts.extraBody || {}),
+    ...(opts.topK !== undefined
+      ? {
+          google: {
+            ...((opts.extraBody as any)?.google || {}),
+            top_k: opts.topK,
+          },
+        }
+      : {}),
   };
-
-  if (opts.topK !== undefined) {
-    body.extra_body = {
-      ...(body.extra_body || {}),
-      google: {
-        ...(body.extra_body?.google || {}),
-        top_k: opts.topK,
-      },
-    };
-  }
-
-  if (opts.reasoningEffort !== undefined) {
-    body.reasoning_effort = opts.reasoningEffort;
-  }
-
-  if (opts.extraBody) {
-    body.extra_body = {
-      ...(body.extra_body || {}),
-      ...opts.extraBody,
-    };
-  }
-
-  return body;
 }
 
 function handleGeminiError(error: any): never {
   if (error?.status === 429) {
     throw new GeminiRateLimitError(
-      `Gemini rate limit exceeded: ${error?.message || "Too many requests"}`
+      `Gemini rate limit exceeded: ${
+        error?.message || "Too many requests"
+      }`
     );
   }
 
@@ -141,13 +122,17 @@ function handleGeminiError(error: any): never {
     error?.message?.includes("RESOURCE_EXHAUSTED")
   ) {
     throw new GeminiQuotaError(
-      `Gemini quota exceeded: ${error?.message || "Quota exceeded"}`
+      `Gemini quota exceeded: ${
+        error?.message || "Quota exceeded"
+      }`
     );
   }
 
   if (error?.status === 503 || error?.status === 500) {
     throw new Error(
-      `Gemini server error: ${error?.message || "Server error"}`
+      `Gemini server error: ${
+        error?.message || "Server error"
+      }`
     );
   }
 
@@ -168,15 +153,27 @@ export async function chatGemini(
   opts: GeminiOptions = {}
 ): Promise<{ reply: string; raw?: any }> {
   if (!GEMINI_API_KEY) {
-    throw new Error("GEMINI_API_KEY not defined in environment variables.");
+    throw new Error(
+      "GEMINI_API_KEY not defined in environment variables."
+    );
   }
 
   try {
-    const requestBody = buildRequestBody(history, opts);
+    const extraBody = buildExtraBody(opts);
 
-    const response = await client.chat.completions.create(
-      requestBody as any
-    );
+    const response = await client.chat.completions.create({
+      model: GEMINI_MODEL,
+      messages: normalizeMessages(history),
+      temperature: opts.temperature ?? 0.8,
+      top_p: opts.topP ?? 0.95,
+      max_tokens: opts.maxTokens ?? 8192,
+      ...(opts.reasoningEffort !== undefined
+        ? { reasoning_effort: opts.reasoningEffort }
+        : {}),
+      ...(extraBody !== undefined
+        ? { extra_body: extraBody }
+        : {}),
+    } as any);
 
     const reply =
       response.choices[0]?.message?.content?.trim() ??
@@ -196,7 +193,9 @@ export async function streamGemini(
   opts: GeminiOptions = {}
 ): Promise<ReadableStream<Uint8Array>> {
   if (!GEMINI_API_KEY) {
-    throw new Error("GEMINI_API_KEY not defined in environment variables.");
+    throw new Error(
+      "GEMINI_API_KEY not defined in environment variables."
+    );
   }
 
   const encoder = new TextEncoder();
@@ -227,16 +226,27 @@ export async function streamGemini(
       };
 
       try {
-        const requestBody = buildRequestBody(history, opts);
+        const extraBody = buildExtraBody(opts);
 
         const streamResponse =
           await client.chat.completions.create({
-            ...requestBody,
+            model: GEMINI_MODEL,
+            messages: normalizeMessages(history),
+            temperature: opts.temperature ?? 0.8,
+            top_p: opts.topP ?? 0.95,
+            max_tokens: opts.maxTokens ?? 8192,
+            ...(opts.reasoningEffort !== undefined
+              ? { reasoning_effort: opts.reasoningEffort }
+              : {}),
+            ...(extraBody !== undefined
+              ? { extra_body: extraBody }
+              : {}),
             stream: true,
           } as any);
 
-        for await (const chunk of streamResponse) {
-          const delta = chunk.choices[0]?.delta?.content;
+        for await (const chunk of streamResponse as any) {
+          const delta =
+            chunk?.choices?.[0]?.delta?.content;
 
           if (delta) {
             enqueue(delta);
@@ -248,19 +258,22 @@ export async function streamGemini(
         let message = "An unexpected error occurred.";
 
         if (error?.status === 429) {
-          message = "Rate limit exceeded. Please wait a moment.";
+          message =
+            "Rate limit exceeded. Please wait a moment.";
         } else if (
           error?.status === 402 ||
           error?.code === "insufficient_quota" ||
           error?.message?.toLowerCase?.().includes("quota") ||
           error?.message?.includes("RESOURCE_EXHAUSTED")
         ) {
-          message = "Quota exceeded. Please try again later.";
+          message =
+            "Quota exceeded. Please try again later.";
         } else if (
           error?.status === 503 ||
           error?.status === 500
         ) {
-          message = "Gemini server error. Please try again.";
+          message =
+            "Gemini server error. Please try again.";
         } else if (
           error?.message?.includes("<!DOCTYPE") ||
           error?.message?.includes("not valid JSON")
