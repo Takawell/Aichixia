@@ -85,7 +85,7 @@ export default function Docs() {
           model: 'gpt-5-mini',
           max_tokens: 4096,
           messages: [
-            { role: 'system', content: 'You are a helpful API assistant for Aichixia, an AI API aggregation platform. Help users integrate and use the Aichixia API. Keep answers concise and clear. Aichixia base URL: https://www.aichixia.xyz. Auth: Bearer token or x-api-key header.\n\nEndpoints:\n- Chat (OpenAI-compat): POST /api/v1/chat/completions\n- Messages (Anthropic-compat): POST /api/v1/messages\n- Image generation: POST /api/v1/images/generations\n- Video generation: POST /api/v1/videos/generations\n- TTS: POST /api/v1/audio/speech\n- STT Transcription: POST /api/v1/audio/transcriptions\n- STT Translation: POST /api/v1/audio/translations\n\nText models (free): gpt-5-mini, gpt-5.2, gpt-oss-120b, gemini-3-flash, grok-3, deepseek-v4-flash, mistral-large-3-675b-instruct, glm-4.7-flash, claude-opus-4.8, step-3.7-flash, nemotron-3-ultra-550b-a55b, qwen3.6-27b, llama-3.3-70b, mimo-v2-flash, groq-compound, cohere-command-a, phi-4-multimodal-instruct\nText models (pro): claude-sonnet-4.6, grok-4-fast, deepseek-v3.2, glm-4.7, qwen3-coder-480b, minimax-m3, kimi-k2.6, aichixia-flash, gpt-5.5\\nStreaming (stream: true) supported only on: kimi-k2.6, mistral-large-3-675b-instruct, minimax-m3, step-3.7-flash, nemotron-3-ultra-550b-a55b, gpt-oss-120b, deepseek-v4-flash -- returns SSE for supported models; other models return a 400 error if stream is requested.\\nVision models: gpt-5.2, kimi-k2.6, gemini-3-flash, grok-4-fast, phi-4-multimodal-instruct, qwen3.6-27b, step-3.7-flash\nImage generation models: flux-2-dev, lucid-origin, phoenix-1.0, nano-image\nVideo generation models (pro): wan2.2-i2v (Alibaba, image-to-video, requires input_image), hailuo-h3 (MiniMax, text-to-video and image-to-video with synced soundtrack)\nTTS models: starling-tts, lindsay-tts, miu-tts, catherine-tts, nana-tts, stephanie-tts (Typecast, support: eng, kor, jpn, cmn, spa), alexandra-tts (ElevenLabs, support: ind, eng, rus, cmn), eve-tts (ElevenLabs, support: kor, eng, msa, vie)\nSTT models: whisper-large-v3 (max accuracy), whisper-large-v3-turbo (max speed 216x real-time)\n\nPlans: Free=1000 req/day, Pro=4000 req/day, Enterprise=custom (contact sales team via email).\nContact: contact@aichixia.xyz | Telegram community: https://t.me/AichixiaAPI\nDo not use tool calling or function calling. Use code examples when relevant.' },
+            { role: 'system', content: 'You are a helpful API assistant for Aichixia, an AI API aggregation platform. Help users integrate and use the Aichixia API. Keep answers concise and clear. Aichixia base URL: https://www.aichixia.xyz. Auth: Bearer token or x-api-key header.\n\nEndpoints:\n- Chat (OpenAI-compat): POST /api/v1/chat/completions\n- Messages (Anthropic-compat): POST /api/v1/messages\n- Image generation: POST /api/v1/images/generations\n- Video generation: POST /api/v1/videos/generations\n- TTS: POST /api/v1/audio/speech\n- STT Transcription: POST /api/v1/audio/transcriptions\n- STT Translation: POST /api/v1/audio/translations\n\nText models (free): gpt-5-mini, gpt-5.2, gpt-oss-120b, gemini-3-flash, grok-3, deepseek-v4-flash, mistral-large-latest, glm-4.7-flash, step-3.7-flash, nemotron-3-ultra-550b-a55b, qwen3.6-27b, qwen3-coder-plus, llama-3.3-70b, minimax-m3, groq-compound, cohere-command-a, phi-4-multimodal-instruct, claude-haiku-4.5\\nText models (pro): claude-sonnet-4.6, claude-opus-4.8, grok-4-fast, deepseek-v3.2, glm-5.2, kimi-k2.6, aichixia-flash, gpt-5.5, mimo-v2.5-pro, laguna-s-2.1, thinkingmachines/inkling\\nText models (enterprise): claude-fable-5\\\\nStreaming (stream: true) supported only on: kimi-k2.6, mistral-large-latest, minimax-m3, step-3.7-flash, nemotron-3-ultra-550b-a55b, gpt-oss-120b, deepseek-v4-flash, glm-5.2, gemma-4-31b, laguna-s-2.1, cohere-command-a, gemini-3-flash, llama-3.3-70b, deepseek-v3.2, claude-fable-5, mimo-v2.5-pro, qwen3-coder-plus, thinkingmachines/inkling -- returns SSE for supported models; other models return a 400 error if stream is requested.\\\\nVision models: gpt-5.2, kimi-k2.6, gemini-3-flash, grok-4-fast, phi-4-multimodal-instruct, qwen3.6-27b, step-3.7-flash, claude-fable-5, thinkingmachines/inkling\\nImage generation models: flux-2-dev, lucid-origin, phoenix-1.0, nano-image\\nVideo generation models (pro): wan2.2-i2v (Alibaba, image-to-video, requires input_image), hailuo-h3 (MiniMax, text-to-video and image-to-video with synced soundtrack)\\nTTS models: starling-tts, lindsay-tts, miu-tts, catherine-tts, nana-tts, stephanie-tts (Typecast, support: eng, kor, jpn, cmn, spa), alexandra-tts (ElevenLabs, support: ind, eng, rus, cmn), eve-tts (ElevenLabs, support: kor, eng, msa, vie)\\nSTT models: whisper-large-v3 (max accuracy), whisper-large-v3-turbo (max speed 216x real-time)\\n\\nPlans: Free=1000 req/day, Pro=4000 req/day, Enterprise=custom (contact sales team via email). Enterprise-tier models (e.g. claude-fable-5) require the Enterprise plan even for otherwise Pro-eligible accounts.\\nContact: contact@aichixia.xyz | Telegram community: https://t.me/AichixiaAPI\\nDo not use tool calling or function calling. Use code examples when relevant.' },
             ...newMessages.map(m => ({ role: m.role, content: m.content })),
           ],
         }),
@@ -817,7 +817,7 @@ console.log(data.text);`,
                         <Param name="messages" required type="array" desc="Array of message objects with role (system | user | assistant) and content" />
                         <Param name="temperature" type="number" desc="Sampling temperature 0–2. Higher = more creative. Default: 0.8" />
                         <Param name="max_tokens" type="number" desc="Maximum tokens to generate. Default: 1080" />
-                        <Param name="stream" type="boolean" desc="Streaming via SSE. Default: false. Supported only on: kimi-k2.6, mistral-large-3-675b-instruct, minimax-m3, step-3.7-flash, nemotron-3-ultra-550b-a55b, gpt-oss-120b, deepseek-v4-flash" />
+                        <Param name="stream" type="boolean" desc="Streaming via SSE. Default: false. Supported only on: kimi-k2.6, mistral-large-latest, minimax-m3, step-3.7-flash, nemotron-3-ultra-550b-a55b, gpt-oss-120b, deepseek-v4-flash, glm-5.2, gemma-4-31b, laguna-s-2.1, cohere-command-a, gemini-3-flash, llama-3.3-70b, deepseek-v3.2, claude-fable-5, mimo-v2.5-pro, qwen3-coder-plus, thinkingmachines/inkling" />
                         <Param name="top_p" type="number" desc="Nucleus sampling 0–1. Alternative to temperature." />
                       </div>
                     )}
@@ -869,40 +869,44 @@ console.log(data.text);`,
                             { id: 'gpt-5.5', label: 'GPT-5.5', plan: 'pro' },
                             { id: 'gpt-oss-120b', label: 'GPT-OSS 120B', plan: 'free' },
                             { id: 'aichixia-flash', label: 'Aichixia 114B', plan: 'pro' },
-                            { id: 'mistral-large-3-675b-instruct', label: 'Mistral Large 3 675B', plan: 'free' },
+                            { id: 'mistral-large-latest', label: 'Mistral Large', plan: 'free' },
                             { id: 'deepseek-v3.2', label: 'DeepSeek V3.2', plan: 'pro' },
                             { id: 'deepseek-v4-flash', label: 'DeepSeek V4 Flash', plan: 'free' },
                             { id: 'claude-sonnet-4.6', label: 'Claude Sonnet 4.6', plan: 'pro' },
-                            { id: 'claude-opus-4.8', label: 'Claude Opus 4.8', plan: 'free' },
+                            { id: 'claude-opus-4.8', label: 'Claude Opus 4.8', plan: 'pro' },
+                            { id: 'claude-haiku-4.5', label: 'Claude Haiku 4.5', plan: 'free' },
+                            { id: 'claude-fable-5', label: 'Claude Fable 5', plan: 'enterprise' },
                             { id: 'gemini-3-flash', label: 'Gemini 3 Flash', plan: 'free' },
                             { id: 'grok-3', label: 'Grok 3', plan: 'free' },
                             { id: 'phi-4-multimodal-instruct', label: 'Phi 4 Multimodal', plan: 'free' },
-                            { id: 'glm-4.7', label: 'GLM 4.7', plan: 'pro' },
-                            { id: 'glm-4.7-flash', label: 'GLM 4.7 Flash', plan: 'free' },
+                            { id: 'glm-5.2', label: 'GLM 5.2', plan: 'pro' },
+                            { id: 'glm-4.7-flash', label: 'GLM 4.7 Flash', plan: 'pro' },
                             { id: 'kimi-k2.6', label: 'Kimi K2.6', plan: 'pro' },
                             { id: 'step-3.7-flash', label: 'Step 3.7 Flash', plan: 'free' },
                             { id: 'nemotron-3-ultra-550b-a55b', label: 'Nemotron 3 Ultra 550B', plan: 'free' },
                             { id: 'qwen3.6-27b', label: 'Qwen3.6 27B', plan: 'free' },
-                            { id: 'qwen3-coder-480b', label: 'Qwen3 Coder 480B', plan: 'pro' },
-                            { id: 'minimax-m3', label: 'MiniMax M3', plan: 'pro' },
+                            { id: 'qwen3-coder-plus', label: 'Qwen3 Coder Plus', plan: 'free' },
+                            { id: 'minimax-m3', label: 'MiniMax M3', plan: 'free' },
                             { id: 'llama-3.3-70b', label: 'Llama 3.3 70B', plan: 'free' },
-                            { id: 'mimo-v2-flash', label: 'MiMo V2 Flash', plan: 'free' },
+                            { id: 'mimo-v2.5-pro', label: 'MiMo V2.5 Pro', plan: 'pro' },
                             { id: 'groq-compound', label: 'Groq Compound', plan: 'free' },
                             { id: 'cohere-command-a', label: 'Cohere Command A', plan: 'free' },
                             { id: 'grok-4-fast', label: 'Grok 4 Fast', plan: 'pro' },
+                            { id: 'laguna-s-2.1', label: 'Laguna S 2.1', plan: 'pro' },
+                            { id: 'thinkingmachines/inkling', label: 'Inkling', plan: 'pro' },
                           ].map(({ id, label, plan }) => (
                             <div key={id} className="flex items-center justify-between p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
                               <div>
                                 <p className="text-xs font-semibold text-zinc-900 dark:text-white">{label}</p>
                                 <code className="text-[10px] text-zinc-500 dark:text-zinc-400 font-mono break-all">{id}</code>
                               </div>
-                              <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-semibold flex-shrink-0 ml-2 ${plan === 'pro' ? 'bg-orange-100 dark:bg-orange-950/30 text-orange-600 dark:text-orange-400' : 'bg-emerald-100 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400'}`}>
-                                {plan === 'pro' ? 'Pro' : 'Free'}
+                              <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-semibold flex-shrink-0 ml-2 ${plan === 'enterprise' ? 'bg-purple-100 dark:bg-purple-950/30 text-purple-600 dark:text-purple-400' : plan === 'pro' ? 'bg-orange-100 dark:bg-orange-950/30 text-orange-600 dark:text-orange-400' : 'bg-emerald-100 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400'}`}>
+                                {plan === 'enterprise' ? 'Enterprise' : plan === 'pro' ? 'Pro' : 'Free'}
                               </span>
                             </div>
                           ))}
                         </div>
-                        <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-3">Vision models: <code className="text-zinc-600 dark:text-zinc-400">gpt-5.2</code>, <code className="text-zinc-600 dark:text-zinc-400">kimi-k2.6</code>, <code className="text-zinc-600 dark:text-zinc-400">gemini-3-flash</code>, <code className="text-zinc-600 dark:text-zinc-400">grok-4-fast</code>, <code className="text-zinc-600 dark:text-zinc-400">phi-4-multimodal-instruct</code>, <code className="text-zinc-600 dark:text-zinc-400">qwen3.6-27b</code>, <code className="text-zinc-600 dark:text-zinc-400">step-3.7-flash</code></p>
+                        <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-3">Vision models: <code className="text-zinc-600 dark:text-zinc-400">gpt-5.2</code>, <code className="text-zinc-600 dark:text-zinc-400">kimi-k2.6</code>, <code className="text-zinc-600 dark:text-zinc-400">gemini-3-flash</code>, <code className="text-zinc-600 dark:text-zinc-400">grok-4-fast</code>, <code className="text-zinc-600 dark:text-zinc-400">phi-4-multimodal-instruct</code>, <code className="text-zinc-600 dark:text-zinc-400">qwen3.6-27b</code>, <code className="text-zinc-600 dark:text-zinc-400">step-3.7-flash</code>, <code className="text-zinc-600 dark:text-zinc-400">claude-fable-5</code>, <code className="text-zinc-600 dark:text-zinc-400">thinkingmachines/inkling</code></p>
                       </div>
                     )}
 
@@ -921,12 +925,23 @@ console.log(data.text);`,
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                           {[
                             { id: 'kimi-k2.6', label: 'Kimi K2.6' },
-                            { id: 'mistral-large-3-675b-instruct', label: 'Mistral Large 3' },
+                            { id: 'mistral-large-latest', label: 'Mistral Large' },
                             { id: 'minimax-m3', label: 'MiniMax M3' },
                             { id: 'step-3.7-flash', label: 'Step 3.7 Flash' },
                             { id: 'nemotron-3-ultra-550b-a55b', label: 'Nemotron 3 Ultra' },
                             { id: 'gpt-oss-120b', label: 'GPT-OSS 120B' },
                             { id: 'deepseek-v4-flash', label: 'DeepSeek V4 Flash' },
+                            { id: 'glm-5.2', label: 'GLM 5.2' },
+                            { id: 'gemma-4-31b', label: 'Gemma 4 31B' },
+                            { id: 'laguna-s-2.1', label: 'Laguna S 2.1' },
+                            { id: 'cohere-command-a', label: 'Cohere Command A' },
+                            { id: 'gemini-3-flash', label: 'Gemini 3 Flash' },
+                            { id: 'llama-3.3-70b', label: 'Llama 3.3 70B' },
+                            { id: 'deepseek-v3.2', label: 'DeepSeek V3.2' },
+                            { id: 'claude-fable-5', label: 'Claude Fable 5' },
+                            { id: 'mimo-v2.5-pro', label: 'MiMo V2.5 Pro' },
+                            { id: 'qwen3-coder-plus', label: 'Qwen3 Coder Plus' },
+                            { id: 'thinkingmachines/inkling', label: 'Inkling' },
                           ].map(({ id, label }) => (
                             <div key={id} className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
                               <p className="text-xs font-semibold text-zinc-900 dark:text-white">{label}</p>
@@ -1033,7 +1048,7 @@ while (true) {
                         <Param name="max_tokens" required type="number" desc="Maximum tokens to generate. Required by Anthropic SDK." />
                         <Param name="system" type="string" desc="System prompt — passed as a separate field, not inside messages." />
                         <Param name="temperature" type="number" desc="Sampling temperature 0–2. Default: 0.8" />
-                        <Param name="stream" type="boolean" desc="Streaming via native Anthropic SSE events (message_start, content_block_delta, message_stop). Default: false. Supported only on: kimi-k2.6, mistral-large-3-675b-instruct, minimax-m3, step-3.7-flash, nemotron-3-ultra-550b-a55b, gpt-oss-120b, deepseek-v4-flash" />
+                        <Param name="stream" type="boolean" desc="Streaming via native Anthropic SSE events (message_start, content_block_delta, message_stop). Default: false. Supported only on: kimi-k2.6, mistral-large-latest, minimax-m3, step-3.7-flash, nemotron-3-ultra-550b-a55b, gpt-oss-120b, deepseek-v4-flash, glm-5.2, gemma-4-31b, laguna-s-2.1, cohere-command-a, gemini-3-flash, llama-3.3-70b, deepseek-v3.2, claude-fable-5, mimo-v2.5-pro, qwen3-coder-plus, thinkingmachines/inkling" />
                       </div>
                     )}
 
@@ -1084,12 +1099,23 @@ while (true) {
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                           {[
                             { id: 'kimi-k2.6', label: 'Kimi K2.6' },
-                            { id: 'mistral-large-3-675b-instruct', label: 'Mistral Large 3' },
+                            { id: 'mistral-large-latest', label: 'Mistral Large' },
                             { id: 'minimax-m3', label: 'MiniMax M3' },
                             { id: 'step-3.7-flash', label: 'Step 3.7 Flash' },
                             { id: 'nemotron-3-ultra-550b-a55b', label: 'Nemotron 3 Ultra' },
                             { id: 'gpt-oss-120b', label: 'GPT-OSS 120B' },
                             { id: 'deepseek-v4-flash', label: 'DeepSeek V4 Flash' },
+                            { id: 'glm-5.2', label: 'GLM 5.2' },
+                            { id: 'gemma-4-31b', label: 'Gemma 4 31B' },
+                            { id: 'laguna-s-2.1', label: 'Laguna S 2.1' },
+                            { id: 'cohere-command-a', label: 'Cohere Command A' },
+                            { id: 'gemini-3-flash', label: 'Gemini 3 Flash' },
+                            { id: 'llama-3.3-70b', label: 'Llama 3.3 70B' },
+                            { id: 'deepseek-v3.2', label: 'DeepSeek V3.2' },
+                            { id: 'claude-fable-5', label: 'Claude Fable 5' },
+                            { id: 'mimo-v2.5-pro', label: 'MiMo V2.5 Pro' },
+                            { id: 'qwen3-coder-plus', label: 'Qwen3 Coder Plus' },
+                            { id: 'thinkingmachines/inkling', label: 'Inkling' },
                           ].map(({ id, label }) => (
                             <div key={id} className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
                               <p className="text-xs font-semibold text-zinc-900 dark:text-white">{label}</p>
