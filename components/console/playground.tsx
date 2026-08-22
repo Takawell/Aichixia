@@ -2275,7 +2275,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
               </div>
             )}
 
-            {selectedModel.type === 'image' && (
+            {selectedModel.type === 'image' && selectedModel.id !== 'nano-image' && (
               <div className="space-y-3">
                 <div>
                   <label className="block text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1.5 flex items-center gap-1"><FiMonitor className="w-3 h-3" /> Size</label>
