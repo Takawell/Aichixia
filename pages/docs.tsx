@@ -1203,10 +1203,11 @@ const message = await stream.finalMessage();`}
                       <div className="p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
                         <Param name="model" required type="string" desc="Image model ID: flux-2-dev, lucid-origin, phoenix-1.0, nano-image" />
                         <Param name="prompt" required type="string" desc="Text description of the image to generate" />
-                        <Param name="size" type="string" desc="Image dimensions WxH. e.g. 1024x1024, 512x512. Default: 1024x1024" />
-                        <Param name="steps" type="number" desc="Diffusion steps. Higher = better quality but slower. Default: 25–30" />
-                        <Param name="seed" type="number" desc="Random seed for reproducibility. Optional." />
-                        <Param name="guidance" type="number" desc="Guidance scale. How closely image follows prompt. Optional." />
+                        <Param name="image" type="string" desc="Base64-encoded source image (data URL). Required for nano-image, ignored by other models." />
+                        <Param name="size" type="string" desc="Image dimensions WxH. e.g. 1024x1024, 512x512. Default: 1024x1024. Not used by nano-image." />
+                        <Param name="steps" type="number" desc="Diffusion steps. Higher = better quality but slower. Default: 25–30. Not used by nano-image." />
+                        <Param name="seed" type="number" desc="Random seed for reproducibility. Optional. Not used by nano-image." />
+                        <Param name="guidance" type="number" desc="Guidance scale. How closely image follows prompt. Optional. Not used by nano-image." />
                         <Param name="negative_prompt" type="string" desc="What to exclude from the image. Not supported by nano-image." />
                         <Param name="response_format" type="string" desc="Output format: b64_json (default) or url" />
                         <Param name="n" type="number" desc="Number of images to generate. Default: 1" />
@@ -1246,7 +1247,7 @@ const message = await stream.finalMessage();`}
                             { id: 'flux-2-dev', name: 'Flux 2', provider: 'Black Forest Labs', desc: 'High quality photorealistic images' },
                             { id: 'lucid-origin', name: 'Lucid Origin', provider: 'Leonardo', desc: 'Creative & artistic image synthesis' },
                             { id: 'phoenix-1.0', name: 'Phoenix 1.0', provider: 'Leonardo', desc: 'Fast artistic image generation' },
-                            { id: 'nano-image', name: 'Nano Banana Pro', provider: 'Google Gemini', desc: 'Lightweight compact image model' },
+                            { id: 'nano-image', name: 'Nano Banana Pro', provider: 'Google Gemini', desc: 'Image-to-image editing from a source image + prompt' },
                           ].map(({ id, name, provider, desc }) => (
                             <div key={id} className="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
                               <div className="flex items-center justify-between mb-1">
