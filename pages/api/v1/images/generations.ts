@@ -69,6 +69,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     guidance,
     negative_prompt,
     aspect_ratio,
+    image,
     response_format = "b64_json",
   } = req.body;
 
@@ -127,7 +128,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const result = await generatePhoenix(prompt, { steps, width, height, seed, guidance, negative_prompt });
       imageBase64 = result.imageBase64;
     } else {
-      const result = await generateNano(prompt, { aspectRatio: aspect_ratio });
+      const result = await generateNano(prompt, { aspectRatio: aspect_ratio, imageBase64Input: image });
       imageBase64 = result.imageBase64;
     }
 
