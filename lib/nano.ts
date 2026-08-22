@@ -1,9 +1,4 @@
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const NANO_MODEL = process.env.NANO_MODEL || "gemini-3-pro-image-preview";
-
-if (!GEMINI_API_KEY) {
-  console.warn("[lib/nano] Warning: GEMINI_API_KEY not set in env.");
-}
+const IMGBB_API_KEY = process.env.IMGBB_API_KEY;
 
 export class NanoRateLimitError extends Error {
   constructor(message: string) {
@@ -19,41 +14,79 @@ export class NanoQuotaError extends Error {
   }
 }
 
-export async function generateNano(
-  prompt: string,
-  opts?: { aspectRatio?: string }
-): Promise<{ imageBase64: string }> {
-  if (!GEMINI_API_KEY) {
-    throw new Error("GEMINI_API_KEY not defined in environment variables.");
+async function uploadToImgbb(base64Image: string): Promise<string> {
+  if (!IMGBB_API_KEY) {
+    throw new Error("IMGBB_API_KEY not defined in environment variables.");
   }
 
-  const requestBody = {
-    contents: [
-      {
-        parts: [{ text: prompt }],
-      },
-    ],
-    generationConfig: {
-      responseModalities: ["IMAGE"],
-    },
-  };
+  const cleanBase64 = base64Image.includes(",")
+    ? base64Image.split(",")[1]
+    : base64Image;
 
-  console.log("[lib/nano] Request URL:", `https://generativelanguage.googleapis.com/v1beta/models/${NANO_MODEL}:generateContent`);
-  console.log("[lib/nano] Request body:", JSON.stringify(requestBody, null, 2));
+  const form = new URLSearchParams();
+  form.append("key", IMGBB_API_KEY);
+  form.append("image", cleanBase64);
 
   let response;
   try {
-    response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${NANO_MODEL}:generateContent`,
-      {
-        method: "POST",
-        headers: {
-          "x-goog-api-key": GEMINI_API_KEY,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
-      }
-    );
+    response = await fetch("https://api.imgbb.com/1/upload", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: form.toString(),
+    });
+  } catch (fetchError: any) {
+    console.error("[lib/nano] imgbb fetch failed:", fetchError.message);
+    throw new Error(`imgbb network error: ${fetchError.message}`);
+  }
+
+  const responseText = await response.text();
+  console.log("[lib/nano] imgbb response status:", response.status);
+  console.log("[lib/nano] imgbb response body:", responseText);
+
+  if (!response.ok) {
+    throw new Error(`imgbb upload failed: ${response.status} - ${responseText}`);
+  }
+
+  let data;
+  try {
+    data = JSON.parse(responseText);
+  } catch (parseError) {
+    throw new Error("Invalid JSON response from imgbb");
+  }
+
+  const uploadedUrl = data?.data?.url;
+  if (!uploadedUrl) {
+    console.error("[lib/nano] imgbb response missing url:", data);
+    throw new Error("imgbb upload did not return a URL");
+  }
+
+  return uploadedUrl;
+}
+
+export async function generateNano(
+  prompt: string,
+  opts?: { aspectRatio?: string; imageUrl?: string; imageBase64Input?: string }
+): Promise<{ imageBase64: string }> {
+  let sourceUrl = opts?.imageUrl;
+
+  if (!sourceUrl && opts?.imageBase64Input) {
+    sourceUrl = await uploadToImgbb(opts.imageBase64Input);
+    console.log("[lib/nano] Uploaded to imgbb:", sourceUrl);
+  }
+
+  if (!sourceUrl) {
+    throw new Error("imageUrl or imageBase64Input is required for this API.");
+  }
+
+  const endpoint = `https://axlyapi.qzz.io/ai/nanobanana?url=${encodeURIComponent(
+    sourceUrl
+  )}&prompt=${encodeURIComponent(prompt)}`;
+
+  console.log("[lib/nano] Request URL:", endpoint);
+
+  let response;
+  try {
+    response = await fetch(endpoint, { method: "GET" });
     console.log("[lib/nano] Fetch completed, status:", response.status);
   } catch (fetchError: any) {
     console.error("[lib/nano] Fetch failed:", fetchError.message);
@@ -63,43 +96,36 @@ export async function generateNano(
   console.log("[lib/nano] Response status:", response.status);
   console.log("[lib/nano] Response headers:", Object.fromEntries(response.headers.entries()));
 
-  const responseText = await response.text();
-  console.log("[lib/nano] Response body (raw):", responseText);
-
   if (!response.ok) {
-    console.error("[lib/nano] Error response:", responseText);
+    const errorText = await response.text();
+    console.error("[lib/nano] Error response:", errorText);
 
     if (response.status === 429) {
-      throw new NanoRateLimitError(`Nano Banana rate limit exceeded: ${responseText}`);
+      throw new NanoRateLimitError(`Rate limit exceeded: ${errorText}`);
     }
     if (response.status === 402) {
-      throw new NanoQuotaError(`Nano Banana quota exceeded: ${responseText}`);
+      throw new NanoQuotaError(`Quota exceeded: ${errorText}`);
     }
-    throw new Error(`Nano Banana API error: ${response.status} - ${responseText}`);
+    throw new Error(`API error: ${response.status} - ${errorText}`);
   }
 
-  let data;
-  try {
-    data = JSON.parse(responseText);
-    console.log("[lib/nano] Parsed response:", JSON.stringify(data, null, 2));
-  } catch (parseError) {
-    console.error("[lib/nano] JSON parse failed:", parseError);
-    throw new Error("Invalid JSON response from API");
-  }
-
-  const imagePart = data.candidates?.[0]?.content?.parts?.find(
-    (part: any) => part.inlineData
-  );
-
-  if (!imagePart?.inlineData?.data) {
-    console.error("[lib/nano] No image data found. Full response:", data);
+  const contentType = response.headers.get("content-type") || "";
+  if (!contentType.startsWith("image/")) {
+    const bodyText = await response.text();
+    console.error("[lib/nano] Unexpected non-image response:", bodyText);
     throw new Error("No image data in response");
   }
 
-  return { imageBase64: imagePart.inlineData.data };
+  const arrayBuffer = await response.arrayBuffer();
+  const imageBase64 = Buffer.from(arrayBuffer).toString("base64");
+
+  return { imageBase64 };
 }
 
-export async function quickGenerateNano(prompt: string, opts?: { aspectRatio?: string }) {
+export async function quickGenerateNano(
+  prompt: string,
+  opts?: { aspectRatio?: string; imageUrl?: string; imageBase64Input?: string }
+) {
   const { imageBase64 } = await generateNano(prompt, opts);
   return imageBase64;
 }
