@@ -17,7 +17,7 @@ const MODEL_MAP: Record<string, "flux" | "lucid" | "phoenix" | "nano"> = {
   "flux-2-dev": "flux",
   "lucid-origin": "lucid",
   "phoenix-1.0": "phoenix",
-  "nano-image": "nano",
+  "gemini-3-pro-image": "nano",
 };
 
 const DEFAULT_MODEL = "flux-2-dev";
