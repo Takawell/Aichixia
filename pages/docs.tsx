@@ -85,7 +85,7 @@ export default function Docs() {
           model: 'gpt-5-mini',
           max_tokens: 4096,
           messages: [
-            { role: 'system', content: 'You are a helpful API assistant for Aichixia, an AI API aggregation platform. Help users integrate and use the Aichixia API. Keep answers concise and clear. Aichixia base URL: https://www.aichixia.xyz. Auth: Bearer token or x-api-key header.\n\nEndpoints:\n- Chat (OpenAI-compat): POST /api/v1/chat/completions\n- Messages (Anthropic-compat): POST /api/v1/messages\n- Image generation: POST /api/v1/images/generations\n- Video generation: POST /api/v1/videos/generations\n- TTS: POST /api/v1/audio/speech\n- STT Transcription: POST /api/v1/audio/transcriptions\n- STT Translation: POST /api/v1/audio/translations\n\nText models (free): gpt-5-mini, gpt-5.2, gpt-oss-120b, gemini-3-flash, grok-3, deepseek-v4-flash, mistral-large-latest, glm-4.7-flash, step-3.7-flash, nemotron-3-ultra-550b-a55b, qwen3.6-27b, qwen3-coder-plus, llama-3.3-70b, minimax-m3, groq-compound, cohere-command-a, phi-4-multimodal-instruct, claude-haiku-4.5\\nText models (pro): claude-sonnet-4.6, claude-opus-4.8, grok-4-fast, deepseek-v3.2, glm-5.2, kimi-k2.6, aichixia-flash, gpt-5.5, mimo-v2.5-pro, laguna-s-2.1, thinkingmachines/inkling\\nText models (enterprise): claude-fable-5\\\\nStreaming (stream: true) supported only on: kimi-k2.6, mistral-large-latest, minimax-m3, step-3.7-flash, nemotron-3-ultra-550b-a55b, gpt-oss-120b, deepseek-v4-flash, glm-5.2, gemma-4-31b, laguna-s-2.1, cohere-command-a, gemini-3-flash, llama-3.3-70b, deepseek-v3.2, claude-fable-5, mimo-v2.5-pro, qwen3-coder-plus, thinkingmachines/inkling -- returns SSE for supported models; other models return a 400 error if stream is requested.\\\\nVision models: gpt-5.2, kimi-k2.6, gemini-3-flash, grok-4-fast, phi-4-multimodal-instruct, qwen3.6-27b, step-3.7-flash, claude-fable-5, thinkingmachines/inkling\\nImage generation models: flux-2-dev, lucid-origin, phoenix-1.0, nano-image\\nVideo generation models (pro): wan2.2-i2v (Alibaba, image-to-video, requires input_image), hailuo-h3 (MiniMax, text-to-video and image-to-video with synced soundtrack)\\nTTS models: starling-tts, lindsay-tts, miu-tts, catherine-tts, nana-tts, stephanie-tts (Typecast, support: eng, kor, jpn, cmn, spa), alexandra-tts (ElevenLabs, support: ind, eng, rus, cmn), eve-tts (ElevenLabs, support: kor, eng, msa, vie)\\nSTT models: whisper-large-v3 (max accuracy), whisper-large-v3-turbo (max speed 216x real-time)\\n\\nPlans: Free=1000 req/day, Pro=4000 req/day, Enterprise=custom (contact sales team via email). Enterprise-tier models (e.g. claude-fable-5) require the Enterprise plan even for otherwise Pro-eligible accounts.\\nContact: contact@aichixia.xyz | Telegram community: https://t.me/AichixiaAPI\\nDo not use tool calling or function calling. Use code examples when relevant.' },
+            { role: 'system', content: 'You are a helpful API assistant for Aichixia, an AI API aggregation platform. Help users integrate and use the Aichixia API. Keep answers concise and clear. Aichixia base URL: https://www.aichixia.xyz. Auth: Bearer token or x-api-key header.\n\nEndpoints:\n- Chat (OpenAI-compat): POST /api/v1/chat/completions\n- Messages (Anthropic-compat): POST /api/v1/messages\n- Image generation: POST /api/v1/images/generations\n- Video generation: POST /api/v1/videos/generations\n- TTS: POST /api/v1/audio/speech\n- STT Transcription: POST /api/v1/audio/transcriptions\n- STT Translation: POST /api/v1/audio/translations\n\nText models (free): gpt-5-mini, gpt-5.2, gpt-oss-120b, gemini-3-flash, grok-3, deepseek-v4-flash, mistral-large-latest, glm-4.7-flash, step-3.7-flash, nemotron-3-ultra-550b-a55b, qwen3.6-27b, qwen3-coder-plus, llama-3.3-70b, minimax-m3, groq-compound, cohere-command-a, phi-4-multimodal-instruct, claude-haiku-4.5\\nText models (pro): claude-sonnet-4.6, claude-opus-4.8, grok-4-fast, deepseek-v3.2, glm-5.2, kimi-k2.6, aichixia-flash, gpt-5.5, mimo-v2.5-pro, laguna-s-2.1, thinkingmachines/inkling\\nText models (enterprise): claude-fable-5\\\\nStreaming (stream: true) supported only on: kimi-k2.6, mistral-large-latest, minimax-m3, step-3.7-flash, nemotron-3-ultra-550b-a55b, gpt-oss-120b, deepseek-v4-flash, glm-5.2, gemma-4-31b, laguna-s-2.1, cohere-command-a, gemini-3-flash, llama-3.3-70b, deepseek-v3.2, claude-fable-5, mimo-v2.5-pro, qwen3-coder-plus, thinkingmachines/inkling -- returns SSE for supported models; other models return a 400 error if stream is requested.\\\\nVision models: gpt-5.2, kimi-k2.6, gemini-3-flash, grok-4-fast, phi-4-multimodal-instruct, qwen3.6-27b, step-3.7-flash, claude-fable-5, thinkingmachines/inkling\\nImage generation models: flux-2-dev, lucid-origin, phoenix-1.0, gemini-3-pro-image\\nVideo generation models (pro): wan2.2-i2v (Alibaba, image-to-video, requires input_image), hailuo-h3 (MiniMax, text-to-video and image-to-video with synced soundtrack)\\nTTS models: starling-tts, lindsay-tts, miu-tts, catherine-tts, nana-tts, stephanie-tts (Typecast, support: eng, kor, jpn, cmn, spa), alexandra-tts (ElevenLabs, support: ind, eng, rus, cmn), eve-tts (ElevenLabs, support: kor, eng, msa, vie)\\nSTT models: whisper-large-v3 (max accuracy), whisper-large-v3-turbo (max speed 216x real-time)\\n\\nPlans: Free=1000 req/day, Pro=4000 req/day, Enterprise=custom (contact sales team via email). Enterprise-tier models (e.g. claude-fable-5) require the Enterprise plan even for otherwise Pro-eligible accounts.\\nContact: contact@aichixia.xyz | Telegram community: https://t.me/AichixiaAPI\\nDo not use tool calling or function calling. Use code examples when relevant.' },
             ...newMessages.map(m => ({ role: m.role, content: m.content })),
           ],
         }),
@@ -252,6 +252,30 @@ print(image_base64)`,
     "steps": 30,
     "response_format": "b64_json"
   }'`,
+
+    geminiProImageTS: `import fs from 'fs';
+
+const sourceImage = fs.readFileSync('./input.jpg');
+const base64Image = \`data:image/jpeg;base64,\${sourceImage.toString('base64')}\`;
+
+const response = await fetch('${base}/api/v1/images/generations', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer YOUR_API_KEY'
+  },
+  body: JSON.stringify({
+    model: 'gemini-3-pro-image',
+    prompt: 'Turn this into anime style with black hair',
+    image: base64Image,
+    response_format: 'b64_json'
+  })
+});
+
+const data: { data: { b64_json: string }[] } = await response.json();
+const imageBase64 = data.data[0].b64_json;
+
+fs.writeFileSync('./output.png', Buffer.from(imageBase64, 'base64'));`,
 
     videoWanJS: `const response = await fetch('${base}/api/v1/videos/generations', {
   method: 'POST',
@@ -1201,14 +1225,14 @@ const message = await stream.finalMessage();`}
                     </button>
                     {expandedSection === 'image-request' && (
                       <div className="p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
-                        <Param name="model" required type="string" desc="Image model ID: flux-2-dev, lucid-origin, phoenix-1.0, nano-image" />
+                        <Param name="model" required type="string" desc="Image model ID: flux-2-dev, lucid-origin, phoenix-1.0, gemini-3-pro-image" />
                         <Param name="prompt" required type="string" desc="Text description of the image to generate" />
-                        <Param name="image" type="string" desc="Base64-encoded source image (data URL). Required for nano-image, ignored by other models." />
-                        <Param name="size" type="string" desc="Image dimensions WxH. e.g. 1024x1024, 512x512. Default: 1024x1024. Not used by nano-image." />
-                        <Param name="steps" type="number" desc="Diffusion steps. Higher = better quality but slower. Default: 25–30. Not used by nano-image." />
-                        <Param name="seed" type="number" desc="Random seed for reproducibility. Optional. Not used by nano-image." />
-                        <Param name="guidance" type="number" desc="Guidance scale. How closely image follows prompt. Optional. Not used by nano-image." />
-                        <Param name="negative_prompt" type="string" desc="What to exclude from the image. Not supported by nano-image." />
+                        <Param name="image" type="string" desc="Base64-encoded source image (data URL). Required for gemini-3-pro-image, ignored by other models." />
+                        <Param name="size" type="string" desc="Image dimensions WxH. e.g. 1024x1024, 512x512. Default: 1024x1024. Not used by gemini-3-pro-image." />
+                        <Param name="steps" type="number" desc="Diffusion steps. Higher = better quality but slower. Default: 25–30. Not used by gemini-3-pro-image." />
+                        <Param name="seed" type="number" desc="Random seed for reproducibility. Optional. Not used by gemini-3-pro-image." />
+                        <Param name="guidance" type="number" desc="Guidance scale. How closely image follows prompt. Optional. Not used by gemini-3-pro-image." />
+                        <Param name="negative_prompt" type="string" desc="What to exclude from the image. Not supported by gemini-3-pro-image." />
                         <Param name="response_format" type="string" desc="Output format: b64_json (default) or url" />
                         <Param name="n" type="number" desc="Number of images to generate. Default: 1" />
                       </div>
@@ -1266,6 +1290,7 @@ const message = await stream.finalMessage();`}
                   <CodeBlock code={codeExamples.imageGenerationJS} lang="JavaScript" id="image-js" />
                   <CodeBlock code={codeExamples.imageGenerationPython} lang="Python" id="image-python" />
                   <CodeBlock code={codeExamples.imageGenerationCurl} lang="cURL" id="image-curl" />
+                  <CodeBlock code={codeExamples.geminiProImageTS} lang="TypeScript · Gemini 3 Pro Image" id="image-gemini-ts" />
                 </div>
               )}
 
