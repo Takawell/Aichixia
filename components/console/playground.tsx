@@ -1602,7 +1602,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
   }, []);
 
   useEffect(() => {
-    if (!isVisionModel) setUploadedImages([]);
+    if (!isVisionModel && selectedModel.id !== 'nano-image') setUploadedImages([]);
   }, [selectedModel.id, isVisionModel]);
 
   const modelsForTab = () => {
@@ -2200,11 +2200,11 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
               </div>
             )}
 
-            {isVisionModel && selectedModel.type === 'text' && (
+            {(isVisionModel && selectedModel.type === 'text' || selectedModel.id === 'nano-image') && (
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 flex items-center gap-1">
-                    <FiImage className="w-3 h-3" /> Attach Images <span className="text-[9px] font-normal text-zinc-400">(up to 5)</span>
+                    <FiImage className="w-3 h-3" /> Attach Images <span className="text-[9px] font-normal text-zinc-400">{selectedModel.id === 'nano-image' ? '(1 image)' : '(up to 5)'}</span>
                   </label>
                   {uploadedImages.length > 0 && (
                     <button onClick={() => setUploadedImages([])} className="text-[9px] text-zinc-400 hover:text-red-500 transition-colors">Clear all</button>
@@ -2222,7 +2222,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                         </div>
                       </div>
                     ))}
-                    {uploadedImages.length < 5 && (
+                    {uploadedImages.length < (selectedModel.id === 'nano-image' ? 1 : 5) && (
                       <button
                         onClick={() => fileInputRef.current?.click()}
                         className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg border-2 border-dashed border-zinc-300 dark:border-zinc-700 hover:border-blue-300 dark:hover:border-blue-400 flex items-center justify-center text-zinc-400 hover:text-blue-500 transition-all duration-200 flex-shrink-0"
@@ -2250,7 +2250,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
                     <p className="text-[9px] text-zinc-400">PNG, JPG, WEBP · max 10MB each</p>
                   </div>
                 )}
-                <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFileInputChange} />
+                <input ref={fileInputRef} type="file" accept="image/*" multiple={selectedModel.id !== 'nano-image'} className="hidden" onChange={handleFileInputChange} />
               </div>
             )}
 
