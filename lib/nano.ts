@@ -16,7 +16,8 @@ export class NanoQuotaError extends Error {
 
 async function uploadToImgbb(base64Image: string): Promise<string> {
   if (!IMGBB_API_KEY) {
-    throw new Error("IMGBB_API_KEY not defined in environment variables.");
+    console.error("[lib/nano] IMGBB_API_KEY not set");
+    throw new Error("Image upload service is not configured.");
   }
 
   const cleanBase64 = base64Image.includes(",")
@@ -36,7 +37,7 @@ async function uploadToImgbb(base64Image: string): Promise<string> {
     });
   } catch (fetchError: any) {
     console.error("[lib/nano] imgbb fetch failed:", fetchError.message);
-    throw new Error(`imgbb network error: ${fetchError.message}`);
+    throw new Error("Failed to upload source image.");
   }
 
   const responseText = await response.text();
@@ -44,20 +45,22 @@ async function uploadToImgbb(base64Image: string): Promise<string> {
   console.log("[lib/nano] imgbb response body:", responseText);
 
   if (!response.ok) {
-    throw new Error(`imgbb upload failed: ${response.status} - ${responseText}`);
+    console.error("[lib/nano] imgbb upload failed:", response.status, responseText);
+    throw new Error("Failed to upload source image.");
   }
 
   let data;
   try {
     data = JSON.parse(responseText);
   } catch (parseError) {
-    throw new Error("Invalid JSON response from imgbb");
+    console.error("[lib/nano] imgbb invalid JSON:", responseText);
+    throw new Error("Failed to upload source image.");
   }
 
   const uploadedUrl = data?.data?.url;
   if (!uploadedUrl) {
     console.error("[lib/nano] imgbb response missing url:", data);
-    throw new Error("imgbb upload did not return a URL");
+    throw new Error("Failed to upload source image.");
   }
 
   return uploadedUrl;
@@ -75,7 +78,7 @@ export async function generateNano(
   }
 
   if (!sourceUrl) {
-    throw new Error("imageUrl or imageBase64Input is required for this API.");
+    throw new Error("A source image is required.");
   }
 
   const endpoint = `https://axlyapi.qzz.io/ai/nanobanana?url=${encodeURIComponent(
@@ -90,7 +93,7 @@ export async function generateNano(
     console.log("[lib/nano] Fetch completed, status:", response.status);
   } catch (fetchError: any) {
     console.error("[lib/nano] Fetch failed:", fetchError.message);
-    throw new Error(`Network error: ${fetchError.message}`);
+    throw new Error("Image generation service is unreachable.");
   }
 
   console.log("[lib/nano] Response status:", response.status);
@@ -98,22 +101,22 @@ export async function generateNano(
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error("[lib/nano] Error response:", errorText);
+    console.error("[lib/nano] Error response:", response.status, errorText);
 
     if (response.status === 429) {
-      throw new NanoRateLimitError(`Rate limit exceeded: ${errorText}`);
+      throw new NanoRateLimitError("Rate limit exceeded. Please try again later.");
     }
     if (response.status === 402) {
-      throw new NanoQuotaError(`Quota exceeded: ${errorText}`);
+      throw new NanoQuotaError("Quota exceeded. Please check your plan.");
     }
-    throw new Error(`API error: ${response.status} - ${errorText}`);
+    throw new Error("Image generation failed.");
   }
 
   const contentType = response.headers.get("content-type") || "";
   if (!contentType.startsWith("image/")) {
     const bodyText = await response.text();
     console.error("[lib/nano] Unexpected non-image response:", bodyText);
-    throw new Error("No image data in response");
+    throw new Error("Image generation failed.");
   }
 
   const arrayBuffer = await response.arrayBuffer();
