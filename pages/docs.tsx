@@ -1247,7 +1247,7 @@ const message = await stream.finalMessage();`}
                             { id: 'flux-2-dev', name: 'Flux 2', provider: 'Black Forest Labs', desc: 'High quality photorealistic images' },
                             { id: 'lucid-origin', name: 'Lucid Origin', provider: 'Leonardo', desc: 'Creative & artistic image synthesis' },
                             { id: 'phoenix-1.0', name: 'Phoenix 1.0', provider: 'Leonardo', desc: 'Fast artistic image generation' },
-                            { id: 'nano-image', name: 'Nano Banana Pro', provider: 'Google Gemini', desc: 'Image-to-image editing from a source image + prompt' },
+                            { id: 'gemini-3-pro-image', name: 'Nano Banana Pro', provider: 'Google Gemini', desc: 'Image-to-image editing from a source image + prompt' },
                           ].map(({ id, name, provider, desc }) => (
                             <div key={id} className="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
                               <div className="flex items-center justify-between mb-1">
