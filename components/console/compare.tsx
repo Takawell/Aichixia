@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback, useMemo, memo } from 'react';
-import { FiPlay, FiCopy, FiCheck, FiChevronDown, FiZap, FiSettings, FiClock, FiPlus, FiX, FiAlertCircle, FiHash, FiTrash2, FiRotateCcw, FiEye, FiEyeOff, FiThumbsUp, FiSquare, FiDownload, FiMaximize2, FiMinimize2, FiSliders, FiTarget, FiActivity, FiBarChart2, FiShuffle, FiStar, FiCpu } from 'react-icons/fi';
+import { FiPlay, FiCopy, FiCheck, FiChevronDown, FiZap, FiSettings, FiClock, FiPlus, FiX, FiAlertCircle, FiHash, FiRotateCcw, FiEye, FiEyeOff, FiThumbsUp, FiSquare, FiDownload, FiMaximize2, FiMinimize2, FiSliders, FiTarget, FiActivity, FiBarChart2, FiStar, FiCpu, FiCode, FiRefreshCw, FiSave, FiClock as FiHistory, FiTrash2, FiFileText, FiLayers, FiShuffle, FiThumbsDown, FiAward, FiCommand, FiType, FiTrendingUp, FiPercent } from 'react-icons/fi';
 import { SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiMistralai, SiXiaomi, SiAirbrake, SiMaze, SiNvidia } from 'react-icons/si';
 import { RiOpenaiFill, RiMoonFill } from 'react-icons/ri';
 import { GiSpermWhale, GiPowerLightning, GiClover } from 'react-icons/gi';
@@ -20,44 +20,44 @@ type AnyModel = {
   pricing: string;
   context: string;
   endpoint: string;
-  requiresPro?: boolean;
-  requiresEnterprise?: boolean;
+  requiresPlan?: 'pro' | 'enterprise';
 };
 
 const STREAM_CAPABLE_MODELS = new Set(['kimi-k2.6', 'mistral-large-latest', 'minimax-m3', 'step-3.7-flash', 'nemotron-3-ultra-550b-a55b', 'gpt-oss-120b', 'deepseek-v4-flash', 'gemma-4-31b', 'glm-5.2', 'laguna-s-2.1', 'cohere-command-a', 'gemini-3-flash', 'llama-3.3-70b', 'deepseek-v3.2', 'claude-fable-5', 'qwen3-coder-plus', 'mimo-v2.5-pro', 'thinkingmachines/inkling', 'glm-4.7-flash', 'llama-4-scout-17b-16e-instruct']);
 
 const TEXT_MODELS: AnyModel[] = [
-  { id: 'gpt-5-mini', name: 'GPT-5 Mini', provider: 'OpenAI', logoSlug: 'openai', icon: RiOpenaiFill, color: 'from-emerald-500 to-green-600', pricing: 'Budget', context: '400K', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'aichixia-flash', name: 'Aichixia 114B', provider: 'Aichiverse', icon: SiAirbrake, color: 'from-blue-600 via-blue-800 to-slate-900', pricing: 'Standard', context: '256K', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
-  { id: 'mistral-large-latest', name: 'Mistral Large', provider: 'Mistral AI', logoSlug: 'mistral', icon: SiMistralai, color: 'from-orange-500 to-amber-500', pricing: 'Premium', context: '256K', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'deepseek-v3.2', name: 'DeepSeek V3.2', provider: 'DeepSeek', logoSlug: 'deepseek', icon: GiSpermWhale, color: 'from-cyan-500 to-blue-600', pricing: 'Premium', context: '128K', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
+  { id: 'gpt-5-mini', name: 'GPT-5 Mini', provider: 'OpenAI', logoSlug: 'openai', icon: RiOpenaiFill, color: 'from-emerald-600 to-green-600', pricing: 'Budget', context: '400K', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'aichixia-flash', name: 'Aichixia 114B', provider: 'Aichiverse', icon: SiAirbrake, color: 'from-blue-600 via-blue-800 to-slate-900', pricing: 'Standard', context: '256K', endpoint: `${base}/api/v1/chat/completions`, requiresPlan: 'pro' },
+  { id: 'mistral-large-latest', name: 'Mistral Large', provider: 'Mistral AI', logoSlug: 'mistral', icon: SiMistralai, color: 'from-orange-600 to-amber-600', pricing: 'Premium', context: '256K', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'deepseek-v3.2', name: 'DeepSeek V3.2', provider: 'DeepSeek', logoSlug: 'deepseek', icon: GiSpermWhale, color: 'from-cyan-600 to-blue-600', pricing: 'Premium', context: '128K', endpoint: `${base}/api/v1/chat/completions`, requiresPlan: 'pro' },
   { id: 'deepseek-v4-flash', name: 'DeepSeek V4 Flash', provider: 'DeepSeek', logoSlug: 'deepseek', icon: GiSpermWhale, color: 'from-cyan-600 to-teal-600', pricing: 'Standard', context: '1M', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'claude-sonnet-4.6', name: 'Claude Sonnet 4.6', provider: 'Anthropic', logoSlug: 'anthropic', icon: SiAnthropic, color: 'from-orange-500 to-amber-600', pricing: 'Premium', context: '1M', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
-  { id: 'claude-opus-4.8', name: 'Claude Opus 4.8', provider: 'Anthropic', logoSlug: 'anthropic', icon: SiAnthropic, color: 'from-orange-500 to-amber-600', pricing: 'Premium', context: '1M', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
-  { id: 'claude-fable-5', name: 'Claude Fable 5', provider: 'Anthropic', logoSlug: 'anthropic', icon: SiAnthropic, color: 'from-orange-600 to-amber-700', pricing: 'Premium', context: '1M', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true, requiresEnterprise: true },
-  { id: 'claude-haiku-4.5', name: 'Claude Haiku 4.5', provider: 'Anthropic', logoSlug: 'anthropic', icon: SiAnthropic, color: 'from-orange-400 to-amber-500', pricing: 'Standard', context: '200K', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'gemini-3-flash', name: 'Gemini 3 Flash', provider: 'Google', logoSlug: 'gemini', icon: SiGooglegemini, color: 'from-indigo-500 to-purple-600', pricing: 'Budget', context: '1M', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'phi-4-multimodal-instruct', name: 'Phi 4 Multimodal', provider: 'Microsoft', icon: TiVendorMicrosoft, color: 'from-cyan-500 to-blue-700', pricing: 'Budget', context: '128K', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'grok-3', name: 'Grok 3', provider: 'xAI', icon: FaXTwitter, color: 'from-slate-600 to-zinc-700', pricing: 'Premium', context: '1M', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'glm-5.2', name: 'GLM 5.2', provider: 'Zhipu', icon: TbSquareLetterZ, color: 'from-blue-700 to-indigo-800', pricing: 'Premium', context: '200K', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
-  { id: 'kimi-k2.6', name: 'Kimi K2.6', provider: 'Moonshot', icon: RiMoonFill, color: 'from-blue-500 to-cyan-600', pricing: 'Premium', context: '256K', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
-  { id: 'glm-4.7-flash', name: 'GLM 4.7 Flash', provider: 'Zhipu', icon: TbSquareLetterZ, color: 'from-blue-700 to-indigo-800', pricing: 'Standard', context: '131K', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
-  { id: 'gemma-4-31b', name: 'Gemma 4 31B', provider: 'Google', logoSlug: 'gemini', icon: SiGooglegemini, color: 'from-indigo-500 to-purple-600', pricing: 'Budget', context: '128K', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'claude-sonnet-4.6', name: 'Claude Sonnet 4.6', provider: 'Anthropic', logoSlug: 'anthropic', icon: SiAnthropic, color: 'from-orange-600 to-amber-700', pricing: 'Premium', context: '200K', endpoint: `${base}/api/v1/chat/completions`, requiresPlan: 'pro' },
+  { id: 'claude-opus-4.8', name: 'Claude Opus 4.8', provider: 'Anthropic', logoSlug: 'anthropic', icon: SiAnthropic, color: 'from-orange-600 to-amber-700', pricing: 'Premium', context: '1M', endpoint: `${base}/api/v1/chat/completions`, requiresPlan: 'pro' },
+  { id: 'claude-fable-5', name: 'Claude Fable 5', provider: 'Anthropic', logoSlug: 'anthropic', icon: SiAnthropic, color: 'from-orange-700 to-amber-800', pricing: 'Premium', context: '1M', endpoint: `${base}/api/v1/chat/completions`, requiresPlan: 'enterprise' },
+  { id: 'claude-haiku-4.5', name: 'Claude Haiku 4.5', provider: 'Anthropic', logoSlug: 'anthropic', icon: SiAnthropic, color: 'from-orange-500 to-amber-600', pricing: 'Standard', context: '200K', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'gemini-3-flash', name: 'Gemini 3 Flash', provider: 'Google', logoSlug: 'gemini', icon: SiGooglegemini, color: 'from-indigo-600 to-purple-600', pricing: 'Budget', context: '1M', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'grok-3', name: 'Grok 3', provider: 'xAI', logoSlug: 'xai', icon: FaXTwitter, color: 'from-slate-600 to-zinc-800', pricing: 'Premium', context: '1M', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'phi-4-multimodal-instruct', name: 'Phi 4 Multimodal', provider: 'Microsoft', logoSlug: 'microsoft', icon: TiVendorMicrosoft, color: 'from-cyan-500 to-blue-700', pricing: 'Budget', context: '128K', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'glm-5.2', name: 'GLM 5.2', provider: 'Zhipu', logoSlug: 'zhipu', icon: TbSquareLetterZ, color: 'from-blue-700 to-indigo-900', pricing: 'Premium', context: '200K', endpoint: `${base}/api/v1/chat/completions`, requiresPlan: 'pro' },
+  { id: 'glm-4.7-flash', name: 'GLM 4.7 Flash', provider: 'Zhipu', logoSlug: 'zhipu', icon: TbSquareLetterZ, color: 'from-blue-700 to-indigo-900', pricing: 'Standard', context: '131K', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'gemma-4-31b', name: 'Gemma 4 31B', provider: 'Google', logoSlug: 'gemini', icon: SiGooglegemini, color: 'from-indigo-600 to-purple-600', pricing: 'Budget', context: '128K', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'kimi-k2.6', name: 'Kimi K2.6', provider: 'Moonshot', logoSlug: 'kimi', icon: RiMoonFill, color: 'from-blue-600 to-cyan-600', pricing: 'Premium', context: '256K', endpoint: `${base}/api/v1/chat/completions`, requiresPlan: 'pro' },
+  { id: 'step-3.7-flash', name: 'Step 3.7 Flash', provider: 'StepFun', logoSlug: 'stepfun', icon: DiBower, color: 'from-blue-500 to-blue-700', pricing: 'Standard', context: '256K', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'nemotron-3-ultra-550b-a55b', name: 'Nemotron 3 Ultra 550B', provider: 'NVIDIA', logoSlug: 'nvidia', icon: SiNvidia, color: 'from-emerald-600 to-green-600', pricing: 'Premium', context: '256K', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'laguna-s-2.1', name: 'Laguna S 2.1', provider: 'Poolside', logoSlug: 'poolside', icon: FiZap, color: 'from-sky-600 to-blue-700', pricing: 'Premium', context: '256K', endpoint: `${base}/api/v1/chat/completions`, requiresPlan: 'pro' },
   { id: 'qwen3.6-27b', name: 'Qwen3.6 27B', provider: 'Alibaba', logoSlug: 'qwen', icon: SiAlibabacloud, color: 'from-purple-500 to-pink-500', pricing: 'Standard', context: '256K', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'qwen3-coder-plus', name: 'Qwen3 Coder Plus 480B', provider: 'Alibaba', logoSlug: 'qwen', icon: SiAlibabacloud, color: 'from-purple-600 to-fuchsia-600', pricing: 'Premium', context: '1M', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'minimax-m3', name: 'MiniMax M3', provider: 'MiniMax', logoSlug: 'minimax', icon: SiMaze, color: 'from-cyan-600 to-blue-600', pricing: 'Premium', context: '204K', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'thinkingmachines/inkling', name: 'Inkling', provider: 'Thinking Machines', logoSlug: 'huggingface', icon: SiNvidia, color: 'from-yellow-500 to-orange-500', pricing: 'Premium', context: '256K', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
+  { id: 'thinkingmachines/inkling', name: 'Inkling', provider: 'Thinking Machines', logoSlug: 'huggingface', icon: SiNvidia, color: 'from-yellow-500 to-orange-500', pricing: 'Premium', context: '256K', endpoint: `${base}/api/v1/chat/completions`, requiresPlan: 'pro' },
+  { id: 'llama-4-scout-17b-16e-instruct', name: 'Llama 4 Scout 17B 16E', provider: 'Meta', logoSlug: 'meta', icon: SiMeta, color: 'from-purple-600 to-blue-700', pricing: 'Standard', context: '131K', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'llama-3.3-70b', name: 'Llama 3.3 70B', provider: 'Meta', logoSlug: 'meta', icon: SiMeta, color: 'from-blue-600 to-indigo-700', pricing: 'Standard', context: '130K', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'gpt-oss-120b', name: 'GPT-OSS 120B', provider: 'OpenAI', logoSlug: 'openai', icon: RiOpenaiFill, color: 'from-pink-600 to-rose-600', pricing: 'Budget', context: '128K', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'mimo-v2.5-pro', name: 'MiMo V2.5 Pro', provider: 'Xiaomi', logoSlug: 'xiaomi', icon: SiXiaomi, color: 'from-blue-600 to-purple-600', pricing: 'Premium', context: '1M', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
-  { id: 'groq-compound', name: 'Groq Compound', provider: 'Groq', icon: GiPowerLightning, color: 'from-orange-600 to-red-600', pricing: 'Standard', context: '131K', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'gpt-oss-120b', name: 'GPT-OSS 120B', provider: 'OpenAI', logoSlug: 'openai', icon: RiOpenaiFill, color: 'from-pink-600 to-rose-600', pricing: 'Budget', context: '131K', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'mimo-v2.5-pro', name: 'MiMo V2.5 Pro', provider: 'Xiaomi', logoSlug: 'xiaomi', icon: SiXiaomi, color: 'from-blue-600 to-purple-600', pricing: 'Premium', context: '1M', endpoint: `${base}/api/v1/chat/completions`, requiresPlan: 'pro' },
+  { id: 'groq-compound', name: 'Groq Compound', provider: 'Groq', logoSlug: 'groq', icon: GiPowerLightning, color: 'from-orange-600 to-red-600', pricing: 'Standard', context: '131K', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'cohere-command-a', name: 'Cohere Command A', provider: 'Cohere', logoSlug: 'cohere', icon: GiClover, color: 'from-emerald-600 to-teal-600', pricing: 'Standard', context: '256K', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'grok-4-fast', name: 'Grok 4 Fast', provider: 'xAI', icon: FaXTwitter, color: 'from-zinc-700 to-slate-900', pricing: 'Premium', context: '2M', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
-  { id: 'step-3.7-flash', name: 'Step 3.7 Flash', provider: 'StepFun', icon: DiBower, color: 'from-blue-500 to-blue-700', pricing: 'Standard', context: '256K', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'nemotron-3-ultra-550b-a55b', name: 'Nemotron 3 Ultra 550B', provider: 'NVIDIA', logoSlug: 'nvidia', icon: SiNvidia, color: 'from-emerald-600 to-green-600', pricing: 'Premium', context: '256K', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'laguna-s-2.1', name: 'Laguna S 2.1', provider: 'Poolside', icon: FiZap, color: 'from-sky-600 to-blue-700', pricing: 'Premium', context: '256K', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
-  { id: 'gpt-5.2', name: 'GPT-5.2', provider: 'OpenAI', logoSlug: 'openai', icon: RiOpenaiFill, color: 'from-green-500 to-emerald-600', pricing: 'Standard', context: '400K', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
-  { id: 'gpt-5.5', name: 'GPT-5.5', provider: 'OpenAI', logoSlug: 'openai', icon: RiOpenaiFill, color: 'from-green-600 to-teal-600', pricing: 'Premium', context: '400K', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
+  { id: 'grok-4-fast', name: 'Grok 4 Fast', provider: 'xAI', logoSlug: 'xai', icon: FaXTwitter, color: 'from-zinc-700 to-slate-900', pricing: 'Standard', context: '2M', endpoint: `${base}/api/v1/chat/completions`, requiresPlan: 'pro' },
+  { id: 'gpt-5.2', name: 'GPT-5.2', provider: 'OpenAI', logoSlug: 'openai', icon: RiOpenaiFill, color: 'from-green-500 to-emerald-600', pricing: 'Premium', context: '400K', endpoint: `${base}/api/v1/chat/completions`, requiresPlan: 'pro' },
+  { id: 'gpt-5.5', name: 'GPT-5.5', provider: 'OpenAI', logoSlug: 'openai', icon: RiOpenaiFill, color: 'from-green-600 to-teal-600', pricing: 'Premium', context: '400K', endpoint: `${base}/api/v1/chat/completions`, requiresPlan: 'pro' },
 ];
 
 const PRICING_STYLE: Record<string, string> = {
@@ -109,6 +109,49 @@ async function safeParseJson(res: Response): Promise<{ data: any; error: string 
   }
 }
 
+type ArtifactData = { type: 'html' | 'svg'; content: string; title: string };
+
+function detectArtifact(text: string): ArtifactData | null {
+  const html = text.match(/```html\n([\s\S]*?)```/i);
+  if (html) return { type: 'html', content: html[1].trim(), title: 'HTML Preview' };
+  const svg = text.match(/```svg\n([\s\S]*?)```/i);
+  if (svg) return { type: 'svg', content: svg[1].trim(), title: 'SVG Preview' };
+  const rawSvg = text.match(/<svg[\s\S]*?<\/svg>/i);
+  if (rawSvg) return { type: 'svg', content: rawSvg[0], title: 'SVG Preview' };
+  return null;
+}
+
+function ArtifactPreview({ artifact }: { artifact: ArtifactData }) {
+  const [fullscreen, setFullscreen] = useState(false);
+  const srcDoc = artifact.type === 'svg'
+    ? `<!DOCTYPE html><html><body style="margin:0;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#fff">${artifact.content}</body></html>`
+    : artifact.content;
+
+  return (
+    <div className={`cmp-fade-in rounded-2xl overflow-hidden border border-blue-300/50 dark:border-blue-500/30 shadow-lg mt-2 ${fullscreen ? 'fixed inset-2 sm:inset-8 z-[90] flex flex-col' : ''}`}>
+      <div className="flex items-center justify-between px-2.5 py-1.5 bg-gradient-to-r from-blue-50/90 to-indigo-50/60 dark:from-blue-950/60 dark:to-indigo-950/30 border-b border-blue-200/60 dark:border-blue-800/40 flex-shrink-0">
+        <div className="flex items-center gap-1.5">
+          <div className="flex gap-1">
+            <div className="w-2 h-2 rounded-full bg-red-400/80" />
+            <div className="w-2 h-2 rounded-full bg-amber-400/80" />
+            <div className="w-2 h-2 rounded-full bg-emerald-400/80" />
+          </div>
+          <span className="text-[9px] font-bold text-blue-500 dark:text-blue-300">{artifact.title}</span>
+        </div>
+        <button onClick={() => setFullscreen(v => !v)} className="w-5 h-5 flex items-center justify-center rounded-md hover:bg-blue-100/70 dark:hover:bg-blue-800/30 text-blue-400 dark:text-blue-300 transition-colors">
+          {fullscreen ? <FiMinimize2 className="w-3 h-3" /> : <FiMaximize2 className="w-3 h-3" />}
+        </button>
+      </div>
+      <iframe
+        srcDoc={srcDoc}
+        className={`w-full border-0 bg-white ${fullscreen ? 'flex-1' : 'h-40'}`}
+        sandbox="allow-scripts allow-same-origin"
+        title={artifact.title}
+      />
+    </div>
+  );
+}
+
 function renderInline(str: string, keyPrefix: string): React.ReactNode[] {
   const parts: React.ReactNode[] = [];
   const regex = /(`[^`\n]+`|\*\*([^*]+)\*\*|\*([^*\n]+)\*)/g;
@@ -126,7 +169,7 @@ function renderInline(str: string, keyPrefix: string): React.ReactNode[] {
   return parts;
 }
 
-function MiniMarkdown({ text }: { text: string }) {
+function MiniMarkdown({ text, showArtifacts }: { text: string; showArtifacts: boolean }) {
   const lines = text.split('\n');
   const blocks: React.ReactNode[] = [];
   let i = 0;
@@ -134,14 +177,20 @@ function MiniMarkdown({ text }: { text: string }) {
   while (i < lines.length) {
     const line = lines[i];
     if (line.trim().startsWith('```')) {
+      const langTag = line.trim().slice(3).trim();
       const code: string[] = [];
       i++;
       while (i < lines.length && !lines[i].trim().startsWith('```')) { code.push(lines[i]); i++; }
       i++;
+      const codeStr = code.join('\n');
+      const art = showArtifacts ? detectArtifact(`\`\`\`${langTag}\n${codeStr}\n\`\`\``) : null;
       blocks.push(
-        <pre key={key++} className="my-2 rounded-xl bg-zinc-950/90 border border-white/10 p-2.5 overflow-x-auto">
-          <code className="text-[10px] font-mono text-zinc-200 whitespace-pre">{code.join('\n')}</code>
-        </pre>
+        <div key={key++}>
+          <pre className="my-2 rounded-xl bg-zinc-950/90 border border-white/10 p-2.5 overflow-x-auto">
+            <code className="text-[10px] font-mono text-zinc-200 whitespace-pre">{codeStr}</code>
+          </pre>
+          {art && <ArtifactPreview artifact={art} />}
+        </div>
       );
       continue;
     }
@@ -193,8 +242,21 @@ type SlotSummary = {
   latencyMs: number | null;
   totalTokens: number | null;
   liked: boolean;
+  rating: number;
   charCount: number;
+  text: string;
 };
+
+type HistoryEntry = { id: string; prompt: string; timestamp: number };
+
+const PROMPT_TEMPLATES: { label: string; prompt: string }[] = [
+  { label: 'Explain concept', prompt: 'Explain the difference between REST and GraphQL in three sentences.' },
+  { label: 'Write code', prompt: 'Write a Python function that checks whether a string is a palindrome, with comments.' },
+  { label: 'Summarize', prompt: 'Summarize the key benefits of server-side rendering versus client-side rendering.' },
+  { label: 'Creative writing', prompt: 'Write a short, vivid opening paragraph for a sci-fi story set on a floating city.' },
+  { label: 'Reasoning', prompt: 'A farmer has 17 sheep, all but 9 die. How many are left? Explain your reasoning step by step.' },
+  { label: 'Build UI', prompt: 'Create a simple responsive pricing card component using HTML and CSS in a single html code block.' },
+];
 
 function ModelPicker({ value, onChange, exclude, disabled }: { value: AnyModel; onChange: (m: AnyModel) => void; exclude: string[]; disabled: boolean }) {
   const [open, setOpen] = useState(false);
@@ -288,16 +350,17 @@ function StatusPill({ status }: { status: SlotStatus }) {
   );
 }
 
-type SlotCardHandle = { stop: () => void };
+type SlotCardHandle = { stop: () => void; run: () => void };
 
 const SlotCard = memo(function SlotCard({
-  uid, model, config, exclude, canRemove, onModelChange, onRemove, onReport, registerHandle,
+  uid, model, config, exclude, canRemove, showArtifacts, onModelChange, onRemove, onReport, registerHandle,
 }: {
   uid: string;
   model: AnyModel;
   config: RunConfig;
   exclude: string[];
   canRemove: boolean;
+  showArtifacts: boolean;
   onModelChange: (m: AnyModel) => void;
   onRemove: () => void;
   onReport: (s: SlotSummary) => void;
@@ -309,8 +372,10 @@ const SlotCard = memo(function SlotCard({
   const [latencyMs, setLatencyMs] = useState<number | null>(null);
   const [totalTokens, setTotalTokens] = useState<number | null>(null);
   const [liked, setLiked] = useState(false);
+  const [rating, setRating] = useState(0);
   const [copied, setCopied] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [showStats, setShowStats] = useState(false);
   const [, forceTick] = useState(0);
 
   const bufferRef = useRef('');
@@ -328,15 +393,11 @@ const SlotCard = memo(function SlotCard({
 
   const pushChunk = useCallback((chunk: string) => {
     bufferRef.current += chunk;
-    if (rafRef.current == null) {
-      rafRef.current = requestAnimationFrame(flush);
-    }
+    if (rafRef.current == null) rafRef.current = requestAnimationFrame(flush);
   }, [flush]);
 
   useEffect(() => {
-    if (status === 'streaming' && scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
+    if (status === 'streaming' && scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [text, status]);
 
   useEffect(() => {
@@ -355,11 +416,6 @@ const SlotCard = memo(function SlotCard({
     setStatus(prev => (prev === 'streaming' || prev === 'connecting' ? 'aborted' : prev));
   }, []);
 
-  useEffect(() => {
-    registerHandle(uid, { stop });
-    return () => registerHandle(uid, null);
-  }, [uid, stop, registerHandle]);
-
   const run = useCallback(async () => {
     controllerRef.current?.abort();
     if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
@@ -373,6 +429,7 @@ const SlotCard = memo(function SlotCard({
     setLatencyMs(null);
     setTotalTokens(null);
     setLiked(false);
+    setRating(0);
     setStatus('connecting');
     startRef.current = Date.now();
 
@@ -457,7 +514,7 @@ const SlotCard = memo(function SlotCard({
           setStatus('done');
           setLatencyMs(elapsed);
           setTotalTokens(approxPrompt + approxCompletion);
-          onReport({ uid, status: 'done', latencyMs: elapsed, totalTokens: approxPrompt + approxCompletion, liked: false, charCount: fullText.length });
+          onReport({ uid, status: 'done', latencyMs: elapsed, totalTokens: approxPrompt + approxCompletion, liked: false, rating: 0, charCount: fullText.length, text: fullText });
         }
         return;
       }
@@ -481,12 +538,17 @@ const SlotCard = memo(function SlotCard({
       setLatencyMs(elapsed);
       const tk = data?.usage?.total_tokens ?? null;
       setTotalTokens(tk);
-      onReport({ uid, status: 'done', latencyMs: elapsed, totalTokens: tk, liked: false, charCount: txt.length });
+      onReport({ uid, status: 'done', latencyMs: elapsed, totalTokens: tk, liked: false, rating: 0, charCount: txt.length, text: txt });
     } catch (e: any) {
       if (e.name === 'AbortError' || runIdRef.current !== myRunId) return;
       setStatus('error'); setError(e?.message || 'Network error'); setLatencyMs(Date.now() - startRef.current);
     }
   }, [model, config, pushChunk, onReport, uid]);
+
+  useEffect(() => {
+    registerHandle(uid, { stop, run });
+    return () => registerHandle(uid, null);
+  }, [uid, stop, run, registerHandle]);
 
   useEffect(() => {
     if (config.runId > 0) run();
@@ -511,13 +573,22 @@ const SlotCard = memo(function SlotCard({
   const toggleLike = () => {
     setLiked(v => {
       const next = !v;
-      onReport({ uid, status, latencyMs, totalTokens, liked: next, charCount: text.length });
+      onReport({ uid, status, latencyMs, totalTokens, liked: next, rating, charCount: text.length, text });
+      return next;
+    });
+  };
+
+  const handleRate = (value: number) => {
+    setRating(prev => {
+      const next = prev === value ? 0 : value;
+      onReport({ uid, status, latencyMs, totalTokens, liked, rating: next, charCount: text.length, text });
       return next;
     });
   };
 
   const elapsedLive = status === 'streaming' || status === 'connecting' ? Date.now() - startRef.current : latencyMs;
   const wordsPerSec = status === 'streaming' && elapsedLive ? (text.split(/\s+/).filter(Boolean).length / (elapsedLive / 1000)).toFixed(1) : null;
+  const hasArtifact = showArtifacts && !!detectArtifact(text);
 
   return (
     <div className={`cmp-card cmp-fade-in group relative flex flex-col rounded-3xl border overflow-hidden transition-all duration-500 ${expanded ? 'fixed inset-2 sm:inset-6 z-[70]' : ''} ${
@@ -532,6 +603,21 @@ const SlotCard = memo(function SlotCard({
       <div className="relative flex items-center gap-2 px-3 py-2.5 border-b border-white/40 dark:border-white/5 flex-shrink-0">
         <ModelPicker value={model} onChange={onModelChange} exclude={exclude} disabled={status === 'streaming' || status === 'connecting'} />
         <div className="flex items-center gap-1 flex-shrink-0">
+          {hasArtifact && <span className="w-6 h-6 flex items-center justify-center rounded-lg text-blue-400 bg-blue-500/10"><FiCode className="w-3 h-3" /></span>}
+          <button
+            onClick={() => setShowStats(v => !v)}
+            disabled={!text}
+            className={`w-7 h-7 flex items-center justify-center rounded-lg transition-colors duration-200 disabled:opacity-30 disabled:cursor-not-allowed ${showStats ? 'text-blue-500 bg-blue-500/10' : 'text-zinc-400 hover:text-blue-500 hover:bg-blue-500/10'}`}
+          >
+            <FiTrendingUp className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={() => run()}
+            disabled={status === 'streaming' || status === 'connecting'}
+            className="w-7 h-7 flex items-center justify-center rounded-lg text-zinc-400 hover:text-blue-500 hover:bg-blue-500/10 transition-colors duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            <FiRefreshCw className="w-3.5 h-3.5" />
+          </button>
           <button onClick={() => setExpanded(v => !v)} className="w-7 h-7 flex items-center justify-center rounded-lg text-zinc-400 hover:text-blue-500 hover:bg-blue-500/10 transition-colors duration-200">
             {expanded ? <FiMinimize2 className="w-3.5 h-3.5" /> : <FiMaximize2 className="w-3.5 h-3.5" />}
           </button>
@@ -580,7 +666,23 @@ const SlotCard = memo(function SlotCard({
             <div className="h-2.5 rounded-full bg-gradient-to-r from-zinc-200 via-zinc-100 to-zinc-200 dark:from-zinc-800 dark:via-zinc-700 dark:to-zinc-800 cmp-shimmer w-[92%]" />
           </div>
         )}
-        {text && <MiniMarkdown text={text} />}
+        {text && showStats && (
+          <div className="cmp-pop grid grid-cols-3 gap-1.5 mb-2.5 pb-2.5 border-b border-zinc-100 dark:border-white/5">
+            <div className="rounded-lg bg-zinc-50/80 dark:bg-white/[0.03] px-2 py-1.5 text-center">
+              <p className="text-[11px] font-black text-zinc-800 dark:text-zinc-100 tabular-nums">{text.length}</p>
+              <p className="text-[8px] font-semibold text-zinc-400 uppercase tracking-wide">Chars</p>
+            </div>
+            <div className="rounded-lg bg-zinc-50/80 dark:bg-white/[0.03] px-2 py-1.5 text-center">
+              <p className="text-[11px] font-black text-zinc-800 dark:text-zinc-100 tabular-nums">{text.split(/\s+/).filter(Boolean).length}</p>
+              <p className="text-[8px] font-semibold text-zinc-400 uppercase tracking-wide">Words</p>
+            </div>
+            <div className="rounded-lg bg-zinc-50/80 dark:bg-white/[0.03] px-2 py-1.5 text-center">
+              <p className="text-[11px] font-black text-zinc-800 dark:text-zinc-100 tabular-nums">{text.split(/[.!?]+/).filter(s => s.trim().length > 0).length}</p>
+              <p className="text-[8px] font-semibold text-zinc-400 uppercase tracking-wide">Sentences</p>
+            </div>
+          </div>
+        )}
+        {text && <MiniMarkdown text={text} showArtifacts={showArtifacts} />}
         {status === 'streaming' && text && <span className="inline-block w-[3px] h-3.5 bg-blue-400 cmp-caret align-middle ml-0.5 rounded-full" />}
         {status === 'error' && (
           <div className="flex items-start gap-2 rounded-xl bg-rose-500/5 border border-rose-300/40 dark:border-rose-500/20 px-3 py-2.5 mt-1">
@@ -595,15 +697,23 @@ const SlotCard = memo(function SlotCard({
         )}
       </div>
 
-      <div className="relative flex items-center justify-between px-3 py-2 border-t border-white/40 dark:border-white/5 flex-shrink-0">
-        <button
-          onClick={toggleLike}
-          disabled={!text}
-          className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[9px] font-bold transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed ${liked ? 'bg-emerald-500/15 text-emerald-500' : 'text-zinc-400 hover:text-emerald-500 hover:bg-emerald-500/10'}`}
-        >
-          <FiThumbsUp className={`w-3 h-3 transition-transform duration-200 ${liked ? 'fill-current scale-110' : ''}`} />
-          {liked ? 'Best answer' : 'Mark best'}
-        </button>
+      <div className="relative flex items-center justify-between px-3 py-2 border-t border-white/40 dark:border-white/5 flex-shrink-0 gap-1">
+        <div className="flex items-center gap-1">
+          <button
+            onClick={toggleLike}
+            disabled={!text}
+            className={`flex items-center gap-1 px-2 py-1.5 rounded-xl text-[9px] font-bold transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed ${liked ? 'bg-emerald-500/15 text-emerald-500' : 'text-zinc-400 hover:text-emerald-500 hover:bg-emerald-500/10'}`}
+          >
+            <FiThumbsUp className={`w-3 h-3 transition-transform duration-200 ${liked ? 'fill-current scale-110' : ''}`} />
+          </button>
+          <div className="flex items-center gap-0.5">
+            {[1, 2, 3, 4, 5].map(v => (
+              <button key={v} onClick={() => handleRate(v)} disabled={!text} className="disabled:opacity-20 disabled:cursor-not-allowed">
+                <FiStar className={`w-3 h-3 transition-all duration-150 ${v <= rating ? 'text-amber-400 fill-amber-400 scale-105' : 'text-zinc-300 dark:text-zinc-700 hover:text-amber-300'}`} />
+              </button>
+            ))}
+          </div>
+        </div>
         <div className="flex items-center gap-1">
           <button onClick={handleDownload} disabled={!text} className="flex items-center gap-1 px-2 py-1.5 rounded-xl text-[9px] font-semibold text-zinc-500 dark:text-zinc-400 hover:bg-zinc-500/10 transition-colors duration-150 disabled:opacity-30 disabled:cursor-not-allowed">
             <FiDownload className="w-3 h-3" />
@@ -622,13 +732,28 @@ function StatBar({ summaries, models, uids }: { summaries: Record<string, SlotSu
   const done = uids.map((uid, i) => ({ uid, model: models[i], s: summaries[uid] })).filter(x => x.s && x.s.status === 'done');
   if (done.length < 2) return null;
   const fastest = done.reduce((a, b) => ((a.s.latencyMs ?? Infinity) < (b.s.latencyMs ?? Infinity) ? a : b));
+  const longest = done.reduce((a, b) => ((a.s.charCount ?? 0) > (b.s.charCount ?? 0) ? a : b));
+  const rated = done.filter(x => x.s.rating > 0);
+  const topRated = rated.length > 0 ? rated.reduce((a, b) => (a.s.rating > b.s.rating ? a : b)) : null;
   const maxLatency = Math.max(...done.map(x => x.s.latencyMs ?? 0), 1);
 
   return (
     <div className="cmp-fade-in bg-white/70 dark:bg-zinc-950/60 backdrop-blur-2xl rounded-2xl border border-white/50 dark:border-white/10 p-3.5 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_30px_-12px_rgba(0,0,0,0.5)]">
-      <div className="flex items-center gap-1.5 mb-3">
-        <FiBarChart2 className="w-3 h-3 text-blue-400" />
-        <span className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Latency comparison</span>
+      <div className="flex items-center justify-between mb-3 flex-wrap gap-1.5">
+        <div className="flex items-center gap-1.5">
+          <FiBarChart2 className="w-3 h-3 text-blue-400" />
+          <span className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Latency comparison</span>
+        </div>
+        <div className="flex items-center gap-2.5">
+          {topRated && (
+            <span className="flex items-center gap-1 text-[9px] font-semibold text-amber-500">
+              <FiAward className="w-2.5 h-2.5" />Top rated: {topRated.model.name}
+            </span>
+          )}
+          <span className="flex items-center gap-1 text-[9px] font-semibold text-zinc-400">
+            <FiFileText className="w-2.5 h-2.5" />Longest: {longest.model.name}
+          </span>
+        </div>
       </div>
       <div className="space-y-2">
         {done.map(({ uid, model, s }) => {
@@ -650,6 +775,55 @@ function StatBar({ summaries, models, uids }: { summaries: Record<string, SlotSu
   );
 }
 
+function HistoryPanel({ history, onSelect, onClear, onRemove }: { history: HistoryEntry[]; onSelect: (p: string) => void; onClear: () => void; onRemove: (id: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/60 dark:bg-white/5 backdrop-blur-xl border border-white/50 dark:border-white/10 text-[10px] font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors"
+      >
+        <FiHistory className="w-3 h-3" />
+        History
+        {history.length > 0 && <span className="w-3.5 h-3.5 rounded-full bg-blue-400 text-white text-[8px] flex items-center justify-center font-bold">{history.length}</span>}
+      </button>
+      {open && (
+        <div className="cmp-pop absolute top-full right-0 mt-2 w-[min(88vw,320px)] bg-white/90 dark:bg-zinc-900/90 backdrop-blur-2xl border border-white/50 dark:border-white/10 rounded-2xl shadow-2xl z-50 overflow-hidden">
+          <div className="flex items-center justify-between px-3 py-2 border-b border-zinc-100/80 dark:border-white/5">
+            <span className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Recent prompts</span>
+            {history.length > 0 && (
+              <button onClick={onClear} className="text-[9px] font-semibold text-rose-400 hover:text-rose-500 transition-colors">Clear all</button>
+            )}
+          </div>
+          <div className="max-h-64 overflow-y-auto p-1.5 space-y-0.5 cmp-scroll">
+            {history.length === 0 ? (
+              <p className="text-center text-[10px] text-zinc-400 py-6">No history yet</p>
+            ) : history.map(h => (
+              <div key={h.id} className="group flex items-center gap-1.5 px-2 py-1.5 rounded-xl hover:bg-zinc-100/80 dark:hover:bg-white/5 transition-colors">
+                <button onClick={() => { onSelect(h.prompt); setOpen(false); }} className="flex-1 min-w-0 text-left">
+                  <p className="text-[10.5px] text-zinc-700 dark:text-zinc-300 truncate">{h.prompt}</p>
+                  <p className="text-[8px] text-zinc-400">{new Date(h.timestamp).toLocaleTimeString()}</p>
+                </button>
+                <button onClick={() => onRemove(h.id)} className="opacity-0 group-hover:opacity-100 w-5 h-5 flex items-center justify-center rounded-md text-zinc-400 hover:text-rose-500 transition-all flex-shrink-0">
+                  <FiTrash2 className="w-3 h-3" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Compare({ keys }: { keys?: { key: string; name: string; is_active: boolean }[] }) {
   const [apiKey, setApiKey] = useState('');
   const [showKey, setShowKey] = useState(false);
@@ -658,12 +832,14 @@ export default function Compare({ keys }: { keys?: { key: string; name: string; 
   const [showSystem, setShowSystem] = useState(false);
   const [temperature, setTemperature] = useState(0.7);
   const [maxTokens, setMaxTokens] = useState(1024);
+  const [showArtifacts, setShowArtifacts] = useState(true);
   const [models, setModels] = useState<AnyModel[]>([TEXT_MODELS[5], TEXT_MODELS[9]]);
   const [uids, setUids] = useState<string[]>(['slot-a', 'slot-b']);
   const [runId, setRunId] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [summaries, setSummaries] = useState<Record<string, SlotSummary>>({});
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
   const handlesRef = useRef<Record<string, SlotCardHandle>>({});
   const pendingRef = useRef(0);
 
@@ -699,6 +875,17 @@ export default function Compare({ keys }: { keys?: { key: string; name: string; 
     setModels(prev => prev.map((mm, i) => (i === idx ? m : mm)));
   };
 
+  const shuffleModels = () => {
+    if (isRunning) return;
+    const pool = [...TEXT_MODELS].sort(() => Math.random() - 0.5);
+    const picked: AnyModel[] = [];
+    for (const m of pool) {
+      if (picked.length >= models.length) break;
+      if (!picked.find(p => p.id === m.id)) picked.push(m);
+    }
+    setModels(picked);
+  };
+
   const runAll = () => {
     if (!apiKey.trim()) { setError('Please enter your API key'); return; }
     if (!prompt.trim()) { setError('Please enter a prompt'); return; }
@@ -707,6 +894,10 @@ export default function Compare({ keys }: { keys?: { key: string; name: string; 
     pendingRef.current = uids.length;
     setIsRunning(true);
     setRunId(id => id + 1);
+    setHistory(prev => {
+      const filtered = prev.filter(h => h.prompt !== prompt.trim());
+      return [{ id: `h-${Date.now()}`, prompt: prompt.trim(), timestamp: Date.now() }, ...filtered].slice(0, 12);
+    });
   };
 
   const stopAll = () => {
@@ -722,9 +913,30 @@ export default function Compare({ keys }: { keys?: { key: string; name: string; 
     setUids(prev => prev.map((_, i) => `slot-${Date.now()}-${i}`));
   };
 
+  const exportResults = () => {
+    const lines: string[] = [`# Model Comparison`, ``, `**Prompt:** ${prompt}`, ``];
+    if (systemPrompt.trim()) lines.push(`**System prompt:** ${systemPrompt}`, ``);
+    models.forEach((m, i) => {
+      const s = summaries[uids[i]];
+      lines.push(`## ${m.name}`, ``);
+      if (s) {
+        lines.push(`- Latency: ${s.latencyMs ?? '-'}ms`, `- Tokens: ${s.totalTokens ?? '-'}`, `- Rating: ${s.rating > 0 ? `${s.rating}/5` : 'not rated'}`, `- Marked best: ${s.liked ? 'Yes' : 'No'}`, ``, s.text || '_no response_', ``);
+      } else {
+        lines.push('_not run_', ``);
+      }
+    });
+    const blob = new Blob([lines.join('\n')], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `comparison-${Date.now()}.md`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const config: RunConfig = useMemo(() => ({ prompt, systemPrompt, temperature, maxTokens, apiKey, runId }), [prompt, systemPrompt, temperature, maxTokens, apiKey, runId]);
 
   const gridCols = models.length <= 2 ? 'sm:grid-cols-2' : models.length === 3 ? 'sm:grid-cols-2 xl:grid-cols-3' : 'sm:grid-cols-2 xl:grid-cols-4';
+  const anyDone = Object.values(summaries).some(s => s.status === 'done');
 
   return (
     <div className="space-y-3 sm:space-y-4 min-h-0 w-full max-w-full">
@@ -756,24 +968,41 @@ export default function Compare({ keys }: { keys?: { key: string; name: string; 
         }
       `}</style>
 
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
           <h2 className="text-sm sm:text-base font-black text-zinc-900 dark:text-white tracking-tight">Compare Models</h2>
           <p className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Run one prompt across multiple models side by side</p>
         </div>
-        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/60 dark:bg-white/5 backdrop-blur-xl border border-white/50 dark:border-white/10">
-          <div className={`relative w-1.5 h-1.5 rounded-full ${isRunning ? 'bg-blue-400' : 'bg-emerald-500'}`}>
-            {isRunning && <span className="absolute inset-0 rounded-full bg-blue-400 cmp-ping" />}
+        <div className="flex items-center gap-2">
+          <HistoryPanel
+            history={history}
+            onSelect={p => setPrompt(p)}
+            onClear={() => setHistory([])}
+            onRemove={id => setHistory(prev => prev.filter(h => h.id !== id))}
+          />
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/60 dark:bg-white/5 backdrop-blur-xl border border-white/50 dark:border-white/10">
+            <div className={`relative w-1.5 h-1.5 rounded-full ${isRunning ? 'bg-blue-400' : 'bg-emerald-500'}`}>
+              {isRunning && <span className="absolute inset-0 rounded-full bg-blue-400 cmp-ping" />}
+            </div>
+            <span className={`text-[10px] font-bold ${isRunning ? 'text-blue-400' : 'text-emerald-600 dark:text-emerald-400'}`}>{isRunning ? 'Running' : 'Live'}</span>
           </div>
-          <span className={`text-[10px] font-bold ${isRunning ? 'text-blue-400' : 'text-emerald-600 dark:text-emerald-400'}`}>{isRunning ? 'Running' : 'Live'}</span>
         </div>
       </div>
 
       <div className="relative bg-white/70 dark:bg-zinc-950/60 backdrop-blur-2xl rounded-3xl border border-white/50 dark:border-white/10 p-3.5 sm:p-4 space-y-3.5 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_30px_-12px_rgba(0,0,0,0.5)] overflow-hidden">
         <div className="pointer-events-none absolute -top-24 -right-24 w-56 h-56 rounded-full bg-blue-400/10 blur-3xl cmp-float" />
-        <div className="relative flex items-center gap-1.5">
-          <FiSettings className="w-3 h-3 text-zinc-400" />
-          <span className="text-[10px] sm:text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Shared configuration</span>
+        <div className="relative flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <FiSettings className="w-3 h-3 text-zinc-400" />
+            <span className="text-[10px] sm:text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Shared configuration</span>
+          </div>
+          <button
+            onClick={() => setShowArtifacts(v => !v)}
+            className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[9px] font-bold transition-colors duration-200 ${showArtifacts ? 'bg-blue-500/10 text-blue-500 dark:text-blue-300' : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'}`}
+          >
+            <FiLayers className="w-3 h-3" />
+            Live preview
+          </button>
         </div>
 
         <div className="relative grid sm:grid-cols-2 gap-3">
@@ -839,10 +1068,27 @@ export default function Compare({ keys }: { keys?: { key: string; name: string; 
         </div>
 
         <div className="relative">
-          <label className="block text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1">Prompt</label>
+          <div className="flex items-center justify-between mb-1">
+            <label className="text-[10px] sm:text-xs font-semibold text-zinc-600 dark:text-zinc-400">Prompt</label>
+            <span className="hidden sm:flex items-center gap-1 text-[9px] text-zinc-400 font-medium">
+              <FiCommand className="w-2.5 h-2.5" />Enter to run
+            </span>
+          </div>
+          <div className="flex flex-wrap gap-1 mb-1.5">
+            {PROMPT_TEMPLATES.map(t => (
+              <button
+                key={t.label}
+                onClick={() => setPrompt(t.prompt)}
+                className="text-[9px] font-semibold px-2 py-1 rounded-full bg-zinc-100/80 dark:bg-white/5 text-zinc-500 dark:text-zinc-400 hover:bg-blue-500/10 hover:text-blue-500 dark:hover:text-blue-300 border border-transparent hover:border-blue-400/20 transition-all duration-150"
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
           <textarea
             value={prompt}
             onChange={e => setPrompt(e.target.value)}
+            onKeyDown={e => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); runAll(); } }}
             rows={3}
             placeholder="Ask something to compare across models..."
             className="w-full px-3 py-2.5 rounded-xl bg-white/60 dark:bg-white/[0.04] border border-white/50 dark:border-white/10 text-[10px] sm:text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:border-blue-300 dark:focus:border-blue-400/50 focus:ring-2 focus:ring-blue-300/20 outline-none transition-all resize-none"
@@ -872,6 +1118,21 @@ export default function Compare({ keys }: { keys?: { key: string; name: string; 
             <FiRotateCcw className="w-3 h-3" />
             Reset
           </button>
+          <button
+            onClick={shuffleModels}
+            disabled={isRunning}
+            className="flex items-center justify-center gap-1 px-3 py-2.5 rounded-xl text-[11px] sm:text-xs font-semibold text-zinc-500 dark:text-zinc-400 bg-white/60 dark:bg-white/5 border border-white/50 dark:border-white/10 hover:bg-white/90 dark:hover:bg-white/10 transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <FiShuffle className="w-3 h-3" />
+          </button>
+          {anyDone && (
+            <button
+              onClick={exportResults}
+              className="flex items-center justify-center gap-1 px-3 py-2.5 rounded-xl text-[11px] sm:text-xs font-semibold text-blue-500 dark:text-blue-300 bg-blue-500/10 border border-blue-400/20 hover:bg-blue-500/20 transition-colors duration-200"
+            >
+              <FiSave className="w-3 h-3" />
+            </button>
+          )}
           {models.length < 4 && (
             <button
               onClick={addSlot}
@@ -896,6 +1157,7 @@ export default function Compare({ keys }: { keys?: { key: string; name: string; 
             config={config}
             exclude={usedIds}
             canRemove={models.length > 2}
+            showArtifacts={showArtifacts}
             onModelChange={m => changeSlotModel(idx, m)}
             onRemove={() => removeSlot(idx)}
             onReport={handleReport}
