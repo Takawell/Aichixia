@@ -1734,6 +1734,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
             guidance: imageGuidance,
             ...(imageNegativePrompt.trim() ? { negative_prompt: imageNegativePrompt } : {}),
             ...(imageSeed.trim() ? { seed: parseInt(imageSeed) } : {}),
+            ...(selectedModel.id === 'nano-image' && uploadedImages.length > 0 ? { image: `data:${uploadedImages[0].mimeType};base64,${uploadedImages[0].base64}` } : {}),
             response_format: 'b64_json',
           }),
         });
