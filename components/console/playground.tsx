@@ -1719,6 +1719,7 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
     if (!apiKey.trim()) { setError('Please enter your API key'); return; }
     if (selectedModel.type !== 'stt' && selectedModel.type !== 'video' && !message.trim() && uploadedImages.length === 0) { setError('Please enter a message'); return; }
     if (selectedModel.id === 'wan2.2-i2v' && !videoInputImage) { setError('Please upload an input image'); return; }
+    if (selectedModel.id === 'gemini-3-pro-image' && uploadedImages.length === 0) { setError('Please upload an input image'); return; }
     setIsLoading(true); clearResult();
     const t0 = Date.now();
     try {
