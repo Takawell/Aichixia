@@ -1064,17 +1064,6 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
                                 <div className="flex items-center gap-1.5 mb-0.5 sm:mb-1">
                                   <h5 className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-white truncate">{model.name}</h5>
                                   {locked && <FiLock className="text-orange-400 text-[10px] flex-shrink-0" />}
-                                  {(model as any).limited && !locked && (
-                                    <span className="text-[8px] px-1.5 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-700 rounded-full font-bold flex-shrink-0">
-                                      LIMITED
-                                    </span>
-                                  )}
-                                  {STREAM_SUPPORTED_MODELS.has(model.id) && (
-                                    <span className="flex items-center gap-0.5 text-[8px] px-1.5 py-0.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-700 rounded-full font-bold flex-shrink-0">
-                                      <FiCheck className="w-2 h-2" />
-                                      STREAM
-                                    </span>
-                                  )}
                                 </div>
                                 <code className="text-[9px] sm:text-[10px] text-zinc-500 dark:text-zinc-400 font-mono bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded block truncate">
                                   {displayValue}
@@ -1201,17 +1190,6 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
                   <div>
                     <div className="flex items-center gap-2">
                       <h3 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white">{activeModal.name}</h3>
-                      {(activeModal as any).limited && (
-                        <span className="text-[8px] px-1.5 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-700 rounded-full font-bold">
-                          LIMITED
-                        </span>
-                      )}
-                      {STREAM_SUPPORTED_MODELS.has(activeModal.id) && (
-                        <span className="flex items-center gap-0.5 text-[8px] px-1.5 py-0.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-700 rounded-full font-bold">
-                          <FiCheck className="w-2 h-2" />
-                          STREAM
-                        </span>
-                      )}
                     </div>
                     <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-medium">{activeModal.category}</span>
                   </div>
