@@ -24,6 +24,9 @@ type ModelProps = {
 
 const STREAM_SUPPORTED_MODELS = new Set([
   'kimi-k2.6',
+  'gpt-5-mini',
+  'aichixia-flash',
+  'claude-sonnet-4.6',
   'mistral-large-latest',
   'minimax-m3',
   'step-3.7-flash',
@@ -67,7 +70,7 @@ const AVAILABLE_MODELS = [
     color: 'from-emerald-600 to-green-600',
     category: 'Text Generation',
     description: 'Balanced performance for general tasks',
-    speed: 3,
+    speed: 4,
     quality: 4,
     contextWindow: '400K tokens',
     pricing: 'Budget',
