@@ -50,7 +50,7 @@ export async function chatOpenAI(
         content: m.content,
       })),
       temperature: opts?.temperature ?? 0.8,
-      max_tokens: opts?.maxTokens ?? 512,
+      max_tokens: opts?.maxTokens ?? 8092,
     });
 
     const reply =
@@ -71,9 +71,71 @@ export async function chatOpenAI(
     if (error?.status === 503 || error?.status === 500) {
       throw new Error(`OpenAI server error: ${error.message}`);
     }
-    
+
     throw error;
   }
+}
+
+export async function streamOpenAI(
+  history: ChatMessage[],
+  opts?: { temperature?: number; maxTokens?: number }
+): Promise<ReadableStream<Uint8Array>> {
+  if (!OPENAI_API_KEY) {
+    throw new Error("OPENAI_API_KEY not defined in environment variables.");
+  }
+
+  const encoder = new TextEncoder();
+
+  return new ReadableStream<Uint8Array>({
+    async start(controller) {
+      const enqueue = (text: string) => {
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text })}\n\n`));
+      };
+
+      const enqueueError = (message: string) => {
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: message })}\n\n`));
+      };
+
+      const done = () => {
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+        controller.close();
+      };
+
+      try {
+        const streamResponse = await client.chat.completions.create({
+          model: OPENAI_MODEL,
+          messages: history.map((m) => ({
+            role: m.role,
+            content: m.content,
+          })),
+          temperature: opts?.temperature ?? 0.8,
+          max_tokens: opts?.maxTokens ?? 4092,
+          stream: true,
+        });
+
+        for await (const chunk of streamResponse) {
+          const delta = chunk.choices[0]?.delta?.content;
+          if (delta) enqueue(delta);
+        }
+
+        done();
+      } catch (error: any) {
+        let message = "An unexpected error occurred.";
+        if (error?.status === 429) {
+          message = "Rate limit exceeded. Please wait a moment.";
+        } else if (error?.status === 402 || error?.code === "insufficient_quota" || error?.message?.includes("quota")) {
+          message = "Quota exceeded. Please try again later.";
+        } else if (error?.status === 503 || error?.status === 500) {
+          message = "Server error. Please try again.";
+        } else if (error?.message?.includes("<!DOCTYPE") || error?.message?.includes("not valid JSON")) {
+          message = "Model returned an invalid response. Please try again.";
+        }
+        enqueueError(message);
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+        controller.close();
+      }
+    },
+  });
 }
 
 export async function quickChatOpenAI(
@@ -100,5 +162,6 @@ export async function quickChatOpenAI(
 
 export default {
   chatOpenAI,
+  streamOpenAI,
   quickChatOpenAI,
 };
