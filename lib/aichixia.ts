@@ -83,6 +83,72 @@ export async function chatAichixia(
   }
 }
 
+export async function streamAichixia(
+  history: ChatMessage[],
+  opts?: { temperature?: number; maxTokens?: number }
+): Promise<ReadableStream<Uint8Array>> {
+  if (!AICHIXIA_API_KEY) {
+    throw new Error("AICHIXIA_API_KEY not defined in environment variables.");
+  }
+
+  if (!AICHIXIA_BASE_URL) {
+    throw new Error("AICHIXIA_BASE_URL not defined in environment variables.");
+  }
+
+  const encoder = new TextEncoder();
+
+  return new ReadableStream<Uint8Array>({
+    async start(controller) {
+      const enqueue = (text: string) => {
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text })}\n\n`));
+      };
+
+      const enqueueError = (message: string) => {
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: message })}\n\n`));
+      };
+
+      const done = () => {
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+        controller.close();
+      };
+
+      try {
+        const streamResponse = await client.chat.completions.create({
+          model: AICHIXIA_MODEL,
+          messages: history.map((m) => ({
+            role: m.role,
+            content: m.content,
+          })),
+          temperature: opts?.temperature ?? 0.8,
+          max_tokens: opts?.maxTokens ?? 4096,
+          stream: true,
+        });
+
+        for await (const chunk of streamResponse) {
+          const delta = chunk.choices[0]?.delta?.content;
+          if (delta) enqueue(delta);
+        }
+
+        done();
+      } catch (error: any) {
+        let message = "An unexpected error occurred.";
+        if (error?.status === 429) {
+          message = "Rate limit exceeded. Please wait a moment.";
+        } else if (error?.status === 402 || error?.code === "insufficient_quota" || error?.message?.includes("quota")) {
+          message = "Quota exceeded. Please try again later.";
+        } else if (error?.status === 503 || error?.status === 500) {
+          message = "Server error. Please try again.";
+        } else if (error?.message?.includes("<!DOCTYPE") || error?.message?.includes("not valid JSON")) {
+          message = "Model returned an invalid response. Please try again.";
+        }
+        enqueueError(message);
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+        controller.close();
+      }
+    },
+  });
+}
+
 export async function quickChatAichixia(
   userMessage: string,
   opts?: {
@@ -110,5 +176,6 @@ export async function quickChatAichixia(
 
 export default {
   chatAichixia,
+  streamAichixia,
   quickChatAichixia,
 };
