@@ -91,6 +91,9 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
 
 const STREAM_MODEL_MAPPING: Record<string, StreamFunction> = {
   "kimi-k2.6": streamKimi,
+  "gpt-5-mini": streamOpenAI,
+  "aichixia-flash": streamAichixia,
+  "claude-sonnet-4.6": streamClaude,
   "mistral-large-latest": streamMistral,
   "minimax-m3": streamMinimax,
   "step-3.7-flash": streamStepfun,
