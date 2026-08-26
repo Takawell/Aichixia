@@ -1,12 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { encode } from 'gpt-tokenizer';
 import { chatGemini, streamGemini, GeminiRateLimitError, GeminiQuotaError } from "@/lib/gemini";
-import { chatAichixia, AichixiaRateLimitError, AichixiaQuotaError } from "@/lib/aichixia";
-import { chatOpenAI, OpenAIRateLimitError, OpenAIQuotaError } from "@/lib/openai";
+import { chatAichixia, streamAichixia, AichixiaRateLimitError, AichixiaQuotaError } from "@/lib/aichixia";
+import { chatOpenAI, streamOpenAI, OpenAIRateLimitError, OpenAIQuotaError } from "@/lib/openai";
 import { chatKimi, streamKimi, KimiRateLimitError, KimiQuotaError } from "@/lib/kimi";
 import { chatGlm, streamGlm, GlmRateLimitError, GlmQuotaError } from "@/lib/glm";
 import { chatGPT, GPTRateLimitError, GPTQuotaError } from "@/lib/gpt";
-import { chatClaude, ClaudeRateLimitError, ClaudeQuotaError } from "@/lib/claude";
+import { chatClaude, streamClaude, ClaudeRateLimitError, ClaudeQuotaError } from "@/lib/claude";
 import { chatOpus, OpusRateLimitError, OpusQuotaError } from "@/lib/opus";
 import { chatCohere, streamCohere, CohereRateLimitError, CohereQuotaError } from "@/lib/cohere";
 import { chatDeepSeek, streamDeepSeek, DeepSeekRateLimitError, DeepSeekQuotaError } from "@/lib/deepseek";
