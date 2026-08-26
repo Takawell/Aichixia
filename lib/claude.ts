@@ -9,7 +9,7 @@ export type ChatMessage = {
 
 const CLAUDE_API_KEY = process.env.CLAUDE_API_KEY;
 const CLAUDE_API_URL = process.env.CLAUDE_API_URL;
-const CLAUDE_MODEL = process.env.CLAUDE_MODEL || "claude-opus-4-5-20251101";
+const CLAUDE_MODEL = process.env.CLAUDE_MODEL || "claude-sonnet-4-6";
 
 if (!CLAUDE_API_KEY) {
   console.warn("Warning: CLAUDE_API_KEY not set in env.");
