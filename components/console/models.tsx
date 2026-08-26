@@ -22,6 +22,29 @@ type ModelProps = {
   copiedKey: string | null;
 };
 
+const STREAM_SUPPORTED_MODELS = new Set([
+  'kimi-k2.6',
+  'mistral-large-latest',
+  'minimax-m3',
+  'step-3.7-flash',
+  'nemotron-3-ultra-550b-a55b',
+  'gpt-oss-120b',
+  'deepseek-v4-flash',
+  'glm-5.2',
+  'gemma-4-31b',
+  'laguna-s-2.1',
+  'cohere-command-a',
+  'gemini-3-flash',
+  'llama-3.3-70b',
+  'deepseek-v3.2',
+  'claude-fable-5',
+  'mimo-v2.5-pro',
+  'qwen3-coder-plus',
+  'thinkingmachines/inkling',
+  'glm-4.7-flash',
+  'llama-4-scout-17b-16e-instruct',
+]);
+
 const LANGUAGE_FLAGS: Record<string, string> = {
   eng: '🇺🇸',
   kor: '🇰🇷',
@@ -1046,6 +1069,12 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
                                       LIMITED
                                     </span>
                                   )}
+                                  {STREAM_SUPPORTED_MODELS.has(model.id) && (
+                                    <span className="flex items-center gap-0.5 text-[8px] px-1.5 py-0.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-700 rounded-full font-bold flex-shrink-0">
+                                      <FiCheck className="w-2 h-2" />
+                                      STREAM
+                                    </span>
+                                  )}
                                 </div>
                                 <code className="text-[9px] sm:text-[10px] text-zinc-500 dark:text-zinc-400 font-mono bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded block truncate">
                                   {displayValue}
@@ -1177,6 +1206,12 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
                           LIMITED
                         </span>
                       )}
+                      {STREAM_SUPPORTED_MODELS.has(activeModal.id) && (
+                        <span className="flex items-center gap-0.5 text-[8px] px-1.5 py-0.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-700 rounded-full font-bold">
+                          <FiCheck className="w-2 h-2" />
+                          STREAM
+                        </span>
+                      )}
                     </div>
                     <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-medium">{activeModal.category}</span>
                   </div>
@@ -1210,6 +1245,19 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
                 <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
                   <p className="text-[9px] uppercase tracking-widest font-semibold text-zinc-400 dark:text-zinc-500 mb-1.5">Quality</p>
                   <QualityIndicator level={activeModal.quality} />
+                </div>
+                <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 col-span-2">
+                  <p className="text-[9px] uppercase tracking-widest font-semibold text-zinc-400 dark:text-zinc-500 mb-1">Streaming</p>
+                  {STREAM_SUPPORTED_MODELS.has(activeModal.id) ? (
+                    <p className="flex items-center gap-1 text-xs sm:text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                      <FiCheck className="w-3.5 h-3.5" />
+                      Supported
+                    </p>
+                  ) : (
+                    <p className="text-xs sm:text-sm font-bold text-zinc-500 dark:text-zinc-500">
+                      Not yet supported
+                    </p>
+                  )}
                 </div>
               </div>
 
