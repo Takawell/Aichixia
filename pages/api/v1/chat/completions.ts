@@ -115,8 +115,8 @@ const STREAM_MODEL_MAPPING: Record<string, StreamFunction> = {
   "llama-4-scout-17b-16e-instruct": streamScout,
 };
 
-const LOCKED_MODELS_PRO = ['deepseek-v3.2', 'mimo-v2.5-pro', 'claude-sonnet-4.6', 'glm-5.2', 'aichixia-flash', 'grok-4-fast', 'kimi-k2.6', 'gpt-5.2', 'gpt-5.5', 'laguna-s-2.1', 'claude-opus-4.8', 'thinkingmachines/inkling'];
-const LOCKED_MODELS_ENTERPRISE = ['claude-fable-5'];
+const LOCKED_MODELS_PRO = ['deepseek-v3.2', 'mimo-v2.5-pro', 'claude-sonnet-4.6', 'glm-5.2', 'aichixia-flash', 'grok-4-fast', 'kimi-k2.6', 'gpt-5.2', 'gpt-5.5', 'laguna-s-2.1', 'thinkingmachines/inkling'];
+const LOCKED_MODELS_ENTERPRISE = ['claude-fable-5', 'claude-opus-4.8'];
 
 const RATE_LIMIT_ERRORS = [
   OpenAIRateLimitError, KimiRateLimitError, GlmRateLimitError, GPTRateLimitError,
