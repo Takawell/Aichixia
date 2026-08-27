@@ -55,8 +55,8 @@ type StreamFunction = (
 ) => Promise<ReadableStream<Uint8Array>>;
 
 const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
-  "deepseek-v3.2": { fn: chatDeepSeek, provider: "deepseek" },
-  "deepseek-v4-flash": { fn: chatDeepSeekV, provider: "deepseek-v" },
+  "deepseek/deepseek-v4-pro": { fn: chatDeepSeek, provider: "deepseek" },
+  "deepseek/deepseek-v4-flash": { fn: chatDeepSeekV, provider: "deepseek-v" },
   "gpt-5-mini": { fn: chatOpenAI, provider: "openai" },
   "claude-sonnet-4.6": { fn: chatClaude, provider: "claude" },
   "claude-opus-4.8": { fn: chatOpus, provider: "opus" },
@@ -70,7 +70,7 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "mistral-large-latest": { fn: chatMistral, provider: "mistral" },
   "qwen3.6-27b": { fn: chatQwenV2, provider: "qwen3" },
   "qwen3-coder-plus": { fn: chatQwen, provider: "qwen" },
-  "minimax-m3": { fn: chatMinimax, provider: "minimax" },
+  "minimax/minimax-m3": { fn: chatMinimax, provider: "minimax" },
   "llama-3.3-70b": { fn: chatLlama, provider: "llama" },
   "gpt-oss-120b": { fn: chatGptOss, provider: "gptoss" },
   "mimo-v2.5-pro": { fn: chatMimo, provider: "mimo" },
@@ -115,7 +115,7 @@ const STREAM_MODEL_MAPPING: Record<string, StreamFunction> = {
   "llama-4-scout-17b-16e-instruct": streamScout,
 };
 
-const LOCKED_MODELS_PRO = ['deepseek-v3.2', 'mimo-v2.5-pro', 'claude-sonnet-4.6', 'glm-5.2', 'aichixia-flash', 'grok-4-fast', 'kimi-k2.6', 'gpt-5.2', 'gpt-5.5', 'laguna-s-2.1', 'thinkingmachines/inkling'];
+const LOCKED_MODELS_PRO = ['deepseek/deepseek-v4-pro', 'mimo-v2.5-pro', 'claude-sonnet-4.6', 'glm-5.2', 'aichixia-flash', 'grok-4-fast', 'kimi-k2.6', 'gpt-5.2', 'gpt-5.5', 'laguna-s-2.1', 'thinkingmachines/inkling'];
 const LOCKED_MODELS_ENTERPRISE = ['claude-fable-5', 'claude-opus-4.8'];
 
 const RATE_LIMIT_ERRORS = [
