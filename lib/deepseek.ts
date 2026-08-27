@@ -8,15 +8,11 @@ export type ChatMessage = {
 };
 
 const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
-const DEEPSEEK_MODEL = process.env.DEEPSEEK_MODEL || "deepseek-ai/DeepSeek-V3.2";
-
-if (!DEEPSEEK_API_KEY) {
-  console.warn("[lib/deepseek] Warning: DEEPSEEK_API_KEY not set in env.");
-}
+const DEEPSEEK_MODEL = process.env.DEEPSEEK_MODEL || "deepseek/deepseek-v4-pro";
 
 const client = new OpenAI({
   apiKey: DEEPSEEK_API_KEY,
-  baseURL: "https://api.siliconflow.com/v1",
+  baseURL: "https://api.xkiro.com/v1",
 });
 
 export class DeepSeekRateLimitError extends Error {
@@ -33,13 +29,31 @@ export class DeepSeekQuotaError extends Error {
   }
 }
 
+export class DeepSeekConfigError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "DeepSeekConfigError";
+  }
+}
+
+export class DeepSeekServerError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "DeepSeekServerError";
+  }
+}
+
+function ensureConfigured() {
+  if (!DEEPSEEK_API_KEY) {
+    throw new DeepSeekConfigError("DeepSeek is not configured properly. Please contact the admin.");
+  }
+}
+
 export async function chatDeepSeek(
   history: ChatMessage[],
   opts?: { temperature?: number; maxTokens?: number }
 ): Promise<{ reply: string }> {
-  if (!DEEPSEEK_API_KEY) {
-    throw new Error("DEEPSEEK_API_KEY not defined in environment variables.");
-  }
+  ensureConfigured();
 
   try {
     const response = await client.chat.completions.create({
@@ -49,7 +63,7 @@ export async function chatDeepSeek(
         content: m.content,
       })),
       temperature: opts?.temperature ?? 0.8,
-      max_tokens: opts?.maxTokens ?? 1080,
+      max_tokens: opts?.maxTokens ?? 8092,
     });
 
     const reply =
@@ -58,21 +72,18 @@ export async function chatDeepSeek(
 
     return { reply };
   } catch (error: any) {
+    console.error("[lib/deepseek] chatDeepSeek error:", error);
+
     if (error?.status === 429) {
-      throw new DeepSeekRateLimitError(
-        `DeepSeek rate limit exceeded: ${error.message}`
-      );
+      throw new DeepSeekRateLimitError("Too many requests right now, please slow down.");
     }
     if (error?.status === 402 || error?.code === "insufficient_quota") {
-      throw new DeepSeekQuotaError(
-        `DeepSeek quota exceeded: ${error.message}`
-      );
+      throw new DeepSeekQuotaError("Quota exceeded, please try again later.");
     }
     if (error?.status === 503 || error?.status === 500) {
-      throw new Error(`DeepSeek server error: ${error.message}`);
+      throw new DeepSeekServerError("The server is having issues right now, please try again shortly.");
     }
-    
-    throw error;
+    throw new DeepSeekServerError("Something went wrong, please try again.");
   }
 }
 
@@ -80,9 +91,7 @@ export async function streamDeepSeek(
   history: ChatMessage[],
   opts?: { temperature?: number; maxTokens?: number }
 ): Promise<ReadableStream<Uint8Array>> {
-  if (!DEEPSEEK_API_KEY) {
-    throw new Error("DEEPSEEK_API_KEY not defined in environment variables.");
-  }
+  ensureConfigured();
 
   const encoder = new TextEncoder();
 
@@ -109,7 +118,7 @@ export async function streamDeepSeek(
             content: m.content,
           })),
           temperature: opts?.temperature ?? 0.8,
-          max_tokens: opts?.maxTokens ?? 1080,
+          max_tokens: opts?.maxTokens ?? 4092,
           stream: true,
         });
 
@@ -120,15 +129,17 @@ export async function streamDeepSeek(
 
         done();
       } catch (error: any) {
-        let message = "An unexpected error occurred.";
+        console.error("[lib/deepseek] streamDeepSeek error:", error);
+
+        let message = "Something went wrong, please try again.";
         if (error?.status === 429) {
-          message = "Rate limit exceeded. Please wait a moment.";
+          message = "Too many requests right now, please slow down.";
         } else if (error?.status === 402 || error?.code === "insufficient_quota") {
-          message = "Quota exceeded. Please try again later.";
+          message = "Quota exceeded, please try again later.";
         } else if (error?.status === 503 || error?.status === 500) {
-          message = "Server error. Please try again.";
+          message = "The server is having issues right now, please try again shortly.";
         } else if (error?.message?.includes("<!DOCTYPE") || error?.message?.includes("not valid JSON")) {
-          message = "Model returned an invalid response. Please try again.";
+          message = "Received an invalid response, please try again.";
         }
         enqueueError(message);
         controller.enqueue(encoder.encode("data: [DONE]\n\n"));
