@@ -11,14 +11,6 @@ const AICHIXIA_API_KEY = process.env.AICHIXIA_API_KEY;
 const AICHIXIA_BASE_URL = process.env.AICHIXIA_BASE_URL;
 const AICHIXIA_MODEL = process.env.AICHIXIA_MODEL || "aichixia-flash";
 
-if (!AICHIXIA_API_KEY) {
-  console.warn("[lib/aichixia] Warning: AICHIXIA_API_KEY not set in env.");
-}
-
-if (!AICHIXIA_BASE_URL) {
-  console.warn("[lib/aichixia] Warning: AICHIXIA_BASE_URL not set in env.");
-}
-
 const client = new OpenAI({
   apiKey: AICHIXIA_API_KEY,
   baseURL: AICHIXIA_BASE_URL,
@@ -38,6 +30,26 @@ export class AichixiaQuotaError extends Error {
   }
 }
 
+export class AichixiaConfigError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "AichixiaConfigError";
+  }
+}
+
+export class AichixiaServerError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "AichixiaServerError";
+  }
+}
+
+function ensureConfigured() {
+  if (!AICHIXIA_API_KEY || !AICHIXIA_BASE_URL) {
+    throw new AichixiaConfigError("Aichixia is not configured properly. Please contact the admin.");
+  }
+}
+
 export async function chatAichixia(
   history: ChatMessage[],
   opts?: {
@@ -45,13 +57,7 @@ export async function chatAichixia(
     maxTokens?: number;
   }
 ): Promise<{ reply: string }> {
-  if (!AICHIXIA_API_KEY) {
-    throw new Error("AICHIXIA_API_KEY not defined in environment variables.");
-  }
-
-  if (!AICHIXIA_BASE_URL) {
-    throw new Error("AICHIXIA_BASE_URL not defined in environment variables.");
-  }
+  ensureConfigured();
 
   try {
     const response = await client.chat.completions.create({
@@ -70,16 +76,18 @@ export async function chatAichixia(
 
     return { reply };
   } catch (error: any) {
+    console.error("[lib/aichixia] chatAichixia error:", error);
+
     if (error?.status === 429) {
-      throw new AichixiaRateLimitError(`Aichixia rate limit exceeded: ${error.message}`);
+      throw new AichixiaRateLimitError("Too many requests right now, please slow down.");
     }
     if (error?.status === 402 || error?.code === "insufficient_quota") {
-      throw new AichixiaQuotaError(`Aichixia quota exceeded: ${error.message}`);
+      throw new AichixiaQuotaError("Quota exceeded, please try again later.");
     }
     if (error?.status === 503 || error?.status === 500) {
-      throw new Error(`Aichixia server error: ${error.message}`);
+      throw new AichixiaServerError("The server is having issues right now, please try again shortly.");
     }
-    throw error;
+    throw new AichixiaServerError("Something went wrong, please try again.");
   }
 }
 
@@ -87,13 +95,7 @@ export async function streamAichixia(
   history: ChatMessage[],
   opts?: { temperature?: number; maxTokens?: number }
 ): Promise<ReadableStream<Uint8Array>> {
-  if (!AICHIXIA_API_KEY) {
-    throw new Error("AICHIXIA_API_KEY not defined in environment variables.");
-  }
-
-  if (!AICHIXIA_BASE_URL) {
-    throw new Error("AICHIXIA_BASE_URL not defined in environment variables.");
-  }
+  ensureConfigured();
 
   const encoder = new TextEncoder();
 
@@ -131,15 +133,17 @@ export async function streamAichixia(
 
         done();
       } catch (error: any) {
-        let message = "An unexpected error occurred.";
+        console.error("[lib/aichixia] streamAichixia error:", error);
+
+        let message = "Something went wrong, please try again.";
         if (error?.status === 429) {
-          message = "Rate limit exceeded. Please wait a moment.";
+          message = "Too many requests right now, please slow down.";
         } else if (error?.status === 402 || error?.code === "insufficient_quota" || error?.message?.includes("quota")) {
-          message = "Quota exceeded. Please try again later.";
+          message = "Quota exceeded, please try again later.";
         } else if (error?.status === 503 || error?.status === 500) {
-          message = "Server error. Please try again.";
+          message = "The server is having issues right now, please try again shortly.";
         } else if (error?.message?.includes("<!DOCTYPE") || error?.message?.includes("not valid JSON")) {
-          message = "Model returned an invalid response. Please try again.";
+          message = "Received an invalid response, please try again.";
         }
         enqueueError(message);
         controller.enqueue(encoder.encode("data: [DONE]\n\n"));
