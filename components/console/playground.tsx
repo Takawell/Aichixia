@@ -10,7 +10,7 @@ import { FaXTwitter } from 'react-icons/fa6';
 
 const base = 'https://www.aichixia.xyz';
 
-const VISION_MODEL_IDS = new Set(['gpt-5.2', 'kimi-k2.6', 'gemini-3-flash', 'grok-4-fast', 'phi-4-multimodal-instruct', 'qwen3.6-27b', 'step-3.7-flash', 'claude-fable-5', 'thinkingmachines/inkling', 'llama-4-scout-17b-16e-instruct']);
+const VISION_MODEL_IDS = new Set(['gpt-5.2', 'kimi-k2.6', 'gemini-3-flash', 'qwen/qwen3.8-27b', 'grok-4-fast', 'phi-4-multimodal-instruct', 'qwen3.6-27b', 'step-3.7-flash', 'claude-fable-5', 'thinkingmachines/inkling', 'llama-4-scout-17b-16e-instruct']);
 
 type ModelType = 'text' | 'image' | 'video' | 'tts' | 'stt';
 
@@ -37,7 +37,7 @@ type MemoryMessage = {
   timestamp: number;
 };
 
-const STREAM_CAPABLE_MODELS = new Set(['kimi-k2.6', 'gpt-5-mini', 'aichixia-flash', 'claude-sonnet-4.6', 'mistral-large-latest', 'minimax/minimax-m3', 'step-3.7-flash', 'nemotron-3-ultra-550b-a55b', 'gpt-oss-120b', 'deepseek/deepseek-v4-flash', 'gemma-4-31b', 'glm-5.2', 'laguna-s-2.1', 'cohere-command-a', 'gemini-3-flash', 'llama-3.3-70b', 'deepseek/deepseek-v4-pro', 'claude-fable-5', 'qwen3-coder-plus', 'mimo-v2.5-pro', 'thinkingmachines/inkling', 'llama-4-scout-17b-16e-instruct', 'glm-4.7-flash']);
+const STREAM_CAPABLE_MODELS = new Set(['kimi-k2.6', 'gpt-5-mini', 'aichixia-flash', 'qwen/qwen3.8-27b', 'claude-sonnet-4.6', 'mistral-large-latest', 'minimax/minimax-m3', 'step-3.7-flash', 'nemotron-3-ultra-550b-a55b', 'gpt-oss-120b', 'deepseek/deepseek-v4-flash', 'gemma-4-31b', 'glm-5.2', 'laguna-s-2.1', 'cohere-command-a', 'gemini-3-flash', 'llama-3.3-70b', 'deepseek/deepseek-v4-pro', 'claude-fable-5', 'qwen3-coder-plus', 'mimo-v2.5-pro', 'thinkingmachines/inkling', 'llama-4-scout-17b-16e-instruct', 'glm-4.7-flash']);
 
 const TEXT_MODELS: AnyModel[] = [
   { id: 'gpt-5-mini', name: 'GPT-5 Mini', provider: 'OpenAI', logoSlug: 'openai', icon: RiOpenaiFill, color: 'from-emerald-500 to-green-600', pricing: 'Budget', context: '400K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
@@ -56,7 +56,7 @@ const TEXT_MODELS: AnyModel[] = [
   { id: 'kimi-k2.6', name: 'Kimi K2.6', provider: 'Moonshot', logoSlug: 'kimi', icon: RiMoonFill, color: 'from-blue-500 to-cyan-600', pricing: 'Premium', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'glm-4.7-flash', name: 'GLM 4.7 Flash', provider: 'Zhipu', logoSlug: 'zhipu', icon: TbSquareLetterZ, color: 'from-blue-700 to-indigo-800', pricing: 'Standard', context: '131K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
   { id: 'gemma-4-31b', name: 'Gemma 4 31B', provider: 'Google', logoSlug: 'gemini', icon: SiGooglegemini, color: 'from-indigo-500 to-purple-600', pricing: 'Budget', context: '128K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
-  { id: 'qwen3.6-27b', name: 'Qwen3.6 27B', provider: 'Alibaba', logoSlug: 'qwen', icon: SiAlibabacloud, color: 'from-purple-500 to-pink-500', pricing: 'Standard', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'qwen/qwen3.8-27b', name: 'Qwen3.8 27B', provider: 'Alibaba', logoSlug: 'qwen', icon: SiAlibabacloud, color: 'from-purple-500 to-pink-500', pricing: 'Standard', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'qwen3-coder-plus', name: 'Qwen3 Coder Plus 480B', provider: 'Alibaba', logoSlug: 'qwen', icon: SiAlibabacloud, color: 'from-purple-600 to-fuchsia-600', pricing: 'Premium', context: '1M', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'minimax/minimax-m3', name: 'MiniMax M3', provider: 'MiniMax', logoSlug: 'minimax', icon: SiMaze, color: 'from-cyan-600 to-blue-600', pricing: 'Premium', context: '1M', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'thinkingmachines/inkling', name: 'Inkling', provider: 'Thinking Machines', logoSlug: 'huggingface', icon: SiNvidia, color: 'from-yellow-500 to-orange-500', pricing: 'Premium', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
