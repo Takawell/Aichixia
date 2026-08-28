@@ -81,6 +81,28 @@ export class GeminiQuotaError extends Error {
   }
 }
 
+export class GeminiConfigError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "GeminiConfigError";
+  }
+}
+
+export class GeminiServerError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "GeminiServerError";
+  }
+}
+
+function ensureConfigured() {
+  if (!GEMINI_API_KEY) {
+    throw new GeminiConfigError(
+      "Gemini is not configured properly. Please contact the admin."
+    );
+  }
+}
+
 function normalizeMessages(history: ChatMessage[]) {
   return history.map((message) => ({
     role: message.role,
@@ -192,88 +214,99 @@ export async function streamGemini(
   history: ChatMessage[],
   opts: GeminiOptions = {}
 ): Promise<ReadableStream<Uint8Array>> {
-  if (!GEMINI_API_KEY) {
-    throw new Error(
-      "GEMINI_API_KEY not defined in environment variables."
-    );
-  }
+  ensureConfigured();
 
   const encoder = new TextEncoder();
+  const model = GEMINI_MODEL;
+  const id = `chatcmpl-${Date.now()}`;
+  const created = Math.floor(Date.now() / 1000);
 
   return new ReadableStream<Uint8Array>({
     async start(controller) {
-      const enqueue = (text: string) => {
+      const enqueueChunk = (
+        delta: Record<string, any>,
+        finishReason: string | null = null
+      ) => {
+        const chunk = {
+          id,
+          object: "chat.completion.chunk",
+          created,
+          model,
+          choices: [
+            {
+              index: 0,
+              delta,
+              finish_reason: finishReason,
+            },
+          ],
+        };
         controller.enqueue(
-          encoder.encode(
-            `data: ${JSON.stringify({ text })}\n\n`
-          )
+          encoder.encode(`data: ${JSON.stringify(chunk)}\n\n`)
         );
       };
 
-      const enqueueError = (message: string) => {
-        controller.enqueue(
-          encoder.encode(
-            `data: ${JSON.stringify({ error: message })}\n\n`
-          )
-        );
-      };
-
-      const done = () => {
-        controller.enqueue(
-          encoder.encode("data: [DONE]\n\n")
-        );
+      const enqueueDone = () => {
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
         controller.close();
       };
 
       try {
         const extraBody = buildExtraBody(opts);
 
-        const streamResponse =
-          await client.chat.completions.create({
-            model: GEMINI_MODEL,
-            messages: normalizeMessages(history),
-            temperature: opts.temperature ?? 0.8,
-            top_p: opts.topP ?? 0.95,
-            max_tokens: opts.maxTokens ?? 8192,
-            ...(opts.reasoningEffort !== undefined
-              ? { reasoning_effort: opts.reasoningEffort }
-              : {}),
-            ...(extraBody !== undefined
-              ? { extra_body: extraBody }
-              : {}),
-            stream: true,
-          } as any);
+        const streamResponse = await client.chat.completions.create({
+          model,
+          messages: normalizeMessages(history),
+          temperature: opts.temperature ?? 0.8,
+          top_p: opts.topP ?? 0.95,
+          max_tokens: opts.maxTokens ?? 8192,
+          ...(opts.reasoningEffort !== undefined
+            ? { reasoning_effort: opts.reasoningEffort }
+            : {}),
+          ...(extraBody !== undefined
+            ? { extra_body: extraBody }
+            : {}),
+          stream: true,
+        } as any);
+
+        enqueueChunk({ role: "assistant", content: "" });
+
+        let receivedAny = false;
 
         for await (const chunk of streamResponse as any) {
-          const delta =
-            chunk?.choices?.[0]?.delta?.content;
-
+          const delta = chunk?.choices?.[0]?.delta?.content;
           if (delta) {
-            enqueue(delta);
+            receivedAny = true;
+            enqueueChunk({ content: delta });
           }
         }
 
-        done();
+        if (!receivedAny) {
+          try {
+            const fallback = await chatGemini(history, opts);
+            enqueueChunk({ content: fallback.reply });
+          } catch {
+            enqueueChunk({
+              content: "I'm unable to respond right now.",
+            });
+          }
+        }
+
+        enqueueChunk({}, "stop");
+        enqueueDone();
       } catch (error: any) {
-        let message = "An unexpected error occurred.";
+        let message = "Something went wrong, please try again.";
 
         if (error?.status === 429) {
-          message =
-            "Rate limit exceeded. Please wait a moment.";
+          message = "Rate limit exceeded. Please wait a moment.";
         } else if (
           error?.status === 402 ||
           error?.code === "insufficient_quota" ||
           error?.message?.toLowerCase?.().includes("quota") ||
           error?.message?.includes("RESOURCE_EXHAUSTED")
         ) {
-          message =
-            "Quota exceeded. Please try again later.";
-        } else if (
-          error?.status === 503 ||
-          error?.status === 500
-        ) {
-          message =
-            "Gemini server error. Please try again.";
+          message = "Quota exceeded. Please try again later.";
+        } else if (error?.status === 503 || error?.status === 500) {
+          message = "Gemini server error. Please try again.";
         } else if (
           error?.message?.includes("<!DOCTYPE") ||
           error?.message?.includes("not valid JSON")
@@ -282,13 +315,9 @@ export async function streamGemini(
             "Gemini returned an invalid response. Please try again.";
         }
 
-        enqueueError(message);
-
-        controller.enqueue(
-          encoder.encode("data: [DONE]\n\n")
-        );
-
-        controller.close();
+        enqueueChunk({ content: message });
+        enqueueChunk({}, "stop");
+        enqueueDone();
       }
     },
   });
