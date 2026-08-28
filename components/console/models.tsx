@@ -45,6 +45,7 @@ const STREAM_SUPPORTED_MODELS = new Set([
   'qwen3-coder-plus',
   'thinkingmachines/inkling',
   'glm-4.7-flash',
+  'qwen/qwen3.8-27b',
   'llama-4-scout-17b-16e-instruct',
 ]);
 
@@ -372,8 +373,8 @@ const AVAILABLE_MODELS = [
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
-    id: 'qwen3.6-27b',
-    name: 'Qwen3.6 27B',
+    id: 'qwen/qwen3.8-27b',
+    name: 'Qwen3.8 27B',
     icon: SiAlibabacloud,
     logoSlug: 'qwen',
     invertDark: false,
