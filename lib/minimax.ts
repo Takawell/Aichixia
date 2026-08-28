@@ -61,6 +61,26 @@ export class MinimaxQuotaError extends Error {
   }
 }
 
+export class MinimaxConfigError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "MinimaxConfigError";
+  }
+}
+
+export class MinimaxServerError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "MinimaxServerError";
+  }
+}
+
+function ensureConfigured() {
+  if (!MINIMAX_API_KEY) {
+    throw new MinimaxConfigError("Minimax is not configured properly. Please contact the admin.");
+  }
+}
+
 async function executeWebSearch(query: string): Promise<string> {
   if (!tavilyClient) {
     return "Search unavailable: TAVILY_API_KEY not configured.";
@@ -160,6 +180,8 @@ export async function chatMinimax(
 
     return { reply: "Request took too long. Please try again." };
   } catch (error: any) {
+    console.error("[lib/minimax] chatMinimax error:", error);
+
     if (error?.status === 429) {
       throw new MinimaxRateLimitError(`Minimax rate limit exceeded: ${error.message}`);
     }
@@ -182,24 +204,39 @@ export async function streamMinimax(
     enableSearch?: boolean;
   }
 ): Promise<ReadableStream<Uint8Array>> {
-  if (!MINIMAX_API_KEY) {
-    throw new Error("MINIMAX_API_KEY not defined in environment variables.");
-  }
+  ensureConfigured();
 
   const enableSearch = opts?.enableSearch !== false && tavilyClient !== null;
   const encoder = new TextEncoder();
+  const model = MINIMAX_MODEL;
+  const id = `chatcmpl-${Date.now()}`;
+  const created = Math.floor(Date.now() / 1000);
 
   return new ReadableStream<Uint8Array>({
     async start(controller) {
-      const enqueue = (text: string) => {
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text })}\n\n`));
+      const enqueueChunk = (
+        delta: Record<string, any>,
+        finishReason: string | null = null
+      ) => {
+        const chunk = {
+          id,
+          object: "chat.completion.chunk",
+          created,
+          model,
+          choices: [
+            {
+              index: 0,
+              delta,
+              finish_reason: finishReason,
+            },
+          ],
+        };
+        controller.enqueue(
+          encoder.encode(`data: ${JSON.stringify(chunk)}\n\n`)
+        );
       };
 
-      const enqueueError = (message: string) => {
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: message })}\n\n`));
-      };
-
-      const done = () => {
+      const enqueueDone = () => {
         controller.enqueue(encoder.encode("data: [DONE]\n\n"));
         controller.close();
       };
@@ -214,7 +251,7 @@ export async function streamMinimax(
 
           if (enableSearch && iterations === 1) {
             const response = await client.chat.completions.create({
-              model: MINIMAX_MODEL,
+              model,
               messages: messages.map((m) => ({
                 role: m.role,
                 content: m.content,
@@ -238,9 +275,7 @@ export async function streamMinimax(
               for (const toolCall of message.tool_calls) {
                 if (toolCall.function.name === "web_search") {
                   const args = JSON.parse(toolCall.function.arguments);
-                  controller.enqueue(
-                    encoder.encode(`data: ${JSON.stringify({ searching: args.query })}\n\n`)
-                  );
+                  enqueueChunk({ searching: args.query });
                   const searchResult = await executeWebSearch(args.query);
                   messages.push({
                     role: "tool",
@@ -253,14 +288,19 @@ export async function streamMinimax(
               continue;
             }
 
+            enqueueChunk({ role: "assistant", content: "" });
+
             const reply = message?.content?.trim() ?? "I'm unable to respond right now.";
-            enqueue(reply);
-            done();
+            enqueueChunk({ content: reply });
+            enqueueChunk({}, "stop");
+            enqueueDone();
             return;
           }
 
+          enqueueChunk({ role: "assistant", content: "" });
+
           const streamResponse = await client.chat.completions.create({
-            model: MINIMAX_MODEL,
+            model,
             messages: messages.map((m) => ({
               role: m.role,
               content: m.content,
@@ -272,31 +312,55 @@ export async function streamMinimax(
             stream: true,
           });
 
+          let receivedAny = false;
+
           for await (const chunk of streamResponse) {
             const delta = chunk.choices[0]?.delta?.content;
-            if (delta) enqueue(delta);
+            if (delta) {
+              receivedAny = true;
+              enqueueChunk({ content: delta });
+            }
           }
 
-          done();
+          if (!receivedAny) {
+            try {
+              const fallback = await chatMinimax(messages, opts);
+              enqueueChunk({ content: fallback.reply });
+            } catch (fallbackError: any) {
+              console.error("[lib/minimax] streamMinimax fallback error:", fallbackError);
+              enqueueChunk({ content: "I'm unable to respond right now." });
+            }
+          }
+
+          enqueueChunk({}, "stop");
+          enqueueDone();
           return;
         }
 
-        enqueue("Request took too long. Please try again.");
-        done();
+        enqueueChunk({ content: "Request took too long. Please try again." });
+        enqueueChunk({}, "stop");
+        enqueueDone();
       } catch (error: any) {
-        let message = "An unexpected error occurred.";
+        console.error("[lib/minimax] streamMinimax error:", error);
+
+        let message = "Something went wrong, please try again.";
+
         if (error?.status === 429) {
           message = "Rate limit exceeded. Please wait a moment.";
         } else if (error?.status === 402 || error?.code === "insufficient_quota" || error?.message?.includes("quota")) {
           message = "Quota exceeded. Please try again later.";
         } else if (error?.status === 503 || error?.status === 500) {
           message = "Server error. Please try again.";
-        } else if (error?.message?.includes("<!DOCTYPE") || error?.message?.includes("not valid JSON")) {
+        } else if (
+          error?.message?.includes("<!DOCTYPE") ||
+          error?.message?.includes("not valid JSON")
+        ) {
           message = "Model returned an invalid response. Please try again.";
         }
-        enqueueError(message);
-        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
-        controller.close();
+
+        enqueueChunk({ content: message });
+        enqueueChunk({}, "stop");
+        enqueueDone();
       }
     },
   });
