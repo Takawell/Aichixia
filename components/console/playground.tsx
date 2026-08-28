@@ -1953,6 +1953,11 @@ export default function Playground({ keys = [] }: PlaygroundProps) {
               if (!payload || payload === '[DONE]') continue;
               try {
                 const parsed = JSON.parse(payload);
+                const delta = parsed?.choices?.[0]?.delta?.content;
+                if (typeof delta === 'string' && delta) {
+                  fullText += delta;
+                  setStreamingText(fullText);
+                }
                 if (typeof parsed?.text === 'string') {
                   fullText += parsed.text;
                   setStreamingText(fullText);
