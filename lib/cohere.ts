@@ -1,51 +1,23 @@
 import OpenAI from "openai";
-import { tavily } from "@tavily/core";
 
-export type Role = "user" | "assistant" | "system" | "tool";
+export type Role = "user" | "assistant" | "system";
 
 export type ChatMessage = {
   role: Role;
   content: string;
-  tool_call_id?: string;
-  tool_calls?: any[];
 };
 
 const COHERE_API_KEY = process.env.COHERE_API_KEY;
-const TAVILY_API_KEY = process.env.TAVILY_API_KEY;
 const COHERE_MODEL = process.env.COHERE_MODEL || "command-a-03-2025";
 
 if (!COHERE_API_KEY) {
   console.warn("[lib/cohere] Warning: COHERE_API_KEY not set in env.");
 }
 
-if (!TAVILY_API_KEY) {
-  console.warn("[lib/cohere] Warning: TAVILY_API_KEY not set in env. Search will be disabled.");
-}
-
 const client = new OpenAI({
   apiKey: COHERE_API_KEY,
   baseURL: "https://api.cohere.ai/compatibility/v1",
 });
-
-const tavilyClient = TAVILY_API_KEY ? tavily({ apiKey: TAVILY_API_KEY }) : null;
-
-const SEARCH_TOOL = {
-  type: "function" as const,
-  function: {
-    name: "web_search",
-    description: "Search the web for current information, news, or real-time data. Use this when you need up-to-date information beyond your knowledge cutoff.",
-    parameters: {
-      type: "object",
-      properties: {
-        query: {
-          type: "string",
-          description: "The search query to look up on the web"
-        }
-      },
-      required: ["query"]
-    }
-  }
-};
 
 export class CohereRateLimitError extends Error {
   constructor(message: string) {
@@ -61,100 +33,53 @@ export class CohereQuotaError extends Error {
   }
 }
 
-async function executeWebSearch(query: string): Promise<string> {
-  if (!tavilyClient) {
-    return "Search unavailable: TAVILY_API_KEY not configured.";
+export class CohereConfigError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "CohereConfigError";
   }
+}
 
-  try {
-    const response = await tavilyClient.search(query, {
-      maxResults: 5,
-      includeAnswer: true,
-      searchDepth: "basic"
-    });
+export class CohereServerError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "CohereServerError";
+  }
+}
 
-    if (response.answer) {
-      return `Search Answer: ${response.answer}\n\nSources:\n${response.results.map((r: any, i: number) => 
-        `${i + 1}. ${r.title} - ${r.url}\n${r.content.substring(0, 200)}...`
-      ).join('\n\n')}`;
-    }
-
-    return response.results.map((r: any, i: number) => 
-      `${i + 1}. ${r.title}\n${r.content.substring(0, 300)}...\nURL: ${r.url}`
-    ).join('\n\n');
-  } catch (error: any) {
-    console.error("[lib/cohere] Tavily search error:", error);
-    return `Search error: ${error.message || "Unknown error occurred"}`;
+function ensureConfigured() {
+  if (!COHERE_API_KEY) {
+    throw new CohereConfigError("Cohere is not configured properly. Please contact the admin.");
   }
 }
 
 export async function chatCohere(
   history: ChatMessage[],
-  opts?: { 
-    temperature?: number; 
-    maxTokens?: number;
-    enableSearch?: boolean;
-  }
+  opts?: { temperature?: number; maxTokens?: number }
 ): Promise<{ reply: string }> {
   if (!COHERE_API_KEY) {
     throw new Error("COHERE_API_KEY not defined in environment variables.");
   }
 
-  const enableSearch = opts?.enableSearch !== false && tavilyClient !== null;
-  const maxIterations = 3;
-  let iterations = 0;
-  let messages = [...history];
-
   try {
-    while (iterations < maxIterations) {
-      iterations++;
+    const response = await client.chat.completions.create({
+      model: COHERE_MODEL,
+      messages: history.map((m) => ({
+        role: m.role,
+        content: m.content,
+      })),
+      temperature: opts?.temperature ?? 0.8,
+      max_tokens: opts?.maxTokens ?? 4096,
+    });
 
-      const response = await client.chat.completions.create({
-        model: COHERE_MODEL,
-        messages: messages.map((m) => ({
-          role: m.role,
-          content: m.content,
-          ...(m.tool_call_id && { tool_call_id: m.tool_call_id }),
-          ...(m.tool_calls && { tool_calls: m.tool_calls }),
-        })),
-        temperature: opts?.temperature ?? 0.8,
-        max_tokens: opts?.maxTokens ?? 4096,
-        ...(enableSearch && { tools: [SEARCH_TOOL] }),
-      });
+    const reply =
+      response.choices[0]?.message?.content?.trim() ??
+      "I'm unable to respond right now.";
 
-      const choice = response.choices[0];
-      const message = choice.message;
-
-      if (message.tool_calls && message.tool_calls.length > 0) {
-        messages.push({
-          role: "assistant",
-          content: message.content || "",
-          tool_calls: message.tool_calls,
-        });
-
-        for (const toolCall of message.tool_calls) {
-          if (toolCall.function.name === "web_search") {
-            const args = JSON.parse(toolCall.function.arguments);
-            const searchResult = await executeWebSearch(args.query);
-
-            messages.push({
-              role: "tool",
-              content: searchResult,
-              tool_call_id: toolCall.id,
-            });
-          }
-        }
-
-        continue;
-      }
-
-      const reply = message.content?.trim() ?? "I'm unable to respond right now.";
-      return { reply };
-    }
-
-    return { reply: "I'm unable to respond right now." };
-
+    return { reply };
   } catch (error: any) {
+    console.error("[lib/cohere] chatCohere error:", error);
+
     if (error?.status === 429) {
       throw new CohereRateLimitError(`Cohere rate limit exceeded: ${error.message}`);
     }
@@ -164,122 +89,108 @@ export async function chatCohere(
     if (error?.status === 503 || error?.status === 500) {
       throw new Error(`Cohere server error: ${error.message}`);
     }
-    
+
     throw error;
   }
 }
 
 export async function streamCohere(
   history: ChatMessage[],
-  opts?: { temperature?: number; maxTokens?: number; enableSearch?: boolean }
+  opts?: { temperature?: number; maxTokens?: number }
 ): Promise<ReadableStream<Uint8Array>> {
-  if (!COHERE_API_KEY) {
-    throw new Error("COHERE_API_KEY not defined in environment variables.");
-  }
+  ensureConfigured();
 
-  const enableSearch = opts?.enableSearch !== false && tavilyClient !== null;
   const encoder = new TextEncoder();
+  const model = COHERE_MODEL;
+  const id = `chatcmpl-${Date.now()}`;
+  const created = Math.floor(Date.now() / 1000);
 
   return new ReadableStream<Uint8Array>({
     async start(controller) {
-      const enqueue = (text: string) => {
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text })}\n\n`));
+      const enqueueChunk = (
+        delta: Record<string, any>,
+        finishReason: string | null = null
+      ) => {
+        const chunk = {
+          id,
+          object: "chat.completion.chunk",
+          created,
+          model,
+          choices: [
+            {
+              index: 0,
+              delta,
+              finish_reason: finishReason,
+            },
+          ],
+        };
+        controller.enqueue(
+          encoder.encode(`data: ${JSON.stringify(chunk)}\n\n`)
+        );
       };
 
-      const enqueueError = (message: string) => {
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: message })}\n\n`));
-      };
-
-      const done = () => {
+      const enqueueDone = () => {
         controller.enqueue(encoder.encode("data: [DONE]\n\n"));
         controller.close();
       };
 
       try {
-        let messages = [...history];
-        const maxIterations = 3;
-        let iterations = 0;
+        const streamResponse = await client.chat.completions.create({
+          model,
+          messages: history.map((m) => ({
+            role: m.role,
+            content: m.content,
+          })),
+          temperature: opts?.temperature ?? 0.8,
+          max_tokens: opts?.maxTokens ?? 4096,
+          stream: true,
+        });
 
-        while (iterations < maxIterations) {
-          iterations++;
+        enqueueChunk({ role: "assistant", content: "" });
 
-          const streamResponse = await client.chat.completions.create({
-            model: COHERE_MODEL,
-            messages: messages.map((m) => ({
-              role: m.role,
-              content: m.content,
-              ...(m.tool_call_id && { tool_call_id: m.tool_call_id }),
-              ...(m.tool_calls && { tool_calls: m.tool_calls }),
-            })),
-            temperature: opts?.temperature ?? 0.8,
-            max_tokens: opts?.maxTokens ?? 4096,
-            ...(enableSearch && { tools: [SEARCH_TOOL] }),
-            stream: true,
-          });
+        let receivedAny = false;
 
-          let toolCalls: any[] = [];
-          let contentBuffer = "";
-
-          for await (const chunk of streamResponse) {
-            const delta = chunk.choices[0]?.delta;
-            if (delta?.content) {
-              contentBuffer += delta.content;
-              enqueue(delta.content);
-            }
-            if (delta?.tool_calls) {
-              for (const tc of delta.tool_calls) {
-                const idx = tc.index ?? 0;
-                if (!toolCalls[idx]) {
-                  toolCalls[idx] = { id: tc.id, type: "function", function: { name: "", arguments: "" } };
-                }
-                if (tc.id) toolCalls[idx].id = tc.id;
-                if (tc.function?.name) toolCalls[idx].function.name += tc.function.name;
-                if (tc.function?.arguments) toolCalls[idx].function.arguments += tc.function.arguments;
-              }
-            }
+        for await (const chunk of streamResponse) {
+          const delta = chunk.choices[0]?.delta?.content;
+          if (delta) {
+            receivedAny = true;
+            enqueueChunk({ content: delta });
           }
-
-          if (toolCalls.length > 0) {
-            messages.push({
-              role: "assistant",
-              content: contentBuffer,
-              tool_calls: toolCalls,
-            });
-
-            for (const toolCall of toolCalls) {
-              if (toolCall.function.name === "web_search") {
-                const args = JSON.parse(toolCall.function.arguments);
-                const searchResult = await executeWebSearch(args.query);
-
-                messages.push({
-                  role: "tool",
-                  content: searchResult,
-                  tool_call_id: toolCall.id,
-                });
-              }
-            }
-
-            continue;
-          }
-
-          break;
         }
 
-        done();
+        if (!receivedAny) {
+          try {
+            const fallback = await chatCohere(history, opts);
+            enqueueChunk({ content: fallback.reply });
+          } catch (fallbackError: any) {
+            console.error("[lib/cohere] streamCohere fallback error:", fallbackError);
+            enqueueChunk({ content: "I'm unable to respond right now." });
+          }
+        }
+
+        enqueueChunk({}, "stop");
+        enqueueDone();
       } catch (error: any) {
-        let message = "An unexpected error occurred.";
+        console.error("[lib/cohere] streamCohere error:", error);
+
+        let message = "Something went wrong, please try again.";
+
         if (error?.status === 429) {
           message = "Rate limit exceeded. Please wait a moment.";
         } else if (error?.status === 402 || error?.code === "insufficient_quota") {
           message = "Quota exceeded. Please try again later.";
         } else if (error?.status === 503 || error?.status === 500) {
           message = "Server error. Please try again.";
-        } else if (error?.message?.includes("<!DOCTYPE") || error?.message?.includes("not valid JSON")) {
+        } else if (
+          error?.message?.includes("<!DOCTYPE") ||
+          error?.message?.includes("not valid JSON")
+        ) {
           message = "Model returned an invalid response. Please try again.";
         }
-        enqueueError(message);
-        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
-        controller.close();
+
+        enqueueChunk({ content: message });
+        enqueueChunk({}, "stop");
+        enqueueDone();
       }
     },
   });
@@ -292,7 +203,6 @@ export async function quickChatCohere(
     history?: ChatMessage[];
     temperature?: number;
     maxTokens?: number;
-    enableSearch?: boolean;
   }
 ) {
   const hist: ChatMessage[] = [];
@@ -310,7 +220,6 @@ export async function quickChatCohere(
   const { reply } = await chatCohere(hist, {
     temperature: opts?.temperature,
     maxTokens: opts?.maxTokens,
-    enableSearch: opts?.enableSearch,
   });
 
   return reply;
