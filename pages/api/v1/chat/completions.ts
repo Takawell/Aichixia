@@ -12,7 +12,7 @@ import { chatCohere, streamCohere, CohereRateLimitError, CohereQuotaError } from
 import { chatDeepSeek, streamDeepSeek, DeepSeekRateLimitError, DeepSeekQuotaError } from "@/lib/deepseek";
 import { chatDeepSeekV, streamDeepSeekV, DeepSeekVRateLimitError, DeepSeekVQuotaError } from "@/lib/deepseek-v";
 import { chatQwen, streamQwen, QwenRateLimitError, QwenQuotaError } from "@/lib/qwen";
-import { chatQwenV2, QwenV2RateLimitError, QwenV2QuotaError } from "@/lib/qwen3";
+import { chatQwenV2, streamQwenV2, QwenV2RateLimitError, QwenV2QuotaError } from "@/lib/qwen3";
 import { chatGptOss, streamGptOss, GptOssRateLimitError, GptOssQuotaError } from "@/lib/gpt-oss";
 import { chatCompound, CompoundRateLimitError, CompoundQuotaError } from "@/lib/compound";
 import { chatLlama, streamLlama, LlamaRateLimitError, LlamaQuotaError } from "@/lib/llama";
@@ -68,7 +68,7 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "gpt-5.2": { fn: chatGPT, provider: "gpt" },
   "gpt-5.5": { fn: chatGpt55, provider: "gpt55" },
   "mistral-large-latest": { fn: chatMistral, provider: "mistral" },
-  "qwen3.6-27b": { fn: chatQwenV2, provider: "qwen3" },
+  "qwen/qwen3.8-27b": { fn: chatQwenV2, provider: "qwen3" },
   "qwen3-coder-plus": { fn: chatQwen, provider: "qwen" },
   "minimax/minimax-m3": { fn: chatMinimax, provider: "minimax" },
   "llama-3.3-70b": { fn: chatLlama, provider: "llama" },
@@ -112,6 +112,7 @@ const STREAM_MODEL_MAPPING: Record<string, StreamFunction> = {
   "qwen3-coder-plus": streamQwen,
   "thinkingmachines/inkling": streamInkling,
   "glm-4.7-flash": streamZhipu,
+  "qwen/qwen3.8-27b": streamQwenV2,
   "llama-4-scout-17b-16e-instruct": streamScout,
 };
 
