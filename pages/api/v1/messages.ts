@@ -193,14 +193,14 @@ async function checkModelAccess(userId: string, model: string): Promise<{ allowe
   if (LOCKED_MODELS_ENTERPRISE.includes(modelLower) && userPlan !== 'enterprise') {
     return {
       allowed: false,
-      error: `Model '${model}' requires Enterprise plan.`,
+      error: `Model '${model}' requires Enterprise plan. Upgrade your plan at https://aichixia.xyz/console`,
     };
   }
 
   if (userPlan === 'free' && LOCKED_MODELS_PRO.includes(modelLower)) {
     return {
       allowed: false,
-      error: `Model '${model}' requires Pro or Enterprise plan.`,
+      error: `Model '${model}' requires Pro or Enterprise plan. Upgrade your plan at https://aichixia.xyz/console`,
     };
   }
   return { allowed: true };
@@ -212,19 +212,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   const startTime = Date.now();
-
-  const apiKey =
-    req.headers["x-api-key"] as string ||
-    req.headers.authorization?.replace("Bearer ", "");
+  const apiKey = req.headers.authorization?.replace('Bearer ', '') || (req.headers['x-api-key'] as string);
 
   if (!apiKey) {
-    return anthropicError("authentication_error", "Missing API key. Provide via x-api-key header or Authorization: Bearer.", 401, res);
+    return anthropicError("authentication_error", "Missing API key in Authorization or x-api-key header", 401, res);
   }
 
   const verifyResult = await verifyApiKey(apiKey);
 
   if (!verifyResult || !verifyResult.key) {
-    return anthropicError("authentication_error", "Invalid API key.", 401, res);
+    return anthropicError("authentication_error", "Invalid API key", 401, res);
   }
 
   if (verifyResult.error) {
@@ -239,6 +236,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       ip_address: (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.socket.remoteAddress || null,
       user_agent: req.headers['user-agent'] || null,
     });
+
     return anthropicError("rate_limit_error", verifyResult.error, 429, res);
   }
 
@@ -250,84 +248,73 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     model,
     messages,
     system,
-    max_tokens = 4096,
     temperature = 0.8,
+    max_tokens = 1080,
     stream = false,
   } = req.body;
 
   if (!model || typeof model !== "string") {
     await incrementUsage(apiKeyData.id);
     await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, false);
-    await logRequest({ api_key_id: apiKeyData.id, user_id: apiKeyData.user_id, model: 'unknown', endpoint: '/api/v1/messages', status: 400, tokens_used: 0, error_message: 'model is required', ip_address: ip, user_agent: userAgent });
-    return anthropicError("invalid_request_error", "model is required and must be a string.", 400, res);
-  }
-
-  if (!messages || !Array.isArray(messages) || messages.length === 0) {
-    await incrementUsage(apiKeyData.id);
-    await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, false);
-    await logRequest({ api_key_id: apiKeyData.id, user_id: apiKeyData.user_id, model, endpoint: '/api/v1/messages', status: 400, tokens_used: 0, error_message: 'messages is required', ip_address: ip, user_agent: userAgent });
-    return anthropicError("invalid_request_error", "messages is required and must be a non-empty array.", 400, res);
-  }
-
-  if (!max_tokens || typeof max_tokens !== 'number') {
-    await incrementUsage(apiKeyData.id);
-    await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, false);
-    await logRequest({ api_key_id: apiKeyData.id, user_id: apiKeyData.user_id, model, endpoint: '/api/v1/messages', status: 400, tokens_used: 0, error_message: 'max_tokens is required', ip_address: ip, user_agent: userAgent });
-    return anthropicError("invalid_request_error", "max_tokens is required.", 400, res);
+    await logRequest({
+      api_key_id: apiKeyData.id, user_id: apiKeyData.user_id,
+      model: 'unknown', endpoint: '/api/v1/messages',
+      status: 400, tokens_used: 0, error_message: 'model is required',
+      ip_address: ip, user_agent: userAgent,
+    });
+    return anthropicError("invalid_request_error", "model is required and must be a string", 400, res);
   }
 
   const modelAccess = await checkModelAccess(apiKeyData.user_id, model);
+
   if (!modelAccess.allowed) {
     await incrementUsage(apiKeyData.id);
     await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, false);
-    await logRequest({ api_key_id: apiKeyData.id, user_id: apiKeyData.user_id, model, endpoint: '/api/v1/messages', status: 403, tokens_used: 0, error_message: modelAccess.error || 'Model access denied', ip_address: ip, user_agent: userAgent });
-    return anthropicError("permission_error", modelAccess.error || "Model access denied.", 403, res);
+    await logRequest({
+      api_key_id: apiKeyData.id, user_id: apiKeyData.user_id,
+      model, endpoint: '/api/v1/messages',
+      status: 403, tokens_used: 0, error_message: modelAccess.error || 'Model access denied',
+      ip_address: ip, user_agent: userAgent,
+    });
+    return anthropicError("permission_error", modelAccess.error || "Model access denied", 403, res);
+  }
+
+  if (!messages || !Array.isArray(messages)) {
+    await incrementUsage(apiKeyData.id);
+    await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, false);
+    await logRequest({
+      api_key_id: apiKeyData.id, user_id: apiKeyData.user_id,
+      model, endpoint: '/api/v1/messages',
+      status: 400, tokens_used: 0, error_message: 'messages is required',
+      ip_address: ip, user_agent: userAgent,
+    });
+    return anthropicError("invalid_request_error", "messages is required and must be an array", 400, res);
   }
 
   const modelConfig = MODEL_MAPPING[model.toLowerCase()];
+
   if (!modelConfig) {
     await incrementUsage(apiKeyData.id);
     await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, false);
-    await logRequest({ api_key_id: apiKeyData.id, user_id: apiKeyData.user_id, model, endpoint: '/api/v1/messages', status: 400, tokens_used: 0, error_message: 'model not found', ip_address: ip, user_agent: userAgent });
+    await logRequest({
+      api_key_id: apiKeyData.id, user_id: apiKeyData.user_id,
+      model, endpoint: '/api/v1/messages',
+      status: 400, tokens_used: 0, error_message: 'model not found',
+      ip_address: ip, user_agent: userAgent,
+    });
     return anthropicError("invalid_request_error", `Model '${model}' is not supported. Available models: ${Object.keys(MODEL_MAPPING).join(", ")}`, 400, res);
   }
 
   const history: { role: "user" | "assistant" | "system"; content: any }[] = [];
-
   if (system) {
-    history.push({ role: "system", content: typeof system === "string" ? system : system.map((s: any) => s.text || "").join("\n") });
+    history.push({ role: "system", content: system });
   }
-
-  for (const msg of messages) {
-    const role = msg.role as "user" | "assistant";
-    let content: any;
-    if (typeof msg.content === "string") {
-      content = msg.content;
-    } else if (Array.isArray(msg.content)) {
-      const hasImage = msg.content.some((b: any) => b.type === "image");
-      if (hasImage) {
-        content = msg.content.map((b: any) => {
-          if (b.type === "text") {
-            return { type: "text", text: b.text };
-          }
-          if (b.type === "image") {
-            const mediaType = b.source?.media_type || "image/png";
-            const data = b.source?.data || "";
-            const url = b.source?.type === "url"
-              ? b.source.url
-              : `data:${mediaType};base64,${data}`;
-            return { type: "image_url", image_url: { url } };
-          }
-          return { type: "text", text: "" };
-        });
-      } else {
-        content = msg.content.filter((b: any) => b.type === "text").map((b: any) => b.text).join(" ");
-      }
-    } else {
-      content = String(msg.content);
-    }
-    history.push({ role, content });
-  }
+  history.push(
+    ...messages.map((msg: any) => ({
+      role: msg.role as "user" | "assistant",
+      content: msg.content,
+    }))
+  );
 
   const streamFn = STREAM_MODEL_MAPPING[model.toLowerCase()];
 
@@ -335,7 +322,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!streamFn) {
       await incrementUsage(apiKeyData.id);
       await updateDailyUsage(apiKeyData.id, apiKeyData.user_id, 0, false);
-      await logRequest({ api_key_id: apiKeyData.id, user_id: apiKeyData.user_id, model, endpoint: '/api/v1/messages', status: 400, tokens_used: 0, error_message: 'streaming not supported for this model', ip_address: ip, user_agent: userAgent });
+      await logRequest({
+        api_key_id: apiKeyData.id, user_id: apiKeyData.user_id,
+        model, endpoint: '/api/v1/messages',
+        status: 400, tokens_used: 0, error_message: 'streaming not supported for this model',
+        ip_address: ip, user_agent: userAgent,
+      });
       return anthropicError("invalid_request_error", `Streaming is not supported for model '${model}'. Streaming-capable models: ${Object.keys(STREAM_MODEL_MAPPING).join(", ")}`, 400, res);
     }
 
@@ -390,12 +382,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           if (payload === "[DONE]") continue;
           try {
             const parsed = JSON.parse(payload);
-            if (parsed.text) {
-              fullText += parsed.text;
+            const delta = parsed.choices?.[0]?.delta?.content;
+            if (delta) {
+              fullText += delta;
               sendSSE(res, "content_block_delta", {
                 type: "content_block_delta",
                 index: 0,
-                delta: { type: "text_delta", text: parsed.text },
+                delta: { type: "text_delta", text: delta },
               });
             }
           } catch {
