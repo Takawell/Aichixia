@@ -63,6 +63,26 @@ export class InklingQuotaError extends Error {
   }
 }
 
+export class InklingConfigError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "InklingConfigError";
+  }
+}
+
+export class InklingServerError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "InklingServerError";
+  }
+}
+
+function ensureConfigured() {
+  if (!INKLING_API_KEY) {
+    throw new InklingConfigError("Inkling is not configured properly. Please contact the admin.");
+  }
+}
+
 export async function chatInkling(
   history: ChatMessage[],
   opts?: { temperature?: number; maxTokens?: number }
@@ -90,6 +110,8 @@ export async function chatInkling(
 
     return { reply };
   } catch (error: any) {
+    console.error("[lib/inkling] chatInkling error:", error);
+
     if (error?.status === 429) {
       throw new InklingRateLimitError(
         `Inkling rate limit exceeded: ${error.message}`
@@ -112,30 +134,45 @@ export async function streamInkling(
   history: ChatMessage[],
   opts?: { temperature?: number; maxTokens?: number }
 ): Promise<ReadableStream<Uint8Array>> {
-  if (!INKLING_API_KEY) {
-    throw new Error("NVIDIA_API_KEY not defined in environment variables.");
-  }
+  ensureConfigured();
 
   const encoder = new TextEncoder();
+  const model = INKLING_MODEL;
+  const id = `chatcmpl-${Date.now()}`;
+  const created = Math.floor(Date.now() / 1000);
 
   return new ReadableStream<Uint8Array>({
     async start(controller) {
-      const enqueue = (text: string) => {
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text })}\n\n`));
+      const enqueueChunk = (
+        delta: Record<string, any>,
+        finishReason: string | null = null
+      ) => {
+        const chunk = {
+          id,
+          object: "chat.completion.chunk",
+          created,
+          model,
+          choices: [
+            {
+              index: 0,
+              delta,
+              finish_reason: finishReason,
+            },
+          ],
+        };
+        controller.enqueue(
+          encoder.encode(`data: ${JSON.stringify(chunk)}\n\n`)
+        );
       };
 
-      const enqueueError = (message: string) => {
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: message })}\n\n`));
-      };
-
-      const done = () => {
+      const enqueueDone = () => {
         controller.enqueue(encoder.encode("data: [DONE]\n\n"));
         controller.close();
       };
 
       try {
         const streamResponse = await client.chat.completions.create({
-          model: INKLING_MODEL,
+          model,
           messages: history.map((m) => ({
             role: m.role,
             content: m.content,
@@ -146,26 +183,51 @@ export async function streamInkling(
           stream: true,
         });
 
+        enqueueChunk({ role: "assistant", content: "" });
+
+        let receivedAny = false;
+
         for await (const chunk of streamResponse) {
           const delta = chunk.choices[0]?.delta?.content;
-          if (delta) enqueue(delta);
+          if (delta) {
+            receivedAny = true;
+            enqueueChunk({ content: delta });
+          }
         }
 
-        done();
+        if (!receivedAny) {
+          try {
+            const fallback = await chatInkling(history, opts);
+            enqueueChunk({ content: fallback.reply });
+          } catch (fallbackError: any) {
+            console.error("[lib/inkling] streamInkling fallback error:", fallbackError);
+            enqueueChunk({ content: "I'm unable to respond right now." });
+          }
+        }
+
+        enqueueChunk({}, "stop");
+        enqueueDone();
       } catch (error: any) {
-        let message = "An unexpected error occurred.";
+        console.error("[lib/inkling] streamInkling error:", error);
+
+        let message = "Something went wrong, please try again.";
+
         if (error?.status === 429) {
           message = "Rate limit exceeded. Please wait a moment.";
         } else if (error?.status === 402 || error?.code === "insufficient_quota" || error?.message?.includes("quota")) {
           message = "Quota exceeded. Please try again later.";
         } else if (error?.status === 503 || error?.status === 500) {
           message = "Server error. Please try again.";
-        } else if (error?.message?.includes("<!DOCTYPE") || error?.message?.includes("not valid JSON")) {
+        } else if (
+          error?.message?.includes("<!DOCTYPE") ||
+          error?.message?.includes("not valid JSON")
+        ) {
           message = "Model returned an invalid response. Please try again.";
         }
-        enqueueError(message);
-        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
-        controller.close();
+
+        enqueueChunk({ content: message });
+        enqueueChunk({}, "stop");
+        enqueueDone();
       }
     },
   });
