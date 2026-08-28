@@ -358,6 +358,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const reader = readable.getReader();
       const decoder = new TextDecoder();
       let fullText = "";
+      let buffer = "";
 
       while (true) {
         const { done, value } = await reader.read();
@@ -366,14 +367,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const chunkText = decoder.decode(value, { stream: true });
         res.write(chunkText);
 
-        const lines = chunkText.split("\n\n");
-        for (const line of lines) {
-          if (!line.startsWith("data: ")) continue;
-          const payload = line.slice(6).trim();
+        buffer += chunkText;
+        const parts = buffer.split("\n\n");
+        buffer = parts.pop() || "";
+
+        for (const part of parts) {
+          if (!part.startsWith("data: ")) continue;
+          const payload = part.slice(6).trim();
           if (payload === "[DONE]") continue;
           try {
             const parsed = JSON.parse(payload);
-            if (parsed.text) fullText += parsed.text;
+            const delta = parsed.choices?.[0]?.delta?.content;
+            if (delta) fullText += delta;
           } catch {
             continue;
           }
