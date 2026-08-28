@@ -206,6 +206,7 @@ export async function chatGemini(
       raw: opts.returnRaw ? response : undefined,
     };
   } catch (error: any) {
+    console.error("[lib/gemini] chatGemini error:", error);
     handleGeminiError(error);
   }
 }
@@ -284,7 +285,8 @@ export async function streamGemini(
           try {
             const fallback = await chatGemini(history, opts);
             enqueueChunk({ content: fallback.reply });
-          } catch {
+          } catch (fallbackError: any) {
+            console.error("[lib/gemini] streamGemini fallback error:", fallbackError);
             enqueueChunk({
               content: "I'm unable to respond right now.",
             });
@@ -294,6 +296,8 @@ export async function streamGemini(
         enqueueChunk({}, "stop");
         enqueueDone();
       } catch (error: any) {
+        console.error("[lib/gemini] streamGemini error:", error);
+
         let message = "Something went wrong, please try again.";
 
         if (error?.status === 429) {
