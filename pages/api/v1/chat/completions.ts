@@ -62,7 +62,7 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "anthropic/claude-opus-4-8": { fn: chatOpus, provider: "opus" },
   "anthropic/claude-haiku-4-5": { fn: chatHaiku, provider: "haiku" },
   "anthropic/claude-fable-5": { fn: chatFable, provider: "fable" },
-  "google/gemini-3-flash-preview": { fn: chatGemini, provider: "gemini" },
+  "google/gemini-3-flash": { fn: chatGemini, provider: "gemini" },
   "moonshotai/kimi-k2.6": { fn: chatKimi, provider: "kimi" },
   "z-ai/glm-5.2": { fn: chatGlm, provider: "glm" },
   "openai/gpt-5.2": { fn: chatGPT, provider: "gpt" },
@@ -82,7 +82,7 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "z-ai/glm-4.7-flash": { fn: chatZhipu, provider: "zhipu" },
   "stepfun-ai/step-3.7-flash": { fn: chatStepfun, provider: "stepfun" },
   "nvidia/nemotron-3-ultra-550b-a55b": { fn: chatNemotron, provider: "nemotron" },
-  "aichixia/aichixia-flash": { fn: chatAichixia, provider: "aichixia" },
+  "aichiverse/aichixia-flash": { fn: chatAichixia, provider: "aichixia" },
   "google/gemma-4-31b": { fn: chatGemma, provider: "gemma" },
   "poolside/laguna-s-2.1": { fn: chatLaguna, provider: "laguna" },
   "thinkingmachines/inkling": { fn: chatInkling, provider: "inkling" },
@@ -92,7 +92,7 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
 const STREAM_MODEL_MAPPING: Record<string, StreamFunction> = {
   "moonshotai/kimi-k2.6": streamKimi,
   "openai/gpt-5-mini": streamOpenAI,
-  "aichixia/aichixia-flash": streamAichixia,
+  "aichiverse/aichixia-flash": streamAichixia,
   "anthropic/claude-sonnet-4-6": streamClaude,
   "anthropic/claude-fable-5": streamFable,
   "mistralai/mistral-large-latest": streamMistral,
@@ -105,7 +105,7 @@ const STREAM_MODEL_MAPPING: Record<string, StreamFunction> = {
   "z-ai/glm-5.2": streamGlm,
   "z-ai/glm-4.7-flash": streamZhipu,
   "google/gemma-4-31b": streamGemma,
-  "google/gemini-3-flash-preview": streamGemini,
+  "google/gemini-3-flash": streamGemini,
   "poolside/laguna-s-2.1": streamLaguna,
   "cohere/command-a": streamCohere,
   "meta/llama-3.3-70b": streamLlama,
@@ -117,7 +117,7 @@ const STREAM_MODEL_MAPPING: Record<string, StreamFunction> = {
   "groq/compound": streamCompound,
 };
 
-const LOCKED_MODELS_PRO = ['deepseek/deepseek-v4-pro', 'xiaomi/mimo-v2.5-pro', 'anthropic/claude-sonnet-4-6', 'z-ai/glm-5.2', 'aichixia/aichixia-flash', 'xai/grok-4-fast', 'moonshotai/kimi-k2.6', 'openai/gpt-5.2', 'openai/gpt-5.5', 'poolside/laguna-s-2.1', 'thinkingmachines/inkling'];
+const LOCKED_MODELS_PRO = ['deepseek/deepseek-v4-pro', 'xiaomi/mimo-v2.5-pro', 'anthropic/claude-sonnet-4-6', 'z-ai/glm-5.2', 'aichiverse/aichixia-flash', 'xai/grok-4-fast', 'moonshotai/kimi-k2.6', 'openai/gpt-5.2', 'openai/gpt-5.5', 'poolside/laguna-s-2.1', 'thinkingmachines/inkling'];
 const LOCKED_MODELS_ENTERPRISE = ['anthropic/claude-fable-5', 'anthropic/claude-opus-4-8'];
 
 const RATE_LIMIT_ERRORS = [
