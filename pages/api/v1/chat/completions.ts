@@ -5,7 +5,7 @@ import { chatAichixia, streamAichixia, AichixiaRateLimitError, AichixiaQuotaErro
 import { chatOpenAI, streamOpenAI, OpenAIRateLimitError, OpenAIQuotaError } from "@/lib/openai";
 import { chatKimi, streamKimi, KimiRateLimitError, KimiQuotaError } from "@/lib/kimi";
 import { chatGlm, streamGlm, GlmRateLimitError, GlmQuotaError } from "@/lib/glm";
-import { chatGPT, GPTRateLimitError, GPTQuotaError } from "@/lib/gpt";
+import { chatGPT, streamGPT, GPTRateLimitError, GPTQuotaError } from "@/lib/gpt";
 import { chatClaude, streamClaude, ClaudeRateLimitError, ClaudeQuotaError } from "@/lib/claude";
 import { chatOpus, OpusRateLimitError, OpusQuotaError } from "@/lib/opus";
 import { chatCohere, streamCohere, CohereRateLimitError, CohereQuotaError } from "@/lib/cohere";
@@ -14,7 +14,7 @@ import { chatDeepSeekV, streamDeepSeekV, DeepSeekVRateLimitError, DeepSeekVQuota
 import { chatQwen, streamQwen, QwenRateLimitError, QwenQuotaError } from "@/lib/qwen";
 import { chatQwenV2, streamQwenV2, QwenV2RateLimitError, QwenV2QuotaError } from "@/lib/qwen3";
 import { chatGptOss, streamGptOss, GptOssRateLimitError, GptOssQuotaError } from "@/lib/gpt-oss";
-import { chatCompound, CompoundRateLimitError, CompoundQuotaError } from "@/lib/compound";
+import { chatCompound, streamCompound, CompoundRateLimitError, CompoundQuotaError } from "@/lib/compound";
 import { chatLlama, streamLlama, LlamaRateLimitError, LlamaQuotaError } from "@/lib/llama";
 import { chatMistral, streamMistral, MistralRateLimitError, MistralQuotaError } from "@/lib/mistral";
 import { chatMimo, streamMimo, MimoRateLimitError, MimoQuotaError } from "@/lib/mimo";
@@ -57,67 +57,68 @@ type StreamFunction = (
 const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "deepseek/deepseek-v4-pro": { fn: chatDeepSeek, provider: "deepseek" },
   "deepseek/deepseek-v4-flash": { fn: chatDeepSeekV, provider: "deepseek-v" },
-  "gpt-5-mini": { fn: chatOpenAI, provider: "openai" },
-  "claude-sonnet-4.6": { fn: chatClaude, provider: "claude" },
-  "claude-opus-4.8": { fn: chatOpus, provider: "opus" },
-  "claude-haiku-4.5": { fn: chatHaiku, provider: "haiku" },
-  "claude-fable-5": { fn: chatFable, provider: "fable" },
-  "gemini-3-flash": { fn: chatGemini, provider: "gemini" },
-  "kimi-k2.6": { fn: chatKimi, provider: "kimi" },
-  "glm-5.2": { fn: chatGlm, provider: "glm" },
-  "gpt-5.2": { fn: chatGPT, provider: "gpt" },
-  "gpt-5.5": { fn: chatGpt55, provider: "gpt55" },
-  "mistral-large-latest": { fn: chatMistral, provider: "mistral" },
-  "qwen/qwen3.8-27b": { fn: chatQwenV2, provider: "qwen3" },
-  "qwen3-coder-plus": { fn: chatQwen, provider: "qwen" },
-  "minimax/minimax-m3": { fn: chatMinimax, provider: "minimax" },
-  "llama-3.3-70b": { fn: chatLlama, provider: "llama" },
-  "gpt-oss-120b": { fn: chatGptOss, provider: "gptoss" },
-  "mimo-v2.5-pro": { fn: chatMimo, provider: "mimo" },
-  "phi-4-multimodal-instruct": { fn: chatPhi, provider: "phi" },
-  "groq-compound": { fn: chatCompound, provider: "compound" },
-  "cohere-command-a": { fn: chatCohere, provider: "cohere" },
-  "grok-3": { fn: chatGrok, provider: "grok" },
-  "grok-4-fast": { fn: chatGrokFast, provider: "grok-fast" },
-  "glm-4.7-flash": { fn: chatZhipu, provider: "zhipu" },
-  "step-3.7-flash": { fn: chatStepfun, provider: "stepfun" },
-  "nemotron-3-ultra-550b-a55b": { fn: chatNemotron, provider: "nemotron" },
-  "aichixia-flash": { fn: chatAichixia, provider: "aichixia" },
-  "gemma-4-31b": { fn: chatGemma, provider: "gemma" },
-  "laguna-s-2.1": { fn: chatLaguna, provider: "laguna" },
+  "openai/gpt-5-mini": { fn: chatOpenAI, provider: "openai" },
+  "anthropic/claude-sonnet-4-6": { fn: chatClaude, provider: "claude" },
+  "anthropic/claude-opus-4-8": { fn: chatOpus, provider: "opus" },
+  "anthropic/claude-haiku-4-5": { fn: chatHaiku, provider: "haiku" },
+  "anthropic/claude-fable-5": { fn: chatFable, provider: "fable" },
+  "google/gemini-3-flash-preview": { fn: chatGemini, provider: "gemini" },
+  "moonshotai/kimi-k2.6": { fn: chatKimi, provider: "kimi" },
+  "z-ai/glm-5.2": { fn: chatGlm, provider: "glm" },
+  "openai/gpt-5.2": { fn: chatGPT, provider: "gpt" },
+  "openai/gpt-5.5": { fn: chatGpt55, provider: "gpt55" },
+  "mistralai/mistral-large-latest": { fn: chatMistral, provider: "mistral" },
+  "alibaba/qwen3.8-27b": { fn: chatQwenV2, provider: "qwen3" },
+  "alibaba/qwen3-coder-plus": { fn: chatQwen, provider: "qwen" },
+  "minimaxai/minimax-m3": { fn: chatMinimax, provider: "minimax" },
+  "meta/llama-3.3-70b": { fn: chatLlama, provider: "llama" },
+  "openai/gpt-oss-120b": { fn: chatGptOss, provider: "gptoss" },
+  "xiaomi/mimo-v2.5-pro": { fn: chatMimo, provider: "mimo" },
+  "microsoft/phi-4-multimodal-instruct": { fn: chatPhi, provider: "phi" },
+  "groq/compound": { fn: chatCompound, provider: "compound" },
+  "cohere/command-a": { fn: chatCohere, provider: "cohere" },
+  "xai/grok-3": { fn: chatGrok, provider: "grok" },
+  "xai/grok-4-fast": { fn: chatGrokFast, provider: "grok-fast" },
+  "z-ai/glm-4.7-flash": { fn: chatZhipu, provider: "zhipu" },
+  "stepfun-ai/step-3.7-flash": { fn: chatStepfun, provider: "stepfun" },
+  "nvidia/nemotron-3-ultra-550b-a55b": { fn: chatNemotron, provider: "nemotron" },
+  "aichixia/aichixia-flash": { fn: chatAichixia, provider: "aichixia" },
+  "google/gemma-4-31b": { fn: chatGemma, provider: "gemma" },
+  "poolside/laguna-s-2.1": { fn: chatLaguna, provider: "laguna" },
   "thinkingmachines/inkling": { fn: chatInkling, provider: "inkling" },
-  "llama-4-scout-17b-16e-instruct": { fn: chatScout, provider: "scout" },
+  "meta/llama-4-scout-17b-16e-instruct": { fn: chatScout, provider: "scout" },
 };
 
 const STREAM_MODEL_MAPPING: Record<string, StreamFunction> = {
-  "kimi-k2.6": streamKimi,
-  "gpt-5-mini": streamOpenAI,
-  "aichixia-flash": streamAichixia,
-  "claude-sonnet-4.6": streamClaude,
-  "mistral-large-latest": streamMistral,
-  "minimax/minimax-m3": streamMinimax,
-  "step-3.7-flash": streamStepfun,
-  "nemotron-3-ultra-550b-a55b": streamNemotron,
-  "gpt-oss-120b": streamGptOss,
+  "moonshotai/kimi-k2.6": streamKimi,
+  "openai/gpt-5-mini": streamOpenAI,
+  "aichixia/aichixia-flash": streamAichixia,
+  "anthropic/claude-sonnet-4-6": streamClaude,
+  "anthropic/claude-fable-5": streamFable,
+  "mistralai/mistral-large-latest": streamMistral,
+  "minimaxai/minimax-m3": streamMinimax,
+  "stepfun-ai/step-3.7-flash": streamStepfun,
+  "nvidia/nemotron-3-ultra-550b-a55b": streamNemotron,
+  "openai/gpt-oss-120b": streamGptOss,
   "deepseek/deepseek-v4-flash": streamDeepSeekV,
-  "glm-5.2": streamGlm,
-  "gemma-4-31b": streamGemma,
-  "laguna-s-2.1": streamLaguna,
-  "cohere-command-a": streamCohere,
-  "gemini-3-flash": streamGemini,
-  "llama-3.3-70b": streamLlama,
   "deepseek/deepseek-v4-pro": streamDeepSeek,
-  "claude-fable-5": streamFable,
-  "mimo-v2.5-pro": streamMimo,
-  "qwen3-coder-plus": streamQwen,
+  "z-ai/glm-5.2": streamGlm,
+  "z-ai/glm-4.7-flash": streamZhipu,
+  "google/gemma-4-31b": streamGemma,
+  "google/gemini-3-flash-preview": streamGemini,
+  "poolside/laguna-s-2.1": streamLaguna,
+  "cohere/command-a": streamCohere,
+  "meta/llama-3.3-70b": streamLlama,
+  "meta/llama-4-scout-17b-16e-instruct": streamScout,
+  "alibaba/qwen3-coder-plus": streamQwen,
+  "alibaba/qwen3.8-27b": streamQwenV2,
   "thinkingmachines/inkling": streamInkling,
-  "glm-4.7-flash": streamZhipu,
-  "qwen/qwen3.8-27b": streamQwenV2,
-  "llama-4-scout-17b-16e-instruct": streamScout,
+  "openai/gpt-5.2": streamGPT,
+  "groq/compound": streamCompound,
 };
 
-const LOCKED_MODELS_PRO = ['deepseek/deepseek-v4-pro', 'mimo-v2.5-pro', 'claude-sonnet-4.6', 'glm-5.2', 'aichixia-flash', 'grok-4-fast', 'kimi-k2.6', 'gpt-5.2', 'gpt-5.5', 'laguna-s-2.1', 'thinkingmachines/inkling'];
-const LOCKED_MODELS_ENTERPRISE = ['claude-fable-5', 'claude-opus-4.8'];
+const LOCKED_MODELS_PRO = ['deepseek/deepseek-v4-pro', 'xiaomi/mimo-v2.5-pro', 'anthropic/claude-sonnet-4-6', 'z-ai/glm-5.2', 'aichixia/aichixia-flash', 'xai/grok-4-fast', 'moonshotai/kimi-k2.6', 'openai/gpt-5.2', 'openai/gpt-5.5', 'poolside/laguna-s-2.1', 'thinkingmachines/inkling'];
+const LOCKED_MODELS_ENTERPRISE = ['anthropic/claude-fable-5', 'anthropic/claude-opus-4-8'];
 
 const RATE_LIMIT_ERRORS = [
   OpenAIRateLimitError, KimiRateLimitError, GlmRateLimitError, GPTRateLimitError,
