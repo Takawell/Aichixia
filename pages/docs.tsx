@@ -82,10 +82,10 @@ export default function Docs() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + process.env.NEXT_PUBLIC_AICHIXIA_API_KEY },
         body: JSON.stringify({
-          model: 'gpt-5-mini',
+          model: 'openai/gpt-5-mini',
           max_tokens: 4096,
           messages: [
-            { role: 'system', content: 'You are a helpful API assistant for Aichixia, an AI API aggregation platform. Help users integrate and use the Aichixia API. Keep answers concise and clear. Aichixia base URL: https://www.aichixia.xyz. Auth: Bearer token or x-api-key header.\n\nEndpoints:\n- Chat (OpenAI-compat): POST /api/v1/chat/completions\n- Messages (Anthropic-compat): POST /api/v1/messages\n- Image generation: POST /api/v1/images/generations\n- Video generation: POST /api/v1/videos/generations\n- TTS: POST /api/v1/audio/speech\n- STT Transcription: POST /api/v1/audio/transcriptions\n- STT Translation: POST /api/v1/audio/translations\n\nText models (free): gpt-5-mini, gpt-5.2, gpt-oss-120b, gemini-3-flash, grok-3, deepseek-v4-flash, mistral-large-latest, glm-4.7-flash, step-3.7-flash, nemotron-3-ultra-550b-a55b, qwen3.6-27b, qwen3-coder-plus, llama-3.3-70b, minimax-m3, groq-compound, cohere-command-a, phi-4-multimodal-instruct, claude-haiku-4.5\\nText models (pro): claude-sonnet-4.6, claude-opus-4.8, grok-4-fast, deepseek-v3.2, glm-5.2, kimi-k2.6, aichixia-flash, gpt-5.5, mimo-v2.5-pro, laguna-s-2.1, thinkingmachines/inkling\\nText models (enterprise): claude-fable-5\\\\nStreaming (stream: true) supported only on: kimi-k2.6, mistral-large-latest, minimax-m3, step-3.7-flash, nemotron-3-ultra-550b-a55b, gpt-oss-120b, deepseek-v4-flash, glm-5.2, gemma-4-31b, laguna-s-2.1, cohere-command-a, gemini-3-flash, llama-3.3-70b, deepseek-v3.2, claude-fable-5, mimo-v2.5-pro, qwen3-coder-plus, thinkingmachines/inkling -- returns SSE for supported models; other models return a 400 error if stream is requested.\\\\nVision models: gpt-5.2, kimi-k2.6, gemini-3-flash, grok-4-fast, phi-4-multimodal-instruct, qwen3.6-27b, step-3.7-flash, claude-fable-5, thinkingmachines/inkling\\nImage generation models: flux-2-dev, lucid-origin, phoenix-1.0, gemini-3-pro-image\\nVideo generation models (pro): wan2.2-i2v (Alibaba, image-to-video, requires input_image), hailuo-h3 (MiniMax, text-to-video and image-to-video with synced soundtrack)\\nTTS models: starling-tts, lindsay-tts, miu-tts, catherine-tts, nana-tts, stephanie-tts (Typecast, support: eng, kor, jpn, cmn, spa), alexandra-tts (ElevenLabs, support: ind, eng, rus, cmn), eve-tts (ElevenLabs, support: kor, eng, msa, vie)\\nSTT models: whisper-large-v3 (max accuracy), whisper-large-v3-turbo (max speed 216x real-time)\\n\\nPlans: Free=1000 req/day, Pro=4000 req/day, Enterprise=custom (contact sales team via email). Enterprise-tier models (e.g. claude-fable-5) require the Enterprise plan even for otherwise Pro-eligible accounts.\\nContact: contact@aichixia.xyz | Telegram community: https://t.me/AichixiaAPI\\nDo not use tool calling or function calling. Use code examples when relevant.' },
+            { role: 'system', content: 'You are a helpful API assistant for Aichixia, an AI API aggregation platform. Help users integrate and use the Aichixia API. Keep answers concise and clear. Aichixia base URL: https://www.aichixia.xyz. Auth: Bearer token or x-api-key header.\n\nEndpoints:\n- Chat (OpenAI-compat): POST /api/v1/chat/completions\n- Messages (Anthropic-compat): POST /api/v1/messages\n- Image generation: POST /api/v1/images/generations\n- Video generation: POST /api/v1/videos/generations\n- TTS: POST /api/v1/audio/speech\n- STT Transcription: POST /api/v1/audio/transcriptions\n- STT Translation: POST /api/v1/audio/translations\n\nText models (free): openai/gpt-5-mini, openai/gpt-5.2, openai/gpt-oss-120b, google/gemini-3-flash-preview, xai/grok-3, deepseek-v4-flash, mistralai/mistral-large-latest, z-ai/glm-4.7-flash, stepfun-ai/step-3.7-flash, nvidia/nemotron-3-ultra-550b-a55b, alibaba/qwen3.6-27b, alibaba/qwen3-coder-plus, meta/llama-3.3-70b, minimax-m3, groq/compound, cohere/command-a, microsoft/phi-4-multimodal-instruct, anthropic/claude-haiku-4-5\\nText models (pro): anthropic/claude-sonnet-4-6, anthropic/claude-opus-4-8, xai/grok-4-fast, deepseek/deepseek-v4-pro, z-ai/glm-5.2, moonshotai/kimi-k2.6, aichixia/aichixia-flash, openai/gpt-5.5, xiaomi/mimo-v2.5-pro, poolside/laguna-s-2.1, thinkingmachines/inkling\\nText models (enterprise): anthropic/claude-fable-5\\\\nStreaming (stream: true) supported only on: moonshotai/kimi-k2.6, mistralai/mistral-large-latest, minimax-m3, stepfun-ai/step-3.7-flash, nvidia/nemotron-3-ultra-550b-a55b, openai/gpt-oss-120b, deepseek-v4-flash, z-ai/glm-5.2, google/gemma-4-31b, poolside/laguna-s-2.1, cohere/command-a, google/gemini-3-flash-preview, meta/llama-3.3-70b, deepseek/deepseek-v4-pro, anthropic/claude-fable-5, xiaomi/mimo-v2.5-pro, alibaba/qwen3-coder-plus, thinkingmachines/inkling -- returns SSE for supported models; other models return a 400 error if stream is requested.\\\\nVision models: openai/gpt-5.2, moonshotai/kimi-k2.6, google/gemini-3-flash-preview, xai/grok-4-fast, microsoft/phi-4-multimodal-instruct, alibaba/qwen3.6-27b, stepfun-ai/step-3.7-flash, anthropic/claude-fable-5, thinkingmachines/inkling\\nImage generation models: flux-2-dev, lucid-origin, phoenix-1.0, gemini-3-pro-image\\nVideo generation models (pro): wan2.2-i2v (Alibaba, image-to-video, requires input_image), hailuo-h3 (MiniMax, text-to-video and image-to-video with synced soundtrack)\\nTTS models: starling-tts, lindsay-tts, miu-tts, catherine-tts, nana-tts, stephanie-tts (Typecast, support: eng, kor, jpn, cmn, spa), alexandra-tts (ElevenLabs, support: ind, eng, rus, cmn), eve-tts (ElevenLabs, support: kor, eng, msa, vie)\\nSTT models: whisper-large-v3 (max accuracy), whisper-large-v3-turbo (max speed 216x real-time)\\n\\nPlans: Free=1000 req/day, Pro=4000 req/day, Enterprise=custom (contact sales team via email). Enterprise-tier models (e.g. anthropic/claude-fable-5) require the Enterprise plan even for otherwise Pro-eligible accounts.\\nContact: contact@aichixia.xyz | Telegram community: https://t.me/AichixiaAPI\\nDo not use tool calling or function calling. Use code examples when relevant.' },
             ...newMessages.map(m => ({ role: m.role, content: m.content })),
           ],
         }),
@@ -119,7 +119,7 @@ const client = new OpenAI({
 });
 
 const response = await client.chat.completions.create({
-  model: "claude-opus-4.8",
+  model: "anthropic/claude-opus-4-8",
   messages: [
     { role: "user", content: "Explain quantum computing" }
   ],
@@ -137,7 +137,7 @@ client = OpenAI(
 )
 
 response = client.chat.completions.create(
-    model="claude-opus-4.8",
+    model="anthropic/claude-opus-4-8",
     messages=[
         {"role": "user", "content": "Explain quantum computing"}
     ],
@@ -156,7 +156,7 @@ const client = new OpenAI({
 
 async function main() {
   const response = await client.chat.completions.create({
-    model: "gpt-5-mini",
+    model: "openai/gpt-5-mini",
     messages: [{ role: "user", content: "Hello!" }],
     temperature: 0.7,
     max_tokens: 500,
@@ -170,11 +170,74 @@ main();`,
   -H "Authorization: Bearer YOUR_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
-    "model": "gpt-5-mini",
+    "model": "openai/gpt-5-mini",
     "messages": [{"role": "user", "content": "Hello!"}],
     "temperature": 0.7,
     "max_tokens": 500
   }'`,
+
+    chatStreamingJS: `const res = await fetch("${base}/api/v1/chat/completions", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: "Bearer YOUR_API_KEY",
+  },
+  body: JSON.stringify({
+    model: "moonshotai/kimi-k2.6",
+    messages: [{ role: "user", content: "Tell me a short story" }],
+    stream: true,
+  }),
+});
+
+const reader = res.body.getReader();
+const decoder = new TextDecoder();
+let buffer = "";
+
+while (true) {
+  const { done, value } = await reader.read();
+  if (done) break;
+
+  buffer += decoder.decode(value, { stream: true });
+  const parts = buffer.split("\\n\\n");
+  buffer = parts.pop() || "";
+
+  for (const part of parts) {
+    if (!part.startsWith("data: ")) continue;
+    const payload = part.slice(6).trim();
+    if (payload === "[DONE]") continue;
+    const parsed = JSON.parse(payload);
+    const delta = parsed.choices?.[0]?.delta?.content;
+    if (delta) process.stdout.write(delta);
+  }
+}`,
+
+    chatStreamingPython: `import requests
+import json
+
+response = requests.post(
+    "${base}/api/v1/chat/completions",
+    headers={
+        "Content-Type": "application/json",
+        "Authorization": "Bearer YOUR_API_KEY",
+    },
+    json={
+        "model": "moonshotai/kimi-k2.6",
+        "messages": [{"role": "user", "content": "Tell me a short story"}],
+        "stream": True,
+    },
+    stream=True,
+)
+
+for line in response.iter_lines():
+    if not line or not line.startswith(b"data: "):
+        continue
+    payload = line[6:].decode("utf-8").strip()
+    if payload == "[DONE]":
+        continue
+    parsed = json.loads(payload)
+    delta = parsed.get("choices", [{}])[0].get("delta", {}).get("content")
+    if delta:
+        print(delta, end="", flush=True)`,
 
     visionJS: `const response = await fetch('${base}/api/v1/chat/completions', {
   method: 'POST',
@@ -183,7 +246,7 @@ main();`,
     'Authorization': 'Bearer YOUR_API_KEY'
   },
   body: JSON.stringify({
-    model: 'gemini-3-flash',
+    model: 'google/gemini-3-flash-preview',
     messages: [
       {
         role: 'user',
@@ -448,7 +511,7 @@ const client = new Anthropic({
 });
 
 const message = await client.messages.create({
-  model: "claude-opus-4.8",
+  model: "anthropic/claude-opus-4-8",
   max_tokens: 1024,
   messages: [
     { role: "user", content: "Explain quantum computing" }
@@ -465,7 +528,7 @@ client = anthropic.Anthropic(
 )
 
 message = client.messages.create(
-    model="claude-opus-4.8",
+    model="anthropic/claude-opus-4-8",
     max_tokens=1024,
     messages=[
         {"role": "user", "content": "Explain quantum computing"}
@@ -482,7 +545,7 @@ const client = new Anthropic({
 });
 
 const message = await client.messages.create({
-  model: "grok-3",
+  model: "xai/grok-3",
   max_tokens: 1024,
   system: "You are a helpful assistant that speaks concisely.",
   messages: [
@@ -496,12 +559,48 @@ console.log(message.content[0].text);`,
   -H "x-api-key: YOUR_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
-    "model": "claude-opus-4.8",
+    "model": "anthropic/claude-opus-4-8",
     "max_tokens": 1024,
     "messages": [
       {"role": "user", "content": "Explain quantum computing"}
     ]
   }'`,
+
+    anthropicStreamingJS: `const res = await fetch("${base}/api/v1/messages", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "x-api-key": "YOUR_API_KEY",
+  },
+  body: JSON.stringify({
+    model: "moonshotai/kimi-k2.6",
+    max_tokens: 1024,
+    messages: [{ role: "user", content: "Tell me a short story" }],
+    stream: true,
+  }),
+});
+
+const reader = res.body.getReader();
+const decoder = new TextDecoder();
+let buffer = "";
+
+while (true) {
+  const { done, value } = await reader.read();
+  if (done) break;
+
+  buffer += decoder.decode(value, { stream: true });
+  const parts = buffer.split("\\n\\n");
+  buffer = parts.pop() || "";
+
+  for (const part of parts) {
+    if (!part.startsWith("data: ")) continue;
+    const payload = part.slice(6).trim();
+    if (payload === "[DONE]") continue;
+    const parsed = JSON.parse(payload);
+    const delta = parsed.choices?.[0]?.delta?.content;
+    if (delta) process.stdout.write(delta);
+  }
+}`,
 
     sttTS: `const formData = new FormData();
 formData.append("file", audioFile); // File object from input
@@ -598,20 +697,6 @@ console.log(data.text);`,
         {type && <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 font-mono">{type}</span>}
       </div>
       <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">{desc}</p>
-    </div>
-  );
-
-  const ToolCallingNote = () => (
-    <div className="p-4 rounded-xl border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-950/20">
-      <div className="flex items-start gap-2.5">
-        <FaInfoCircle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
-        <div>
-          <p className="text-xs font-bold text-amber-800 dark:text-amber-300 mb-1">Built-in Tool Calling</p>
-          <p className="text-xs text-amber-700 dark:text-amber-400 leading-relaxed">
-            Several models have native tool calling and web search built-in — you do not need to define or pass a <code className="bg-amber-100 dark:bg-amber-900/30 px-1 rounded">tools</code> array. Just send your prompt and the model handles it automatically. Models with built-in tools: <code className="bg-amber-100 dark:bg-amber-900/30 px-1 rounded">gemini-3-flash</code>, <code className="bg-amber-100 dark:bg-amber-900/30 px-1 rounded">deepseek-v4-flash</code>, <code className="bg-amber-100 dark:bg-amber-900/30 px-1 rounded">groq-compound</code>, <code className="bg-amber-100 dark:bg-amber-900/30 px-1 rounded">kimi-k2.6</code>, <code className="bg-amber-100 dark:bg-amber-900/30 px-1 rounded">cohere-command-a and more</code>.
-          </p>
-        </div>
-      </div>
     </div>
   );
 
@@ -801,8 +886,6 @@ console.log(data.text);`,
                     </div>
                   </div>
 
-                  <ToolCallingNote />
-
                   <CodeBlock code={codeExamples.chatCompletionsJS} lang="TypeScript (OpenAI SDK)" id="quickstart-js" />
                   <CodeBlock code={codeExamples.anthropicTS} lang="TypeScript (Anthropic SDK)" id="quickstart-anthropic" />
                 </div>
@@ -828,8 +911,6 @@ console.log(data.text);`,
                     </div>
                   </div>
 
-                  <ToolCallingNote />
-
                   <div className="space-y-2.5">
                     <button onClick={() => toggleSection('chat-request')} className="w-full flex items-center justify-between p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
                       <h3 className="text-base font-bold text-zinc-900 dark:text-white">Request Body</h3>
@@ -837,11 +918,11 @@ console.log(data.text);`,
                     </button>
                     {expandedSection === 'chat-request' && (
                       <div className="p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
-                        <Param name="model" required type="string" desc="Model ID. e.g. claude-opus-4.8, gpt-5-mini, deepseek-v3.2, gemini-3-flash, grok-3" />
+                        <Param name="model" required type="string" desc="Model ID. e.g. anthropic/claude-opus-4-8, openai/gpt-5-mini, deepseek/deepseek-v4-pro, google/gemini-3-flash-preview, xai/grok-3" />
                         <Param name="messages" required type="array" desc="Array of message objects with role (system | user | assistant) and content" />
                         <Param name="temperature" type="number" desc="Sampling temperature 0–2. Higher = more creative. Default: 0.8" />
                         <Param name="max_tokens" type="number" desc="Maximum tokens to generate. Default: 1080" />
-                        <Param name="stream" type="boolean" desc="Streaming via SSE. Default: false. Supported only on: kimi-k2.6, mistral-large-latest, minimax-m3, step-3.7-flash, nemotron-3-ultra-550b-a55b, gpt-oss-120b, deepseek-v4-flash, glm-5.2, gemma-4-31b, laguna-s-2.1, cohere-command-a, gemini-3-flash, llama-3.3-70b, deepseek-v3.2, claude-fable-5, mimo-v2.5-pro, qwen3-coder-plus, thinkingmachines/inkling" />
+                        <Param name="stream" type="boolean" desc="Streaming via SSE, returning standard OpenAI chat.completion.chunk events. Default: false. Supported only on: moonshotai/kimi-k2.6, openai/gpt-5-mini, openai/gpt-5.2, aichixia/aichixia-flash, anthropic/claude-sonnet-4-6, anthropic/claude-fable-5, mistralai/mistral-large-latest, minimaxai/minimax-m3, stepfun-ai/step-3.7-flash, nvidia/nemotron-3-ultra-550b-a55b, openai/gpt-oss-120b, deepseek/deepseek-v4-flash, deepseek/deepseek-v4-pro, z-ai/glm-5.2, z-ai/glm-4.7-flash, google/gemma-4-31b, google/gemini-3-flash-preview, poolside/laguna-s-2.1, cohere/command-a, meta/llama-3.3-70b, meta/llama-4-scout-17b-16e-instruct, xiaomi/mimo-v2.5-pro, alibaba/qwen3-coder-plus, alibaba/qwen3.8-27b, thinkingmachines/inkling, groq/compound" />
                         <Param name="top_p" type="number" desc="Nucleus sampling 0–1. Alternative to temperature." />
                       </div>
                     )}
@@ -858,7 +939,7 @@ console.log(data.text);`,
   "id": "chatcmpl-abc123",
   "object": "chat.completion",
   "created": 1677652288,
-  "model": "claude-opus-4.8",
+  "model": "anthropic/claude-opus-4-8",
   "choices": [
     {
       "index": 0,
@@ -888,35 +969,35 @@ console.log(data.text);`,
                       <div className="p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
                         <div className="grid sm:grid-cols-2 gap-2">
                           {[
-                            { id: 'gpt-5-mini', label: 'GPT-5 Mini', plan: 'free' },
-                            { id: 'gpt-5.2', label: 'GPT-5.2', plan: 'free' },
-                            { id: 'gpt-5.5', label: 'GPT-5.5', plan: 'pro' },
-                            { id: 'gpt-oss-120b', label: 'GPT-OSS 120B', plan: 'free' },
-                            { id: 'aichixia-flash', label: 'Aichixia 114B', plan: 'pro' },
-                            { id: 'mistral-large-latest', label: 'Mistral Large', plan: 'free' },
-                            { id: 'deepseek-v3.2', label: 'DeepSeek V3.2', plan: 'pro' },
-                            { id: 'deepseek-v4-flash', label: 'DeepSeek V4 Flash', plan: 'free' },
-                            { id: 'claude-sonnet-4.6', label: 'Claude Sonnet 4.6', plan: 'pro' },
-                            { id: 'claude-opus-4.8', label: 'Claude Opus 4.8', plan: 'pro' },
-                            { id: 'claude-haiku-4.5', label: 'Claude Haiku 4.5', plan: 'free' },
-                            { id: 'claude-fable-5', label: 'Claude Fable 5', plan: 'enterprise' },
-                            { id: 'gemini-3-flash', label: 'Gemini 3 Flash', plan: 'free' },
-                            { id: 'grok-3', label: 'Grok 3', plan: 'free' },
-                            { id: 'phi-4-multimodal-instruct', label: 'Phi 4 Multimodal', plan: 'free' },
-                            { id: 'glm-5.2', label: 'GLM 5.2', plan: 'pro' },
-                            { id: 'glm-4.7-flash', label: 'GLM 4.7 Flash', plan: 'pro' },
-                            { id: 'kimi-k2.6', label: 'Kimi K2.6', plan: 'pro' },
-                            { id: 'step-3.7-flash', label: 'Step 3.7 Flash', plan: 'free' },
-                            { id: 'nemotron-3-ultra-550b-a55b', label: 'Nemotron 3 Ultra 550B', plan: 'free' },
-                            { id: 'qwen3.6-27b', label: 'Qwen3.6 27B', plan: 'free' },
-                            { id: 'qwen3-coder-plus', label: 'Qwen3 Coder Plus', plan: 'free' },
-                            { id: 'minimax-m3', label: 'MiniMax M3', plan: 'free' },
-                            { id: 'llama-3.3-70b', label: 'Llama 3.3 70B', plan: 'free' },
-                            { id: 'mimo-v2.5-pro', label: 'MiMo V2.5 Pro', plan: 'pro' },
-                            { id: 'groq-compound', label: 'Groq Compound', plan: 'free' },
-                            { id: 'cohere-command-a', label: 'Cohere Command A', plan: 'free' },
-                            { id: 'grok-4-fast', label: 'Grok 4 Fast', plan: 'pro' },
-                            { id: 'laguna-s-2.1', label: 'Laguna S 2.1', plan: 'pro' },
+                            { id: 'openai/gpt-5-mini', label: 'GPT-5 Mini', plan: 'free' },
+                            { id: 'openai/gpt-5.2', label: 'GPT-5.2', plan: 'free' },
+                            { id: 'openai/gpt-5.5', label: 'GPT-5.5', plan: 'pro' },
+                            { id: 'openai/gpt-oss-120b', label: 'GPT-OSS 120B', plan: 'free' },
+                            { id: 'aichixia/aichixia-flash', label: 'Aichixia 114B', plan: 'pro' },
+                            { id: 'mistralai/mistral-large-latest', label: 'Mistral Large', plan: 'free' },
+                            { id: 'deepseek/deepseek-v4-pro', label: 'DeepSeek V3.2', plan: 'pro' },
+                            { id: 'deepseek/deepseek-v4-flash', label: 'DeepSeek V4 Flash', plan: 'free' },
+                            { id: 'anthropic/claude-sonnet-4-6', label: 'Claude Sonnet 4.6', plan: 'pro' },
+                            { id: 'anthropic/claude-opus-4-8', label: 'Claude Opus 4.8', plan: 'pro' },
+                            { id: 'anthropic/claude-haiku-4-5', label: 'Claude Haiku 4.5', plan: 'free' },
+                            { id: 'anthropic/claude-fable-5', label: 'Claude Fable 5', plan: 'enterprise' },
+                            { id: 'google/gemini-3-flash-preview', label: 'Gemini 3 Flash', plan: 'free' },
+                            { id: 'xai/grok-3', label: 'Grok 3', plan: 'free' },
+                            { id: 'microsoft/phi-4-multimodal-instruct', label: 'Phi 4 Multimodal', plan: 'free' },
+                            { id: 'z-ai/glm-5.2', label: 'GLM 5.2', plan: 'pro' },
+                            { id: 'z-ai/glm-4.7-flash', label: 'GLM 4.7 Flash', plan: 'pro' },
+                            { id: 'moonshotai/kimi-k2.6', label: 'Kimi K2.6', plan: 'pro' },
+                            { id: 'stepfun-ai/step-3.7-flash', label: 'Step 3.7 Flash', plan: 'free' },
+                            { id: 'nvidia/nemotron-3-ultra-550b-a55b', label: 'Nemotron 3 Ultra 550B', plan: 'free' },
+                            { id: 'alibaba/qwen3.6-27b', label: 'Qwen3.6 27B', plan: 'free' },
+                            { id: 'alibaba/qwen3-coder-plus', label: 'Qwen3 Coder Plus', plan: 'free' },
+                            { id: 'minimaxai/minimax-m3', label: 'MiniMax M3', plan: 'free' },
+                            { id: 'meta/llama-3.3-70b', label: 'Llama 3.3 70B', plan: 'free' },
+                            { id: 'xiaomi/mimo-v2.5-pro', label: 'MiMo V2.5 Pro', plan: 'pro' },
+                            { id: 'groq/compound', label: 'Groq Compound', plan: 'free' },
+                            { id: 'cohere/command-a', label: 'Cohere Command A', plan: 'free' },
+                            { id: 'xai/grok-4-fast', label: 'Grok 4 Fast', plan: 'pro' },
+                            { id: 'poolside/laguna-s-2.1', label: 'Laguna S 2.1', plan: 'pro' },
                             { id: 'thinkingmachines/inkling', label: 'Inkling', plan: 'pro' },
                           ].map(({ id, label, plan }) => (
                             <div key={id} className="flex items-center justify-between p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
@@ -930,7 +1011,7 @@ console.log(data.text);`,
                             </div>
                           ))}
                         </div>
-                        <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-3">Vision models: <code className="text-zinc-600 dark:text-zinc-400">gpt-5.2</code>, <code className="text-zinc-600 dark:text-zinc-400">kimi-k2.6</code>, <code className="text-zinc-600 dark:text-zinc-400">gemini-3-flash</code>, <code className="text-zinc-600 dark:text-zinc-400">grok-4-fast</code>, <code className="text-zinc-600 dark:text-zinc-400">phi-4-multimodal-instruct</code>, <code className="text-zinc-600 dark:text-zinc-400">qwen3.6-27b</code>, <code className="text-zinc-600 dark:text-zinc-400">step-3.7-flash</code>, <code className="text-zinc-600 dark:text-zinc-400">claude-fable-5</code>, <code className="text-zinc-600 dark:text-zinc-400">thinkingmachines/inkling</code></p>
+                        <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-3">Vision models: <code className="text-zinc-600 dark:text-zinc-400">openai/gpt-5.2</code>, <code className="text-zinc-600 dark:text-zinc-400">moonshotai/kimi-k2.6</code>, <code className="text-zinc-600 dark:text-zinc-400">google/gemini-3-flash-preview</code>, <code className="text-zinc-600 dark:text-zinc-400">xai/grok-4-fast</code>, <code className="text-zinc-600 dark:text-zinc-400">microsoft/phi-4-multimodal-instruct</code>, <code className="text-zinc-600 dark:text-zinc-400">alibaba/qwen3.6-27b</code>, <code className="text-zinc-600 dark:text-zinc-400">stepfun-ai/step-3.7-flash</code>, <code className="text-zinc-600 dark:text-zinc-400">anthropic/claude-fable-5</code>, <code className="text-zinc-600 dark:text-zinc-400">thinkingmachines/inkling</code></p>
                       </div>
                     )}
 
@@ -941,31 +1022,39 @@ console.log(data.text);`,
                     {expandedSection === 'chat-streaming' && (
                       <div className="p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 space-y-3">
                         <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400">
-                          Set <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">stream: true</code> in the request body to receive the response as Server-Sent Events instead of a single JSON payload. Each chunk arrives as <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">data: {'{"text": "..."}'}</code>, terminated by <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">data: [DONE]</code>.
+                          Set <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">stream: true</code> in the request body to receive the response as Server-Sent Events instead of a single JSON payload. Each chunk follows the standard OpenAI <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">chat.completion.chunk</code> shape — read the text from <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">choices[0].delta.content</code> — terminated by <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">data: [DONE]</code>.
                         </p>
                         <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50">
                           <p className="text-xs text-amber-800 dark:text-amber-300">Streaming is currently only available for a subset of models. Requesting <code className="bg-amber-100 dark:bg-amber-900/30 px-1 rounded">stream: true</code> on an unsupported model returns a 400 error.</p>
                         </div>
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                           {[
-                            { id: 'kimi-k2.6', label: 'Kimi K2.6' },
-                            { id: 'mistral-large-latest', label: 'Mistral Large' },
-                            { id: 'minimax-m3', label: 'MiniMax M3' },
-                            { id: 'step-3.7-flash', label: 'Step 3.7 Flash' },
-                            { id: 'nemotron-3-ultra-550b-a55b', label: 'Nemotron 3 Ultra' },
-                            { id: 'gpt-oss-120b', label: 'GPT-OSS 120B' },
-                            { id: 'deepseek-v4-flash', label: 'DeepSeek V4 Flash' },
-                            { id: 'glm-5.2', label: 'GLM 5.2' },
-                            { id: 'gemma-4-31b', label: 'Gemma 4 31B' },
-                            { id: 'laguna-s-2.1', label: 'Laguna S 2.1' },
-                            { id: 'cohere-command-a', label: 'Cohere Command A' },
-                            { id: 'gemini-3-flash', label: 'Gemini 3 Flash' },
-                            { id: 'llama-3.3-70b', label: 'Llama 3.3 70B' },
-                            { id: 'deepseek-v3.2', label: 'DeepSeek V3.2' },
-                            { id: 'claude-fable-5', label: 'Claude Fable 5' },
-                            { id: 'mimo-v2.5-pro', label: 'MiMo V2.5 Pro' },
-                            { id: 'qwen3-coder-plus', label: 'Qwen3 Coder Plus' },
+                            { id: 'moonshotai/kimi-k2.6', label: 'Kimi K2.6' },
+                            { id: 'openai/gpt-5-mini', label: 'GPT-5 Mini' },
+                            { id: 'openai/gpt-5.2', label: 'GPT-5.2' },
+                            { id: 'aichixia/aichixia-flash', label: 'Aichixia 114B' },
+                            { id: 'anthropic/claude-sonnet-4-6', label: 'Claude Sonnet 4.6' },
+                            { id: 'anthropic/claude-fable-5', label: 'Claude Fable 5' },
+                            { id: 'mistralai/mistral-large-latest', label: 'Mistral Large' },
+                            { id: 'minimaxai/minimax-m3', label: 'MiniMax M3' },
+                            { id: 'stepfun-ai/step-3.7-flash', label: 'Step 3.7 Flash' },
+                            { id: 'nvidia/nemotron-3-ultra-550b-a55b', label: 'Nemotron 3 Ultra' },
+                            { id: 'openai/gpt-oss-120b', label: 'GPT-OSS 120B' },
+                            { id: 'deepseek/deepseek-v4-flash', label: 'DeepSeek V4 Flash' },
+                            { id: 'deepseek/deepseek-v4-pro', label: 'DeepSeek V4 Pro' },
+                            { id: 'z-ai/glm-5.2', label: 'GLM 5.2' },
+                            { id: 'z-ai/glm-4.7-flash', label: 'GLM 4.7 Flash' },
+                            { id: 'google/gemma-4-31b', label: 'Gemma 4 31B' },
+                            { id: 'google/gemini-3-flash-preview', label: 'Gemini 3 Flash' },
+                            { id: 'poolside/laguna-s-2.1', label: 'Laguna S 2.1' },
+                            { id: 'cohere/command-a', label: 'Cohere Command A' },
+                            { id: 'meta/llama-3.3-70b', label: 'Llama 3.3 70B' },
+                            { id: 'meta/llama-4-scout-17b-16e-instruct', label: 'Llama 4 Scout' },
+                            { id: 'xiaomi/mimo-v2.5-pro', label: 'MiMo V2.5 Pro' },
+                            { id: 'alibaba/qwen3-coder-plus', label: 'Qwen3 Coder Plus' },
+                            { id: 'alibaba/qwen3.8-27b', label: 'Qwen3.8 27B' },
                             { id: 'thinkingmachines/inkling', label: 'Inkling' },
+                            { id: 'groq/compound', label: 'Groq Compound' },
                           ].map(({ id, label }) => (
                             <div key={id} className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
                               <p className="text-xs font-semibold text-zinc-900 dark:text-white">{label}</p>
@@ -982,7 +1071,7 @@ console.log(data.text);`,
     Authorization: "Bearer YOUR_API_KEY",
   },
   body: JSON.stringify({
-    model: "kimi-k2.6",
+    model: "moonshotai/kimi-k2.6",
     messages: [{ role: "user", content: "Tell me a short story" }],
     stream: true,
   }),
@@ -990,18 +1079,23 @@ console.log(data.text);`,
 
 const reader = res.body.getReader();
 const decoder = new TextDecoder();
+let buffer = "";
 
 while (true) {
   const { done, value } = await reader.read();
   if (done) break;
 
-  const chunk = decoder.decode(value);
-  for (const line of chunk.split("\\n\\n")) {
-    if (!line.startsWith("data: ")) continue;
-    const payload = line.slice(6).trim();
+  buffer += decoder.decode(value, { stream: true });
+  const parts = buffer.split("\\n\\n");
+  buffer = parts.pop() || "";
+
+  for (const part of parts) {
+    if (!part.startsWith("data: ")) continue;
+    const payload = part.slice(6).trim();
     if (payload === "[DONE]") continue;
-    const { text } = JSON.parse(payload);
-    if (text) process.stdout.write(text);
+    const parsed = JSON.parse(payload);
+    const delta = parsed.choices?.[0]?.delta?.content;
+    if (delta) process.stdout.write(delta);
   }
 }`}
                           </SyntaxHighlighter>
@@ -1014,10 +1108,12 @@ while (true) {
                   <CodeBlock code={codeExamples.chatCompletionsPython} lang="Python (OpenAI SDK)" id="chat-python" />
                   <CodeBlock code={codeExamples.chatCompletionsNode} lang="Node.js (CommonJS)" id="chat-node" />
                   <CodeBlock code={codeExamples.chatCompletionsCurl} lang="cURL" id="chat-curl" />
+                  <CodeBlock code={codeExamples.chatStreamingJS} lang="JavaScript — Streaming" id="chat-streaming-js" />
+                  <CodeBlock code={codeExamples.chatStreamingPython} lang="Python — Streaming" id="chat-streaming-python" />
 
                   <div className="p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
                     <h3 className="text-base font-bold text-zinc-900 dark:text-white mb-2">Vision (Image Input)</h3>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-3">Supported by: <code>gemini-3-flash</code>, <code>gpt-5.2</code>, <code>aichixia-flash</code>, <code>grok-4-fast</code></p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-3">Supported by: <code>google/gemini-3-flash-preview</code>, <code>openai/gpt-5.2</code>, <code>aichixia/aichixia-flash</code>, <code>xai/grok-4-fast</code></p>
                     <div className="rounded-lg bg-zinc-100 dark:bg-zinc-900 overflow-hidden">
                       <SyntaxHighlighter language="javascript" style={isDark ? oneDark : oneLight} customStyle={{ margin: 0, padding: '12px', background: 'transparent', fontSize: '11px' }} wrapLongLines={true}>
                         {codeExamples.visionJS}
@@ -1072,7 +1168,7 @@ while (true) {
                         <Param name="max_tokens" required type="number" desc="Maximum tokens to generate. Required by Anthropic SDK." />
                         <Param name="system" type="string" desc="System prompt — passed as a separate field, not inside messages." />
                         <Param name="temperature" type="number" desc="Sampling temperature 0–2. Default: 0.8" />
-                        <Param name="stream" type="boolean" desc="Streaming via native Anthropic SSE events (message_start, content_block_delta, message_stop). Default: false. Supported only on: kimi-k2.6, mistral-large-latest, minimax-m3, step-3.7-flash, nemotron-3-ultra-550b-a55b, gpt-oss-120b, deepseek-v4-flash, glm-5.2, gemma-4-31b, laguna-s-2.1, cohere-command-a, gemini-3-flash, llama-3.3-70b, deepseek-v3.2, claude-fable-5, mimo-v2.5-pro, qwen3-coder-plus, thinkingmachines/inkling" />
+                        <Param name="stream" type="boolean" desc="Streaming via native Anthropic SSE events (message_start, content_block_delta, message_stop). Default: false. Supported only on: moonshotai/kimi-k2.6, mistralai/mistral-large-latest, minimax-m3, stepfun-ai/step-3.7-flash, nvidia/nemotron-3-ultra-550b-a55b, openai/gpt-oss-120b, deepseek-v4-flash, z-ai/glm-5.2, google/gemma-4-31b, poolside/laguna-s-2.1, cohere/command-a, google/gemini-3-flash-preview, meta/llama-3.3-70b, deepseek/deepseek-v4-pro, anthropic/claude-fable-5, xiaomi/mimo-v2.5-pro, alibaba/qwen3-coder-plus, thinkingmachines/inkling" />
                       </div>
                     )}
 
@@ -1094,7 +1190,7 @@ while (true) {
       "text": "Your response here..."
     }
   ],
-  "model": "claude-opus-4.8",
+  "model": "anthropic/claude-opus-4-8",
   "stop_reason": "end_turn",
   "stop_sequence": null,
   "usage": {
@@ -1115,31 +1211,39 @@ while (true) {
                     {expandedSection === 'anthropic-streaming' && (
                       <div className="p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 space-y-3">
                         <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400">
-                          Set <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">stream: true</code> to receive native Anthropic-style SSE events: <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">message_start</code> → <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">content_block_start</code> → repeated <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">content_block_delta</code> → <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">content_block_stop</code> → <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">message_delta</code> → <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">message_stop</code>. Fully compatible with the Anthropic SDK's built-in stream helper.
+                          Set <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">stream: true</code> to receive Server-Sent Events. This endpoint streams the same underlying <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">chat.completion.chunk</code> events as the OpenAI-compatible endpoint (read text from <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">choices[0].delta.content</code>), not native Anthropic events. Because of this, the Anthropic SDK's built-in <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">client.messages.stream()</code> helper is not compatible — use a manual <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">fetch</code> request instead, as shown below.
                         </p>
                         <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50">
                           <p className="text-xs text-amber-800 dark:text-amber-300">Streaming is currently only available for a subset of models. Requesting <code className="bg-amber-100 dark:bg-amber-900/30 px-1 rounded">stream: true</code> on an unsupported model returns a 400 error.</p>
                         </div>
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                           {[
-                            { id: 'kimi-k2.6', label: 'Kimi K2.6' },
-                            { id: 'mistral-large-latest', label: 'Mistral Large' },
-                            { id: 'minimax-m3', label: 'MiniMax M3' },
-                            { id: 'step-3.7-flash', label: 'Step 3.7 Flash' },
-                            { id: 'nemotron-3-ultra-550b-a55b', label: 'Nemotron 3 Ultra' },
-                            { id: 'gpt-oss-120b', label: 'GPT-OSS 120B' },
-                            { id: 'deepseek-v4-flash', label: 'DeepSeek V4 Flash' },
-                            { id: 'glm-5.2', label: 'GLM 5.2' },
-                            { id: 'gemma-4-31b', label: 'Gemma 4 31B' },
-                            { id: 'laguna-s-2.1', label: 'Laguna S 2.1' },
-                            { id: 'cohere-command-a', label: 'Cohere Command A' },
-                            { id: 'gemini-3-flash', label: 'Gemini 3 Flash' },
-                            { id: 'llama-3.3-70b', label: 'Llama 3.3 70B' },
-                            { id: 'deepseek-v3.2', label: 'DeepSeek V3.2' },
-                            { id: 'claude-fable-5', label: 'Claude Fable 5' },
-                            { id: 'mimo-v2.5-pro', label: 'MiMo V2.5 Pro' },
-                            { id: 'qwen3-coder-plus', label: 'Qwen3 Coder Plus' },
+                            { id: 'moonshotai/kimi-k2.6', label: 'Kimi K2.6' },
+                            { id: 'openai/gpt-5-mini', label: 'GPT-5 Mini' },
+                            { id: 'openai/gpt-5.2', label: 'GPT-5.2' },
+                            { id: 'aichixia/aichixia-flash', label: 'Aichixia 114B' },
+                            { id: 'anthropic/claude-sonnet-4-6', label: 'Claude Sonnet 4.6' },
+                            { id: 'anthropic/claude-fable-5', label: 'Claude Fable 5' },
+                            { id: 'mistralai/mistral-large-latest', label: 'Mistral Large' },
+                            { id: 'minimaxai/minimax-m3', label: 'MiniMax M3' },
+                            { id: 'stepfun-ai/step-3.7-flash', label: 'Step 3.7 Flash' },
+                            { id: 'nvidia/nemotron-3-ultra-550b-a55b', label: 'Nemotron 3 Ultra' },
+                            { id: 'openai/gpt-oss-120b', label: 'GPT-OSS 120B' },
+                            { id: 'deepseek/deepseek-v4-flash', label: 'DeepSeek V4 Flash' },
+                            { id: 'deepseek/deepseek-v4-pro', label: 'DeepSeek V4 Pro' },
+                            { id: 'z-ai/glm-5.2', label: 'GLM 5.2' },
+                            { id: 'z-ai/glm-4.7-flash', label: 'GLM 4.7 Flash' },
+                            { id: 'google/gemma-4-31b', label: 'Gemma 4 31B' },
+                            { id: 'google/gemini-3-flash-preview', label: 'Gemini 3 Flash' },
+                            { id: 'poolside/laguna-s-2.1', label: 'Laguna S 2.1' },
+                            { id: 'cohere/command-a', label: 'Cohere Command A' },
+                            { id: 'meta/llama-3.3-70b', label: 'Llama 3.3 70B' },
+                            { id: 'meta/llama-4-scout-17b-16e-instruct', label: 'Llama 4 Scout' },
+                            { id: 'xiaomi/mimo-v2.5-pro', label: 'MiMo V2.5 Pro' },
+                            { id: 'alibaba/qwen3-coder-plus', label: 'Qwen3 Coder Plus' },
+                            { id: 'alibaba/qwen3.8-27b', label: 'Qwen3.8 27B' },
                             { id: 'thinkingmachines/inkling', label: 'Inkling' },
+                            { id: 'groq/compound', label: 'Groq Compound' },
                           ].map(({ id, label }) => (
                             <div key={id} className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
                               <p className="text-xs font-semibold text-zinc-900 dark:text-white">{label}</p>
@@ -1149,17 +1253,41 @@ while (true) {
                         </div>
                         <div className="rounded-lg bg-zinc-100 dark:bg-zinc-900 overflow-hidden">
                           <SyntaxHighlighter language="javascript" style={isDark ? oneDark : oneLight} customStyle={{ margin: 0, padding: '12px', background: 'transparent', fontSize: '11px' }}>
-{`const stream = await client.messages.stream({
-  model: "kimi-k2.6",
-  max_tokens: 1024,
-  messages: [{ role: "user", content: "Tell me a short story" }],
+{`const res = await fetch("${base}/api/v1/messages", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "x-api-key": "YOUR_API_KEY",
+  },
+  body: JSON.stringify({
+    model: "moonshotai/kimi-k2.6",
+    max_tokens: 1024,
+    messages: [{ role: "user", content: "Tell me a short story" }],
+    stream: true,
+  }),
 });
 
-stream.on("text", (text) => {
-  process.stdout.write(text);
-});
+const reader = res.body.getReader();
+const decoder = new TextDecoder();
+let buffer = "";
 
-const message = await stream.finalMessage();`}
+while (true) {
+  const { done, value } = await reader.read();
+  if (done) break;
+
+  buffer += decoder.decode(value, { stream: true });
+  const parts = buffer.split("\\n\\n");
+  buffer = parts.pop() || "";
+
+  for (const part of parts) {
+    if (!part.startsWith("data: ")) continue;
+    const payload = part.slice(6).trim();
+    if (payload === "[DONE]") continue;
+    const parsed = JSON.parse(payload);
+    const delta = parsed.choices?.[0]?.delta?.content;
+    if (delta) process.stdout.write(delta);
+  }
+}`}
                           </SyntaxHighlighter>
                         </div>
                       </div>
@@ -1195,6 +1323,7 @@ const message = await stream.finalMessage();`}
                   <CodeBlock code={codeExamples.anthropicPython} lang="Python (Anthropic SDK)" id="anthropic-python" />
                   <CodeBlock code={codeExamples.anthropicSystem} lang="TypeScript — with system prompt" id="anthropic-system" />
                   <CodeBlock code={codeExamples.anthropicCurl} lang="cURL" id="anthropic-curl" />
+                  <CodeBlock code={codeExamples.anthropicStreamingJS} lang="JavaScript — Streaming" id="anthropic-streaming-js" />
                 </div>
               )}
 
