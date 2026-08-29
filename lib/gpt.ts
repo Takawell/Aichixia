@@ -1,52 +1,24 @@
 import OpenAI from "openai";
-import { tavily } from "@tavily/core";
 
-export type Role = "user" | "assistant" | "system" | "tool";
+export type Role = "user" | "assistant" | "system";
 
 export type ChatMessage = {
   role: Role;
   content: string;
-  tool_call_id?: string;
-  tool_calls?: any[];
 };
 
 const GPT_API_KEY = process.env.GPT_API_KEY;
 const GPT_API_URL = process.env.GPT_API_URL;
 const GPT_MODEL = process.env.GPT_MODEL || "gpt-5.2";
-const TAVILY_API_KEY = process.env.TAVILY_API_KEY;
 
 if (!GPT_API_KEY) {
   console.warn("Warning: GPT_API_KEY not set in env.");
-}
-
-if (!TAVILY_API_KEY) {
-  console.warn("Warning: TAVILY_API_KEY not set in env. Search will be disabled.");
 }
 
 const client = new OpenAI({
   apiKey: GPT_API_KEY,
   ...(GPT_API_URL && { baseURL: GPT_API_URL }),
 });
-
-const tavilyClient = TAVILY_API_KEY ? tavily({ apiKey: TAVILY_API_KEY }) : null;
-
-const SEARCH_TOOL = {
-  type: "function" as const,
-  function: {
-    name: "web_search",
-    description: "Search the web for current information, news, or real-time data. Use this when you need up-to-date information beyond your knowledge cutoff.",
-    parameters: {
-      type: "object",
-      properties: {
-        query: {
-          type: "string",
-          description: "The search query to look up on the web",
-        },
-      },
-      required: ["query"],
-    },
-  },
-};
 
 export class GPTRateLimitError extends Error {
   constructor(message: string) {
@@ -62,36 +34,23 @@ export class GPTQuotaError extends Error {
   }
 }
 
-async function executeWebSearch(query: string): Promise<string> {
-  if (!tavilyClient) {
-    return "Search unavailable: TAVILY_API_KEY not configured.";
+export class GPTConfigError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "GPTConfigError";
   }
+}
 
-  try {
-    const response = await tavilyClient.search(query, {
-      maxResults: 5,
-      includeAnswer: true,
-      searchDepth: "basic",
-    });
+export class GPTServerError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "GPTServerError";
+  }
+}
 
-    if (response.answer) {
-      return `Search Answer: ${response.answer}\n\nSources:\n${response.results
-        .map(
-          (r: any, i: number) =>
-            `${i + 1}. ${r.title} - ${r.url}\n${r.content.substring(0, 200)}...`
-        )
-        .join("\n\n")}`;
-    }
-
-    return response.results
-      .map(
-        (r: any, i: number) =>
-          `${i + 1}. ${r.title}\n${r.content.substring(0, 300)}...\nURL: ${r.url}`
-      )
-      .join("\n\n");
-  } catch (error: any) {
-    console.error("Tavily search error:", error);
-    return `Search error: ${error.message || "Unknown error occurred"}`;
+function ensureConfigured() {
+  if (!GPT_API_KEY) {
+    throw new GPTConfigError("GPT is not configured properly. Please contact the admin.");
   }
 }
 
@@ -100,67 +59,31 @@ export async function chatGPT(
   opts?: {
     temperature?: number;
     maxTokens?: number;
-    enableSearch?: boolean;
   }
 ): Promise<{ reply: string }> {
   if (!GPT_API_KEY) {
     throw new Error("GPT_API_KEY not defined in environment variables.");
   }
 
-  const enableSearch = opts?.enableSearch !== false && tavilyClient !== null;
-  const maxIterations = 3;
-  let iterations = 0;
-  let messages = [...history];
-
   try {
-    while (iterations < maxIterations) {
-      iterations++;
+    const response = await client.chat.completions.create({
+      model: GPT_MODEL,
+      messages: history.map((m) => ({
+        role: m.role,
+        content: m.content,
+      })),
+      temperature: opts?.temperature ?? 0.8,
+      max_tokens: opts?.maxTokens ?? 1080,
+    });
 
-      const response = await client.chat.completions.create({
-        model: GPT_MODEL,
-        messages: messages.map((m) => ({
-          role: m.role,
-          content: m.content,
-          ...(m.tool_call_id && { tool_call_id: m.tool_call_id }),
-          ...(m.tool_calls && { tool_calls: m.tool_calls }),
-        })),
-        temperature: opts?.temperature ?? 0.8,
-        max_tokens: opts?.maxTokens ?? 1080,
-        ...(enableSearch && { tools: [SEARCH_TOOL] }),
-      });
+    const reply =
+      response.choices[0]?.message?.content?.trim() ??
+      "I'm unable to respond right now.";
 
-      const choice = response.choices[0];
-      const message = choice.message;
-
-      if (message.tool_calls && message.tool_calls.length > 0) {
-        messages.push({
-          role: "assistant",
-          content: message.content || "",
-          tool_calls: message.tool_calls,
-        });
-
-        for (const toolCall of message.tool_calls) {
-          if (toolCall.function.name === "web_search") {
-            const args = JSON.parse(toolCall.function.arguments);
-            const searchResult = await executeWebSearch(args.query);
-
-            messages.push({
-              role: "tool",
-              content: searchResult,
-              tool_call_id: toolCall.id,
-            });
-          }
-        }
-
-        continue;
-      }
-
-      const reply = message.content?.trim() ?? "I'm unable to respond right now.";
-      return { reply };
-    }
-
-    return { reply: "Request took too long. Please try again." };
+    return { reply };
   } catch (error: any) {
+    console.error("[lib/gpt] chatGPT error:", error);
+
     if (error?.status === 429) {
       throw new GPTRateLimitError(`GPT rate limit exceeded: ${error.message}`);
     }
@@ -175,6 +98,108 @@ export async function chatGPT(
   }
 }
 
+export async function streamGPT(
+  history: ChatMessage[],
+  opts?: { temperature?: number; maxTokens?: number }
+): Promise<ReadableStream<Uint8Array>> {
+  ensureConfigured();
+
+  const encoder = new TextEncoder();
+  const model = GPT_MODEL;
+  const id = `chatcmpl-${Date.now()}`;
+  const created = Math.floor(Date.now() / 1000);
+
+  return new ReadableStream<Uint8Array>({
+    async start(controller) {
+      const enqueueChunk = (
+        delta: Record<string, any>,
+        finishReason: string | null = null
+      ) => {
+        const chunk = {
+          id,
+          object: "chat.completion.chunk",
+          created,
+          model,
+          choices: [
+            {
+              index: 0,
+              delta,
+              finish_reason: finishReason,
+            },
+          ],
+        };
+        controller.enqueue(
+          encoder.encode(`data: ${JSON.stringify(chunk)}\n\n`)
+        );
+      };
+
+      const enqueueDone = () => {
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+        controller.close();
+      };
+
+      try {
+        const streamResponse = await client.chat.completions.create({
+          model,
+          messages: history.map((m) => ({
+            role: m.role,
+            content: m.content,
+          })),
+          temperature: opts?.temperature ?? 0.8,
+          max_tokens: opts?.maxTokens ?? 1080,
+          stream: true,
+        });
+
+        enqueueChunk({ role: "assistant", content: "" });
+
+        let receivedAny = false;
+
+        for await (const chunk of streamResponse) {
+          const delta = chunk.choices[0]?.delta?.content;
+          if (delta) {
+            receivedAny = true;
+            enqueueChunk({ content: delta });
+          }
+        }
+
+        if (!receivedAny) {
+          try {
+            const fallback = await chatGPT(history, opts);
+            enqueueChunk({ content: fallback.reply });
+          } catch (fallbackError: any) {
+            console.error("[lib/gpt] streamGPT fallback error:", fallbackError);
+            enqueueChunk({ content: "I'm unable to respond right now." });
+          }
+        }
+
+        enqueueChunk({}, "stop");
+        enqueueDone();
+      } catch (error: any) {
+        console.error("[lib/gpt] streamGPT error:", error);
+
+        let message = "Something went wrong, please try again.";
+
+        if (error?.status === 429) {
+          message = "Rate limit exceeded. Please wait a moment.";
+        } else if (error?.status === 402 || error?.code === "insufficient_quota") {
+          message = "Quota exceeded. Please try again later.";
+        } else if (error?.status === 503 || error?.status === 500) {
+          message = "Server error. Please try again.";
+        } else if (
+          error?.message?.includes("<!DOCTYPE") ||
+          error?.message?.includes("not valid JSON")
+        ) {
+          message = "Model returned an invalid response. Please try again.";
+        }
+
+        enqueueChunk({ content: message });
+        enqueueChunk({}, "stop");
+        enqueueDone();
+      }
+    },
+  });
+}
+
 export async function quickChatGPT(
   userMessage: string,
   opts?: {
@@ -182,7 +207,6 @@ export async function quickChatGPT(
     history?: ChatMessage[];
     temperature?: number;
     maxTokens?: number;
-    enableSearch?: boolean;
   }
 ) {
   const hist: ChatMessage[] = [];
@@ -200,7 +224,6 @@ export async function quickChatGPT(
   const { reply } = await chatGPT(hist, {
     temperature: opts?.temperature,
     maxTokens: opts?.maxTokens,
-    enableSearch: opts?.enableSearch,
   });
 
   return reply;
@@ -208,5 +231,6 @@ export async function quickChatGPT(
 
 export default {
   chatGPT,
+  streamGPT,
   quickChatGPT,
 };
