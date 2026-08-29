@@ -3,7 +3,7 @@ import { verifyApiKey } from "@/lib/console-utils";
 
 const MODELS = [
   {
-    id: "google/gemini-3-flash-preview",
+    id: "google/gemini-3-flash",
     object: "model",
     created: 1748000000,
     owned_by: "google",
@@ -313,7 +313,7 @@ const MODELS = [
     tier: "free",
   },
   {
-    id: "aichixia/aichixia-flash",
+    id: "aichiverse/aichixia-flash",
     object: "model",
     created: 1748650000,
     owned_by: "aichixia",
