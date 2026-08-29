@@ -25,7 +25,7 @@ type ModelProps = {
 const STREAM_SUPPORTED_MODELS = new Set([
   'moonshotai/kimi-k2.6',
   'openai/gpt-5-mini',
-  'aichixia/aichixia-flash',
+  'aichiverse/aichixia-flash',
   'anthropic/claude-sonnet-4-6',
   'mistralai/mistral-large-latest',
   'minimaxai/minimax-m3',
@@ -37,7 +37,7 @@ const STREAM_SUPPORTED_MODELS = new Set([
   'google/gemma-4-31b',
   'poolside/laguna-s-2.1',
   'cohere/command-a',
-  'google/gemini-3-flash-preview',
+  'google/gemini-3-flash',
   'meta/llama-3.3-70b',
   'deepseek/deepseek-v4-pro',
   'anthropic/claude-fable-5',
@@ -81,7 +81,7 @@ const AVAILABLE_MODELS = [
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
-    id: 'aichixia/aichixia-flash',
+    id: 'aichiverse/aichixia-flash',
     name: 'Aichixia 114B',
     icon: SiAirbrake,
     color: 'from-blue-600 via-blue-800 to-slate-900',
@@ -213,7 +213,7 @@ const AVAILABLE_MODELS = [
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
-    id: 'google/gemini-3-flash-preview',
+    id: 'google/gemini-3-flash',
     name: 'Gemini 3 Flash',
     icon: SiGooglegemini,
     logoSlug: 'gemini',
