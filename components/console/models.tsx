@@ -23,30 +23,32 @@ type ModelProps = {
 };
 
 const STREAM_SUPPORTED_MODELS = new Set([
-  'kimi-k2.6',
-  'gpt-5-mini',
-  'aichixia-flash',
-  'claude-sonnet-4.6',
-  'mistral-large-latest',
-  'minimax/minimax-m3',
-  'step-3.7-flash',
-  'nemotron-3-ultra-550b-a55b',
-  'gpt-oss-120b',
+  'moonshotai/kimi-k2.6',
+  'openai/gpt-5-mini',
+  'aichixia/aichixia-flash',
+  'anthropic/claude-sonnet-4-6',
+  'mistralai/mistral-large-latest',
+  'minimaxai/minimax-m3',
+  'stepfun-ai/step-3.7-flash',
+  'nvidia/nemotron-3-ultra-550b-a55b',
+  'openai/gpt-oss-120b',
   'deepseek/deepseek-v4-flash',
-  'glm-5.2',
-  'gemma-4-31b',
-  'laguna-s-2.1',
-  'cohere-command-a',
-  'gemini-3-flash',
-  'llama-3.3-70b',
+  'z-ai/glm-5.2',
+  'google/gemma-4-31b',
+  'poolside/laguna-s-2.1',
+  'cohere/command-a',
+  'google/gemini-3-flash-preview',
+  'meta/llama-3.3-70b',
   'deepseek/deepseek-v4-pro',
-  'claude-fable-5',
-  'mimo-v2.5-pro',
-  'qwen3-coder-plus',
+  'anthropic/claude-fable-5',
+  'xiaomi/mimo-v2.5-pro',
+  'alibaba/qwen3-coder-plus',
   'thinkingmachines/inkling',
-  'glm-4.7-flash',
-  'qwen/qwen3.8-27b',
-  'llama-4-scout-17b-16e-instruct',
+  'z-ai/glm-4.7-flash',
+  'alibaba/qwen3.8-27b',
+  'meta/llama-4-scout-17b-16e-instruct',
+  'openai/gpt-5.2',
+  'groq/compound',
 ]);
 
 const LANGUAGE_FLAGS: Record<string, string> = {
@@ -63,7 +65,7 @@ const LANGUAGE_FLAGS: Record<string, string> = {
 
 const AVAILABLE_MODELS = [
   {
-    id: 'gpt-5-mini',
+    id: 'openai/gpt-5-mini',
     name: 'GPT-5 Mini',
     icon: RiOpenaiFill,
     logoSlug: 'openai',
@@ -79,7 +81,7 @@ const AVAILABLE_MODELS = [
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
-    id: 'aichixia-flash',
+    id: 'aichixia/aichixia-flash',
     name: 'Aichixia 114B',
     icon: SiAirbrake,
     color: 'from-blue-600 via-blue-800 to-slate-900',
@@ -94,7 +96,7 @@ const AVAILABLE_MODELS = [
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
-    id: 'mistral-large-latest',
+    id: 'mistralai/mistral-large-latest',
     name: 'Mistral Large',
     icon: SiMistralai,
     logoSlug: 'mistral',
@@ -144,7 +146,7 @@ const AVAILABLE_MODELS = [
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
-    id: 'claude-sonnet-4.6',
+    id: 'anthropic/claude-sonnet-4-6',
     name: 'Claude Sonnet 4.6',
     icon: SiAnthropic,
     logoSlug: 'anthropic',
@@ -161,7 +163,7 @@ const AVAILABLE_MODELS = [
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
-    id: 'claude-opus-4.8',
+    id: 'anthropic/claude-opus-4-8',
     name: 'Claude Opus 4.8',
     icon: SiAnthropic,
     logoSlug: 'anthropic',
@@ -178,7 +180,7 @@ const AVAILABLE_MODELS = [
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
-    id: 'claude-fable-5',
+    id: 'anthropic/claude-fable-5',
     name: 'Claude Fable 5',
     icon: SiAnthropic,
     logoSlug: 'anthropic',
@@ -195,7 +197,7 @@ const AVAILABLE_MODELS = [
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
-    id: 'claude-haiku-4.5',
+    id: 'anthropic/claude-haiku-4-5',
     name: 'Claude Haiku 4.5',
     icon: SiAnthropic,
     logoSlug: 'anthropic',
@@ -211,7 +213,7 @@ const AVAILABLE_MODELS = [
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
-    id: 'gemini-3-flash',
+    id: 'google/gemini-3-flash-preview',
     name: 'Gemini 3 Flash',
     icon: SiGooglegemini,
     logoSlug: 'gemini',
@@ -227,7 +229,7 @@ const AVAILABLE_MODELS = [
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
-    id: 'grok-3',
+    id: 'xai/grok-3',
     name: 'Grok 3',
     icon: FaXTwitter,
     logoSlug: 'xai',
@@ -243,7 +245,7 @@ const AVAILABLE_MODELS = [
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
-    id: 'phi-4-multimodal-instruct',
+    id: 'microsoft/phi-4-multimodal-instruct',
     name: 'Phi 4 Multimodal',
     icon: TiVendorMicrosoft,
     logoSlug: 'microsoft',
@@ -259,7 +261,7 @@ const AVAILABLE_MODELS = [
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
-    id: 'glm-5.2',
+    id: 'z-ai/glm-5.2',
     name: 'GLM 5.2',
     icon: TbSquareLetterZ,
     logoSlug: 'zhipu',
@@ -276,7 +278,7 @@ const AVAILABLE_MODELS = [
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
-    id: 'glm-4.7-flash',
+    id: 'z-ai/glm-4.7-flash',
     name: 'GLM 4.7 Flash',
     icon: TbSquareLetterZ,
     logoSlug: 'zhipu',
@@ -292,7 +294,7 @@ const AVAILABLE_MODELS = [
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
-    id: 'gemma-4-31b',
+    id: 'google/gemma-4-31b',
     name: 'Gemma 4 31B',
     icon: SiGooglegemini,
     logoSlug: 'gemini',
@@ -308,7 +310,7 @@ const AVAILABLE_MODELS = [
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
-    id: 'kimi-k2.6',
+    id: 'moonshotai/kimi-k2.6',
     name: 'Kimi K2.6',
     icon: RiMoonFill,
     logoSlug: 'kimi',
@@ -325,7 +327,7 @@ const AVAILABLE_MODELS = [
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
-    id: 'step-3.7-flash',
+    id: 'stepfun-ai/step-3.7-flash',
     name: 'Step 3.7 Flash',
     icon: DiBower,
     logoSlug: 'stepfun',
@@ -341,7 +343,7 @@ const AVAILABLE_MODELS = [
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
-    id: 'nemotron-3-ultra-550b-a55b',
+    id: 'nvidia/nemotron-3-ultra-550b-a55b',
     name: 'Nemotron 3 Ultra 550B',
     icon: SiNvidia,
     logoSlug: 'nvidia',
@@ -357,7 +359,7 @@ const AVAILABLE_MODELS = [
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
-    id: 'laguna-s-2.1',
+    id: 'poolside/laguna-s-2.1',
     name: 'Laguna S 2.1',
     icon: FiZap,
     logoSlug: 'poolside',
@@ -373,7 +375,7 @@ const AVAILABLE_MODELS = [
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
-    id: 'qwen/qwen3.8-27b',
+    id: 'alibaba/qwen3.8-27b',
     name: 'Qwen3.8 27B',
     icon: SiAlibabacloud,
     logoSlug: 'qwen',
@@ -389,7 +391,7 @@ const AVAILABLE_MODELS = [
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
-    id: 'qwen3-coder-plus',
+    id: 'alibaba/qwen3-coder-plus',
     name: 'Qwen3 Coder Plus 480B',
     icon: SiAlibabacloud,
     logoSlug: 'qwen',
@@ -405,7 +407,7 @@ const AVAILABLE_MODELS = [
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
-    id: 'minimax/minimax-m3',
+    id: 'minimaxai/minimax-m3',
     name: 'MiniMax M3',
     icon: SiMaze,
     logoSlug: 'minimax',
@@ -438,7 +440,7 @@ const AVAILABLE_MODELS = [
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
-    id: 'llama-4-scout-17b-16e-instruct',
+    id: 'meta/llama-4-scout-17b-16e-instruct',
     name: 'Llama 4 Scout 17B 16E Instruct',
     icon: SiMeta,
     logoSlug: 'meta',
@@ -454,7 +456,7 @@ const AVAILABLE_MODELS = [
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
-    id: 'llama-3.3-70b',
+    id: 'meta/llama-3.3-70b',
     name: 'Llama 3.3 70B',
     icon: SiMeta,
     logoSlug: 'meta',
@@ -470,7 +472,7 @@ const AVAILABLE_MODELS = [
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
-    id: 'gpt-oss-120b',
+    id: 'openai/gpt-oss-120b',
     name: 'GPT-OSS 120B',
     icon: RiOpenaiFill,
     logoSlug: 'openai',
@@ -486,7 +488,7 @@ const AVAILABLE_MODELS = [
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
-    id: 'mimo-v2.5-pro',
+    id: 'xiaomi/mimo-v2.5-pro',
     name: 'MiMo V2.5 Pro',
     icon: SiXiaomi,
     logoSlug: 'xiaomi',
@@ -503,7 +505,7 @@ const AVAILABLE_MODELS = [
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
-    id: 'groq-compound',
+    id: 'groq/compound',
     name: 'Groq Compound',
     icon: GiPowerLightning,
     logoSlug: 'groq',
@@ -519,7 +521,7 @@ const AVAILABLE_MODELS = [
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
-    id: 'cohere-command-a',
+    id: 'cohere/command-a',
     name: 'Cohere Command A',
     icon: GiClover,
     logoSlug: 'cohere',
@@ -535,7 +537,7 @@ const AVAILABLE_MODELS = [
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
-    id: 'grok-4-fast',
+    id: 'xai/grok-4-fast',
     name: 'Grok 4 Fast',
     icon: FaXTwitter,
     logoSlug: 'xai',
@@ -552,7 +554,7 @@ const AVAILABLE_MODELS = [
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
-    id: 'gpt-5.2',
+    id: 'openai/gpt-5.2',
     name: 'GPT-5.2',
     icon: RiOpenaiFill,
     logoSlug: 'openai',
@@ -569,7 +571,7 @@ const AVAILABLE_MODELS = [
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
-    id: 'gpt-5.5',
+    id: 'openai/gpt-5.5',
     name: 'GPT-5.5',
     icon: RiOpenaiFill,
     logoSlug: 'openai',
