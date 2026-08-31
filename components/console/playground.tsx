@@ -10,7 +10,7 @@ import { FaXTwitter } from 'react-icons/fa6';
 
 const base = 'https://www.aichixia.xyz';
 
-const VISION_MODEL_IDS = new Set(['openai/gpt-5.2', 'moonshotai/kimi-k2.6', 'google/gemini-3-flash', 'alibaba/qwen3.8-27b', 'xai/grok-4-fast', 'microsoft/phi-4-multimodal-instruct', 'qwen3.6-27b', 'stepfun-ai/step-3.7-flash', 'anthropic/claude-fable-5', 'thinkingmachines/inkling', 'meta/llama-4-scout-17b-16e-instruct']);
+const VISION_MODEL_IDS = new Set(['moonshotai/kimi-k3', 'openai/gpt-5.2', 'moonshotai/kimi-k2.6', 'google/gemini-3-flash', 'alibaba/qwen3.8-27b', 'xai/grok-4-fast', 'microsoft/phi-4-multimodal-instruct', 'qwen3.6-27b', 'stepfun-ai/step-3.7-flash', 'anthropic/claude-fable-5', 'thinkingmachines/inkling', 'meta/llama-4-scout-17b-16e-instruct']);
 
 type ModelType = 'text' | 'image' | 'video' | 'tts' | 'stt';
 
@@ -37,7 +37,7 @@ type MemoryMessage = {
   timestamp: number;
 };
 
-const STREAM_CAPABLE_MODELS = new Set(['moonshotai/kimi-k2.6', 'openai/gpt-5-mini', 'aichiverse/aichixia-flash', 'alibaba/qwen3.8-27b', 'anthropic/claude-sonnet-4-6', 'mistralai/mistral-large-latest', 'minimaxai/minimax-m3', 'stepfun-ai/step-3.7-flash', 'nvidia/nemotron-3-ultra-550b-a55b', 'openai/gpt-oss-120b', 'deepseek/deepseek-v4-flash', 'google/gemma-4-31b', 'z-ai/glm-5.2', 'poolside/laguna-s-2.1', 'cohere/command-a', 'google/gemini-3-flash', 'meta/llama-3.3-70b', 'deepseek/deepseek-v4-pro', 'anthropic/claude-fable-5', 'alibaba/qwen3-coder-plus', 'xiaomi/mimo-v2.5-pro', 'thinkingmachines/inkling', 'meta/llama-4-scout-17b-16e-instruct', 'z-ai/glm-4.7-flash', 'openai/gpt-5.2', 'groq/compound']);
+const STREAM_CAPABLE_MODELS = new Set(['moonshotai/kimi-k3', 'openai/gpt-5-mini', 'aichiverse/aichixia-flash', 'alibaba/qwen3.8-27b', 'anthropic/claude-sonnet-4-6', 'mistralai/mistral-large-latest', 'minimaxai/minimax-m3', 'stepfun-ai/step-3.7-flash', 'nvidia/nemotron-3-ultra-550b-a55b', 'openai/gpt-oss-120b', 'deepseek/deepseek-v4-flash', 'google/gemma-4-31b', 'z-ai/glm-5.2', 'poolside/laguna-s-2.1', 'cohere/command-a', 'google/gemini-3-flash', 'meta/llama-3.3-70b', 'deepseek/deepseek-v4-pro', 'anthropic/claude-fable-5', 'alibaba/qwen3-coder-plus', 'xiaomi/mimo-v2.5-pro', 'thinkingmachines/inkling', 'meta/llama-4-scout-17b-16e-instruct', 'z-ai/glm-4.7-flash', 'openai/gpt-5.2', 'groq/compound']);
 
 const TEXT_MODELS: AnyModel[] = [
   { id: 'openai/gpt-5-mini', name: 'GPT-5 Mini', provider: 'OpenAI', logoSlug: 'openai', icon: RiOpenaiFill, color: 'from-emerald-500 to-green-600', pricing: 'Budget', context: '400K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
@@ -53,7 +53,7 @@ const TEXT_MODELS: AnyModel[] = [
   { id: 'microsoft/phi-4-multimodal-instruct', name: 'Phi 4 Multimodal', provider: 'microsoft', logoSlug: 'microsoft', icon: TiVendorMicrosoft, color: 'from-cyan-500 to-blue-700', pricing: 'Budget', context: '128k', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'xai/grok-3', name: 'Grok 3', provider: 'xAI', logoSlug: 'xai', icon: FaXTwitter, color: 'from-slate-600 to-zinc-700', pricing: 'Premium', context: '1M', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'z-ai/glm-5.2', name: 'GLM 5.2', provider: 'Zhipu', logoSlug: 'zhipu', icon: TbSquareLetterZ, color: 'from-blue-700 to-indigo-800', pricing: 'Premium', context: '200K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
-  { id: 'moonshotai/kimi-k2.6', name: 'Kimi K2.6', provider: 'Moonshot', logoSlug: 'kimi', icon: RiMoonFill, color: 'from-blue-500 to-cyan-600', pricing: 'Premium', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'moonshotai/kimi-k3', name: 'Kimi K3', provider: 'Moonshot', logoSlug: 'kimi', icon: RiMoonFill, color: 'from-blue-500 to-cyan-600', pricing: 'Premium', context: '1M', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
   { id: 'z-ai/glm-4.7-flash', name: 'GLM 4.7 Flash', provider: 'Zhipu', logoSlug: 'zhipu', icon: TbSquareLetterZ, color: 'from-blue-700 to-indigo-800', pricing: 'Standard', context: '131K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
   { id: 'google/gemma-4-31b', name: 'Gemma 4 31B', provider: 'Google', logoSlug: 'gemini', icon: SiGooglegemini, color: 'from-indigo-500 to-purple-600', pricing: 'Budget', context: '128K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'alibaba/qwen3.8-27b', name: 'Qwen3.8 27B', provider: 'Alibaba', logoSlug: 'qwen', icon: SiAlibabacloud, color: 'from-purple-500 to-pink-500', pricing: 'Standard', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
