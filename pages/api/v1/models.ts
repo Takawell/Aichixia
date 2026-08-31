@@ -113,11 +113,11 @@ const MODELS = [
     tier: "free",
   },
   {
-    id: "moonshotai/kimi-k2.6",
+    id: "moonshotai/kimi-k3",
     object: "model",
     created: 1748500000,
     owned_by: "moonshotai",
-    description: "Moonshot Kimi K2.6 — long context and reasoning model",
+    description: "Moonshot Kimi K2.6 long context and reasoning model",
     context_window: 128000,
     capabilities: ["chat", "streaming"],
     tier: "pro",
