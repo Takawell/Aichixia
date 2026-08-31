@@ -2,22 +2,52 @@ import OpenAI from "openai";
 
 export type Role = "user" | "assistant" | "system";
 
+export type TextPart = {
+  type: "text";
+  text: string;
+};
+
+export type ImagePart = {
+  type: "image_url";
+  image_url: { url: string };
+};
+
+export type ContentPart = TextPart | ImagePart;
+
 export type ChatMessage = {
   role: Role;
-  content: string;
+  content: string | ContentPart[];
 };
 
 const KIMI_API_KEY = process.env.KIMI_API_KEY;
 const KIMI_MODEL = process.env.KIMI_MODEL || "moonshotai/kimi-k2.6";
 
 if (!KIMI_API_KEY) {
-  console.warn("Warning: KIMI_API_KEY not set in env.");
+  console.warn("[lib/kimi] Warning: KIMI_API_KEY not set in env.");
 }
 
 const client = new OpenAI({
   apiKey: KIMI_API_KEY,
   baseURL: "https://integrate.api.nvidia.com/v1",
 });
+
+export function buildImageMessage(
+  text: string,
+  imageUrls: string[]
+): ChatMessage {
+  const parts: ContentPart[] = [{ type: "text", text }];
+  for (const url of imageUrls) {
+    parts.push({ type: "image_url", image_url: { url } });
+  }
+  return { role: "user", content: parts };
+}
+
+export function buildBase64ImageUrl(
+  base64Data: string,
+  mediaType: string
+): string {
+  return `data:${mediaType};base64,${base64Data}`;
+}
 
 export class KimiRateLimitError extends Error {
   constructor(message: string) {
@@ -67,7 +97,7 @@ export async function chatKimi(
       messages: history.map((m) => ({
         role: m.role,
         content: m.content,
-      })),
+      })) as any,
       temperature: opts?.temperature ?? 1.0,
       max_tokens: opts?.maxTokens ?? 8092,
       top_p: 1.0,
@@ -84,7 +114,7 @@ export async function chatKimi(
     if (error?.status === 429) {
       throw new KimiRateLimitError(`Kimi rate limit exceeded: ${error.message}`);
     }
-    if (error?.status === 402 || error?.code === "insufficient_quota") {
+    if (error?.status === 402 || error?.code === "insufficient_quota" || error?.message?.includes("quota")) {
       throw new KimiQuotaError(`Kimi quota exceeded: ${error.message}`);
     }
     if (error?.status === 503 || error?.status === 500) {
@@ -141,7 +171,7 @@ export async function streamKimi(
           messages: history.map((m) => ({
             role: m.role,
             content: m.content,
-          })),
+          })) as any,
           temperature: opts?.temperature ?? 1.0,
           max_tokens: opts?.maxTokens ?? 4092,
           top_p: 1.0,
@@ -179,7 +209,7 @@ export async function streamKimi(
 
         if (error?.status === 429) {
           message = "Rate limit exceeded. Please wait a moment.";
-        } else if (error?.status === 402 || error?.code === "insufficient_quota") {
+        } else if (error?.status === 402 || error?.code === "insufficient_quota" || error?.message?.includes("quota")) {
           message = "Quota exceeded. Please try again later.";
         } else if (error?.status === 503 || error?.status === 500) {
           message = "Server error. Please try again.";
@@ -205,6 +235,7 @@ export async function quickChatKimi(
     history?: ChatMessage[];
     temperature?: number;
     maxTokens?: number;
+    imageUrls?: string[];
   }
 ) {
   const hist: ChatMessage[] = [];
@@ -217,7 +248,11 @@ export async function quickChatKimi(
     hist.push(...opts.history);
   }
 
-  hist.push({ role: "user", content: userMessage });
+  if (opts?.imageUrls?.length) {
+    hist.push(buildImageMessage(userMessage, opts.imageUrls));
+  } else {
+    hist.push({ role: "user", content: userMessage });
+  }
 
   const { reply } = await chatKimi(hist, {
     temperature: opts?.temperature,
@@ -231,4 +266,6 @@ export default {
   chatKimi,
   streamKimi,
   quickChatKimi,
+  buildImageMessage,
+  buildBase64ImageUrl,
 };
