@@ -23,7 +23,7 @@ type ModelProps = {
 };
 
 const STREAM_SUPPORTED_MODELS = new Set([
-  'moonshotai/kimi-k2.6',
+  'moonshotai/kimi-k3',
   'openai/gpt-5-mini',
   'aichiverse/aichixia-flash',
   'anthropic/claude-sonnet-4-6',
@@ -310,8 +310,8 @@ const AVAILABLE_MODELS = [
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
-    id: 'moonshotai/kimi-k2.6',
-    name: 'Kimi K2.6',
+    id: 'moonshotai/kimi-k3',
+    name: 'Kimi K3',
     icon: RiMoonFill,
     logoSlug: 'kimi',
     invertDark: true,
@@ -321,7 +321,7 @@ const AVAILABLE_MODELS = [
     description: 'Superior tool calling and complex reasoning',
     speed: 4,
     quality: 5,
-    contextWindow: '256K tokens',
+    contextWindow: '1M tokens',
     pricing: 'Premium',
     features: ['Chinese expertise', 'Long context', 'Cultural nuance'],
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
