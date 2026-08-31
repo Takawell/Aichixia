@@ -16,11 +16,12 @@ import { SplineScene } from "@/components/ui/splite";
 const base = "https://www.aichixia.xyz";
 
 const allModelTicker = [
-  "DeepSeek V3.2", "Claude Opus 4.8", "Gemini 3 Flash", "GPT-5 Mini", "Kimi K2.6",
-  "Qwen3 235B", "Llama 3.3 70B", "Mistral Large 3 675B", "Grok 3", "Grok 4 Fast",
-  "GLM 4.7", "DeepSeek V4 Flash", "MiniMax M3", "Aichixia 114B", "MiMo V2 Flash",
-  "GPT-OSS 120B", "GPT-5.5", "Cohere Command A", "Groq Compound", "Qwen3 Coder 480B", "GLM 4.7 Flash",
-  "Phi 4 Multimodal", "GPT-5.2",
+  "DeepSeek V4 Pro", "Claude Opus 4.8", "Gemini 3 Flash", "GPT-5 Mini", "Kimi K2.6",
+  "Qwen3.8 27B", "Llama 3.3 70B", "Mistral Large", "Grok 3", "Grok 4 Fast",
+  "GLM 5.2", "DeepSeek V4 Flash", "MiniMax M3", "Aichixia Flash", "MiMo V2.5 Pro",
+  "GPT-OSS 120B", "GPT-5.5", "Cohere Command A", "Groq Compound", "Qwen3 Coder Plus", "GLM 4.7 Flash",
+  "Phi 4 Multimodal", "GPT-5.2", "Claude Sonnet 4.6", "Claude Fable 5", "Llama 4 Scout",
+  "Nemotron 3 Ultra", "Step 3.7 Flash", "Laguna S 2.1", "Inkling", "Gemma 4 31B",
 ];
 
 const providerLogos = [
@@ -76,27 +77,37 @@ const comparisonRows = [
 ];
 
 const models = [
-  { id: "gpt-5-mini", name: "GPT-5 Mini", provider: "OpenAI", description: "Balanced performance for general tasks", color: "from-emerald-500 to-green-600", icon: RiOpenaiFill, requiresPro: false },
-  { id: "aichixia-flash", name: "Aichixia 114B", provider: "Aichiverse", description: "High-efficiency MoE architecture for ultra-fast inference", color: "from-blue-600 via-blue-800 to-slate-900", icon: SiAirbrake, requiresPro: true },
-  { id: "mistral-3.1", name: "Mistral 3.1", provider: "Mistral AI", description: "Fast inference with European focus", color: "from-orange-500 to-amber-500", icon: TbLetterM, requiresPro: false },
-  { id: "deepseek-v3.2", name: "DeepSeek V3.2", provider: "DeepSeek", description: "Deep reasoning and code generation", color: "from-cyan-500 to-blue-600", icon: GiSpermWhale, requiresPro: true },
-  { id: "deepseek-v4-flash", name: "DeepSeek V4 Flash", provider: "DeepSeek", description: "Previous generation DeepSeek model", color: "from-cyan-600 to-teal-600", icon: GiSpermWhale, requiresPro: false },
-  { id: "claude-opus-4.8", name: "Claude Opus 4.8", provider: "Anthropic", description: "World's #1 AI model for complex tasks", color: "from-orange-500 to-amber-600", icon: SiAnthropic, requiresPro: true },
-  { id: "gemini-3-flash", name: "Gemini 3 Flash", provider: "Google", description: "Multimodal understanding and accuracy", color: "from-indigo-500 to-purple-600", icon: SiGooglegemini, requiresPro: false },
-  { id: "grok-3", name: "Grok 3", provider: "xAI", description: "xAI's flagship model with real-time data", color: "from-slate-600 to-zinc-700", icon: FaXTwitter, requiresPro: false },
-  { id: "glm-4.7", name: "GLM 4.7", provider: "Zhipu", description: "Multilingual excellence with strong reasoning", color: "from-blue-700 to-indigo-800", icon: TbSquareLetterZ, requiresPro: true },
-  { id: "kimi-k2.6", name: "Kimi K2.6", provider: "Moonshot", description: "Superior tool calling and reasoning", color: "from-blue-500 to-cyan-600", icon: SiDigikeyelectronics, requiresPro: false },
-  { id: "glm-4.7-flash", name: "GLM 4.7 Flash", provider: "Zhipu", description: "Very fast, suitable for real-time apps", color: "from-blue-700 to-indigo-800", icon: TbSquareLetterZ, requiresPro: false },
-  { id: "qwen3-235b", name: "Qwen3 235B", provider: "Alibaba", description: "Large multilingual model with strong reasoning", color: "from-purple-500 to-pink-500", icon: SiAlibabacloud, requiresPro: true },
-  { id: "qwen3-coder-480b", name: "Qwen3 Coder 480B", provider: "Alibaba", description: "Specialized in coding and Asian languages", color: "from-purple-600 to-fuchsia-600", icon: SiAlibabacloud, requiresPro: false },
-  { id: "minimax-m3", name: "MiniMax M3", provider: "MiniMax", description: "Multilingual coding specialist with agent workflows", color: "from-cyan-600 to-blue-600", icon: SiMaze, requiresPro: true },
-  { id: "llama-3.3-70b", name: "Llama 3.3 70B", provider: "Meta", description: "Efficient open-source powerhouse", color: "from-blue-600 to-indigo-700", icon: SiMeta, requiresPro: false },
-  { id: "gpt-oss-120b", name: "GPT-OSS 120B", provider: "OpenAI", description: "Large open-source with browser search", color: "from-pink-600 to-rose-600", icon: RiOpenaiFill, requiresPro: false },
-  { id: "mimo-v2-flash", name: "MiMo V2 Flash", provider: "Xiaomi", description: "Efficient 309B MoE model for reasoning and coding", color: "from-blue-600 to-purple-600", icon: FiZap, requiresPro: false },
-  { id: "groq-compound", name: "Groq Compound", provider: "Groq", description: "Multi-model agentic system with tools", color: "from-orange-600 to-red-600", icon: GiPowerLightning, requiresPro: false },
-  { id: "cohere-command-a", name: "Cohere Command A", provider: "Cohere", description: "Enterprise-grade with excellent tool use", color: "from-emerald-600 to-teal-600", icon: GiClover, requiresPro: false },
-  { id: "grok-4-fast", name: "Grok 4 Fast", provider: "xAI", description: "xAI's fastest Grok 4 with 2M context window", color: "from-zinc-700 to-slate-900", icon: FaXTwitter, requiresPro: true },
-  { id: "gpt-5.2", name: "GPT-5.2", provider: "OpenAI", description: "OpenAI's latest GPT-5.2 with enhanced reasoning", color: "from-green-500 to-emerald-600", icon: RiOpenaiFill, requiresPro: false, limited: true },
+  { id: "openai/gpt-5-mini", name: "GPT-5 Mini", provider: "OpenAI", description: "Balanced performance for general tasks", color: "from-emerald-500 to-green-600", icon: RiOpenaiFill, requiresPro: false },
+  { id: "aichixia/aichixia-flash", name: "Aichixia Flash", provider: "Aichiverse", description: "High-efficiency MoE architecture for ultra-fast inference", color: "from-blue-600 via-blue-800 to-slate-900", icon: SiAirbrake, requiresPro: true },
+  { id: "mistralai/mistral-large-latest", name: "Mistral Large", provider: "Mistral AI", description: "Fast inference with European focus", color: "from-orange-500 to-amber-500", icon: TbLetterM, requiresPro: false },
+  { id: "deepseek/deepseek-v4-pro", name: "DeepSeek V4 Pro", provider: "DeepSeek", description: "Deep reasoning and code generation", color: "from-cyan-500 to-blue-600", icon: GiSpermWhale, requiresPro: true },
+  { id: "deepseek/deepseek-v4-flash", name: "DeepSeek V4 Flash", provider: "DeepSeek", description: "Fast lightweight DeepSeek model", color: "from-cyan-600 to-teal-600", icon: GiSpermWhale, requiresPro: false },
+  { id: "anthropic/claude-opus-4-8", name: "Claude Opus 4.8", provider: "Anthropic", description: "World's #1 AI model for complex tasks", color: "from-orange-500 to-amber-600", icon: SiAnthropic, requiresPro: true },
+  { id: "anthropic/claude-sonnet-4-6", name: "Claude Sonnet 4.6", provider: "Anthropic", description: "Balanced reasoning and speed for everyday tasks", color: "from-orange-500 to-amber-600", icon: SiAnthropic, requiresPro: true },
+  { id: "anthropic/claude-fable-5", name: "Claude Fable 5", provider: "Anthropic", description: "Mythos-tier creative and reasoning model", color: "from-orange-600 to-rose-600", icon: SiAnthropic, requiresPro: true },
+  { id: "google/gemini-3-flash-preview", name: "Gemini 3 Flash", provider: "Google", description: "Multimodal understanding and accuracy", color: "from-indigo-500 to-purple-600", icon: SiGooglegemini, requiresPro: false },
+  { id: "google/gemma-4-31b", name: "Gemma 4 31B", provider: "Google", description: "Open-weight efficient reasoning model", color: "from-indigo-500 to-purple-600", icon: SiGooglegemini, requiresPro: false },
+  { id: "xai/grok-3", name: "Grok 3", provider: "xAI", description: "xAI's flagship model with real-time data", color: "from-slate-600 to-zinc-700", icon: FaXTwitter, requiresPro: false },
+  { id: "z-ai/glm-5.2", name: "GLM 5.2", provider: "Zhipu", description: "Multilingual excellence with strong reasoning", color: "from-blue-700 to-indigo-800", icon: TbSquareLetterZ, requiresPro: true },
+  { id: "moonshotai/kimi-k2.6", name: "Kimi K2.6", provider: "Moonshot", description: "Superior tool calling and reasoning", color: "from-blue-500 to-cyan-600", icon: SiDigikeyelectronics, requiresPro: false },
+  { id: "z-ai/glm-4.7-flash", name: "GLM 4.7 Flash", provider: "Zhipu", description: "Very fast, suitable for real-time apps", color: "from-blue-700 to-indigo-800", icon: TbSquareLetterZ, requiresPro: false },
+  { id: "alibaba/qwen3.8-27b", name: "Qwen3.8 27B", provider: "Alibaba", description: "Large multilingual model with strong reasoning", color: "from-purple-500 to-pink-500", icon: SiAlibabacloud, requiresPro: false },
+  { id: "alibaba/qwen3-coder-plus", name: "Qwen3 Coder Plus", provider: "Alibaba", description: "Specialized in coding and Asian languages", color: "from-purple-600 to-fuchsia-600", icon: SiAlibabacloud, requiresPro: false },
+  { id: "minimaxai/minimax-m3", name: "MiniMax M3", provider: "MiniMax", description: "Multilingual coding specialist with agent workflows", color: "from-cyan-600 to-blue-600", icon: SiMaze, requiresPro: true },
+  { id: "meta/llama-3.3-70b", name: "Llama 3.3 70B", provider: "Meta", description: "Efficient open-source powerhouse", color: "from-blue-600 to-indigo-700", icon: SiMeta, requiresPro: false },
+  { id: "meta/llama-4-scout-17b-16e-instruct", name: "Llama 4 Scout", provider: "Meta", description: "Multimodal vision-capable open model", color: "from-blue-600 to-indigo-700", icon: SiMeta, requiresPro: false },
+  { id: "openai/gpt-oss-120b", name: "GPT-OSS 120B", provider: "OpenAI", description: "Large open-source with browser search", color: "from-pink-600 to-rose-600", icon: RiOpenaiFill, requiresPro: false },
+  { id: "xiaomi/mimo-v2.5-pro", name: "MiMo V2.5 Pro", provider: "Xiaomi", description: "Efficient MoE model for reasoning and coding", color: "from-blue-600 to-purple-600", icon: FiZap, requiresPro: true },
+  { id: "groq/compound", name: "Groq Compound", provider: "Groq", description: "Multi-model agentic system with tools", color: "from-orange-600 to-red-600", icon: GiPowerLightning, requiresPro: false },
+  { id: "cohere/command-a", name: "Cohere Command A", provider: "Cohere", description: "Enterprise-grade with excellent tool use", color: "from-emerald-600 to-teal-600", icon: GiClover, requiresPro: false },
+  { id: "xai/grok-4-fast", name: "Grok 4 Fast", provider: "xAI", description: "xAI's fastest Grok 4 with 2M context window", color: "from-zinc-700 to-slate-900", icon: FaXTwitter, requiresPro: true },
+  { id: "openai/gpt-5.2", name: "GPT-5.2", provider: "OpenAI", description: "OpenAI's latest GPT-5.2 with enhanced reasoning", color: "from-green-500 to-emerald-600", icon: RiOpenaiFill, requiresPro: false, limited: true },
+  { id: "openai/gpt-5.5", name: "GPT-5.5", provider: "OpenAI", description: "Next-generation flagship reasoning model", color: "from-green-500 to-emerald-600", icon: RiOpenaiFill, requiresPro: true },
+  { id: "microsoft/phi-4-multimodal-instruct", name: "Phi 4 Multimodal", provider: "Microsoft", description: "Compact multimodal instruction model", color: "from-teal-600 to-cyan-700", icon: FiZap, requiresPro: false },
+  { id: "stepfun-ai/step-3.7-flash", name: "Step 3.7 Flash", provider: "StepFun", description: "Fast reasoning with efficient inference", color: "from-violet-600 to-purple-700", icon: FiZap, requiresPro: false },
+  { id: "nvidia/nemotron-3-ultra-550b-a55b", name: "Nemotron 3 Ultra", provider: "Nvidia", description: "Large mixture-of-experts reasoning model", color: "from-green-600 to-lime-600", icon: FiZap, requiresPro: true },
+  { id: "poolside/laguna-s-2.1", name: "Laguna S 2.1", provider: "Poolside", description: "Coding and agentic reasoning model", color: "from-sky-600 to-blue-700", icon: FiZap, requiresPro: true },
+  { id: "thinkingmachines/inkling", name: "Inkling", provider: "Thinking Machines", description: "Experimental multimodal reasoning model", color: "from-fuchsia-600 to-purple-700", icon: FiZap, requiresPro: true },
 ];
 
 const features = [
@@ -126,7 +137,7 @@ const features = [
   },
   {
     icon: FaClock,
-    title: "99.9% Uptime",
+    title: "99.74% Uptime",
     description: "Multi-region redundancy ensures your applications never go down",
     gradient: "from-red-400 to-pink-500"
   },
@@ -172,7 +183,7 @@ const client = new OpenAI({
 });
 
 const response = await client.chat.completions.create({
-  model: "deepseek-v3.2",
+  model: "deepseek/deepseek-v4-pro",
   messages: [{ role: "user", content: "Hello!" }]
 });
 
@@ -208,7 +219,7 @@ const pricingPlans = [
       "Priority model access",
       "Email support",
       "Advanced analytics",
-      "99.9% uptime SLA",
+      "99.74% uptime SLA",
       "Custom rate limits",
       "Early feature access"
     ],
@@ -301,7 +312,7 @@ export default function Home() {
   const [showContactModal, setShowContactModal] = useState(false);
   const [contactStep, setContactStep] = useState<'confirm' | 'sent'>('confirm');
   const [apiKey, setApiKey] = useState("");
-  const [selectedModel, setSelectedModel] = useState("gpt-5-mini");
+  const [selectedModel, setSelectedModel] = useState("openai/gpt-5-mini");
   const [message, setMessage] = useState("Explain quantum computing in simple terms");
   const [isLoading, setIsLoading] = useState(false);
   const [response, setResponse] = useState<any>(null);
@@ -396,18 +407,31 @@ export default function Home() {
     const startTime = Date.now();
 
     try {
-      const res = await fetch(`${base}/api/v1/chat/completions`, {
+      const isAnthropic = selectedSdk === 'anthropic';
+      const url = isAnthropic ? `${base}/api/v1/messages` : `${base}/api/v1/chat/completions`;
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (isAnthropic) {
+        headers['x-api-key'] = apiKey;
+      } else {
+        headers['Authorization'] = `Bearer ${apiKey}`;
+      }
+      const body = isAnthropic
+        ? {
+            model: selectedModel,
+            max_tokens: 1080,
+            messages: [{ role: "user", content: message }],
+          }
+        : {
+            model: selectedModel,
+            messages: [{ role: "user", content: message }],
+            temperature: 0.8,
+            max_tokens: 1080,
+          };
+
+      const res = await fetch(url, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: selectedModel,
-          messages: [{ role: "user", content: message }],
-          temperature: 0.8,
-          max_tokens: 1080,
-        }),
+        headers,
+        body: JSON.stringify(body),
       });
 
       const data = await res.json();
@@ -416,7 +440,7 @@ export default function Home() {
       if (!res.ok) {
         setError(data.error?.message || "Request failed");
       } else {
-        setResponse({ ...data, latency });
+        setResponse({ ...data, latency, _sdk: selectedSdk });
       }
     } catch (err: any) {
       setError(err.message || "Network error");
@@ -634,23 +658,27 @@ func main() {
         .stagger-delay-5 { animation-delay: 0.5s; }
         .stagger-delay-6 { animation-delay: 0.6s; }
         @keyframes marquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
+          0% { transform: translate3d(0, 0, 0); }
+          100% { transform: translate3d(-50%, 0, 0); }
         }
         .animate-marquee {
-          animation: marquee 30s linear infinite;
+          animation: marquee 42s linear infinite;
           will-change: transform;
         }
         .animate-marquee:hover {
           animation-play-state: paused;
         }
         @keyframes marquee-slow {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
+          0% { transform: translate3d(0, 0, 0); }
+          100% { transform: translate3d(-50%, 0, 0); }
         }
         .animate-marquee-slow {
           animation: marquee-slow 40s linear infinite;
           will-change: transform;
+        }
+        .marquee-mask {
+          -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 6%, #000 94%, transparent 100%);
+          mask-image: linear-gradient(90deg, transparent 0%, #000 6%, #000 94%, transparent 100%);
         }
         @keyframes pulse-glow {
           0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
@@ -679,7 +707,7 @@ func main() {
       
       <Head>
         <title>Aichixia - AI API Platform | 40+ Models in One Unified API</title>
-        <meta name="description" content="Build AI applications 10x faster with Aichixia's unified API. Access Claude, GPT, Gemini, DeepSeek and 40+ AI models through one OpenAI-compatible endpoint. Sub-100ms latency, 99.9% uptime, enterprise-grade security." />
+        <meta name="description" content="Build AI applications 10x faster with Aichixia's unified API. Access Claude, GPT, Gemini, DeepSeek and 40+ AI models through one OpenAI-compatible endpoint. Sub-100ms latency, 99.74% uptime, enterprise-grade security." />
         <meta name="keywords" content="AI API, OpenAI alternative, Claude API, GPT API, Gemini API, AI infrastructure, multi-model API, DeepSeek, machine learning API, enterprise AI" />
         <meta name="author" content="Aichixia" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -692,7 +720,7 @@ func main() {
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://www.aichixia.xyz" />
         <meta property="og:title" content="Aichixia - AI API Platform | 40+ Models in One Unified API" />
-        <meta property="og:description" content="Build AI applications 10x faster with Aichixia's unified API. Access Claude, GPT, Gemini, DeepSeek and 40+ AI models through one OpenAI-compatible endpoint. Sub-100ms latency, 99.9% uptime." />
+        <meta property="og:description" content="Build AI applications 10x faster with Aichixia's unified API. Access Claude, GPT, Gemini, DeepSeek and 40+ AI models through one OpenAI-compatible endpoint. Sub-100ms latency, 99.74% uptime." />
         <meta property="og:image" content="https://www.aichixia.xyz/og-image.png" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
@@ -702,7 +730,7 @@ func main() {
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:url" content="https://www.aichixia.xyz" />
         <meta name="twitter:title" content="Aichixia - AI API Platform | 40+ Models in One Unified API" />
-        <meta name="twitter:description" content="Build AI applications 10x faster with Aichixia's unified API. Access Claude, GPT, Gemini, DeepSeek and 40+ AI models. Sub-100ms latency, 99.9% uptime." />
+        <meta name="twitter:description" content="Build AI applications 10x faster with Aichixia's unified API. Access Claude, GPT, Gemini, DeepSeek and 40+ AI models. Sub-100ms latency, 99.74% uptime." />
         <meta name="twitter:image" content="https://www.aichixia.xyz/og-image.png" />
         <meta name="twitter:creator" content="@aichixia" />
         <meta name="twitter:site" content="@aichixia" />
@@ -951,7 +979,7 @@ func main() {
         <div className="mb-4 sm:mb-5 text-center">
           <p className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-600">40+ Models Available</p>
         </div>
-        <div className="relative flex overflow-hidden">
+        <div className="relative flex overflow-hidden marquee-mask">
           <div className="flex animate-marquee gap-3 whitespace-nowrap">
             {[...allModelTicker, ...allModelTicker].map((model, i) => (
               <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:border-blue-400 dark:hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-default flex-shrink-0">
@@ -961,7 +989,7 @@ func main() {
             ))}
           </div>
         </div>
-        <div className="mt-5 sm:mt-6 relative flex overflow-hidden">
+        <div className="mt-5 sm:mt-6 relative flex overflow-hidden marquee-mask">
           <div className="flex animate-marquee-slow gap-6 whitespace-nowrap items-center" style={{animationDirection: 'reverse'}}>
             {[...providerLogos, ...providerLogos].map((provider, i) => (
               <div
@@ -1410,7 +1438,9 @@ func main() {
                   <div className="space-y-3 min-w-0">
                     <div className="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 overflow-hidden">
                       <p className="text-xs sm:text-sm text-zinc-900 dark:text-white leading-relaxed whitespace-pre-wrap break-words">
-                        {response.choices?.[0]?.message?.content || "No content"}
+                        {response._sdk === 'anthropic'
+                          ? (response.content?.[0]?.text || "No content")
+                          : (response.choices?.[0]?.message?.content || "No content")}
                       </p>
                     </div>
 
@@ -1418,7 +1448,9 @@ func main() {
                       <div className="p-3 rounded-lg bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 border border-blue-200 dark:border-blue-900/30">
                         <div className="text-[10px] sm:text-xs font-semibold text-blue-600 dark:text-blue-400 mb-0.5">Total Tokens</div>
                         <div className="text-lg sm:text-xl font-black text-blue-700 dark:text-blue-300">
-                          {response.usage?.total_tokens || 0}
+                          {response._sdk === 'anthropic'
+                            ? ((response.usage?.input_tokens || 0) + (response.usage?.output_tokens || 0))
+                            : (response.usage?.total_tokens || 0)}
                         </div>
                       </div>
                       <div className="p-3 rounded-lg bg-gradient-to-br from-cyan-50 to-teal-50 dark:from-cyan-950/20 dark:to-teal-950/20 border border-cyan-200 dark:border-cyan-900/30">
@@ -1666,7 +1698,7 @@ func main() {
             {[
               { q: "Is Aichixia really free?", a: "Yes. The free tier gives you access to all models with standard rate limits. No credit card required. Pro tier is also free — find the redeem code hidden in our docs." },
               { q: "Do I need to change my code to use Aichixia?", a: "No. If you already use the OpenAI SDK, just change one line — the baseURL. Everything else stays the same. We also support the Anthropic SDK natively." },
-              { q: "Which models are available?", a: "40+ models including Claude Opus 4.8, GPT-5 Mini, Gemini 3 Flash, Grok 3, DeepSeek V3.2, Kimi K2.6, Qwen3 235B, Llama 3.3 70B, Mistral 3 Large 678B, and many more. New models are added regularly." },
+              { q: "Which models are available?", a: "40+ models including Claude Opus 4.8, GPT-5 Mini, Gemini 3 Flash, Grok 3, DeepSeek V4 Pro, Kimi K2.6, Qwen3.8 27B, Llama 3.3 70B, Mistral Large, and many more. New models are added regularly." },
               { q: "What about image generation and TTS?", a: "Yes! We support image generation via /api/v1/images/generations (Flux 2, Lucid Origin, Phoenix, Nano) and text-to-speech via /api/v1/audio/speech (Starling TTS, Lindsay TTS)." },
               { q: "Can I use the Anthropic SDK?", a: "Yes! Point the Anthropic SDK to our /api/v1/messages endpoint with your Aichixia API key. All Aichixia models are accessible — not just Claude." },
             ].map((faq, idx) => (
