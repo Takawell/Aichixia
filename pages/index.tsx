@@ -78,18 +78,19 @@ const comparisonRows = [
 
 const models = [
   { id: "openai/gpt-5-mini", name: "GPT-5 Mini", provider: "OpenAI", description: "Balanced performance for general tasks", color: "from-emerald-500 to-green-600", icon: RiOpenaiFill, requiresPro: false },
-  { id: "aichixia/aichixia-flash", name: "Aichixia Flash", provider: "Aichiverse", description: "High-efficiency MoE architecture for ultra-fast inference", color: "from-blue-600 via-blue-800 to-slate-900", icon: SiAirbrake, requiresPro: true },
+  { id: "aichiverse/aichixia-flash", name: "Aichixia Flash", provider: "Aichiverse", description: "High-efficiency MoE architecture for ultra-fast inference", color: "from-blue-600 via-blue-800 to-slate-900", icon: SiAirbrake, requiresPro: true },
   { id: "mistralai/mistral-large-latest", name: "Mistral Large", provider: "Mistral AI", description: "Fast inference with European focus", color: "from-orange-500 to-amber-500", icon: TbLetterM, requiresPro: false },
   { id: "deepseek/deepseek-v4-pro", name: "DeepSeek V4 Pro", provider: "DeepSeek", description: "Deep reasoning and code generation", color: "from-cyan-500 to-blue-600", icon: GiSpermWhale, requiresPro: true },
   { id: "deepseek/deepseek-v4-flash", name: "DeepSeek V4 Flash", provider: "DeepSeek", description: "Fast lightweight DeepSeek model", color: "from-cyan-600 to-teal-600", icon: GiSpermWhale, requiresPro: false },
   { id: "anthropic/claude-opus-4-8", name: "Claude Opus 4.8", provider: "Anthropic", description: "World's #1 AI model for complex tasks", color: "from-orange-500 to-amber-600", icon: SiAnthropic, requiresPro: true },
   { id: "anthropic/claude-sonnet-4-6", name: "Claude Sonnet 4.6", provider: "Anthropic", description: "Balanced reasoning and speed for everyday tasks", color: "from-orange-500 to-amber-600", icon: SiAnthropic, requiresPro: true },
   { id: "anthropic/claude-fable-5", name: "Claude Fable 5", provider: "Anthropic", description: "Mythos-tier creative and reasoning model", color: "from-orange-600 to-rose-600", icon: SiAnthropic, requiresPro: true },
-  { id: "google/gemini-3-flash-preview", name: "Gemini 3 Flash", provider: "Google", description: "Multimodal understanding and accuracy", color: "from-indigo-500 to-purple-600", icon: SiGooglegemini, requiresPro: false },
+  { id: "anthropic/claude-haiku-4-5", name: "Claude Haiku 4.5", provider: "Anthropic", description: "Fast and lightweight everyday model", color: "from-orange-500 to-amber-600", icon: SiAnthropic, requiresPro: false },
+  { id: "google/gemini-3-flash", name: "Gemini 3 Flash", provider: "Google", description: "Multimodal understanding and accuracy", color: "from-indigo-500 to-purple-600", icon: SiGooglegemini, requiresPro: false },
   { id: "google/gemma-4-31b", name: "Gemma 4 31B", provider: "Google", description: "Open-weight efficient reasoning model", color: "from-indigo-500 to-purple-600", icon: SiGooglegemini, requiresPro: false },
   { id: "xai/grok-3", name: "Grok 3", provider: "xAI", description: "xAI's flagship model with real-time data", color: "from-slate-600 to-zinc-700", icon: FaXTwitter, requiresPro: false },
   { id: "z-ai/glm-5.2", name: "GLM 5.2", provider: "Zhipu", description: "Multilingual excellence with strong reasoning", color: "from-blue-700 to-indigo-800", icon: TbSquareLetterZ, requiresPro: true },
-  { id: "moonshotai/kimi-k2.6", name: "Kimi K2.6", provider: "Moonshot", description: "Superior tool calling and reasoning", color: "from-blue-500 to-cyan-600", icon: SiDigikeyelectronics, requiresPro: false },
+  { id: "moonshotai/kimi-k3", name: "Kimi K2.6", provider: "Moonshot", description: "Superior tool calling and reasoning", color: "from-blue-500 to-cyan-600", icon: SiDigikeyelectronics, requiresPro: false },
   { id: "z-ai/glm-4.7-flash", name: "GLM 4.7 Flash", provider: "Zhipu", description: "Very fast, suitable for real-time apps", color: "from-blue-700 to-indigo-800", icon: TbSquareLetterZ, requiresPro: false },
   { id: "alibaba/qwen3.8-27b", name: "Qwen3.8 27B", provider: "Alibaba", description: "Large multilingual model with strong reasoning", color: "from-purple-500 to-pink-500", icon: SiAlibabacloud, requiresPro: false },
   { id: "alibaba/qwen3-coder-plus", name: "Qwen3 Coder Plus", provider: "Alibaba", description: "Specialized in coding and Asian languages", color: "from-purple-600 to-fuchsia-600", icon: SiAlibabacloud, requiresPro: false },
@@ -668,17 +669,31 @@ func main() {
         .animate-marquee:hover {
           animation-play-state: paused;
         }
-        @keyframes marquee-slow {
-          0% { transform: translate3d(0, 0, 0); }
-          100% { transform: translate3d(-50%, 0, 0); }
-        }
-        .animate-marquee-slow {
-          animation: marquee-slow 40s linear infinite;
-          will-change: transform;
-        }
         .marquee-mask {
           -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 6%, #000 94%, transparent 100%);
           mask-image: linear-gradient(90deg, transparent 0%, #000 6%, #000 94%, transparent 100%);
+        }
+        .logoloop {
+          position: relative;
+          overflow: hidden;
+          width: 100%;
+        }
+        .logoloop-track {
+          display: flex;
+          width: max-content;
+          will-change: transform;
+          animation-name: logoloop-scroll;
+          animation-timing-function: linear;
+          animation-iteration-count: infinite;
+          backface-visibility: hidden;
+          transform: translateZ(0);
+        }
+        .logoloop:hover .logoloop-track {
+          animation-play-state: paused;
+        }
+        @keyframes logoloop-scroll {
+          from { transform: translate3d(0, 0, 0); }
+          to { transform: translate3d(-50%, 0, 0); }
         }
         @keyframes pulse-glow {
           0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
@@ -989,12 +1004,12 @@ func main() {
             ))}
           </div>
         </div>
-        <div className="mt-5 sm:mt-6 relative flex overflow-hidden marquee-mask">
-          <div className="flex animate-marquee-slow gap-6 whitespace-nowrap items-center" style={{animationDirection: 'reverse'}}>
+        <div className="mt-5 sm:mt-6 logoloop marquee-mask">
+          <div className="logoloop-track gap-6 items-center" style={{ animationDuration: '48s', animationDirection: 'reverse' }}>
             {[...providerLogos, ...providerLogos].map((provider, i) => (
               <div
                 key={i}
-                className="provider-logo-item inline-flex flex-col items-center gap-1.5 flex-shrink-0 cursor-default"
+                className="provider-logo-item inline-flex flex-col items-center gap-1.5 flex-shrink-0 cursor-default px-3"
               >
                 <img
                   src={`https://unpkg.com/@lobehub/icons-static-svg@latest/icons/${provider.slug}.svg`}
@@ -1017,7 +1032,7 @@ func main() {
                 >
                   {provider.name}
                 </span>
-                <span className="text-[9px] font-medium text-zinc-400 dark:text-zinc-600">{provider.name}</span>
+                <span className="text-[9px] font-medium text-zinc-400 dark:text-zinc-600 whitespace-nowrap">{provider.name}</span>
               </div>
             ))}
           </div>
