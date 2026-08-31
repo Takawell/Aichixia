@@ -63,7 +63,7 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "anthropic/claude-haiku-4-5": { fn: chatHaiku, provider: "haiku" },
   "anthropic/claude-fable-5": { fn: chatFable, provider: "fable" },
   "google/gemini-3-flash": { fn: chatGemini, provider: "gemini" },
-  "moonshotai/kimi-k2.6": { fn: chatKimi, provider: "kimi" },
+  "moonshotai/kimi-k3": { fn: chatKimi, provider: "kimi" },
   "z-ai/glm-5.2": { fn: chatGlm, provider: "glm" },
   "openai/gpt-5.2": { fn: chatGPT, provider: "gpt" },
   "openai/gpt-5.5": { fn: chatGpt55, provider: "gpt55" },
@@ -90,7 +90,7 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
 };
 
 const STREAM_MODEL_MAPPING: Record<string, StreamFunction> = {
-  "moonshotai/kimi-k2.6": streamKimi,
+  "moonshotai/kimi-k3": streamKimi,
   "openai/gpt-5-mini": streamOpenAI,
   "aichiverse/aichixia-flash": streamAichixia,
   "anthropic/claude-sonnet-4-6": streamClaude,
@@ -117,7 +117,7 @@ const STREAM_MODEL_MAPPING: Record<string, StreamFunction> = {
   "groq/compound": streamCompound,
 };
 
-const LOCKED_MODELS_PRO = ['deepseek/deepseek-v4-pro', 'xiaomi/mimo-v2.5-pro', 'anthropic/claude-sonnet-4-6', 'z-ai/glm-5.2', 'aichiverse/aichixia-flash', 'xai/grok-4-fast', 'moonshotai/kimi-k2.6', 'openai/gpt-5.2', 'openai/gpt-5.5', 'poolside/laguna-s-2.1', 'thinkingmachines/inkling'];
+const LOCKED_MODELS_PRO = ['deepseek/deepseek-v4-pro', 'xiaomi/mimo-v2.5-pro', 'anthropic/claude-sonnet-4-6', 'z-ai/glm-5.2', 'aichiverse/aichixia-flash', 'xai/grok-4-fast', 'moonshotai/kimi-k3', 'openai/gpt-5.2', 'openai/gpt-5.5', 'poolside/laguna-s-2.1', 'thinkingmachines/inkling'];
 const LOCKED_MODELS_ENTERPRISE = ['anthropic/claude-fable-5', 'anthropic/claude-opus-4-8'];
 
 const RATE_LIMIT_ERRORS = [
