@@ -1,4 +1,5 @@
 "use client";
+
 import { AnimatePresence, motion } from "motion/react";
 import type React from "react";
 
@@ -60,7 +61,7 @@ export function BlurReveal({
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, filter: "blur(12px)", y: 10 },
+    hidden: { opacity: 0, filter: "blur(6px)", y: 8 },
     visible: {
       opacity: 1,
       filter: "blur(0px)",
@@ -69,7 +70,7 @@ export function BlurReveal({
         duration: baseDuration,
       },
     },
-    exit: { opacity: 0, filter: "blur(12px)", y: 10 },
+    exit: { opacity: 0, filter: "blur(6px)", y: 8 },
   };
 
   return (
@@ -101,9 +102,10 @@ export function BlurReveal({
                     key={`char-${wordIndex}-${charIndex}`}
                     variants={itemVariants}
                     className="inline-block"
-                    style={
-                      letterSpacing ? { marginRight: letterSpacing } : undefined
-                    }
+                    style={{
+                      willChange: "filter, opacity, transform",
+                      ...(letterSpacing ? { marginRight: letterSpacing } : {}),
+                    }}
                   >
                     {char}
                   </motion.span>
@@ -113,6 +115,7 @@ export function BlurReveal({
                     key={`space-${wordIndex}`}
                     variants={itemVariants}
                     className="inline-block"
+                    style={{ willChange: "filter, opacity, transform" }}
                   >
                     &nbsp;
                   </motion.span>
