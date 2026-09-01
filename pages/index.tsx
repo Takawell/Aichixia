@@ -359,6 +359,10 @@ export default function Home() {
   const observerRefs = useRef<{ [key: string]: IntersectionObserver }>({});
 
   useEffect(() => {
+    document.documentElement.classList.add('dark');
+  }, []);
+
+  useEffect(() => {
     const handleScroll = () => {
       setScrollY(window.scrollY);
     };
@@ -924,7 +928,7 @@ func main() {
         <div className="relative max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-10 lg:gap-4 items-center">
             <div className="text-center lg:text-left space-y-6 sm:space-y-8">
-              <div className="space-y-4 sm:space-y-6">
+              <div className="space-y-4 sm:space-y-6 opacity-0 fade-in-up stagger-delay-1">
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-[1.05] tracking-tight px-2 lg:px-0">
                   <BlurReveal as="span" className="inline-block" speedReveal={1.5} speedSegment={0.5} delay={0}>
                     Build AI Apps
@@ -933,7 +937,7 @@ func main() {
                   <BlurReveal
                     as="span"
                     className="inline-block"
-                    charClassName="bg-gradient-to-r from-blue-400 via-cyan-300 to-purple-400 bg-clip-text text-transparent animate-gradient"
+                    charClassName="bg-gradient-to-r from-blue-400 via-cyan-300 to-purple-400 bg-clip-text text-transparent"
                     speedReveal={1.5}
                     speedSegment={0.5}
                     delay={0.35}
