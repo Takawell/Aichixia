@@ -61,7 +61,7 @@ export function BlurReveal({
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, filter: "blur(6px)", y: 8 },
+    hidden: { opacity: 0, filter: "blur(12px)", y: 10 },
     visible: {
       opacity: 1,
       filter: "blur(0px)",
@@ -70,7 +70,7 @@ export function BlurReveal({
         duration: baseDuration,
       },
     },
-    exit: { opacity: 0, filter: "blur(6px)", y: 8 },
+    exit: { opacity: 0, filter: "blur(12px)", y: 10 },
   };
 
   return (
@@ -93,18 +93,18 @@ export function BlurReveal({
             children.split(" ").map((word, wordIndex, wordsArray) => (
               <span
                 key={`word-${wordIndex}`}
-                className={`inline-block whitespace-nowrap${charClassName ? ` ${charClassName}` : ""}`}
-                style={charStyle}
+                className="inline-block whitespace-nowrap"
                 aria-hidden="true"
               >
                 {word.split("").map((char, charIndex) => (
                   <motion.span
                     key={`char-${wordIndex}-${charIndex}`}
                     variants={itemVariants}
-                    className="inline-block"
-                    style={
-                      letterSpacing ? { marginRight: letterSpacing } : undefined
-                    }
+                    className={`inline-block${charClassName ? ` ${charClassName}` : ""}`}
+                    style={{
+                      ...(charStyle || {}),
+                      ...(letterSpacing ? { marginRight: letterSpacing } : {}),
+                    }}
                   >
                     {char}
                   </motion.span>
@@ -113,7 +113,8 @@ export function BlurReveal({
                   <motion.span
                     key={`space-${wordIndex}`}
                     variants={itemVariants}
-                    className="inline-block"
+                    className={`inline-block${charClassName ? ` ${charClassName}` : ""}`}
+                    style={charStyle}
                   >
                     &nbsp;
                   </motion.span>
