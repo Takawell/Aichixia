@@ -6,6 +6,7 @@ import type React from "react";
 export interface BlurRevealProps {
   children: string;
   className?: string;
+  charClassName?: string;
   delay?: number;
   speedReveal?: number;
   speedSegment?: number;
@@ -14,6 +15,7 @@ export interface BlurRevealProps {
   onAnimationStart?: () => void;
   as?: keyof React.JSX.IntrinsicElements;
   style?: React.CSSProperties;
+  charStyle?: React.CSSProperties;
   inView?: boolean;
   once?: boolean;
   letterSpacing?: string | number;
@@ -22,6 +24,7 @@ export interface BlurRevealProps {
 export function BlurReveal({
   children,
   className,
+  charClassName,
   delay = 0,
   speedReveal = 1.5,
   speedSegment = 0.5,
@@ -30,6 +33,7 @@ export function BlurReveal({
   onAnimationStart,
   as = "p",
   style,
+  charStyle,
   inView = false,
   once = true,
   letterSpacing,
@@ -96,10 +100,11 @@ export function BlurReveal({
                   <motion.span
                     key={`char-${wordIndex}-${charIndex}`}
                     variants={itemVariants}
-                    className="inline-block"
-                    style={
-                      letterSpacing ? { marginRight: letterSpacing } : undefined
-                    }
+                    className={`inline-block${charClassName ? ` ${charClassName}` : ""}`}
+                    style={{
+                      ...(charStyle || {}),
+                      ...(letterSpacing ? { marginRight: letterSpacing } : {}),
+                    }}
                   >
                     {char}
                   </motion.span>
@@ -108,7 +113,8 @@ export function BlurReveal({
                   <motion.span
                     key={`space-${wordIndex}`}
                     variants={itemVariants}
-                    className="inline-block"
+                    className={`inline-block${charClassName ? ` ${charClassName}` : ""}`}
+                    style={charStyle}
                   >
                     &nbsp;
                   </motion.span>
