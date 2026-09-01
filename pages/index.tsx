@@ -359,10 +359,6 @@ export default function Home() {
   const observerRefs = useRef<{ [key: string]: IntersectionObserver }>({});
 
   useEffect(() => {
-    document.documentElement.classList.add('dark');
-  }, []);
-
-  useEffect(() => {
     const handleScroll = () => {
       setScrollY(window.scrollY);
     };
@@ -937,7 +933,7 @@ func main() {
                   <BlurReveal
                     as="span"
                     className="inline-block"
-                    charClassName="bg-gradient-to-r from-blue-400 via-cyan-300 to-purple-400 bg-clip-text text-transparent"
+                    charClassName="bg-gradient-to-r from-blue-400 via-cyan-300 to-purple-400 bg-clip-text text-transparent animate-gradient"
                     speedReveal={1.5}
                     speedSegment={0.5}
                     delay={0.35}
