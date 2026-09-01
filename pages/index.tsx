@@ -13,6 +13,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import { SplineScene } from "@/components/ui/splite";
 import { BlurReveal } from "@/components/ui/blur-reveal";
+import { motion } from "motion/react";
 
 const base = "https://www.aichixia.xyz";
 
@@ -935,7 +936,8 @@ func main() {
                   <br />
                   <BlurReveal
                     as="span"
-                    className="inline-block bg-gradient-to-r from-blue-400 via-cyan-300 to-purple-400 bg-clip-text text-transparent animate-gradient"
+                    className="inline-block"
+                    charClassName="bg-gradient-to-r from-blue-400 via-cyan-300 to-purple-400 bg-clip-text text-transparent"
                     speedReveal={1.5}
                     speedSegment={0.5}
                     delay={0.35}
@@ -951,7 +953,9 @@ func main() {
                   <BlurReveal as="span" className="inline" speedReveal={2.2} speedSegment={1.2} delay={0.95}>
                     Compatible with OpenAI
                   </BlurReveal>{" "}
-                  <span className="font-medium text-zinc-200">and</span>{" "}
+                  <BlurReveal as="span" className="inline" charClassName="font-medium text-zinc-200" speedReveal={2.2} speedSegment={1.2} delay={1.0}>
+                    and
+                  </BlurReveal>{" "}
                   <BlurReveal as="span" className="inline" speedReveal={2.2} speedSegment={1.2} delay={1.05}>
                     Anthropic SDKs. Switch models instantly, scale effortlessly.
                   </BlurReveal>
@@ -959,32 +963,54 @@ func main() {
               </div>
 
               <div className="flex flex-col sm:flex-row items-center lg:justify-start justify-center gap-3 opacity-0 fade-in-up stagger-delay-2 px-4 lg:px-0">
-                <Link
-                  href="/console"
-                  className="group flex items-center gap-2 px-7 py-3 sm:py-3.5 text-sm sm:text-base font-bold text-black bg-white hover:bg-zinc-100 rounded-full shadow-2xl shadow-cyan-500/10 transition-all duration-300 hover:scale-[1.03] w-full sm:w-auto justify-center"
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.96 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                  className="w-full sm:w-auto"
                 >
-                  <FaRocket className="w-4 h-4" />
-                  <span>Start Free</span>
-                  <FaArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform duration-300" />
-                </Link>
+                  <Link
+                    href="/console"
+                    className="group flex items-center gap-2 px-7 py-3 sm:py-3.5 text-sm sm:text-base font-bold text-black bg-white hover:bg-zinc-100 rounded-full shadow-2xl shadow-cyan-500/10 transition-colors duration-300 w-full sm:w-auto justify-center"
+                  >
+                    <FaRocket className="w-4 h-4" />
+                    <span>Start Free</span>
+                    <FaArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform duration-300" />
+                  </Link>
+                </motion.div>
 
-                <Link
-                  href="/docs"
-                  className="group flex items-center gap-2 px-7 py-3 sm:py-3.5 text-sm sm:text-base font-semibold text-white bg-white/[0.06] backdrop-blur-sm border border-white/15 hover:bg-white/[0.1] hover:border-white/25 rounded-full transition-all duration-300 hover:scale-[1.03] w-full sm:w-auto justify-center"
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.96 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                  className="w-full sm:w-auto"
                 >
-                  <FaBook className="w-4 h-4" />
-                  <span>View Docs</span>
-                  <FaChevronRight className="w-3 h-3 group-hover:translate-x-1 transition-transform duration-300" />
-                </Link>
+                  <Link
+                    href="/docs"
+                    className="group flex items-center gap-2 px-7 py-3 sm:py-3.5 text-sm sm:text-base font-semibold text-white bg-white/[0.06] backdrop-blur-sm border border-white/15 hover:bg-white/[0.1] hover:border-white/25 rounded-full transition-colors duration-300 w-full sm:w-auto justify-center"
+                  >
+                    <FaBook className="w-4 h-4" />
+                    <span>View Docs</span>
+                    <FaChevronRight className="w-3 h-3 group-hover:translate-x-1 transition-transform duration-300" />
+                  </Link>
+                </motion.div>
               </div>
 
               <div className="grid grid-cols-2 gap-3 sm:gap-4 pt-10 sm:pt-14 lg:pt-6 opacity-0 fade-in-up stagger-delay-3 px-4 lg:px-0 max-w-3xl lg:max-w-none mx-auto lg:mx-0">
                 {stats.map((stat, idx) => (
-                  <div key={idx} className="group p-4 sm:p-5 rounded-2xl bg-white/[0.04] backdrop-blur-sm border border-white/10 hover:border-white/20 hover:bg-white/[0.07] transition-all duration-300">
+                  <motion.div
+                    key={idx}
+                    initial={{ opacity: 0, y: 16 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: 0.08 * idx, ease: "easeOut" }}
+                    whileHover={{ y: -4, scale: 1.03 }}
+                    className="group p-4 sm:p-5 rounded-2xl bg-white/[0.04] backdrop-blur-sm border border-white/10 hover:border-white/20 hover:bg-white/[0.07] transition-colors duration-300"
+                  >
                     <stat.icon className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-400 mb-2 mx-auto lg:mx-0 group-hover:scale-110 transition-transform duration-300" />
                     <div className="text-xl sm:text-2xl lg:text-3xl font-black text-white mb-0.5">{stat.value}</div>
                     <div className="text-[10px] sm:text-xs text-zinc-400 font-medium">{stat.label}</div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </div>
