@@ -922,13 +922,6 @@ func main() {
       <section ref={heroRef} className="relative pt-16 sm:pt-24 lg:pt-20 pb-24 sm:pb-32 lg:pb-24 px-3 sm:px-4 lg:px-6 overflow-hidden bg-black">
         <div className="absolute inset-0 opacity-30" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.06) 1px, transparent 0)', backgroundSize: '32px 32px' }} />
 
-        {heroInView && !isDesktop && (
-          <SplineScene
-            scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
-            className="pointer-events-none absolute left-1/2 top-1/2 aspect-square w-[160vw] max-w-[900px] -translate-x-1/2 -translate-y-[42%] opacity-40"
-          />
-        )}
-
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 sm:h-56 bg-gradient-to-t from-black via-black/80 to-transparent" />
 
         <div className="relative max-w-7xl mx-auto">
@@ -952,7 +945,16 @@ func main() {
                 </h1>
 
                 <p className="text-base sm:text-lg lg:text-xl text-zinc-400 max-w-2xl lg:max-w-lg mx-auto lg:mx-0 leading-relaxed px-4 lg:px-0 font-light">
-                  One unified API for Claude, GPT, Gemini, and more. Compatible with OpenAI <span className="font-medium text-zinc-200">and</span> Anthropic SDKs. Switch models instantly, scale effortlessly.
+                  <BlurReveal as="span" className="inline" speedReveal={2.2} speedSegment={1.2} delay={0.7}>
+                    One unified API for Claude, GPT, Gemini, and more.
+                  </BlurReveal>{" "}
+                  <BlurReveal as="span" className="inline" speedReveal={2.2} speedSegment={1.2} delay={0.95}>
+                    Compatible with OpenAI
+                  </BlurReveal>{" "}
+                  <span className="font-medium text-zinc-200">and</span>{" "}
+                  <BlurReveal as="span" className="inline" speedReveal={2.2} speedSegment={1.2} delay={1.05}>
+                    Anthropic SDKs. Switch models instantly, scale effortlessly.
+                  </BlurReveal>
                 </p>
               </div>
 
