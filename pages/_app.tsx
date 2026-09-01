@@ -1,18 +1,8 @@
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import Head from "next/head";
-import { useEffect } from "react";
 
 export default function App({ Component, pageProps }: AppProps) {
-  useEffect(() => {
-    const theme = localStorage.getItem("theme") || "dark";
-    if (theme === "dark") {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, []);
-
   return (
     <>
       <Head>
@@ -67,10 +57,10 @@ export default function App({ Component, pageProps }: AppProps) {
               "name": "Aichixia",
               "url": "https://www.aichixia.xyz",
               "logo": "https://www.aichixia.xyz/logo.png",
-              "description": "Unified AI API platform providing access to 20+ AI models including Claude, GPT, Gemini, and DeepSeek.",
+              "description": "Unified AI API platform providing access to 40+ AI models including Claude, GPT, Gemini, and DeepSeek.",
               "sameAs": [
-                "https://twitter.com/aichixia",
-                "https://github.com/aichiversee",
+                "https://twitter.com/",
+                "https://github.com/Takawell/Aichixia",
                 "https://discord.gg/aichixia"
               ],
               "contactPoint": {
