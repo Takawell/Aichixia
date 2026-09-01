@@ -1,5 +1,4 @@
 "use client";
-
 import { AnimatePresence, motion } from "motion/react";
 import type React from "react";
 
@@ -93,18 +92,18 @@ export function BlurReveal({
             children.split(" ").map((word, wordIndex, wordsArray) => (
               <span
                 key={`word-${wordIndex}`}
-                className="inline-block whitespace-nowrap"
+                className={`inline-block whitespace-nowrap${charClassName ? ` ${charClassName}` : ""}`}
+                style={charStyle}
                 aria-hidden="true"
               >
                 {word.split("").map((char, charIndex) => (
                   <motion.span
                     key={`char-${wordIndex}-${charIndex}`}
                     variants={itemVariants}
-                    className={`inline-block${charClassName ? ` ${charClassName}` : ""}`}
-                    style={{
-                      ...(charStyle || {}),
-                      ...(letterSpacing ? { marginRight: letterSpacing } : {}),
-                    }}
+                    className="inline-block"
+                    style={
+                      letterSpacing ? { marginRight: letterSpacing } : undefined
+                    }
                   >
                     {char}
                   </motion.span>
@@ -113,8 +112,7 @@ export function BlurReveal({
                   <motion.span
                     key={`space-${wordIndex}`}
                     variants={itemVariants}
-                    className={`inline-block${charClassName ? ` ${charClassName}` : ""}`}
-                    style={charStyle}
+                    className="inline-block"
                   >
                     &nbsp;
                   </motion.span>
