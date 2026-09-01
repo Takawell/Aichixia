@@ -102,10 +102,9 @@ export function BlurReveal({
                     key={`char-${wordIndex}-${charIndex}`}
                     variants={itemVariants}
                     className="inline-block"
-                    style={{
-                      willChange: "filter, opacity, transform",
-                      ...(letterSpacing ? { marginRight: letterSpacing } : {}),
-                    }}
+                    style={
+                      letterSpacing ? { marginRight: letterSpacing } : undefined
+                    }
                   >
                     {char}
                   </motion.span>
@@ -115,7 +114,6 @@ export function BlurReveal({
                     key={`space-${wordIndex}`}
                     variants={itemVariants}
                     className="inline-block"
-                    style={{ willChange: "filter, opacity, transform" }}
                   >
                     &nbsp;
                   </motion.span>
