@@ -12,6 +12,7 @@ import Image from "next/image";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import { SplineScene } from "@/components/ui/splite";
+import { BlurReveal } from "@/components/ui/blur-reveal";
 
 const base = "https://www.aichixia.xyz";
 
@@ -935,11 +936,19 @@ func main() {
             <div className="text-center lg:text-left space-y-6 sm:space-y-8">
               <div className="space-y-4 sm:space-y-6 opacity-0 fade-in-up stagger-delay-1">
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-[1.05] tracking-tight px-2 lg:px-0">
-                  Build AI Apps
+                  <BlurReveal as="span" className="inline-block" speedReveal={1.5} speedSegment={0.5} delay={0}>
+                    Build AI Apps
+                  </BlurReveal>
                   <br />
-                  <span className="bg-gradient-to-r from-blue-400 via-cyan-300 to-purple-400 bg-clip-text text-transparent animate-gradient">
+                  <BlurReveal
+                    as="span"
+                    className="inline-block bg-gradient-to-r from-blue-400 via-cyan-300 to-purple-400 bg-clip-text text-transparent animate-gradient"
+                    speedReveal={1.5}
+                    speedSegment={0.5}
+                    delay={0.35}
+                  >
                     10x Faster
-                  </span>
+                  </BlurReveal>
                 </h1>
 
                 <p className="text-base sm:text-lg lg:text-xl text-zinc-400 max-w-2xl lg:max-w-lg mx-auto lg:mx-0 leading-relaxed px-4 lg:px-0 font-light">
