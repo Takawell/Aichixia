@@ -149,14 +149,14 @@ const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], weight: ["500", "700"] 
 
 export default function MaintenancePage() {
   return (
-    <div className={`${spaceGrotesk.className} relative flex w-full flex-col items-center justify-center overflow-hidden`}>
+    <div className={`${spaceGrotesk.className} relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden px-4`}>
       <WebGLShader />
-      <div className="relative p-2 w-full mx-auto max-w-3xl">
-        <main className="relative py-10 overflow-hidden">
+      <div className="relative w-full mx-auto max-w-3xl">
+        <main className="relative overflow-hidden">
           <h1 className="mb-3 text-white text-center text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight">
             Under Maintenance
           </h1>
-          <p className="text-white/60 px-6 text-center text-sm md:text-base">
+          <p className="text-white/60 px-2 sm:px-6 text-center text-sm md:text-base">
             We're currently performing scheduled maintenance to improve your experience. We'll be back online shortly.
           </p>
           <div className="my-6 flex items-center justify-center gap-1">
