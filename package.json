@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "clsx": "^2.1.1",
+    "three": "^0.169.0",
     "tailwind-merge": "^2.5.2",
     "@splinetool/react-spline": "^4.1.0",
     "@splinetool/runtime": "^1.12.98",
@@ -44,6 +45,7 @@
   "devDependencies": {
     "@types/node": "20.11.30",
     "@types/react": "18.3.3",
+    "@types/three": "^0.169.0",
     "@types/formidable": "^3.5.0",
     "@types/react-syntax-highlighter": "^15.5.13",
     "autoprefixer": "^10.4.19",
