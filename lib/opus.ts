@@ -9,6 +9,7 @@ export type ChatMessage = {
 
 const OPUS_BASE_URL = process.env.OPUS_BASE_URL;
 const OPUS_MODEL = process.env.OPUS_MODEL || "anthropic/claude-opus-4.8";
+const OPUS_API_KEY = process.env.OPUS_API_KEY;
 
 export class OpusError extends Error {
   constructor(message: string) {
@@ -48,10 +49,14 @@ function buildPromptFromHistory(history: ChatMessage[]): string {
 
 export async function chatOpus(
   history: ChatMessage[],
-  opts?: { temperature?: number; maxTokens?: number; model?: string }
+  opts?: { temperature?: number; maxTokens?: number; model?: string; image?: string; thinking?: boolean }
 ): Promise<{ reply: string }> {
   if (!OPUS_BASE_URL) {
     throw new OpusError("OPUS_BASE_URL is not set.");
+  }
+
+  if (!OPUS_API_KEY) {
+    throw new OpusError("OPUS_API_KEY is not set.");
   }
 
   const userMessages = history.filter((m) => m.role === "user");
@@ -64,8 +69,17 @@ export async function chatOpus(
   const prompt = buildPromptFromHistory(history);
 
   const url = new URL(OPUS_BASE_URL);
-  url.searchParams.set("prompt", prompt);
+  url.searchParams.set("message", prompt);
   url.searchParams.set("model", opts?.model ?? OPUS_MODEL);
+  url.searchParams.set("apikey", OPUS_API_KEY);
+
+  if (opts?.image) {
+    url.searchParams.set("image", opts.image);
+  }
+
+  if (opts?.thinking) {
+    url.searchParams.set("thinking", "true");
+  }
 
   const response = await fetch(url.toString(), {
     method: "POST",
@@ -92,11 +106,11 @@ export async function chatOpus(
     throw new OpusError("Opus proxy returned a non-JSON response.");
   }
 
-  if (!data.status || typeof data.result !== "string" || !data.result.trim()) {
+  if (!data.data || !data.data.success || typeof data.data.content !== "string" || !data.data.content.trim()) {
     throw new OpusError("Opus proxy returned an invalid response.");
   }
 
-  return { reply: data.result.trim() };
+  return { reply: data.data.content.trim() };
 }
 
 export async function quickChatOpus(
@@ -104,6 +118,8 @@ export async function quickChatOpus(
   opts?: {
     history?: ChatMessage[];
     model?: string;
+    image?: string;
+    thinking?: boolean;
   }
 ): Promise<string> {
   const hist: ChatMessage[] = [];
@@ -114,7 +130,11 @@ export async function quickChatOpus(
 
   hist.push({ role: "user", content: userMessage });
 
-  const { reply } = await chatOpus(hist, { model: opts?.model });
+  const { reply } = await chatOpus(hist, {
+    model: opts?.model,
+    image: opts?.image,
+    thinking: opts?.thinking,
+  });
   return reply;
 }
 
