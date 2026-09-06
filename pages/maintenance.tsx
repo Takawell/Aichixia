@@ -159,6 +159,9 @@ export default function MaintenancePage() {
           <p className="text-white/60 px-2 sm:px-6 text-center text-sm md:text-base">
             We're currently performing scheduled maintenance to improve your experience. We'll be back online shortly.
           </p>
+          <p className="text-white/40 px-2 sm:px-6 text-center text-xs md:text-sm mt-1">
+            Weekly maintenance is currently underway. The server will be back up shortly.
+          </p>
           <div className="my-6 flex items-center justify-center gap-1">
             <span className="relative flex h-3 w-3 items-center justify-center">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-yellow-500 opacity-75"></span>
