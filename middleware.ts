@@ -12,6 +12,8 @@ const BLOCKED_IPS = process.env.BLOCKED_IPS
   ? process.env.BLOCKED_IPS.split(",").map((ip) => ip.trim())
   : [];
 
+const MAINTENANCE_MODE = process.env.MAINTENANCE_MODE === "true";
+
 const apiMinuteLimit = new Ratelimit({
   redis,
   limiter: Ratelimit.slidingWindow(10, "1 m"),
@@ -21,6 +23,16 @@ const apiMinuteLimit = new Ratelimit({
 
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
+
+  if (MAINTENANCE_MODE) {
+    if (pathname.startsWith("/maintenance")) {
+      return NextResponse.next();
+    }
+
+    const url = request.nextUrl.clone();
+    url.pathname = "/maintenance";
+    return NextResponse.rewrite(url);
+  }
 
   if (!pathname.startsWith("/api/v1")) {
     return NextResponse.next();
@@ -104,5 +116,7 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/api/v1/:path*"],
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|maintenance|.*\\.(?:png|jpg|jpeg|svg|gif|webp|ico|css|js|woff2?)$).*)",
+  ],
 };
