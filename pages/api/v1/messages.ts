@@ -19,6 +19,7 @@ import { chatLlama, streamLlama, LlamaRateLimitError, LlamaQuotaError } from "@/
 import { chatMistral, streamMistral, MistralRateLimitError, MistralQuotaError } from "@/lib/mistral";
 import { chatMimo, streamMimo, MimoRateLimitError, MimoQuotaError } from "@/lib/mimo";
 import { chatMinimax, streamMinimax, MinimaxRateLimitError, MinimaxQuotaError } from "@/lib/minimax";
+import { chatSenseNova, streamSenseNova, SenseNovaRateLimitError, SenseNovaQuotaError } from "@/lib/sensenova";
 import { chatGrokFast, GrokFastRateLimitError, GrokFastQuotaError } from "@/lib/grok-fast";
 import { chatGrok, GrokRateLimitError, GrokQuotaError } from "@/lib/grok";
 import { chatZhipu, streamZhipu, ZhipuRateLimitError, ZhipuQuotaError } from "@/lib/zhipu";
@@ -71,6 +72,7 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "alibaba/qwen3.8-27b": { fn: chatQwenV2, provider: "qwen3" },
   "alibaba/qwen3-coder-plus": { fn: chatQwen, provider: "qwen" },
   "minimaxai/minimax-m3": { fn: chatMinimax, provider: "minimax" },
+  "sensenova/sensenova-6.8-flash-lite": { fn: chatSenseNova, provider: "sensenova" },
   "meta/llama-3.3-70b": { fn: chatLlama, provider: "llama" },
   "openai/gpt-oss-120b": { fn: chatGptOss, provider: "gptoss" },
   "xiaomi/mimo-v2.5-pro": { fn: chatMimo, provider: "mimo" },
@@ -97,6 +99,7 @@ const STREAM_MODEL_MAPPING: Record<string, StreamFunction> = {
   "anthropic/claude-fable-5": streamFable,
   "mistralai/mistral-large-latest": streamMistral,
   "minimaxai/minimax-m3": streamMinimax,
+  "sensenova/sensenova-6.8-flash-lite": streamSenseNova,
   "stepfun-ai/step-3.7-flash": streamStepfun,
   "nvidia/nemotron-3-ultra-550b-a55b": streamNemotron,
   "openai/gpt-oss-120b": streamGptOss,
@@ -117,7 +120,7 @@ const STREAM_MODEL_MAPPING: Record<string, StreamFunction> = {
   "groq/compound": streamCompound,
 };
 
-const LOCKED_MODELS_PRO = ['deepseek/deepseek-v4-pro', 'xiaomi/mimo-v2.5-pro', 'anthropic/claude-sonnet-4-6', 'z-ai/glm-5.2', 'aichiverse/aichixia-flash', 'xai/grok-4-fast', 'moonshotai/kimi-k3', 'openai/gpt-5.2', 'openai/gpt-5.5', 'poolside/laguna-s-2.1', 'thinkingmachines/inkling'];
+const LOCKED_MODELS_PRO = ['deepseek/deepseek-v4-pro', 'xiaomi/mimo-v2.5-pro', 'anthropic/claude-sonnet-4-6', 'z-ai/glm-5.2', 'aichiverse/aichixia-flash', 'xai/grok-4-fast', 'moonshotai/kimi-k3', 'openai/gpt-5.2', 'openai/gpt-5.5', 'poolside/laguna-s-2.1', 'thinkingmachines/inkling', 'sensenova/sensenova-6.8-flash-lite'];
 const LOCKED_MODELS_ENTERPRISE = ['anthropic/claude-fable-5', 'anthropic/claude-opus-4-8'];
 
 const RATE_LIMIT_ERRORS = [
@@ -125,7 +128,7 @@ const RATE_LIMIT_ERRORS = [
   ClaudeRateLimitError, CohereRateLimitError, DeepSeekRateLimitError, DeepSeekVRateLimitError,
   QwenRateLimitError, QwenV2RateLimitError, GptOssRateLimitError, CompoundRateLimitError,
   LlamaRateLimitError, MistralRateLimitError, MimoRateLimitError, PhiRateLimitError,
-  MinimaxRateLimitError, GrokRateLimitError, GrokFastRateLimitError, ZhipuRateLimitError,
+  MinimaxRateLimitError, SenseNovaRateLimitError, GrokRateLimitError, GrokFastRateLimitError, ZhipuRateLimitError,
   AichixiaRateLimitError, StepfunRateLimitError, NemotronRateLimitError, Gpt55RateLimitError, OpusRateLimitError,
   GemmaRateLimitError, HaikuRateLimitError, LagunaRateLimitError, GeminiRateLimitError, FableRateLimitError,
   InklingRateLimitError, ScoutRateLimitError,
@@ -136,7 +139,7 @@ const QUOTA_ERRORS = [
   ClaudeQuotaError, CohereQuotaError, DeepSeekQuotaError, DeepSeekVQuotaError,
   QwenQuotaError, QwenV2QuotaError, GptOssQuotaError, CompoundQuotaError,
   LlamaQuotaError, MistralQuotaError, MimoQuotaError, PhiQuotaError,
-  MinimaxQuotaError, GrokQuotaError, GrokFastQuotaError, ZhipuQuotaError,
+  MinimaxQuotaError, SenseNovaQuotaError, GrokQuotaError, GrokFastQuotaError, ZhipuQuotaError,
   AichixiaQuotaError, StepfunQuotaError, NemotronQuotaError, Gpt55QuotaError, OpusQuotaError,
   GemmaQuotaError, HaikuQuotaError, LagunaQuotaError, GeminiQuotaError, FableQuotaError,
   InklingQuotaError, ScoutQuotaError,
