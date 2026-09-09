@@ -12,7 +12,7 @@ const MINIMAX_MODEL = process.env.MINIMAX_MODEL || "minimaxai/minimax-m3";
 
 const client = new OpenAI({
   apiKey: MINIMAX_API_KEY,
-  baseURL: "https://integrate.api.nvidia.com/v1",
+  baseURL: "https://api.xkiro.com/v1",
 });
 
 export class MinimaxRateLimitError extends Error {
