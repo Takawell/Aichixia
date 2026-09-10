@@ -138,12 +138,6 @@ export default function AdminDashboard() {
   const [promoCodes, setPromoCodes] = useState<PromoCode[]>([]);
   const [redemptions, setRedemptions] = useState<Redemption[]>([]);
   const [users, setUsers] = useState<User[]>([]);
-  const [usersTotal, setUsersTotal] = useState(0);
-  const [usersHasMore, setUsersHasMore] = useState(false);
-  const [usersLoadingMore, setUsersLoadingMore] = useState(false);
-  const [usersSearching, setUsersSearching] = useState(false);
-  const [usersSearchTerm, setUsersSearchTerm] = useState('');
-  const [userSignups, setUserSignups] = useState<string[]>([]);
   const [dailyUsage, setDailyUsage] = useState<DailyUsage[]>([]);
   const [requestLogs, setRequestLogs] = useState<RequestLog[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -281,8 +275,6 @@ export default function AdminDashboard() {
     setTimeout(() => { setInitialLoading(false); setLoading(false); setShowPinModal(true); }, 700);
   };
 
-  const USERS_PAGE_SIZE = 100;
-
   const fetchAllData = async (force = false) => {
     if (force) setRefreshing(true);
     else setLoading(true);
@@ -290,63 +282,23 @@ export default function AdminDashboard() {
     if (!session) return;
     const token = session.access_token;
     try {
-      const [promosRes, redemptionsRes, usersRes, signupsRes, usageRes, logsRes] = await Promise.all([
+      const [promosRes, redemptionsRes, usersRes, usageRes, logsRes] = await Promise.all([
         fetch('/api/console/admin?type=promo-codes', { headers: { Authorization: `Bearer ${token}` } }),
         fetch('/api/console/admin?type=redemptions', { headers: { Authorization: `Bearer ${token}` } }),
-        fetch(`/api/console/admin?type=users&limit=${USERS_PAGE_SIZE}&offset=0`, { headers: { Authorization: `Bearer ${token}` } }),
-        fetch('/api/console/admin?type=users-signups', { headers: { Authorization: `Bearer ${token}` } }),
+        fetch('/api/console/admin?type=users', { headers: { Authorization: `Bearer ${token}` } }),
         fetch('/api/console/stats?type=usage&days=30&admin=true', { headers: { Authorization: `Bearer ${token}` } }),
         fetch('/api/console/stats?type=logs&limit=40000&admin=true', { headers: { Authorization: `Bearer ${token}` } }),
       ]);
-      const [promosData, redemptionsData, usersData, signupsData, usageData, logsData] = await Promise.all([
-        promosRes.json(), redemptionsRes.json(), usersRes.json(), signupsRes.json(), usageRes.json(), logsRes.json(),
+      const [promosData, redemptionsData, usersData, usageData, logsData] = await Promise.all([
+        promosRes.json(), redemptionsRes.json(), usersRes.json(), usageRes.json(), logsRes.json(),
       ]);
       setPromoCodes(promosData.promoCodes || []);
       setRedemptions(redemptionsData.redemptions || []);
       setUsers(usersData.users || []);
-      setUsersTotal(usersData.total || 0);
-      setUsersHasMore(!!usersData.hasMore);
-      setUserSignups(signupsData.signups || []);
       setDailyUsage(usageData.usage || []);
       setRequestLogs(logsData.logs || []);
     } catch { showToast('Failed to fetch data', 'error'); }
     finally { setLoading(false); setRefreshing(false); }
-  };
-
-  const fetchMoreUsers = async () => {
-    if (usersLoadingMore || !usersHasMore) return;
-    setUsersLoadingMore(true);
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) { setUsersLoadingMore(false); return; }
-    try {
-      const searchParam = usersSearchTerm ? `&search=${encodeURIComponent(usersSearchTerm)}` : '';
-      const res = await fetch(`/api/console/admin?type=users&limit=${USERS_PAGE_SIZE}&offset=${users.length}${searchParam}`, {
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      });
-      const data = await res.json();
-      setUsers(prev => [...prev, ...(data.users || [])]);
-      setUsersHasMore(!!data.hasMore);
-      setUsersTotal(data.total ?? usersTotal);
-    } catch { showToast('Failed to load more users', 'error'); }
-    finally { setUsersLoadingMore(false); }
-  };
-
-  const searchUsers = async (term: string) => {
-    setUsersSearchTerm(term);
-    setUsersSearching(true);
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) { setUsersSearching(false); return; }
-    try {
-      const searchParam = term ? `&search=${encodeURIComponent(term)}` : '';
-      const res = await fetch(`/api/console/admin?type=users&limit=${USERS_PAGE_SIZE}&offset=0${searchParam}`, {
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      });
-      const data = await res.json();
-      setUsers(data.users || []);
-      setUsersTotal(data.total || 0);
-      setUsersHasMore(!!data.hasMore);
-    } catch { showToast('Failed to search users', 'error'); }
-    finally { setUsersSearching(false); }
   };
 
   const handleTabChange = (tab: TabType) => {
@@ -1098,18 +1050,7 @@ export default function AdminDashboard() {
             <Redemptions redemptions={redemptions} loading={false} />
           )}
           {activeTab === 'users' && (
-            <Users
-              users={users}
-              onViewUser={openUserDetail}
-              loading={false}
-              usersTotal={usersTotal}
-              hasMore={usersHasMore}
-              loadingMore={usersLoadingMore}
-              onLoadMore={fetchMoreUsers}
-              signups={userSignups}
-              onSearch={searchUsers}
-              searching={usersSearching}
-            />
+            <Users users={users} onViewUser={openUserDetail} loading={false} />
           )}
         </div>
       </main>
