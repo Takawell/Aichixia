@@ -66,84 +66,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
 
         if (type === 'users') {
-          const limit = Math.min(parseInt((req.query.limit as string) || '100', 10) || 100, 500);
-          const offset = Math.max(parseInt((req.query.offset as string) || '0', 10) || 0, 0);
-          const search = ((req.query.search as string) || '').trim().toLowerCase().slice(0, 100);
-
-          if (search) {
-            const { data: allSettings, error: allError } = await supabaseAdmin
-              .from('user_settings')
-              .select('user_id, plan, plan_expires_at, is_admin, created_at')
-              .order('created_at', { ascending: false });
-
-            if (allError) throw allError;
-
-            const settingsById = new Map((allSettings || []).map((s: any) => [s.user_id, s]));
-
-            const authUsersById = new Map<string, any>();
-            let page = 1;
-            const perPage = 1000;
-            while (true) {
-              const { data: pageData, error: listError } = await supabaseAdmin.auth.admin.listUsers({ page, perPage });
-              if (listError) throw listError;
-              for (const u of pageData.users) authUsersById.set(u.id, u);
-              if (pageData.users.length < perPage) break;
-              page++;
-              if (page > 20) break;
-            }
-
-            const matched: any[] = [];
-            for (const setting of allSettings || []) {
-              const userData = authUsersById.get(setting.user_id);
-              const email = (userData?.email || '').toLowerCase();
-              const name = (userData?.user_metadata?.display_name || '').toLowerCase();
-              if (email.includes(search) || name.includes(search)) {
-                matched.push({ setting, userData });
-              }
-            }
-
-            const total = matched.length;
-            const pageSlice = matched.slice(offset, offset + limit);
-
-            const usersWithDetails = await Promise.all(
-              pageSlice.map(async ({ setting, userData }) => {
-                const { data: keys } = await supabaseAdmin
-                  .from('api_keys')
-                  .select('id, is_active')
-                  .eq('user_id', setting.user_id);
-
-                return {
-                  user_id: setting.user_id,
-                  email: userData?.email || 'Unknown',
-                  display_name: userData?.user_metadata?.display_name || null,
-                  avatar_url: userData?.user_metadata?.avatar_url || null,
-                  plan: setting.plan,
-                  plan_expires_at: setting.plan_expires_at,
-                  is_admin: setting.is_admin,
-                  active_keys: keys?.filter(k => k.is_active).length || 0,
-                  created_at: setting.created_at,
-                };
-              })
-            );
-
-            return res.status(200).json({
-              users: usersWithDetails,
-              total,
-              hasMore: offset + usersWithDetails.length < total,
-            });
-          }
-
-          const { count, error: countError } = await supabaseAdmin
-            .from('user_settings')
-            .select('user_id', { count: 'exact', head: true });
-
-          if (countError) throw countError;
-
           const { data: userSettings, error } = await supabaseAdmin
             .from('user_settings')
             .select('user_id, plan, plan_expires_at, is_admin, created_at')
-            .order('created_at', { ascending: false })
-            .range(offset, offset + limit - 1);
+            .order('created_at', { ascending: false });
 
           if (error) throw error;
 
@@ -169,24 +95,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             })
           );
 
-          const total = count || 0;
-
-          return res.status(200).json({
-            users: usersWithDetails,
-            total,
-            hasMore: offset + usersWithDetails.length < total,
-          });
-        }
-
-        if (type === 'users-signups') {
-          const { data: signups, error } = await supabaseAdmin
-            .from('user_settings')
-            .select('created_at')
-            .order('created_at', { ascending: true });
-
-          if (error) throw error;
-
-          return res.status(200).json({ signups: signups?.map((s: any) => s.created_at) || [] });
+          return res.status(200).json({ users: usersWithDetails });
         }
 
         if (type === 'user-keys') {
