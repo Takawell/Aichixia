@@ -1,6 +1,7 @@
-import { useState } from 'react';
-import { FiUsers, FiSearch, FiX, FiChevronRight, FiFilter } from 'react-icons/fi';
+import { useState, useMemo, useRef } from 'react';
+import { FiUsers, FiSearch, FiX, FiChevronRight, FiFilter, FiChevronDown, FiTrendingUp } from 'react-icons/fi';
 import { RiVipDiamondLine, RiVipCrownLine } from 'react-icons/ri';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 type User = {
   user_id: string;
@@ -14,34 +15,233 @@ type User = {
   created_at: string;
 };
 
+type RangeKey = '1d' | '7d' | '30d';
+
 type UsersProps = {
   users: User[];
   onViewUser: (user: User) => void;
   loading?: boolean;
+  usersTotal?: number;
+  hasMore?: boolean;
+  loadingMore?: boolean;
+  onLoadMore?: () => void;
+  signups?: string[];
+  onSearch?: (term: string) => void;
+  searching?: boolean;
 };
 
-export default function Users({ users, onViewUser, loading }: UsersProps) {
+const RANGES: { key: RangeKey; label: string; days: number; buckets: number }[] = [
+  { key: '1d', label: '24 Hours', days: 1, buckets: 24 },
+  { key: '7d', label: '7 Days', days: 7, buckets: 7 },
+  { key: '30d', label: '30 Days', days: 30, buckets: 30 },
+];
+
+function SignupTooltip({ active, payload, label }: any) {
+  if (!active || !payload || !payload.length) return null;
+  return (
+    <div className="bg-white dark:bg-slate-900 border border-sky-100 dark:border-sky-800/50 rounded-xl px-3 py-2 shadow-lg shadow-sky-500/10">
+      <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 mb-1">{label}</p>
+      <p className="text-xs font-bold text-sky-500">
+        {payload[0].value.toLocaleString()} {payload[0].value === 1 ? 'signup' : 'signups'}
+      </p>
+    </div>
+  );
+}
+
+function buildSeries(signups: string[], range: typeof RANGES[number]) {
+  const now = new Date();
+  const points: { label: string; value: number; ts: number }[] = [];
+
+  if (range.key === '1d') {
+    for (let i = range.buckets - 1; i >= 0; i--) {
+      const bucketStart = new Date(now);
+      bucketStart.setMinutes(0, 0, 0);
+      bucketStart.setHours(bucketStart.getHours() - i);
+      const bucketEnd = new Date(bucketStart.getTime() + 60 * 60 * 1000);
+      const count = signups.filter(s => {
+        const t = new Date(s).getTime();
+        return t >= bucketStart.getTime() && t < bucketEnd.getTime();
+      }).length;
+      points.push({
+        label: bucketStart.toLocaleTimeString('en-US', { hour: 'numeric' }),
+        value: count,
+        ts: bucketStart.getTime(),
+      });
+    }
+  } else {
+    for (let i = range.days - 1; i >= 0; i--) {
+      const dayStart = new Date(now);
+      dayStart.setHours(0, 0, 0, 0);
+      dayStart.setDate(dayStart.getDate() - i);
+      const dayEnd = new Date(dayStart.getTime() + 24 * 60 * 60 * 1000);
+      const count = signups.filter(s => {
+        const t = new Date(s).getTime();
+        return t >= dayStart.getTime() && t < dayEnd.getTime();
+      }).length;
+      points.push({
+        label: dayStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        value: count,
+        ts: dayStart.getTime(),
+      });
+    }
+  }
+
+  return points;
+}
+
+function SignupChart({ signups }: { signups: string[] }) {
+  const [range, setRange] = useState<RangeKey>('7d');
+  const activeRange = RANGES.find(r => r.key === range)!;
+
+  const series = useMemo(() => buildSeries(signups, activeRange), [signups, activeRange]);
+  const total = useMemo(() => series.reduce((sum, p) => sum + p.value, 0), [series]);
+
+  const prevSeries = useMemo(() => {
+    const prevRange = { ...activeRange };
+    const now = new Date();
+    const shiftedNow = new Date(now.getTime() - activeRange.days * 24 * 60 * 60 * 1000);
+    const points: number[] = [];
+    if (activeRange.key === '1d') {
+      for (let i = activeRange.buckets - 1; i >= 0; i--) {
+        const bucketStart = new Date(shiftedNow);
+        bucketStart.setMinutes(0, 0, 0);
+        bucketStart.setHours(bucketStart.getHours() - i);
+        const bucketEnd = new Date(bucketStart.getTime() + 60 * 60 * 1000);
+        points.push(signups.filter(s => {
+          const t = new Date(s).getTime();
+          return t >= bucketStart.getTime() && t < bucketEnd.getTime();
+        }).length);
+      }
+    } else {
+      for (let i = activeRange.days - 1; i >= 0; i--) {
+        const dayStart = new Date(shiftedNow);
+        dayStart.setHours(0, 0, 0, 0);
+        dayStart.setDate(dayStart.getDate() - i);
+        const dayEnd = new Date(dayStart.getTime() + 24 * 60 * 60 * 1000);
+        points.push(signups.filter(s => {
+          const t = new Date(s).getTime();
+          return t >= dayStart.getTime() && t < dayEnd.getTime();
+        }).length);
+      }
+    }
+    return points.reduce((sum, v) => sum + v, 0);
+  }, [signups, activeRange]);
+
+  const growth = prevSeries === 0 ? (total > 0 ? 100 : 0) : Math.round(((total - prevSeries) / prevSeries) * 100);
+
+  return (
+    <div className="bg-white dark:bg-[#0a0e17] rounded-2xl border border-slate-200 dark:border-white/[0.06] p-3 sm:p-5 overflow-hidden">
+      <div className="flex flex-wrap items-start justify-between gap-3 mb-3 sm:mb-4">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center shadow-sm">
+              <FiTrendingUp className="text-white" style={{ fontSize: 11 }} />
+            </div>
+            <p className="text-xs sm:text-sm font-bold text-slate-800 dark:text-white">New Signups</p>
+          </div>
+          <div className="flex items-baseline gap-2">
+            <p className="text-2xl sm:text-3xl font-black tabular-nums text-slate-800 dark:text-white">{total.toLocaleString()}</p>
+            {prevSeries !== null && (
+              <span className={`text-[10px] sm:text-xs font-bold px-1.5 py-0.5 rounded-full ${growth >= 0 ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400' : 'bg-red-50 dark:bg-red-900/20 text-red-500 dark:text-red-400'}`}>
+                {growth >= 0 ? '+' : ''}{growth}%
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-1 bg-slate-100 dark:bg-white/[0.05] rounded-xl p-1">
+          {RANGES.map(r => (
+            <button
+              key={r.key}
+              onClick={() => setRange(r.key)}
+              className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-[10px] sm:text-xs font-bold transition-all duration-200 ${
+                range === r.key
+                  ? 'bg-white dark:bg-sky-600 text-sky-600 dark:text-white shadow-sm'
+                  : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'
+              }`}
+            >
+              {r.key.toUpperCase()}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="h-40 sm:h-52 -mx-1">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={series} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
+            <defs>
+              <linearGradient id="signup-grad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#0ea5e9" stopOpacity={0.35} />
+                <stop offset="100%" stopColor="#0ea5e9" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="text-slate-100 dark:text-white/[0.04]" />
+            <XAxis
+              dataKey="label"
+              tick={{ fontSize: 9, fill: 'currentColor' }}
+              className="text-slate-400 dark:text-slate-500"
+              tickLine={false}
+              axisLine={false}
+              interval={activeRange.key === '30d' ? 4 : activeRange.key === '1d' ? 3 : 0}
+            />
+            <YAxis
+              tick={{ fontSize: 9, fill: 'currentColor' }}
+              className="text-slate-400 dark:text-slate-500"
+              tickLine={false}
+              axisLine={false}
+              allowDecimals={false}
+              width={28}
+            />
+            <Tooltip content={<SignupTooltip />} cursor={{ stroke: '#0ea5e9', strokeWidth: 1, strokeDasharray: '4 4' }} />
+            <Area
+              type="monotone"
+              dataKey="value"
+              stroke="#0ea5e9"
+              strokeWidth={2}
+              fill="url(#signup-grad)"
+              activeDot={{ r: 4, strokeWidth: 2, stroke: '#fff' }}
+              isAnimationActive
+              animationDuration={500}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  );
+}
+
+export default function Users({ users, onViewUser, loading, usersTotal, hasMore, loadingMore, onLoadMore, signups, onSearch, searching }: UsersProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterPlan, setFilterPlan] = useState<'all' | 'free' | 'pro' | 'enterprise'>('all');
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'most_active'>('newest');
+  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const filteredUsers = users
-    .filter(user => {
-      const matchesSearch =
-        user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.display_name?.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesPlan = filterPlan === 'all' || user.plan === filterPlan;
-      return matchesSearch && matchesPlan;
-    })
-    .sort((a, b) => {
-      if (sortBy === 'newest') return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      if (sortBy === 'oldest') return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-      if (sortBy === 'most_active') return b.active_keys - a.active_keys;
-      return 0;
-    });
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+    searchDebounceRef.current = setTimeout(() => {
+      onSearch?.(value.trim());
+    }, 400);
+  };
+
+  const clearSearch = () => {
+    setSearchTerm('');
+    if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+    onSearch?.('');
+  };
+
+  const filteredUsers = users.filter(user => {
+    const matchesPlan = filterPlan === 'all' || user.plan === filterPlan;
+    return matchesPlan;
+  }).sort((a, b) => {
+    if (sortBy === 'newest') return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    if (sortBy === 'oldest') return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+    if (sortBy === 'most_active') return b.active_keys - a.active_keys;
+    return 0;
+  });
 
   const stats = {
-    total: users.length,
+    total: usersTotal ?? users.length,
     free: users.filter(u => u.plan === 'free').length,
     pro: users.filter(u => u.plan === 'pro').length,
     enterprise: users.filter(u => u.plan === 'enterprise').length,
@@ -85,6 +285,8 @@ export default function Users({ users, onViewUser, loading }: UsersProps) {
 
   return (
     <div className="space-y-3 sm:space-y-4">
+      {signups && signups.length > 0 && <SignupChart signups={signups} />}
+
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
         {[
           { label: 'Total Users', value: stats.total, icon: FiUsers, gradient: 'from-sky-500 to-blue-600', bg: 'from-sky-50 to-blue-50 dark:from-sky-900/20 dark:to-blue-900/20', border: 'border-sky-200 dark:border-sky-800/50', text: 'text-sky-700 dark:text-sky-300', sub: 'text-sky-600 dark:text-sky-400' },
@@ -114,15 +316,17 @@ export default function Users({ users, onViewUser, loading }: UsersProps) {
           <input
             type="text"
             value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
+            onChange={e => handleSearchChange(e.target.value)}
             placeholder="Search by email or name..."
             className="w-full pl-9 pr-9 py-2 sm:py-2.5 bg-white dark:bg-[#0a0e17] border border-slate-200 dark:border-white/[0.06] rounded-xl text-xs sm:text-sm text-slate-800 dark:text-white placeholder:text-slate-400 outline-none focus:border-sky-500 dark:focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all"
           />
-          {searchTerm && (
-            <button onClick={() => setSearchTerm('')} className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-600 hover:bg-sky-100 dark:hover:bg-sky-800 transition-colors">
+          {searching ? (
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 border-2 border-sky-400/30 border-t-sky-500 rounded-full animate-spin" />
+          ) : searchTerm ? (
+            <button onClick={clearSearch} className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-600 hover:bg-sky-100 dark:hover:bg-sky-800 transition-colors">
               <FiX className="text-slate-500 dark:text-slate-300" style={{ fontSize: 9 }} />
             </button>
-          )}
+          ) : null}
         </div>
         <div className="flex gap-2">
           <div className="relative flex-1 sm:flex-none">
@@ -240,10 +444,34 @@ export default function Users({ users, onViewUser, loading }: UsersProps) {
       )}
 
       {filteredUsers.length > 0 && (
-        <div className="bg-sky-50/50 dark:bg-sky-900/10 rounded-xl border border-sky-100 dark:border-sky-800/30 px-4 py-2.5 text-center">
-          <p className="text-xs text-sky-600/80 dark:text-sky-500">
-            Showing <span className="font-bold text-sky-700 dark:text-sky-400">{filteredUsers.length}</span> of <span className="font-bold text-sky-700 dark:text-sky-400">{users.length}</span> users
-          </p>
+        <div className="space-y-2">
+          {hasMore && filterPlan === 'all' && (
+            <button
+              onClick={onLoadMore}
+              disabled={loadingMore}
+              className="w-full py-2.5 sm:py-3 rounded-xl border border-sky-200 dark:border-sky-800/50 bg-sky-50 dark:bg-sky-900/10 hover:bg-sky-100 dark:hover:bg-sky-800/30 text-sky-600 dark:text-sky-400 font-semibold text-xs sm:text-sm transition-all duration-200 disabled:opacity-60 flex items-center justify-center gap-2"
+            >
+              {loadingMore ? (
+                <>
+                  <div className="w-3.5 h-3.5 border-2 border-sky-400/30 border-t-sky-500 rounded-full animate-spin" />
+                  Loading...
+                </>
+              ) : (
+                <>
+                  Load More Users
+                  <FiChevronDown style={{ fontSize: 12 }} />
+                </>
+              )}
+            </button>
+          )}
+          <div className="bg-sky-50/50 dark:bg-sky-900/10 rounded-xl border border-sky-100 dark:border-sky-800/30 px-4 py-2.5 text-center">
+            <p className="text-xs text-sky-600/80 dark:text-sky-500">
+              Showing <span className="font-bold text-sky-700 dark:text-sky-400">{filteredUsers.length}</span> of <span className="font-bold text-sky-700 dark:text-sky-400">{users.length}</span> loaded
+              {usersTotal !== undefined && usersTotal > users.length && (
+                <> (<span className="font-bold text-sky-700 dark:text-sky-400">{usersTotal}</span> total)</>
+              )}
+            </p>
+          </div>
         </div>
       )}
     </div>
