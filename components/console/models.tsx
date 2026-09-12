@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { FiCopy, FiCheck, FiLock, FiZap, FiCpu, FiTrendingUp, FiDollarSign, FiSearch, FiStar, FiInfo, FiImage, FiX, FiExternalLink, FiMic } from 'react-icons/fi';
+import { FiCopy, FiCheck, FiLock, FiZap, FiCpu, FiTrendingUp, FiDollarSign, FiSearch, FiStar, FiInfo, FiImage, FiX, FiMic, FiChevronRight } from 'react-icons/fi';
 import { SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiMistralai, SiXiaomi, SiAirbrake, SiMaze, SiFlux, SiImagedotsc, SiSecurityscorecard, SiLapce, SiAudiomack, SiSoundcloud, SiSpotify, SiVorondesign, SiNvidia, SiElevenlabs } from 'react-icons/si';
 import { RiOpenaiFill, RiCameraLensAiFill, RiMoonFill } from 'react-icons/ri';
-import { GiSpermWhale, GiPowerLightning, GiClover, GiFire, } from 'react-icons/gi';
+import { GiSpermWhale, GiPowerLightning, GiClover, GiFire } from 'react-icons/gi';
 import { DiBower } from 'react-icons/di';
 import { TbSquareLetterZ } from 'react-icons/tb';
-import { TiVendorMicrosoft } from "react-icons/ti";
+import { TiVendorMicrosoft } from 'react-icons/ti';
 import { HiSpeakerWave } from 'react-icons/hi2';
 import { FaXTwitter } from 'react-icons/fa6';
 
@@ -156,7 +156,7 @@ const AVAILABLE_MODELS = [
     color: 'from-orange-600 to-amber-700',
     category: 'Text Generation',
     requiresPlan: 'pro',
-    description: "Most intelligent AI for advanced coding, complex reasoning, and visual analysis.",
+    description: 'Most intelligent AI for advanced coding, complex reasoning, and visual analysis.',
     speed: 4,
     quality: 5,
     contextWindow: '200k tokens',
@@ -400,7 +400,7 @@ const AVAILABLE_MODELS = [
     invertDark: false,
     color: 'from-purple-600 to-fuchsia-600',
     category: 'Text Generation',
-    description: 'Qwen3 Coder Plus is Alibaba’s proprietary version of the Open Source Qwen3 Coder 480B A35B.',
+    description: 'Qwen3 Coder Plus is Alibaba\u2019s proprietary version of the Open Source Qwen3 Coder 480B A35B.',
     speed: 3,
     quality: 5,
     contextWindow: '1M tokens',
@@ -891,44 +891,23 @@ const AVAILABLE_MODELS = [
   },
 ];
 
-const SpeedIndicator = ({ level }: { level: number }) => {
-  return (
-    <div className="flex items-center gap-0.5">
-      {[...Array(4)].map((_, i) => (
-        <div
-          key={i}
-          className={`w-1 h-2.5 sm:h-3 rounded-full transition-all ${i < level ? 'bg-sky-500 dark:bg-sky-400' : 'bg-zinc-300 dark:bg-zinc-700'}`}
-        />
-      ))}
-    </div>
-  );
-};
-
-const QualityIndicator = ({ level }: { level: number }) => {
-  return (
-    <div className="flex items-center gap-0.5">
-      {[...Array(5)].map((_, i) => (
-        <FiStar
-          key={i}
-          className={`${i < level ? 'text-sky-500 dark:text-sky-400 fill-sky-500 dark:fill-sky-400' : 'text-zinc-300 dark:text-zinc-700'}`}
-          size={8}
-        />
-      ))}
-    </div>
-  );
-};
-
-const PRICING_CONFIG = {
-  Premium: { color: 'text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20 border-rose-200 dark:border-rose-800' },
-  Standard: { color: 'text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-900/20 border-sky-200 dark:border-sky-800' },
-  Budget: { color: 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800' },
-};
-
 const CATEGORY_ICONS: Record<string, any> = {
   'Text Generation': FiCpu,
   'Image Generation': FiImage,
   'Text-to-Speech': HiSpeakerWave,
   'Speech-to-Text': FiMic,
+};
+
+const PRICING_DOT: Record<string, string> = {
+  Premium: 'bg-rose-500',
+  Standard: 'bg-sky-500',
+  Budget: 'bg-emerald-500',
+};
+
+const PRICING_TEXT: Record<string, string> = {
+  Premium: 'text-rose-600 dark:text-rose-400',
+  Standard: 'text-sky-600 dark:text-sky-400',
+  Budget: 'text-emerald-600 dark:text-emerald-400',
 };
 
 const brandSvgCache: Record<string, string> = {};
@@ -971,6 +950,18 @@ const BrandIcon = ({ model, className }: { model: any; className?: string }) => 
   );
 };
 
+const Bars = ({ level, max, activeClass }: { level: number; max: number; activeClass: string }) => (
+  <div className="flex items-center gap-[2px]">
+    {[...Array(max)].map((_, i) => (
+      <span
+        key={i}
+        className={`w-[3px] rounded-full transition-colors duration-300 ${i < level ? activeClass : 'bg-zinc-200 dark:bg-zinc-800'}`}
+        style={{ height: `${5 + i * 1.6}px` }}
+      />
+    ))}
+  </div>
+);
+
 export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
   const [modelSearch, setModelSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
@@ -984,211 +975,192 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
     return false;
   };
 
-  const categories = ['All', ...Array.from(new Set(AVAILABLE_MODELS.map(m => m.category)))];
-  const filteredModels = AVAILABLE_MODELS.filter(model => {
-    const matchesSearch = model.name.toLowerCase().includes(modelSearch.toLowerCase()) ||
-      model.id.toLowerCase().includes(modelSearch.toLowerCase()) ||
-      model.description.toLowerCase().includes(modelSearch.toLowerCase());
-    const matchesCategory = selectedCategory === 'All' || model.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  const categories = useMemo(() => ['All', ...Array.from(new Set(AVAILABLE_MODELS.map((m) => m.category)))], []);
 
-  const groupedModels = filteredModels.reduce((acc, model) => {
-    if (!acc[model.category]) acc[model.category] = [];
-    acc[model.category].push(model);
-    return acc;
-  }, {} as Record<string, typeof AVAILABLE_MODELS>);
-  const getDisplayValue = (model: any) => model.id;
-  const getCopyValue = (model: any) => model.id;
+  const filteredModels = useMemo(() => {
+    const q = modelSearch.toLowerCase().trim();
+    return AVAILABLE_MODELS.filter((model) => {
+      const matchesSearch =
+        !q ||
+        model.name.toLowerCase().includes(q) ||
+        model.id.toLowerCase().includes(q) ||
+        model.description.toLowerCase().includes(q);
+      const matchesCategory = selectedCategory === 'All' || model.category === selectedCategory;
+      return matchesSearch && matchesCategory;
+    });
+  }, [modelSearch, selectedCategory]);
+
+  const groupedModels = useMemo(
+    () =>
+      filteredModels.reduce((acc, model) => {
+        if (!acc[model.category]) acc[model.category] = [];
+        acc[model.category].push(model);
+        return acc;
+      }, {} as Record<string, typeof AVAILABLE_MODELS>),
+    [filteredModels]
+  );
+
+  const accessibleCount = filteredModels.filter((m) => !isModelLocked(m)).length;
+
+  useEffect(() => {
+    if (!activeModal) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setActiveModal(null);
+    };
+    window.addEventListener('keydown', onKey);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = '';
+    };
+  }, [activeModal]);
 
   return (
-    <div className="space-y-3 sm:space-y-4">
-      <div className="bg-white/80 dark:bg-zinc-950 backdrop-blur-lg rounded-xl border border-zinc-200 dark:border-zinc-800 p-3 sm:p-4">
-        <div className="flex flex-col gap-3 sm:gap-4 mb-4 sm:mb-5">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3">
+    <div className="space-y-3">
+      <div className="rounded-2xl border border-zinc-200/80 dark:border-zinc-800/80 bg-white/70 dark:bg-zinc-950/60 backdrop-blur-xl p-3.5 sm:p-5">
+        <div className="flex flex-col gap-3 mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
             <div>
-              <h3 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white">Available Models</h3>
-              <p className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                {filteredModels.length} models • {filteredModels.filter(m => !isModelLocked(m)).length} accessible
+              <h3 className="text-[15px] sm:text-base font-semibold text-zinc-900 dark:text-white tracking-tight">Models</h3>
+              <p className="text-[11px] text-zinc-500 dark:text-zinc-500 mt-0.5">
+                {filteredModels.length} available · {accessibleCount} unlocked for you
               </p>
             </div>
-            <div className="w-full sm:w-auto relative">
-              <FiSearch className="absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-400 text-xs sm:text-sm" />
+            <div className="relative w-full sm:w-56">
+              <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 dark:text-zinc-600 w-3.5 h-3.5 pointer-events-none" />
               <input
                 type="text"
                 value={modelSearch}
                 onChange={(e) => setModelSearch(e.target.value)}
-                placeholder="Search models..."
-                className="w-full pl-8 pr-3 py-1.5 sm:py-2 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-300 dark:border-zinc-700 rounded-lg text-xs sm:text-sm text-zinc-900 dark:text-white outline-none focus:border-sky-500 transition-colors"
+                placeholder="Search models"
+                className="w-full pl-8 pr-3 py-2 bg-zinc-100/70 dark:bg-zinc-900/70 border border-transparent rounded-full text-[12.5px] text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-600 outline-none focus:bg-white dark:focus:bg-zinc-900 focus:border-zinc-300 dark:focus:border-zinc-700 focus:ring-4 focus:ring-zinc-900/5 dark:focus:ring-white/5 transition-all duration-200"
               />
             </div>
           </div>
 
-          <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-zinc-300 dark:scrollbar-thumb-zinc-700">
+          <div className="flex gap-1.5 overflow-x-auto -mx-3.5 px-3.5 sm:mx-0 sm:px-0 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             {categories.map((cat) => {
               const Icon = CATEGORY_ICONS[cat];
+              const active = selectedCategory === cat;
               return (
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
-                  className={`flex items-center gap-1 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg font-semibold text-[10px] sm:text-xs whitespace-nowrap transition-all ${
-                    selectedCategory === cat
-                      ? 'bg-gradient-to-r from-sky-400 to-blue-500 text-white shadow-lg shadow-sky-400/30'
-                      : 'bg-zinc-100 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800'
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11.5px] font-medium whitespace-nowrap transition-all duration-200 ${
+                    active
+                      ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 shadow-sm'
+                      : 'bg-zinc-100/80 dark:bg-zinc-900/80 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200/80 dark:hover:bg-zinc-800'
                   }`}
                 >
-                  {Icon && <Icon size={12} />}
-                  <span>{cat}</span>
+                  {Icon && <Icon className="w-3 h-3" />}
+                  {cat}
                 </button>
               );
             })}
           </div>
         </div>
 
-        <div className="space-y-6 sm:space-y-8">
+        <div className="space-y-5">
           {Object.keys(groupedModels).length === 0 ? (
-            <div className="text-center py-8 sm:py-12">
-              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                <FiSearch className="text-xl sm:text-3xl text-zinc-400" />
+            <div className="text-center py-14">
+              <div className="w-11 h-11 bg-zinc-100 dark:bg-zinc-900 rounded-full flex items-center justify-center mx-auto mb-3">
+                <FiSearch className="text-lg text-zinc-400 dark:text-zinc-600" />
               </div>
-              <p className="text-sm sm:text-base text-zinc-500 dark:text-zinc-400 font-medium">No models found</p>
-              <p className="text-xs sm:text-sm text-zinc-400 dark:text-zinc-500 mt-1">Try a different search term</p>
+              <p className="text-[13px] text-zinc-600 dark:text-zinc-400 font-medium">No models found</p>
+              <p className="text-[11px] text-zinc-400 dark:text-zinc-600 mt-0.5">Try a different search term</p>
             </div>
           ) : (
             Object.entries(groupedModels).map(([category, models]) => {
               const CategoryIcon = CATEGORY_ICONS[category];
               return (
                 <div key={category}>
-                  <div className="flex items-center gap-2 mb-3 sm:mb-4">
-                    {CategoryIcon && (
-                      <div className="p-1.5 bg-gradient-to-br from-sky-400 to-blue-500 rounded-lg shadow-lg">
-                        <CategoryIcon className="text-white text-xs" />
-                      </div>
-                    )}
-                    <h4 className="text-xs sm:text-sm font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider">{category}</h4>
-                    <div className="flex-1 h-px bg-gradient-to-r from-zinc-200 dark:from-zinc-700 to-transparent" />
-                    <span className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 font-medium">{models.length} models</span>
+                  <div className="flex items-center gap-2 mb-2.5">
+                    {CategoryIcon && <CategoryIcon className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-600" />}
+                    <h4 className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-500 uppercase tracking-wide">{category}</h4>
+                    <div className="flex-1 h-px bg-zinc-200/70 dark:bg-zinc-800/70" />
+                    <span className="text-[10.5px] text-zinc-400 dark:text-zinc-600">{models.length}</span>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                     {models.map((model) => {
                       const locked = isModelLocked(model);
-                      const pricingConfig = PRICING_CONFIG[model.pricing as keyof typeof PRICING_CONFIG];
-                      const displayValue = getDisplayValue(model);
                       return (
                         <div
                           key={model.id}
-                          className={`group relative rounded-lg sm:rounded-xl transition-all duration-300 ${
+                          className={`group relative rounded-xl border transition-all duration-200 ease-out ${
                             locked
-                              ? 'bg-zinc-50/50 dark:bg-zinc-900/30 border border-zinc-200 dark:border-zinc-800'
-                              : 'bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 hover:border-sky-400 dark:hover:border-sky-500 hover:shadow-xl hover:shadow-sky-400/10 dark:hover:shadow-sky-400/20 hover:-translate-y-0.5'
+                              ? 'border-zinc-200/70 dark:border-zinc-800/70 bg-zinc-50/60 dark:bg-zinc-900/30'
+                              : 'border-zinc-200/80 dark:border-zinc-800/80 bg-white dark:bg-zinc-950 hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-md hover:shadow-zinc-900/[0.04] dark:hover:shadow-black/20 hover:-translate-y-[1px]'
                           }`}
                         >
                           {locked && (
-                            <div className="absolute inset-0 bg-zinc-900/5 dark:bg-zinc-900/20 rounded-lg sm:rounded-xl backdrop-blur-[2px] z-10 flex items-center justify-center">
-                              <div className="bg-white/95 dark:bg-zinc-800/95 backdrop-blur-sm px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-md sm:rounded-lg border border-orange-500 shadow-lg">
-                                <div className="flex items-center gap-1.5 sm:gap-2">
-                                  <FiLock className="text-orange-500 text-xs sm:text-sm" />
-                                  <span className="text-[10px] sm:text-xs font-bold text-zinc-900 dark:text-white">
-                                    {model.requiresPlan === 'enterprise' ? 'Enterprise' : 'Pro'} Required
-                                  </span>
-                                </div>
+                            <div className="absolute top-2.5 right-2.5 z-10">
+                              <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-zinc-900/90 dark:bg-white/90 backdrop-blur-sm">
+                                <FiLock className="w-2.5 h-2.5 text-white dark:text-zinc-900" />
+                                <span className="text-[9px] font-semibold text-white dark:text-zinc-900">
+                                  {model.requiresPlan === 'enterprise' ? 'Enterprise' : 'Pro'}
+                                </span>
                               </div>
                             </div>
                           )}
 
-                          <div className="p-3 sm:p-4">
-                            <div className="flex items-start gap-2 sm:gap-2.5 mb-2.5 sm:mb-3">
-                              <div className="p-1.5 sm:p-2 flex-shrink-0 group-hover:scale-110 transition-transform">
-                                <BrandIcon model={model} className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-700 dark:text-zinc-300" />
+                          <button
+                            onClick={() => setActiveModal(model)}
+                            className="w-full text-left p-3 pb-2.5"
+                          >
+                            <div className="flex items-start gap-2 mb-2">
+                              <div className={`w-7 h-7 flex-shrink-0 rounded-lg flex items-center justify-center bg-gradient-to-br ${model.color} bg-opacity-10 dark:bg-opacity-20 transition-transform duration-200 group-hover:scale-105`}>
+                                <BrandIcon model={model} className="w-3.5 h-3.5 text-white" />
                               </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-1.5 mb-0.5 sm:mb-1">
-                                  <h5 className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-white truncate">{model.name}</h5>
-                                  {locked && <FiLock className="text-orange-400 text-[10px] flex-shrink-0" />}
-                                </div>
-                                <code className="text-[9px] sm:text-[10px] text-zinc-500 dark:text-zinc-400 font-mono bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded block truncate">
-                                  {displayValue}
-                                </code>
+                              <div className="flex-1 min-w-0 pt-0.5">
+                                <h5 className="text-[12.5px] font-semibold text-zinc-900 dark:text-white truncate leading-tight">{model.name}</h5>
+                                <p className="text-[10px] text-zinc-400 dark:text-zinc-600 font-mono truncate mt-0.5">{model.id}</p>
                               </div>
-                              <button
-                                onClick={() => onCopy(getCopyValue(model), model.id)}
-                                disabled={locked}
-                                className="p-1 sm:p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md transition-colors flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
-                              >
-                                {copiedKey === model.id ? (
-                                  <FiCheck className="text-green-500 text-xs sm:text-sm" />
-                                ) : (
-                                  <FiCopy className="text-zinc-400 text-xs sm:text-sm" />
-                                )}
-                              </button>
                             </div>
 
-                            <p className="text-[10px] sm:text-xs text-zinc-600 dark:text-zinc-400 mb-2.5 sm:mb-3 line-clamp-2 leading-relaxed">
+                            <p className="text-[11px] text-zinc-500 dark:text-zinc-400 line-clamp-2 leading-snug mb-2.5 min-h-[28px]">
                               {model.description}
                             </p>
 
-                            <div className="grid grid-cols-2 gap-1.5 sm:gap-2 mb-2.5 sm:mb-3">
-                              <div className="flex items-center gap-1.5 sm:gap-2 px-2 py-1.5 sm:px-2.5 sm:py-2 bg-zinc-50 dark:bg-zinc-900/50 rounded-md sm:rounded-lg border border-zinc-200 dark:border-zinc-800">
-                                <FiZap className="text-[10px] sm:text-xs text-sky-500 dark:text-sky-400 flex-shrink-0" />
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-[8px] sm:text-[9px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wide font-semibold mb-0.5">Speed</p>
-                                  <SpeedIndicator level={model.speed} />
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-1">
+                                  <FiZap className="w-2.5 h-2.5 text-zinc-400 dark:text-zinc-600" />
+                                  <Bars level={model.speed} max={4} activeClass="bg-sky-500 dark:bg-sky-400" />
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <FiTrendingUp className="w-2.5 h-2.5 text-zinc-400 dark:text-zinc-600" />
+                                  <Bars level={model.quality} max={5} activeClass="bg-violet-500 dark:bg-violet-400" />
                                 </div>
                               </div>
-
-                              <div className="flex items-center gap-1.5 sm:gap-2 px-2 py-1.5 sm:px-2.5 sm:py-2 bg-zinc-50 dark:bg-zinc-900/50 rounded-md sm:rounded-lg border border-zinc-200 dark:border-zinc-800">
-                                <FiTrendingUp className="text-[10px] sm:text-xs text-purple-500 dark:text-purple-400 flex-shrink-0" />
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-[8px] sm:text-[9px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wide font-semibold mb-0.5">Quality</p>
-                                  <QualityIndicator level={model.quality} />
-                                </div>
-                              </div>
-
-                              <div className="flex items-center gap-1.5 sm:gap-2 px-2 py-1.5 sm:px-2.5 sm:py-2 bg-zinc-50 dark:bg-zinc-900/50 rounded-md sm:rounded-lg border border-zinc-200 dark:border-zinc-800">
-                                <FiCpu className="text-[10px] sm:text-xs text-blue-500 dark:text-blue-400 flex-shrink-0" />
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-[8px] sm:text-[9px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wide font-semibold mb-0.5">Context</p>
-                                  <p className="text-[10px] sm:text-xs font-bold text-zinc-700 dark:text-zinc-200 truncate">
-                                    {model.contextWindow}
-                                  </p>
-                                </div>
-                              </div>
-
-                              <div className={`flex items-center gap-1.5 sm:gap-2 px-2 py-1.5 sm:px-2.5 sm:py-2 rounded-md sm:rounded-lg border ${pricingConfig.color}`}>
-                                <FiDollarSign className="text-[10px] sm:text-xs flex-shrink-0" />
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-[8px] sm:text-[9px] opacity-70 uppercase tracking-wide font-semibold mb-0.5">Pricing</p>
-                                  <p className="text-[10px] sm:text-xs font-bold truncate">
-                                    {model.pricing}
-                                  </p>
-                                </div>
-                              </div>
+                              <span className={`flex items-center gap-1 text-[10px] font-medium ${PRICING_TEXT[model.pricing]}`}>
+                                <span className={`w-1.5 h-1.5 rounded-full ${PRICING_DOT[model.pricing]}`} />
+                                {model.pricing}
+                              </span>
                             </div>
+                          </button>
 
-                            <div className="flex flex-wrap gap-1">
-                              {model.features.map((feature, idx) => (
-                                <span
-                                  key={idx}
-                                  className="text-[8px] sm:text-[9px] px-1.5 py-0.5 bg-sky-50 dark:bg-sky-900/20 text-sky-700 dark:text-sky-400 rounded-full border border-sky-200 dark:border-sky-800 font-medium"
-                                >
-                                  {feature}
-                                </span>
-                              ))}
+                          <div className="flex items-center justify-between px-3 py-2 border-t border-zinc-100 dark:border-zinc-900">
+                            <span className="text-[9.5px] text-zinc-400 dark:text-zinc-600">{model.contextWindow}</span>
+                            <div className="flex items-center gap-0.5">
+                              <button
+                                onClick={() => setActiveModal(model)}
+                                className="p-1.5 rounded-md text-zinc-400 dark:text-zinc-600 hover:text-zinc-700 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors duration-150"
+                              >
+                                <FiInfo className="w-3 h-3" />
+                              </button>
+                              <button
+                                onClick={() => onCopy(model.id, model.id)}
+                                disabled={locked}
+                                className="p-1.5 rounded-md text-zinc-400 dark:text-zinc-600 hover:text-zinc-700 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors duration-150 disabled:opacity-30 disabled:cursor-not-allowed"
+                              >
+                                {copiedKey === model.id ? (
+                                  <FiCheck className="w-3 h-3 text-emerald-500" />
+                                ) : (
+                                  <FiCopy className="w-3 h-3" />
+                                )}
+                              </button>
                             </div>
-                          </div>
-
-                          <div className="px-3 sm:px-4 pb-3 sm:pb-4 pt-0 flex items-center justify-between border-t border-zinc-100 dark:border-zinc-800/60 mt-0">
-                            <span className="text-[9px] text-zinc-400 dark:text-zinc-600 font-mono truncate mr-2">
-                              {model.endpoint.replace('https://www.aichixia.xyz', '')}
-                            </span>
-                            <button
-                              onClick={() => setActiveModal(model)}
-                              className="flex items-center gap-1 px-2 py-1 rounded-lg text-[9px] sm:text-[10px] font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-transparent hover:border-zinc-200 dark:hover:border-zinc-700 transition-all duration-150 flex-shrink-0"
-                            >
-                              <FiInfo className="w-3 h-3" />
-                              Details
-                            </button>
                           </div>
                         </div>
                       );
@@ -1201,93 +1173,91 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
         </div>
       </div>
 
-      <div className="mt-6 sm:mt-8 text-center">
-        <p className="text-[11px] sm:text-xs text-zinc-400 dark:text-zinc-600">
+      <div className="text-center">
+        <p className="text-[10.5px] text-zinc-400 dark:text-zinc-600">
           Looking for older models?{' '}
           <Link
             href="/deprecated"
-            className="text-sky-500 hover:text-sky-600 dark:hover:text-sky-400 font-semibold transition-colors duration-150"
+            className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white font-medium underline underline-offset-2 decoration-zinc-300 dark:decoration-zinc-700 transition-colors duration-150"
           >
-            See the list of deprecated models
+            See deprecated models
           </Link>
         </p>
       </div>
 
       {activeModal && (
         <div
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 transition-all duration-200"
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center animate-[fadeIn_0.15s_ease-out]"
           onClick={() => setActiveModal(null)}
         >
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+          <div className="absolute inset-0 bg-zinc-950/40 backdrop-blur-sm" />
           <div
-            className="relative w-full sm:max-w-lg bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-t-2xl sm:rounded-2xl shadow-2xl transition-all duration-300"
+            className="relative w-full sm:max-w-md max-h-[88vh] overflow-y-auto bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-t-3xl sm:rounded-2xl shadow-2xl animate-[slideUp_0.2s_cubic-bezier(0.16,1,0.3,1)]"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="p-5 sm:p-6">
-              <div className="flex items-start justify-between mb-5">
+            <div className="sm:hidden flex justify-center pt-2.5 pb-1">
+              <div className="w-9 h-1 rounded-full bg-zinc-200 dark:bg-zinc-800" />
+            </div>
+
+            <div className="p-5">
+              <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 flex-shrink-0">
-                    <BrandIcon model={activeModal} className="w-5 h-5 sm:w-6 sm:h-6 text-zinc-700 dark:text-zinc-300" />
+                  <div className={`w-9 h-9 flex-shrink-0 rounded-xl flex items-center justify-center bg-gradient-to-br ${activeModal.color}`}>
+                    <BrandIcon model={activeModal} className="w-4.5 h-4.5 text-white" />
                   </div>
                   <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white">{activeModal.name}</h3>
-                    </div>
-                    <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-medium">{activeModal.category}</span>
+                    <h3 className="text-[14px] font-semibold text-zinc-900 dark:text-white leading-tight">{activeModal.name}</h3>
+                    <span className="text-[10.5px] text-zinc-400 dark:text-zinc-600">{activeModal.category}</span>
                   </div>
                 </div>
                 <button
                   onClick={() => setActiveModal(null)}
-                  className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-all duration-150"
+                  className="p-1.5 rounded-full text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors duration-150"
                 >
                   <FiX className="w-4 h-4" />
                 </button>
               </div>
 
-              <div className="h-px bg-zinc-100 dark:bg-zinc-800 mb-4" />
-              <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed mb-5">
+              <p className="text-[12.5px] text-zinc-600 dark:text-zinc-400 leading-relaxed mb-4">
                 {activeModal.description}
               </p>
 
-              <div className="grid grid-cols-2 gap-2.5 mb-5">
-                <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
-                  <p className="text-[9px] uppercase tracking-widest font-semibold text-zinc-400 dark:text-zinc-500 mb-1">Context Window</p>
-                  <p className="text-xs sm:text-sm font-bold text-zinc-800 dark:text-zinc-200">{activeModal.contextWindow}</p>
+              <div className="grid grid-cols-2 gap-2 mb-4">
+                <div className="p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-900/60">
+                  <p className="text-[9px] uppercase tracking-wide font-semibold text-zinc-400 dark:text-zinc-600 mb-1">Context</p>
+                  <p className="text-[12.5px] font-semibold text-zinc-800 dark:text-zinc-200">{activeModal.contextWindow}</p>
                 </div>
-                <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
-                  <p className="text-[9px] uppercase tracking-widest font-semibold text-zinc-400 dark:text-zinc-500 mb-1">Pricing Tier</p>
-                  <p className="text-xs sm:text-sm font-bold text-zinc-800 dark:text-zinc-200">{activeModal.pricing}</p>
+                <div className="p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-900/60">
+                  <p className="text-[9px] uppercase tracking-wide font-semibold text-zinc-400 dark:text-zinc-600 mb-1">Pricing</p>
+                  <p className={`text-[12.5px] font-semibold ${PRICING_TEXT[activeModal.pricing]}`}>{activeModal.pricing}</p>
                 </div>
-                <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
-                  <p className="text-[9px] uppercase tracking-widest font-semibold text-zinc-400 dark:text-zinc-500 mb-1.5">Speed</p>
-                  <SpeedIndicator level={activeModal.speed} />
+                <div className="p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-900/60">
+                  <p className="text-[9px] uppercase tracking-wide font-semibold text-zinc-400 dark:text-zinc-600 mb-1.5">Speed</p>
+                  <Bars level={activeModal.speed} max={4} activeClass="bg-sky-500 dark:bg-sky-400" />
                 </div>
-                <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
-                  <p className="text-[9px] uppercase tracking-widest font-semibold text-zinc-400 dark:text-zinc-500 mb-1.5">Quality</p>
-                  <QualityIndicator level={activeModal.quality} />
+                <div className="p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-900/60">
+                  <p className="text-[9px] uppercase tracking-wide font-semibold text-zinc-400 dark:text-zinc-600 mb-1.5">Quality</p>
+                  <Bars level={activeModal.quality} max={5} activeClass="bg-violet-500 dark:bg-violet-400" />
                 </div>
-                <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 col-span-2">
-                  <p className="text-[9px] uppercase tracking-widest font-semibold text-zinc-400 dark:text-zinc-500 mb-1">Streaming</p>
+                <div className="p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-900/60 col-span-2 flex items-center justify-between">
+                  <p className="text-[9px] uppercase tracking-wide font-semibold text-zinc-400 dark:text-zinc-600">Streaming</p>
                   {STREAM_SUPPORTED_MODELS.has(activeModal.id) ? (
-                    <p className="flex items-center gap-1 text-xs sm:text-sm font-bold text-emerald-600 dark:text-emerald-400">
-                      <FiCheck className="w-3.5 h-3.5" />
-                      Supported
-                    </p>
+                    <span className="flex items-center gap-1 text-[11.5px] font-semibold text-emerald-600 dark:text-emerald-400">
+                      <FiCheck className="w-3 h-3" /> Supported
+                    </span>
                   ) : (
-                    <p className="text-xs sm:text-sm font-bold text-zinc-500 dark:text-zinc-500">
-                      Not yet supported
-                    </p>
+                    <span className="text-[11.5px] font-medium text-zinc-400 dark:text-zinc-600">Not yet</span>
                   )}
                 </div>
               </div>
 
-              <div className="mb-5">
-                <p className="text-[9px] uppercase tracking-widest font-semibold text-zinc-400 dark:text-zinc-500 mb-2">Capabilities</p>
+              <div className="mb-4">
+                <p className="text-[9px] uppercase tracking-wide font-semibold text-zinc-400 dark:text-zinc-600 mb-2">Capabilities</p>
                 <div className="flex flex-wrap gap-1.5">
                   {activeModal.features.map((feature: string, idx: number) => (
                     <span
                       key={idx}
-                      className="text-[10px] px-2 py-1 bg-sky-50 dark:bg-sky-900/20 text-sky-700 dark:text-sky-400 rounded-lg border border-sky-200 dark:border-sky-800 font-medium"
+                      className="text-[10.5px] px-2 py-1 bg-zinc-100 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-300 rounded-lg font-medium"
                     >
                       {feature}
                     </span>
@@ -1296,13 +1266,13 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
               </div>
 
               {(activeModal as any).languages && (
-                <div className="mb-5">
-                  <p className="text-[9px] uppercase tracking-widest font-semibold text-zinc-400 dark:text-zinc-500 mb-2">Supported Languages</p>
+                <div className="mb-4">
+                  <p className="text-[9px] uppercase tracking-wide font-semibold text-zinc-400 dark:text-zinc-600 mb-2">Languages</p>
                   <div className="flex flex-wrap gap-1.5">
                     {(activeModal as any).languages.map((lang: string) => (
                       <span
                         key={lang}
-                        className="flex items-center gap-1 text-[10px] px-2 py-1 bg-sky-50 dark:bg-sky-900/20 text-sky-700 dark:text-sky-400 rounded-lg border border-sky-200 dark:border-sky-800 font-medium uppercase"
+                        className="flex items-center gap-1 text-[10.5px] px-2 py-1 bg-zinc-100 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-300 rounded-lg font-medium uppercase"
                       >
                         <span>{LANGUAGE_FLAGS[lang] ?? '🌐'}</span>
                         {lang}
@@ -1312,35 +1282,25 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
                 </div>
               )}
 
-              <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
-                <p className="text-[9px] uppercase tracking-widest font-semibold text-zinc-400 dark:text-zinc-500 mb-2">Endpoint</p>
-                <div className="flex items-center gap-2 mb-2">
-                  <code className="flex-1 text-[10px] sm:text-xs font-mono text-zinc-700 dark:text-zinc-300 break-all leading-relaxed">
-                    <span className="text-zinc-400 dark:text-zinc-500">Base URL: </span>
+              <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/60 space-y-2.5">
+                <div>
+                  <p className="text-[9px] uppercase tracking-wide font-semibold text-zinc-400 dark:text-zinc-600 mb-1">Base URL</p>
+                  <code className="text-[10.5px] font-mono text-zinc-600 dark:text-zinc-400 break-all leading-relaxed">
                     {activeModal.endpoint}
                   </code>
                 </div>
                 <div className="flex items-center gap-2">
-                  <code className="flex-1 text-[10px] sm:text-xs font-mono text-zinc-700 dark:text-zinc-300 break-all leading-relaxed">
-                    {activeModal.category === 'Text Generation' ? (
-                      <>
-                        <span className="text-zinc-400 dark:text-zinc-500">Model ID: </span>{activeModal.id}
-                      </>
-                    ) : activeModal.category === 'Text-to-Speech' ? (
-                      <>
-                        <span className="text-zinc-400 dark:text-zinc-500">Model: </span>{activeModal.id}
-                      </>
-                    ) : (
-                      <>
-                        <span className="text-zinc-400 dark:text-zinc-500">Model: </span>{activeModal.id}
-                      </>
-                    )}
-                  </code>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[9px] uppercase tracking-wide font-semibold text-zinc-400 dark:text-zinc-600 mb-1">Model ID</p>
+                    <code className="text-[10.5px] font-mono text-zinc-700 dark:text-zinc-300 break-all leading-relaxed">
+                      {activeModal.id}
+                    </code>
+                  </div>
                   <button
                     onClick={() => onCopy(activeModal.id, activeModal.id + '-modal')}
-                    className="p-1.5 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-all flex-shrink-0"
+                    className="p-2 rounded-lg bg-zinc-900 dark:bg-white hover:opacity-90 text-white dark:text-zinc-900 transition-opacity duration-150 flex-shrink-0"
                   >
-                    {copiedKey === activeModal.id + '-modal' ? <FiCheck className="w-3.5 h-3.5 text-emerald-500" /> : <FiCopy className="w-3.5 h-3.5" />}
+                    {copiedKey === activeModal.id + '-modal' ? <FiCheck className="w-3.5 h-3.5" /> : <FiCopy className="w-3.5 h-3.5" />}
                   </button>
                 </div>
               </div>
@@ -1348,6 +1308,17 @@ export default function Models({ settings, onCopy, copiedKey }: ModelProps) {
           </div>
         </div>
       )}
+
+      <style jsx>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes slideUp {
+          from { transform: translateY(16px); opacity: 0.6; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+      `}</style>
     </div>
   );
 }
