@@ -123,7 +123,7 @@ const STREAM_MODEL_MAPPING: Record<string, StreamFunction> = {
   "openai/gpt-5.3-codex-spark": streamCodex,
 };
 
-const LOCKED_MODELS_PRO = ['deepseek/deepseek-v4-pro', 'xiaomi/mimo-v2.5-pro', 'anthropic/claude-sonnet-4-6', 'z-ai/glm-5.2', 'aichiverse/aichixia-flash', 'xai/grok-4-fast', 'moonshotai/kimi-k3', 'openai/gpt-5.2', 'openai/gpt-5.5', 'poolside/laguna-s-2.1', 'thinkingmachines/inkling', 'sensenova/sensenova-6.8-flash-lite'];
+const LOCKED_MODELS_PRO = ['deepseek/deepseek-v4-pro', 'xiaomi/mimo-v2.5-pro', 'anthropic/claude-sonnet-4-6', 'z-ai/glm-5.2', 'aichiverse/aichixia-flash', 'xai/grok-4-fast', 'moonshotai/kimi-k3', 'openai/gpt-5.2', 'openai/gpt-5.3-codex-spark', 'poolside/laguna-s-2.1', 'thinkingmachines/inkling', 'sensenova/sensenova-6.8-flash-lite'];
 const LOCKED_MODELS_ENTERPRISE = ['anthropic/claude-fable-5', 'anthropic/claude-opus-4-8'];
 
 const RATE_LIMIT_ERRORS = [
