@@ -50,6 +50,7 @@ const STREAM_SUPPORTED_MODELS = new Set([
   'meta/llama-4-scout-17b-16e-instruct',
   'openai/gpt-5.2',
   'groq/compound',
+  'openai/gpt-5.3-codex-spark',
 ]);
 
 const LANGUAGE_FLAGS: Record<string, string> = {
@@ -603,6 +604,23 @@ const AVAILABLE_MODELS = [
     contextWindow: '400K tokens',
     pricing: 'Premium',
     features: ['Enhanced reasoning', 'Multimodal', 'Latest generation'],
+    endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
+  },
+  {
+    id: 'openai/gpt-5.3-codex-spark',
+    name: 'GPT-5.3 Codex Spark',
+    icon: RiOpenaiFill,
+    logoSlug: 'openai',
+    invertDark: true,
+    color: 'from-green-700 to-emerald-700',
+    category: 'Text Generation',
+    requiresPlan: 'pro',
+    description: "OpenAI's Codex-tuned model for fast, high-quality code generation",
+    speed: 5,
+    quality: 5,
+    contextWindow: '400K tokens',
+    pricing: 'Premium',
+    features: ['Code generation', 'Enhanced reasoning', 'Latest generation'],
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {

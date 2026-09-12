@@ -37,7 +37,7 @@ type MemoryMessage = {
   timestamp: number;
 };
 
-const STREAM_CAPABLE_MODELS = new Set(['moonshotai/kimi-k3', 'openai/gpt-5-mini', 'aichiverse/aichixia-flash', 'alibaba/qwen3.8-27b', 'anthropic/claude-sonnet-4-6', 'mistralai/mistral-large-latest', 'minimaxai/minimax-m3', 'sensenova/sensenova-6.8-flash-lite', 'stepfun-ai/step-3.7-flash', 'nvidia/nemotron-3-ultra-550b-a55b', 'openai/gpt-oss-120b', 'deepseek/deepseek-v4-flash', 'google/gemma-4-31b', 'z-ai/glm-5.2', 'poolside/laguna-s-2.1', 'cohere/command-a', 'google/gemini-3-flash', 'meta/llama-3.3-70b', 'deepseek/deepseek-v4-pro', 'anthropic/claude-fable-5', 'alibaba/qwen3-coder-plus', 'xiaomi/mimo-v2.5-pro', 'thinkingmachines/inkling', 'meta/llama-4-scout-17b-16e-instruct', 'z-ai/glm-4.7-flash', 'openai/gpt-5.2', 'groq/compound']);
+const STREAM_CAPABLE_MODELS = new Set(['moonshotai/kimi-k3', 'openai/gpt-5-mini', 'aichiverse/aichixia-flash', 'alibaba/qwen3.8-27b', 'anthropic/claude-sonnet-4-6', 'mistralai/mistral-large-latest', 'minimaxai/minimax-m3', 'sensenova/sensenova-6.8-flash-lite', 'stepfun-ai/step-3.7-flash', 'nvidia/nemotron-3-ultra-550b-a55b', 'openai/gpt-oss-120b', 'deepseek/deepseek-v4-flash', 'google/gemma-4-31b', 'z-ai/glm-5.2', 'poolside/laguna-s-2.1', 'cohere/command-a', 'google/gemini-3-flash', 'meta/llama-3.3-70b', 'deepseek/deepseek-v4-pro', 'anthropic/claude-fable-5', 'alibaba/qwen3-coder-plus', 'xiaomi/mimo-v2.5-pro', 'thinkingmachines/inkling', 'meta/llama-4-scout-17b-16e-instruct', 'z-ai/glm-4.7-flash', 'openai/gpt-5.2', 'groq/compound', 'openai/gpt-5.3-codex-spark']);
 
 const TEXT_MODELS: AnyModel[] = [
   { id: 'openai/gpt-5-mini', name: 'GPT-5 Mini', provider: 'OpenAI', logoSlug: 'openai', icon: RiOpenaiFill, color: 'from-emerald-500 to-green-600', pricing: 'Budget', context: '400K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
@@ -73,6 +73,7 @@ const TEXT_MODELS: AnyModel[] = [
   { id: 'poolside/laguna-s-2.1', name: 'Laguna S 2.1', provider: 'Poolside', logoSlug: 'poolside', icon: FiZap, color: 'from-sky-600 to-blue-700', pricing: 'Premium', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
   { id: 'openai/gpt-5.2', name: 'GPT-5.2', provider: 'OpenAI', logoSlug: 'openai', icon: RiOpenaiFill, color: 'from-green-500 to-emerald-600', pricing: 'Standard', context: '400K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
   { id: 'openai/gpt-5.5', name: 'GPT-5.5', provider: 'OpenAI', logoSlug: 'openai', icon: RiOpenaiFill, color: 'from-green-600 to-teal-600', pricing: 'Premium', context: '400K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
+  { id: 'openai/gpt-5.3-codex-spark', name: 'GPT-5.3 Codex Spark', provider: 'OpenAI', logoSlug: 'openai', icon: RiOpenaiFill, color: 'from-green-700 to-emerald-700', pricing: 'Premium', context: '400K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
 ];
 
 const IMAGE_MODELS: AnyModel[] = [
