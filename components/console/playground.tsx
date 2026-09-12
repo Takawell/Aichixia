@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { FiPlay, FiCopy, FiCheck, FiChevronDown, FiZap, FiCode, FiTerminal, FiSettings, FiClock, FiCpu, FiAlertCircle, FiRotateCcw, FiEye, FiEyeOff, FiImage, FiVolume2, FiDownload, FiPause, FiX, FiUpload, FiMaximize2, FiMinimize2, FiLayout, FiMinus, FiSmile, FiFrown, FiAlertTriangle, FiThumbsDown, FiBell, FiActivity, FiFastForward, FiSliders, FiMonitor, FiLayers, FiTarget, FiHash, FiXCircle, FiMic, FiGlobe, FiFileText, FiDatabase, FiTrash2, FiMessageSquare } from 'react-icons/fi';
-import { SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiMistralai, SiXiaomi, SiAirbrake, SiFlux, SiLapce, SiSecurityscorecard, SiMaze, SiImagedotsc, SiAudiomack, SiSoundcloud, SiSpotify, SiVorondesign, SiNvidia, SiElevenlabs } from 'react-icons/si';
+import { SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiMistralai, SiXiaomi, SiAirbrake, SiFlux, SiLapce, SiSecurityscorecard, SiMaze, SiImagedotsc, SiAudiomack, SiSoundcloud, SiSpotify, SiVorondesign, SiNvidia, SiElevenlabs, SiNextra } from 'react-icons/si';
 import { RiOpenaiFill, RiCameraLensAiFill, RiMoonFill } from 'react-icons/ri';
 import { GiSpermWhale, GiPowerLightning, GiClover, GiCloverSpiked, GiFire } from 'react-icons/gi';
 import { DiBower } from 'react-icons/di';
@@ -74,7 +74,7 @@ const TEXT_MODELS: AnyModel[] = [
   { id: 'openai/gpt-5.2', name: 'GPT-5.2', provider: 'OpenAI', logoSlug: 'openai', icon: RiOpenaiFill, color: 'from-green-500 to-emerald-600', pricing: 'Standard', context: '400K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
   { id: 'openai/gpt-5.5', name: 'GPT-5.5', provider: 'OpenAI', logoSlug: 'openai', icon: RiOpenaiFill, color: 'from-green-600 to-teal-600', pricing: 'Premium', context: '400K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'openai/gpt-5.3-codex-spark', name: 'GPT-5.3 Codex Spark', provider: 'OpenAI', logoSlug: 'openai', icon: RiOpenaiFill, color: 'from-green-700 to-emerald-700', pricing: 'Premium', context: '400K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
-  { id: 'nex-agi/nex-n2.5-pro', name: 'Nex N2.5 Pro', provider: 'Nex AGI', logoSlug: 'nexagi', icon: FiZap, color: 'from-indigo-500 to-violet-600', pricing: 'Free', context: '128K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'nex-agi/nex-n2.5-pro', name: 'Nex N2.5 Pro', provider: 'Nex AGI', logoSlug: 'nexagi', icon: SiNextra, color: 'from-indigo-500 to-violet-600', pricing: 'Standard', context: '128K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
 ];
 
 const IMAGE_MODELS: AnyModel[] = [

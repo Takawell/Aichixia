@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { FiCopy, FiCheck, FiLock, FiZap, FiCpu, FiTrendingUp, FiDollarSign, FiSearch, FiStar, FiInfo, FiImage, FiX, FiExternalLink, FiMic } from 'react-icons/fi';
-import { SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiMistralai, SiXiaomi, SiAirbrake, SiMaze, SiFlux, SiImagedotsc, SiSecurityscorecard, SiLapce, SiAudiomack, SiSoundcloud, SiSpotify, SiVorondesign, SiNvidia, SiElevenlabs } from 'react-icons/si';
+import { SiGooglegemini, SiAnthropic, SiMeta, SiAlibabacloud, SiMistralai, SiXiaomi, SiAirbrake, SiMaze, SiFlux, SiImagedotsc, SiSecurityscorecard, SiLapce, SiAudiomack, SiSoundcloud, SiSpotify, SiVorondesign, SiNvidia, SiElevenlabs, SiNextra } from 'react-icons/si';
 import { RiOpenaiFill, RiCameraLensAiFill, RiMoonFill } from 'react-icons/ri';
 import { GiSpermWhale, GiPowerLightning, GiClover, GiFire, } from 'react-icons/gi';
 import { DiBower } from 'react-icons/di';
@@ -626,7 +626,7 @@ const AVAILABLE_MODELS = [
   {
     id: 'nex-agi/nex-n2.5-pro',
     name: 'Nex N2.5 Pro',
-    icon: FiZap,
+    icon: SiNextra,
     logoSlug: 'nexagi',
     color: 'from-indigo-500 to-violet-600',
     category: 'Text Generation',
@@ -634,7 +634,7 @@ const AVAILABLE_MODELS = [
     speed: 4,
     quality: 4,
     contextWindow: '128K tokens',
-    pricing: 'Free',
+    pricing: 'Standard',
     features: ['General purpose', 'Fast responses'],
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
