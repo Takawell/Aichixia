@@ -597,7 +597,6 @@ const AVAILABLE_MODELS = [
     invertDark: true,
     color: 'from-green-600 to-teal-600',
     category: 'Text Generation',
-    requiresPlan: 'pro',
     description: "OpenAI's most advanced model with next-generation reasoning",
     speed: 4,
     quality: 5,
