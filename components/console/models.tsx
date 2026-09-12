@@ -51,6 +51,7 @@ const STREAM_SUPPORTED_MODELS = new Set([
   'openai/gpt-5.2',
   'groq/compound',
   'openai/gpt-5.3-codex-spark',
+  'nex-agi/nex-n2.5-pro',
 ]);
 
 const LANGUAGE_FLAGS: Record<string, string> = {
@@ -620,6 +621,21 @@ const AVAILABLE_MODELS = [
     contextWindow: '400K tokens',
     pricing: 'Premium',
     features: ['Code generation', 'Enhanced reasoning', 'Latest generation'],
+    endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
+  },
+  {
+    id: 'nex-agi/nex-n2.5-pro',
+    name: 'Nex N2.5 Pro',
+    icon: FiZap,
+    logoSlug: 'nexagi',
+    color: 'from-indigo-500 to-violet-600',
+    category: 'Text Generation',
+    description: 'Nex AGI general-purpose model for everyday text generation',
+    speed: 4,
+    quality: 4,
+    contextWindow: '128K tokens',
+    pricing: 'Free',
+    features: ['General purpose', 'Fast responses'],
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
