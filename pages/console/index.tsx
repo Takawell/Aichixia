@@ -81,14 +81,11 @@ export default function Console() {
   const [logs, setLogs] = useState<RequestLog[]>([]);
   const [usageData, setUsageData] = useState<DailyUsage[]>([]);
   const [stats, setStats] = useState({ totalRequests: 0, activeKeys: 0, rateLimitUsage: 0, successCount: 0, errorCount: 0 });
-  const [showCreateModal, setShowCreateModal] = useState(false);
   const [showRevokeModal, setShowRevokeModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [profileModalVisible, setProfileModalVisible] = useState(false);
   const [showEmail, setShowEmail] = useState(false);
   const [selectedKey, setSelectedKey] = useState<ApiKey | null>(null);
-  const [newKeyName, setNewKeyName] = useState('');
-  const [createdKey, setCreatedKey] = useState<string | null>(null);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -316,15 +313,18 @@ export default function Console() {
     }
   };
 
-  const handleCreateKey = async () => {
-    if (!newKeyName.trim()) {
+  const handleCreateKey = async (payload: { name: string; rateLimit: number; ipWhitelist: string[]; expiresIn: string }): Promise<string | null> => {
+    if (!payload.name.trim()) {
       showToast('Please enter a key name', 'error');
-      return;
+      return null;
     }
 
     setActionLoading(true);
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
+    if (!session) {
+      setActionLoading(false);
+      return null;
+    }
 
     const res = await fetch('/api/console/keys', {
       method: 'POST',
@@ -332,19 +332,24 @@ export default function Console() {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${session.access_token}`,
       },
-      body: JSON.stringify({ name: newKeyName }),
+      body: JSON.stringify({
+        name: payload.name,
+        rate_limit: payload.rateLimit,
+        ip_whitelist: payload.ipWhitelist,
+        expires_in: payload.expiresIn,
+      }),
     });
 
     const data = await res.json();
     setActionLoading(false);
 
     if (res.ok) {
-      setCreatedKey(data.key.key);
-      setNewKeyName('');
       fetchAllData(true);
       showToast('API key created successfully', 'success');
+      return data.key.key;
     } else {
       showToast(data.error || 'Failed to create key', 'error');
+      return null;
     }
   };
 
@@ -904,13 +909,14 @@ export default function Console() {
                 keys={keys}
                 onCopy={copyToClipboard}
                 copiedKey={copiedKey}
-                onCreateKey={() => setShowCreateModal(true)}
+                onCreateKey={handleCreateKey}
                 onRevokeKey={(key) => {
                   setSelectedKey(key);
                   setShowRevokeModal(true);
                 }}
                 onUpdateKeyName={handleUpdateKeyName}
                 actionLoading={actionLoading}
+                plan={settings?.plan}
               />
             )}
 
@@ -946,80 +952,6 @@ export default function Console() {
           </main>
         </div>
       </div>
-
-      {showCreateModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 z-50">
-          <div className="bg-white dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800 max-w-md w-full p-4 sm:p-5 shadow-2xl">
-            {createdKey ? (
-              <div>
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                  <FiKey className="text-lg sm:text-xl text-emerald-600 dark:text-emerald-400" />
-                </div>
-                <h3 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-white text-center mb-1 sm:mb-2">API Key Created!</h3>
-                <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 text-center mb-4 sm:mb-5">Save this key securely. You won't be able to see it again.</p>
-
-                <div className="p-3 sm:p-4 bg-zinc-100 dark:bg-zinc-900 rounded-lg mb-4 sm:mb-5">
-                  <p className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 mb-1.5 sm:mb-2">Your API Key</p>
-                  <div className="flex items-center gap-2">
-                    <code className="flex-1 font-mono text-xs sm:text-sm text-zinc-900 dark:text-white break-all">{createdKey}</code>
-                    <button
-                      onClick={() => copyToClipboard(createdKey, 'created')}
-                      className="p-1.5 sm:p-2 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-lg transition-colors flex-shrink-0"
-                    >
-                      {copiedKey === 'created' ? <FiActivity className="text-emerald-500 text-xs sm:text-sm" /> : <FiKey className="text-zinc-400 text-xs sm:text-sm" />}
-                    </button>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => { setShowCreateModal(false); setCreatedKey(null); }}
-                  className="w-full px-4 py-2 sm:py-2.5 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white rounded-lg font-semibold transition-all text-xs sm:text-sm shadow-lg"
-                >
-                  Done
-                </button>
-              </div>
-            ) : (
-              <div>
-                <h3 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-white mb-4 sm:mb-5">Create New API Key</h3>
-                <div className="mb-4 sm:mb-5">
-                  <label className="block text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5 sm:mb-2">Key Name</label>
-                  <input
-                    type="text"
-                    value={newKeyName}
-                    onChange={(e) => setNewKeyName(e.target.value)}
-                    placeholder="e.g., Production Key"
-                    className="w-full px-3 py-2 sm:px-4 sm:py-2.5 bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 rounded-lg text-xs sm:text-sm text-zinc-900 dark:text-white outline-none focus:border-sky-500 transition-colors"
-                    autoFocus
-                  />
-                </div>
-                <div className="flex gap-2 sm:gap-3">
-                  <button
-                    onClick={() => { setShowCreateModal(false); setNewKeyName(''); }}
-                    disabled={actionLoading}
-                    className="flex-1 px-4 py-2 sm:py-2.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-900 dark:text-white rounded-lg font-semibold transition-colors text-xs sm:text-sm disabled:opacity-50"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleCreateKey}
-                    disabled={actionLoading}
-                    className="flex-1 px-4 py-2 sm:py-2.5 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white rounded-lg font-semibold transition-all text-xs sm:text-sm disabled:opacity-50 flex items-center justify-center gap-1.5 sm:gap-2 shadow-lg"
-                  >
-                    {actionLoading ? (
-                      <>
-                        <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        <span>Creating...</span>
-                      </>
-                    ) : (
-                      'Create Key'
-                    )}
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
 
       {showRevokeModal && selectedKey && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 z-50">
