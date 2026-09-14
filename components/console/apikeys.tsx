@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { FiKey, FiCopy, FiCheck, FiTrash2, FiEdit2, FiSave, FiX, FiPlus, FiAlertCircle, FiActivity, FiClock, FiShield, FiZap } from 'react-icons/fi';
+import { useState, useEffect, useRef } from 'react';
+import { FiKey, FiCopy, FiCheck, FiTrash2, FiEdit2, FiSave, FiX, FiPlus, FiAlertCircle, FiActivity, FiClock, FiShield, FiZap, FiGlobe, FiTag, FiLock, FiChevronDown } from 'react-icons/fi';
 
 type ApiKey = {
   id: string;
@@ -15,15 +15,52 @@ type ApiKey = {
   updated_at: string;
 };
 
+type PlanType = 'free' | 'pro' | 'enterprise';
+
+type CreateKeyPayload = {
+  name: string;
+  rateLimit: number;
+  ipWhitelist: string[];
+  expiresIn: string;
+};
+
 type ApiKeysProps = {
   keys: ApiKey[];
   onCopy: (text: string, id: string) => void;
   copiedKey: string | null;
-  onCreateKey: () => void;
+  onCreateKey: (payload: CreateKeyPayload) => Promise<string | null> | void;
   onRevokeKey: (key: ApiKey) => void;
   onUpdateKeyName: (keyId: string, name: string) => void;
   actionLoading: boolean;
+  plan?: PlanType;
 };
+
+const PLAN_MAX_KEYS: Record<PlanType, number> = {
+  free: 1,
+  pro: 1,
+  enterprise: 3,
+};
+
+const PLAN_LIMITS: Record<PlanType, { label: string; rateOptions: number[]; color: string }> = {
+  free: { label: 'Free', rateOptions: [250, 500, 1000], color: '#38bdf8' },
+  pro: { label: 'Pro', rateOptions: [1000, 2000, 4000], color: '#a855f7' },
+  enterprise: { label: 'Enterprise', rateOptions: [2000, 4000, 8000], color: '#fb7185' },
+};
+
+const EXPIRY_OPTIONS = [
+  { value: 'never', label: 'Never' },
+  { value: '30d', label: '30 days' },
+  { value: '90d', label: '90 days' },
+  { value: '1y', label: '1 year' },
+];
+
+const ipRegex = /^(\d{1,3}\.){3}\d{1,3}(\/\d{1,2})?$/;
+
+function isValidIp(ip: string) {
+  if (!ipRegex.test(ip)) return false;
+  const [addr] = ip.split('/');
+  return addr.split('.').every((seg) => Number(seg) >= 0 && Number(seg) <= 255);
+}
 
 function UsageRing({ percentage }: { percentage: number }) {
   const radius = 20;
@@ -245,6 +282,450 @@ function KeyCard({
   );
 }
 
+function CreateKeyModal({
+  open,
+  onClose,
+  onCreate,
+  actionLoading,
+  plan,
+  onCopy,
+  copiedKey,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onCreate: (payload: CreateKeyPayload) => Promise<string | null> | void;
+  actionLoading: boolean;
+  plan: PlanType;
+  onCopy: (text: string, id: string) => void;
+  copiedKey: string | null;
+}) {
+  const [visible, setVisible] = useState(false);
+  const [name, setName] = useState('');
+  const [rateLimit, setRateLimit] = useState<number>(PLAN_LIMITS[plan].rateOptions[0]);
+  const [expiresIn, setExpiresIn] = useState('never');
+  const [ipInput, setIpInput] = useState('');
+  const [ipList, setIpList] = useState<string[]>([]);
+  const [ipError, setIpError] = useState('');
+  const [restrictIp, setRestrictIp] = useState(false);
+  const [expiryOpen, setExpiryOpen] = useState(false);
+  const [createdKey, setCreatedKey] = useState<string | null>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
+  const expiryRef = useRef<HTMLDivElement>(null);
+
+  const limits = PLAN_LIMITS[plan];
+
+  useEffect(() => {
+    if (open) {
+      requestAnimationFrame(() => requestAnimationFrame(() => setVisible(true)));
+    } else {
+      setVisible(false);
+    }
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) {
+      setName('');
+      setRateLimit(PLAN_LIMITS[plan].rateOptions[0]);
+      setExpiresIn('never');
+      setIpInput('');
+      setIpList([]);
+      setIpError('');
+      setRestrictIp(false);
+      setExpiryOpen(false);
+      setCreatedKey(null);
+    }
+  }, [open, plan]);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (expiryRef.current && !expiryRef.current.contains(e.target as Node)) {
+        setExpiryOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const handleClose = () => {
+    setVisible(false);
+    setTimeout(onClose, 260);
+  };
+
+  const addIp = () => {
+    const trimmed = ipInput.trim();
+    if (!trimmed) return;
+    if (!isValidIp(trimmed)) {
+      setIpError('Format IP tidak valid');
+      return;
+    }
+    if (ipList.includes(trimmed)) {
+      setIpError('IP sudah ada di daftar');
+      return;
+    }
+    if (ipList.length >= 10) {
+      setIpError('Maksimal 10 alamat IP');
+      return;
+    }
+    setIpList((prev) => [...prev, trimmed]);
+    setIpInput('');
+    setIpError('');
+  };
+
+  const removeIp = (ip: string) => {
+    setIpList((prev) => prev.filter((v) => v !== ip));
+  };
+
+  const handleSubmit = async () => {
+    if (!name.trim()) return;
+    const result = await onCreate({
+      name: name.trim(),
+      rateLimit,
+      ipWhitelist: restrictIp ? ipList : [],
+      expiresIn,
+    });
+    if (result) {
+      setCreatedKey(result);
+    }
+  };
+
+  if (!open) return null;
+
+  const expiryLabel = EXPIRY_OPTIONS.find((o) => o.value === expiresIn)?.label ?? 'Never';
+
+  return (
+    <div
+      className="fixed inset-0 z-[70] flex items-center justify-center p-3 sm:p-4"
+      style={{ opacity: visible ? 1 : 0, transition: 'opacity 0.28s ease' }}
+    >
+      <div
+        onClick={handleClose}
+        className="absolute inset-0 bg-zinc-950/40 dark:bg-black/60"
+        style={{ backdropFilter: visible ? 'blur(20px) saturate(140%)' : 'blur(0px)', WebkitBackdropFilter: visible ? 'blur(20px) saturate(140%)' : 'blur(0px)', transition: 'backdrop-filter 0.35s ease' }}
+      />
+
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div
+          className="absolute w-[420px] h-[420px] rounded-full blur-3xl"
+          style={{
+            background: `radial-gradient(circle, ${limits.color}33 0%, transparent 70%)`,
+            top: '10%',
+            left: '15%',
+            opacity: visible ? 1 : 0,
+            transform: visible ? 'scale(1)' : 'scale(0.7)',
+            transition: 'opacity 0.6s ease, transform 0.6s ease',
+          }}
+        />
+        <div
+          className="absolute w-[380px] h-[380px] rounded-full blur-3xl"
+          style={{
+            background: `radial-gradient(circle, ${limits.color}22 0%, transparent 70%)`,
+            bottom: '8%',
+            right: '12%',
+            opacity: visible ? 1 : 0,
+            transform: visible ? 'scale(1)' : 'scale(0.7)',
+            transition: 'opacity 0.7s ease 0.05s, transform 0.7s ease 0.05s',
+          }}
+        />
+      </div>
+
+      <div
+        ref={modalRef}
+        className="relative w-full max-w-lg max-h-[92vh] overflow-y-auto rounded-[28px] modal-scroll"
+        style={{
+          opacity: visible ? 1 : 0,
+          transform: visible ? 'translateY(0) scale(1)' : 'translateY(24px) scale(0.96)',
+          transition: 'opacity 0.34s cubic-bezier(0.16,1,0.3,1), transform 0.34s cubic-bezier(0.16,1,0.3,1)',
+          background: 'linear-gradient(150deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.05) 100%)',
+          backdropFilter: 'blur(28px) saturate(160%)',
+          WebkitBackdropFilter: 'blur(28px) saturate(160%)',
+          border: '1px solid rgba(255,255,255,0.18)',
+          boxShadow: `0 24px 70px -20px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.06) inset, 0 1px 0 rgba(255,255,255,0.3) inset`,
+        }}
+      >
+        <div className="absolute inset-0 rounded-[28px] pointer-events-none dark:bg-zinc-950/70 bg-white/55" style={{ zIndex: -1 }} />
+        <div
+          className="absolute top-0 left-0 right-0 h-[1px] rounded-t-[28px] pointer-events-none"
+          style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent)' }}
+        />
+
+        {createdKey ? (
+          <div className="relative p-6 sm:p-8">
+            <div className="flex flex-col items-center text-center mb-6">
+              <div
+                className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 relative"
+                style={{ background: `linear-gradient(135deg, ${limits.color}30, ${limits.color}10)`, border: `1px solid ${limits.color}40` }}
+              >
+                <span className="absolute inset-0 rounded-2xl animate-ping" style={{ background: `${limits.color}20` }} />
+                <FiCheck className="relative text-2xl" style={{ color: limits.color }} />
+              </div>
+              <h3 className="text-xl font-black text-zinc-900 dark:text-white mb-1.5">Key Berhasil Dibuat</h3>
+              <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 max-w-xs">
+                Simpan key ini di tempat aman. Key tidak akan ditampilkan lagi setelah ini ditutup.
+              </p>
+            </div>
+
+            <div
+              className="p-4 rounded-2xl mb-3"
+              style={{ background: 'rgba(120,120,140,0.08)', border: '1px solid rgba(120,120,140,0.15)' }}
+            >
+              <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 mb-2">API Key</p>
+              <div className="flex items-center gap-2">
+                <code className="flex-1 font-mono text-xs sm:text-sm text-zinc-900 dark:text-white break-all">{createdKey}</code>
+                <button
+                  onClick={() => onCopy(createdKey, 'created')}
+                  className="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-110 active:scale-90"
+                  style={{ background: copiedKey === 'created' ? 'rgba(16,185,129,0.15)' : 'rgba(120,120,140,0.12)' }}
+                >
+                  {copiedKey === 'created' ? <FiCheck className="text-emerald-500" /> : <FiCopy className="text-zinc-500 dark:text-zinc-400" />}
+                </button>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-2.5 px-3.5 py-3 rounded-xl mb-6" style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)' }}>
+              <FiAlertCircle className="text-amber-500 flex-shrink-0 mt-0.5" style={{ fontSize: 13 }} />
+              <p className="text-[11px] text-amber-600 dark:text-amber-400 leading-relaxed">
+                Untuk keamanan, key penuh hanya muncul sekali. Simpan sekarang sebelum menutup jendela ini.
+              </p>
+            </div>
+
+            <button
+              onClick={handleClose}
+              className="w-full py-3 rounded-2xl font-bold text-sm text-white transition-all hover:scale-[1.01] active:scale-[0.99]"
+              style={{ background: `linear-gradient(135deg, ${limits.color}, ${limits.color}cc)`, boxShadow: `0 8px 24px -6px ${limits.color}70` }}
+            >
+              Selesai
+            </button>
+          </div>
+        ) : (
+          <div className="relative p-6 sm:p-8">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-11 h-11 rounded-2xl flex items-center justify-center"
+                  style={{ background: `linear-gradient(135deg, ${limits.color}35, ${limits.color}10)`, border: `1px solid ${limits.color}40` }}
+                >
+                  <FiKey style={{ color: limits.color }} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-zinc-900 dark:text-white leading-tight">Buat API Key</h3>
+                  <p className="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">Paket {limits.label}</p>
+                </div>
+              </div>
+              <button
+                onClick={handleClose}
+                className="w-8 h-8 rounded-xl flex items-center justify-center transition-all hover:scale-110 active:scale-90"
+                style={{ background: 'rgba(120,120,140,0.12)' }}
+              >
+                <FiX className="text-zinc-500 dark:text-zinc-400" style={{ fontSize: 14 }} />
+              </button>
+            </div>
+
+            <div className="space-y-5">
+              <div>
+                <label className="flex items-center gap-1.5 text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-2">
+                  <FiTag style={{ fontSize: 11 }} />
+                  Nama Key
+                </label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Contoh: Production Server"
+                  autoFocus
+                  className="w-full px-4 py-3 rounded-2xl text-sm text-zinc-900 dark:text-white outline-none transition-all placeholder:text-zinc-400 dark:placeholder:text-zinc-600"
+                  style={{ background: 'rgba(120,120,140,0.08)', border: '1px solid rgba(120,120,140,0.18)' }}
+                  onFocus={(e) => { e.target.style.border = `1px solid ${limits.color}80`; e.target.style.background = 'rgba(120,120,140,0.12)'; }}
+                  onBlur={(e) => { e.target.style.border = '1px solid rgba(120,120,140,0.18)'; e.target.style.background = 'rgba(120,120,140,0.08)'; }}
+                />
+              </div>
+
+              <div>
+                <label className="flex items-center gap-1.5 text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-2">
+                  <FiZap style={{ fontSize: 11 }} />
+                  Rate Limit Harian
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {limits.rateOptions.map((opt) => (
+                    <button
+                      key={opt}
+                      onClick={() => setRateLimit(opt)}
+                      className="py-2.5 rounded-xl text-xs font-bold transition-all"
+                      style={
+                        rateLimit === opt
+                          ? { background: `linear-gradient(135deg, ${limits.color}, ${limits.color}cc)`, color: '#fff', boxShadow: `0 6px 16px -4px ${limits.color}70` }
+                          : { background: 'rgba(120,120,140,0.08)', border: '1px solid rgba(120,120,140,0.18)', color: 'inherit' }
+                      }
+                    >
+                      {opt.toLocaleString()}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div ref={expiryRef} className="relative">
+                <label className="flex items-center gap-1.5 text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-2">
+                  <FiLock style={{ fontSize: 11 }} />
+                  Masa Berlaku
+                </label>
+                <button
+                  onClick={() => setExpiryOpen((v) => !v)}
+                  className="w-full flex items-center justify-between px-4 py-3 rounded-2xl text-sm text-zinc-900 dark:text-white transition-all"
+                  style={{ background: 'rgba(120,120,140,0.08)', border: '1px solid rgba(120,120,140,0.18)' }}
+                >
+                  <span className="font-semibold">{expiryLabel}</span>
+                  <FiChevronDown className="text-zinc-400 transition-transform" style={{ transform: expiryOpen ? 'rotate(180deg)' : 'rotate(0deg)', fontSize: 13 }} />
+                </button>
+                {expiryOpen && (
+                  <div
+                    className="absolute top-full left-0 right-0 mt-2 rounded-2xl overflow-hidden z-10 p-1.5"
+                    style={{ background: 'rgba(255,255,255,0.65)', backdropFilter: 'blur(24px) saturate(160%)', WebkitBackdropFilter: 'blur(24px) saturate(160%)', border: '1px solid rgba(255,255,255,0.3)', boxShadow: '0 16px 40px -12px rgba(0,0,0,0.3)' }}
+                  >
+                    <div className="absolute inset-0 dark:bg-zinc-900/80 pointer-events-none" style={{ zIndex: -1 }} />
+                    {EXPIRY_OPTIONS.map((opt) => (
+                      <button
+                        key={opt.value}
+                        onClick={() => { setExpiresIn(opt.value); setExpiryOpen(false); }}
+                        className="w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-zinc-800 dark:text-zinc-100 transition-colors hover:bg-black/5 dark:hover:bg-white/10 flex items-center justify-between"
+                      >
+                        {opt.label}
+                        {expiresIn === opt.value && <FiCheck style={{ color: limits.color, fontSize: 12 }} />}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="rounded-2xl overflow-hidden" style={{ background: 'rgba(120,120,140,0.08)', border: '1px solid rgba(120,120,140,0.18)' }}>
+                <button
+                  onClick={() => setRestrictIp((v) => !v)}
+                  className="w-full flex items-center justify-between px-4 py-3.5"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div
+                      className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+                      style={{ background: restrictIp ? `${limits.color}25` : 'rgba(120,120,140,0.1)' }}
+                    >
+                      <FiGlobe style={{ color: restrictIp ? limits.color : undefined, fontSize: 13 }} className={restrictIp ? '' : 'text-zinc-400'} />
+                    </div>
+                    <div className="text-left">
+                      <p className="text-xs font-bold text-zinc-800 dark:text-zinc-100">Batasi Akses IP</p>
+                      <p className="text-[10px] text-zinc-500 dark:text-zinc-400">Hanya IP terdaftar yang bisa memakai key</p>
+                    </div>
+                  </div>
+                  <div
+                    className="w-10 h-6 rounded-full relative flex-shrink-0 transition-colors duration-200"
+                    style={{ background: restrictIp ? limits.color : 'rgba(120,120,140,0.3)' }}
+                  >
+                    <div
+                      className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-200"
+                      style={{ transform: restrictIp ? 'translateX(18px)' : 'translateX(2px)' }}
+                    />
+                  </div>
+                </button>
+
+                {restrictIp && (
+                  <div className="px-4 pb-4 pt-1 space-y-3" style={{ borderTop: '1px solid rgba(120,120,140,0.15)' }}>
+                    <div className="flex gap-2 pt-3">
+                      <input
+                        type="text"
+                        value={ipInput}
+                        onChange={(e) => { setIpInput(e.target.value); setIpError(''); }}
+                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addIp(); } }}
+                        placeholder="192.168.1.1 atau 10.0.0.0/24"
+                        className="flex-1 px-3.5 py-2.5 rounded-xl text-xs font-mono text-zinc-900 dark:text-white outline-none transition-all placeholder:text-zinc-400 dark:placeholder:text-zinc-600"
+                        style={{ background: 'rgba(120,120,140,0.1)', border: ipError ? '1px solid rgba(239,68,68,0.5)' : '1px solid rgba(120,120,140,0.18)' }}
+                      />
+                      <button
+                        onClick={addIp}
+                        className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-all hover:scale-105 active:scale-95"
+                        style={{ background: `linear-gradient(135deg, ${limits.color}, ${limits.color}cc)` }}
+                      >
+                        <FiPlus className="text-white" style={{ fontSize: 15 }} />
+                      </button>
+                    </div>
+
+                    {ipError && (
+                      <p className="text-[10px] text-red-500 font-semibold flex items-center gap-1">
+                        <FiAlertCircle style={{ fontSize: 10 }} />
+                        {ipError}
+                      </p>
+                    )}
+
+                    {ipList.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5">
+                        {ipList.map((ip) => (
+                          <div
+                            key={ip}
+                            className="flex items-center gap-1.5 pl-2.5 pr-1.5 py-1.5 rounded-lg text-[11px] font-mono font-semibold text-zinc-700 dark:text-zinc-200"
+                            style={{ background: 'rgba(120,120,140,0.12)', border: '1px solid rgba(120,120,140,0.2)' }}
+                          >
+                            {ip}
+                            <button
+                              onClick={() => removeIp(ip)}
+                              className="w-4 h-4 rounded-full flex items-center justify-center hover:bg-red-500/20 transition-colors"
+                            >
+                              <FiTrash2 className="text-red-500" style={{ fontSize: 9 }} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {ipList.length === 0 && (
+                      <p className="text-[10px] text-zinc-400 dark:text-zinc-500 italic">Belum ada IP ditambahkan. Tanpa IP, akses akan tetap terbuka.</p>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex items-start gap-2.5 px-3.5 py-3 rounded-xl" style={{ background: `${limits.color}12`, border: `1px solid ${limits.color}25` }}>
+                <FiShield className="flex-shrink-0 mt-0.5" style={{ color: limits.color, fontSize: 13 }} />
+                <p className="text-[11px] leading-relaxed text-zinc-600 dark:text-zinc-300">
+                  Paket {limits.label} membatasi kamu pada <span className="font-bold">1 API key aktif</span>. Buat key baru akan menonaktifkan key lama secara otomatis.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-2.5 mt-7">
+              <button
+                onClick={handleClose}
+                disabled={actionLoading}
+                className="flex-1 py-3 rounded-2xl font-bold text-sm text-zinc-700 dark:text-zinc-200 transition-all disabled:opacity-50"
+                style={{ background: 'rgba(120,120,140,0.1)', border: '1px solid rgba(120,120,140,0.18)' }}
+              >
+                Batal
+              </button>
+              <button
+                onClick={handleSubmit}
+                disabled={actionLoading || !name.trim()}
+                className="flex-1 py-3 rounded-2xl font-bold text-sm text-white transition-all disabled:opacity-50 flex items-center justify-center gap-2 hover:scale-[1.01] active:scale-[0.99]"
+                style={{ background: `linear-gradient(135deg, ${limits.color}, ${limits.color}cc)`, boxShadow: `0 8px 24px -6px ${limits.color}70` }}
+              >
+                {actionLoading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Membuat...
+                  </>
+                ) : (
+                  <>
+                    <FiPlus style={{ fontSize: 14 }} />
+                    Buat Key
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <style jsx>{`
+        .modal-scroll::-webkit-scrollbar { width: 6px; }
+        .modal-scroll::-webkit-scrollbar-thumb { background: rgba(120,120,140,0.3); border-radius: 999px; }
+      `}</style>
+    </div>
+  );
+}
+
 export default function ApiKeys({
   keys,
   onCopy,
@@ -253,8 +734,10 @@ export default function ApiKeys({
   onRevokeKey,
   onUpdateKeyName,
   actionLoading,
+  plan = 'free',
 }: ApiKeysProps) {
   const [headerMounted, setHeaderMounted] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   useEffect(() => {
     const t = setTimeout(() => setHeaderMounted(true), 50);
@@ -262,7 +745,7 @@ export default function ApiKeys({
   }, []);
 
   const activeKeys = keys.filter(k => k.is_active);
-  const maxKeys = 2;
+  const maxKeys = PLAN_MAX_KEYS[plan];
   const canCreateMoreKeys = activeKeys.length < maxKeys;
 
   let cooldownInfo: { hoursRemaining: number; canCreate: boolean } | null = null;
@@ -309,7 +792,9 @@ export default function ApiKeys({
             <div>
               <p className="text-xs font-bold text-red-700 dark:text-red-400 mb-0.5">Maximum Keys Reached</p>
               <p className="text-[10px] sm:text-xs text-red-600 dark:text-red-500">
-                You have {maxKeys} active keys (maximum allowed). Revoke one to create a new key.
+                {maxKeys === 1
+                  ? 'Paketmu hanya mengizinkan 1 API key aktif. Revoke key ini untuk membuat yang baru.'
+                  : `You have ${maxKeys} active keys (maximum allowed). Revoke one to create a new key.`}
               </p>
             </div>
           </div>
@@ -330,7 +815,7 @@ export default function ApiKeys({
           </div>
 
           <button
-            onClick={canCreateKey ? onCreateKey : undefined}
+            onClick={canCreateKey ? () => setShowCreateModal(true) : undefined}
             disabled={!canCreateKey || actionLoading}
             className={`group/btn relative flex items-center gap-1.5 sm:gap-2 px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition-all duration-200 overflow-hidden
               ${canCreateKey && !actionLoading
@@ -361,7 +846,7 @@ export default function ApiKeys({
             <h3 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white mb-1.5">No API Keys Yet</h3>
             <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mb-4 sm:mb-5">Create your first API key to start building</p>
             <button
-              onClick={onCreateKey}
+              onClick={() => setShowCreateModal(true)}
               className="group/btn relative inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white rounded-xl font-semibold transition-all text-xs sm:text-sm shadow-lg shadow-sky-500/30 hover:shadow-xl hover:shadow-sky-500/40 hover:-translate-y-0.5 active:scale-95 overflow-hidden"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/15 to-white/0 translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-500" />
@@ -420,6 +905,16 @@ export default function ApiKeys({
           })}
         </div>
       )}
+
+      <CreateKeyModal
+        open={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onCreate={onCreateKey}
+        actionLoading={actionLoading}
+        plan={plan}
+        onCopy={onCopy}
+        copiedKey={copiedKey}
+      />
     </div>
   );
 }
