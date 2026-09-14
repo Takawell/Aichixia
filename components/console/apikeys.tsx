@@ -41,6 +41,13 @@ const PLAN_MAX_KEYS: Record<PlanType, number> = {
   enterprise: 3,
 };
 
+function normalizePlan(plan: unknown): PlanType {
+  const value = String(plan || '').trim().toLowerCase();
+  if (value === 'enterprise') return 'enterprise';
+  if (value === 'pro') return 'pro';
+  return 'free';
+}
+
 const PLAN_LIMITS: Record<PlanType, { label: string; rateOptions: number[]; color: string }> = {
   free: { label: 'Free', rateOptions: [250, 500, 1000], color: '#38bdf8' },
   pro: { label: 'Pro', rateOptions: [1000, 2000, 4000], color: '#a855f7' },
@@ -288,6 +295,7 @@ function CreateKeyModal({
   onCreate,
   actionLoading,
   plan,
+  maxKeys,
   onCopy,
   copiedKey,
 }: {
@@ -296,6 +304,7 @@ function CreateKeyModal({
   onCreate: (payload: CreateKeyPayload) => Promise<string | null> | void;
   actionLoading: boolean;
   plan: PlanType;
+  maxKeys: number;
   onCopy: (text: string, id: string) => void;
   copiedKey: string | null;
 }) {
@@ -355,15 +364,15 @@ function CreateKeyModal({
     const trimmed = ipInput.trim();
     if (!trimmed) return;
     if (!isValidIp(trimmed)) {
-      setIpError('Format IP tidak valid');
+      setIpError('Invalid IP format');
       return;
     }
     if (ipList.includes(trimmed)) {
-      setIpError('IP sudah ada di daftar');
+      setIpError('This IP is already in the list');
       return;
     }
     if (ipList.length >= 10) {
-      setIpError('Maksimal 10 alamat IP');
+      setIpError('Maximum 10 IP addresses');
       return;
     }
     setIpList((prev) => [...prev, trimmed]);
@@ -458,9 +467,9 @@ function CreateKeyModal({
                 <span className="absolute inset-0 rounded-2xl animate-ping" style={{ background: `${limits.color}20` }} />
                 <FiCheck className="relative text-2xl" style={{ color: limits.color }} />
               </div>
-              <h3 className="text-xl font-black text-zinc-900 dark:text-white mb-1.5">Key Berhasil Dibuat</h3>
+              <h3 className="text-xl font-black text-zinc-900 dark:text-white mb-1.5">Key Created Successfully</h3>
               <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 max-w-xs">
-                Simpan key ini di tempat aman. Key tidak akan ditampilkan lagi setelah ini ditutup.
+                Save this key somewhere safe. It won't be shown again once this window is closed.
               </p>
             </div>
 
@@ -484,7 +493,7 @@ function CreateKeyModal({
             <div className="flex items-start gap-2.5 px-3.5 py-3 rounded-xl mb-6" style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)' }}>
               <FiAlertCircle className="text-amber-500 flex-shrink-0 mt-0.5" style={{ fontSize: 13 }} />
               <p className="text-[11px] text-amber-600 dark:text-amber-400 leading-relaxed">
-                Untuk keamanan, key penuh hanya muncul sekali. Simpan sekarang sebelum menutup jendela ini.
+                For security reasons, the full key is only shown once. Save it now before closing this window.
               </p>
             </div>
 
@@ -493,7 +502,7 @@ function CreateKeyModal({
               className="w-full py-3 rounded-2xl font-bold text-sm text-white transition-all hover:scale-[1.01] active:scale-[0.99]"
               style={{ background: `linear-gradient(135deg, ${limits.color}, ${limits.color}cc)`, boxShadow: `0 8px 24px -6px ${limits.color}70` }}
             >
-              Selesai
+              Done
             </button>
           </div>
         ) : (
@@ -507,8 +516,8 @@ function CreateKeyModal({
                   <FiKey style={{ color: limits.color }} />
                 </div>
                 <div>
-                  <h3 className="text-lg font-black text-zinc-900 dark:text-white leading-tight">Buat API Key</h3>
-                  <p className="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">Paket {limits.label}</p>
+                  <h3 className="text-lg font-black text-zinc-900 dark:text-white leading-tight">Create API Key</h3>
+                  <p className="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">{limits.label} Plan</p>
                 </div>
               </div>
               <button
@@ -524,7 +533,7 @@ function CreateKeyModal({
               <div>
                 <label className="flex items-center gap-1.5 text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-2">
                   <FiTag style={{ fontSize: 11 }} />
-                  Nama Key
+                  Key Name
                 </label>
                 <input
                   type="text"
@@ -542,7 +551,7 @@ function CreateKeyModal({
               <div>
                 <label className="flex items-center gap-1.5 text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-2">
                   <FiZap style={{ fontSize: 11 }} />
-                  Rate Limit Harian
+                  Daily Rate Limit
                 </label>
                 <div className="grid grid-cols-3 gap-2">
                   {limits.rateOptions.map((opt) => (
@@ -565,7 +574,7 @@ function CreateKeyModal({
               <div ref={expiryRef} className="relative">
                 <label className="flex items-center gap-1.5 text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-2">
                   <FiLock style={{ fontSize: 11 }} />
-                  Masa Berlaku
+                  Expiration
                 </label>
                 <button
                   onClick={() => setExpiryOpen((v) => !v)}
@@ -608,8 +617,8 @@ function CreateKeyModal({
                       <FiGlobe style={{ color: restrictIp ? limits.color : undefined, fontSize: 13 }} className={restrictIp ? '' : 'text-zinc-400'} />
                     </div>
                     <div className="text-left">
-                      <p className="text-xs font-bold text-zinc-800 dark:text-zinc-100">Batasi Akses IP</p>
-                      <p className="text-[10px] text-zinc-500 dark:text-zinc-400">Hanya IP terdaftar yang bisa memakai key</p>
+                      <p className="text-xs font-bold text-zinc-800 dark:text-zinc-100">Restrict IP Access</p>
+                      <p className="text-[10px] text-zinc-500 dark:text-zinc-400">Only listed IPs can use this key</p>
                     </div>
                   </div>
                   <div
@@ -672,7 +681,7 @@ function CreateKeyModal({
                     )}
 
                     {ipList.length === 0 && (
-                      <p className="text-[10px] text-zinc-400 dark:text-zinc-500 italic">Belum ada IP ditambahkan. Tanpa IP, akses akan tetap terbuka.</p>
+                      <p className="text-[10px] text-zinc-400 dark:text-zinc-500 italic">No IPs added yet. Without any IPs, access stays open.</p>
                     )}
                   </div>
                 )}
@@ -681,7 +690,7 @@ function CreateKeyModal({
               <div className="flex items-start gap-2.5 px-3.5 py-3 rounded-xl" style={{ background: `${limits.color}12`, border: `1px solid ${limits.color}25` }}>
                 <FiShield className="flex-shrink-0 mt-0.5" style={{ color: limits.color, fontSize: 13 }} />
                 <p className="text-[11px] leading-relaxed text-zinc-600 dark:text-zinc-300">
-                  Paket {limits.label} membatasi kamu pada <span className="font-bold">1 API key aktif</span>. Buat key baru akan menonaktifkan key lama secara otomatis.
+                  The {limits.label} plan limits you to <span className="font-bold">{maxKeys} active API key{maxKeys > 1 ? 's' : ''}</span>. Creating a new key will automatically deactivate the oldest one once the limit is reached.
                 </p>
               </div>
             </div>
@@ -693,7 +702,7 @@ function CreateKeyModal({
                 className="flex-1 py-3 rounded-2xl font-bold text-sm text-zinc-700 dark:text-zinc-200 transition-all disabled:opacity-50"
                 style={{ background: 'rgba(120,120,140,0.1)', border: '1px solid rgba(120,120,140,0.18)' }}
               >
-                Batal
+                Cancel
               </button>
               <button
                 onClick={handleSubmit}
@@ -704,12 +713,12 @@ function CreateKeyModal({
                 {actionLoading ? (
                   <>
                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Membuat...
+                    Creating...
                   </>
                 ) : (
                   <>
                     <FiPlus style={{ fontSize: 14 }} />
-                    Buat Key
+                    Create Key
                   </>
                 )}
               </button>
@@ -734,10 +743,11 @@ export default function ApiKeys({
   onRevokeKey,
   onUpdateKeyName,
   actionLoading,
-  plan = 'free',
+  plan,
 }: ApiKeysProps) {
   const [headerMounted, setHeaderMounted] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const normalizedPlan = normalizePlan(plan);
 
   useEffect(() => {
     const t = setTimeout(() => setHeaderMounted(true), 50);
@@ -745,7 +755,7 @@ export default function ApiKeys({
   }, []);
 
   const activeKeys = keys.filter(k => k.is_active);
-  const maxKeys = PLAN_MAX_KEYS[plan];
+  const maxKeys = PLAN_MAX_KEYS[normalizedPlan];
   const canCreateMoreKeys = activeKeys.length < maxKeys;
 
   let cooldownInfo: { hoursRemaining: number; canCreate: boolean } | null = null;
@@ -793,7 +803,7 @@ export default function ApiKeys({
               <p className="text-xs font-bold text-red-700 dark:text-red-400 mb-0.5">Maximum Keys Reached</p>
               <p className="text-[10px] sm:text-xs text-red-600 dark:text-red-500">
                 {maxKeys === 1
-                  ? 'Paketmu hanya mengizinkan 1 API key aktif. Revoke key ini untuk membuat yang baru.'
+                  ? 'Your plan only allows 1 active API key. Revoke this key to create a new one.'
                   : `You have ${maxKeys} active keys (maximum allowed). Revoke one to create a new key.`}
               </p>
             </div>
@@ -911,7 +921,8 @@ export default function ApiKeys({
         onClose={() => setShowCreateModal(false)}
         onCreate={onCreateKey}
         actionLoading={actionLoading}
-        plan={plan}
+        plan={normalizedPlan}
+        maxKeys={maxKeys}
         onCopy={onCopy}
         copiedKey={copiedKey}
       />
