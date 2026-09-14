@@ -313,7 +313,7 @@ export default function Console() {
     }
   };
 
-  const handleCreateKey = async (payload: { name: string; rateLimit: number; ipWhitelist: string[]; expiresIn: string }): Promise<string | null> => {
+  const handleCreateKey = async (payload: { name: string; ipWhitelist: string[]; expiresIn: string }): Promise<string | null> => {
     if (!payload.name.trim()) {
       showToast('Please enter a key name', 'error');
       return null;
@@ -334,7 +334,6 @@ export default function Console() {
       },
       body: JSON.stringify({
         name: payload.name,
-        rate_limit: payload.rateLimit,
         ip_whitelist: payload.ipWhitelist,
         expires_in: payload.expiresIn,
       }),
