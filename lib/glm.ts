@@ -8,7 +8,7 @@ export type ChatMessage = {
 };
 
 const NVIDIA_API_KEY = process.env.NVIDIA_API_KEY;
-const GLM_MODEL = process.env.GLM_MODEL || "z-ai/glm-5.2";
+const GLM_MODEL = process.env.GLM_MODEL || "z-ai/glm-5.3";
 
 if (!NVIDIA_API_KEY) {
   console.warn("[lib/glm] Warning: NVIDIA_API_KEY not set in env.");
