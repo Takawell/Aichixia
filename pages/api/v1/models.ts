@@ -3,11 +3,11 @@ import { verifyApiKey } from "@/lib/console-utils";
 
 const MODELS = [
   {
-    id: "google/gemini-3-flash",
+    id: "google/gemini-3.8-flash",
     object: "model",
     created: 1748000000,
     owned_by: "google",
-    description: "Google Gemini 3 Flash — fast and efficient multimodal model",
+    description: "Google Gemini 3.8 Flash — fast and efficient multimodal model",
     context_window: 1000000,
     capabilities: ["chat", "multimodal", "streaming"],
     tier: "free",
@@ -103,11 +103,11 @@ const MODELS = [
     tier: "pro",
   },
   {
-    id: "deepseek/deepseek-v4-flash",
+    id: "deepseek/deepseek-v4.1-flash",
     object: "model",
     created: 1748420000,
     owned_by: "deepseek",
-    description: "DeepSeek V4 Flash — fast lightweight DeepSeek model",
+    description: "DeepSeek V4.1 Flash — fast lightweight DeepSeek model",
     context_window: 128000,
     capabilities: ["chat", "streaming"],
     tier: "free",
