@@ -180,7 +180,7 @@ const MODELS = [
     description: "MiniMax M3 — multimodal and long context model",
     context_window: 1000000,
     capabilities: ["chat", "multimodal", "streaming"],
-    tier: "pro",
+    tier: "free",
   },
   {
     id: "meta/llama-3.3-70b",
