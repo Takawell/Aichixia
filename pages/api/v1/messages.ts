@@ -35,6 +35,7 @@ import { chatFable, streamFable, FableRateLimitError, FableQuotaError } from "@/
 import { chatInkling, streamInkling, InklingRateLimitError, InklingQuotaError } from "@/lib/inkling";
 import { chatCodex, streamCodex, CodexRateLimitError, CodexQuotaError } from "@/lib/codex";
 import { chatNex, streamNex, NexRateLimitError, NexQuotaError } from "@/lib/nex";
+import { chatAstra, streamAstra, AstraRateLimitError, AstraQuotaError } from "@/lib/astra";
 import { verifyApiKey, incrementUsage, logRequest, updateDailyUsage } from "@/lib/console-utils";
 import { getServiceSupabase } from "@/lib/supabase";
 
@@ -93,6 +94,7 @@ const MODEL_MAPPING: Record<string, { fn: ChatFunction; provider: string }> = {
   "meta/llama-4-scout-17b-16e-instruct": { fn: chatScout, provider: "scout" },
   "openai/gpt-5.3-codex-spark": { fn: chatCodex, provider: "codex" },
   "nex-agi/nex-n2.5-pro": { fn: chatNex, provider: "nex" },
+  "clouvia/gpt-6-astra": { fn: chatAstra, provider: "astra" },
 };
 
 const STREAM_MODEL_MAPPING: Record<string, StreamFunction> = {
@@ -124,6 +126,7 @@ const STREAM_MODEL_MAPPING: Record<string, StreamFunction> = {
   "groq/compound": streamCompound,
   "openai/gpt-5.3-codex-spark": streamCodex,
   "nex-agi/nex-n2.5-pro": streamNex,
+  "clouvia/gpt-6-astra": streamAstra,
 };
 
 const LOCKED_MODELS_PRO = ['deepseek/deepseek-v4-pro', 'xiaomi/mimo-v2.5-pro', 'anthropic/claude-sonnet-4-6', 'z-ai/glm-5.2', 'aichiverse/aichixia-flash', 'xai/grok-4-fast', 'moonshotai/kimi-k3', 'openai/gpt-5.2', 'openai/gpt-5.3-codex-spark', 'poolside/laguna-s-2.1', 'thinkingmachines/inkling', 'sensenova/sensenova-6.8-flash-lite'];
@@ -138,6 +141,7 @@ const RATE_LIMIT_ERRORS = [
   AichixiaRateLimitError, StepfunRateLimitError, NemotronRateLimitError, Gpt55RateLimitError, OpusRateLimitError,
   GemmaRateLimitError, HaikuRateLimitError, LagunaRateLimitError, GeminiRateLimitError, FableRateLimitError,
   InklingRateLimitError, ScoutRateLimitError, CodexRateLimitError, NexRateLimitError,
+  AstraRateLimitError,
 ];
 
 const QUOTA_ERRORS = [
@@ -149,6 +153,7 @@ const QUOTA_ERRORS = [
   AichixiaQuotaError, StepfunQuotaError, NemotronQuotaError, Gpt55QuotaError, OpusQuotaError,
   GemmaQuotaError, HaikuQuotaError, LagunaQuotaError, GeminiQuotaError, FableQuotaError,
   InklingQuotaError, ScoutQuotaError, CodexQuotaError, NexQuotaError,
+  AstraQuotaError,
 ];
 
 function isRateLimitError(error: any): boolean {
