@@ -52,6 +52,7 @@ const STREAM_SUPPORTED_MODELS = new Set([
   'groq/compound',
   'openai/gpt-5.3-codex-spark',
   'nex-agi/nex-n2.5-pro',
+  'openai/gpt-6-astra',
 ]);
 
 const LANGUAGE_FLAGS: Record<string, string> = {
@@ -621,6 +622,22 @@ const AVAILABLE_MODELS = [
     contextWindow: '400K tokens',
     pricing: 'Premium',
     features: ['Code generation', 'Enhanced reasoning', 'Latest generation'],
+    endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
+  },
+  {
+    id: 'openai/gpt-6-astra',
+    name: 'GPT-6 Astra',
+    icon: RiOpenaiFill,
+    logoSlug: 'openai',
+    invertDark: true,
+    color: 'from-green-600 to-emerald-700',
+    category: 'Text Generation',
+    description: "OpenAI's most capable model for the hardest end-to-end work, from complex reasoning and coding to computer use and research",
+    speed: 4,
+    quality: 5,
+    contextWindow: '1M tokens',
+    pricing: 'Premium',
+    features: ['Advanced reasoning', 'Computer use', 'Vision input', 'Coding'],
     endpoint: 'https://www.aichixia.xyz/api/v1/chat/completions',
   },
   {
