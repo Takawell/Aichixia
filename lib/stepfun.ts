@@ -8,7 +8,7 @@ export type ChatMessage = {
 };
 
 const STEPFUN_API_KEY = process.env.STEPFUN_API_KEY;
-const STEPFUN_MODEL = process.env.STEPFUN_MODEL || "stepfun-ai/step-3.7-flash";
+const STEPFUN_MODEL = process.env.STEPFUN_MODEL || "stepfun-ai/step-5-preview";
 
 if (!STEPFUN_API_KEY) {
   console.warn("[lib/stepfun] Warning: STEPFUN_API_KEY not set in env.");
