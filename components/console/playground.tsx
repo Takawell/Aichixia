@@ -10,7 +10,7 @@ import { FaXTwitter } from 'react-icons/fa6';
 
 const base = 'https://www.aichixia.xyz';
 
-const VISION_MODEL_IDS = new Set(['moonshotai/kimi-k3', 'openai/gpt-5.2', 'moonshotai/kimi-k2.6', 'google/gemini-3-flash', 'alibaba/qwen3.8-27b', 'xai/grok-4-fast', 'microsoft/phi-4-multimodal-instruct', 'qwen3.6-27b', 'stepfun-ai/step-3.7-flash', 'anthropic/claude-fable-5', 'thinkingmachines/inkling', 'meta/llama-4-scout-17b-16e-instruct']);
+const VISION_MODEL_IDS = new Set(['moonshotai/kimi-k3', 'openai/gpt-5.2', 'moonshotai/kimi-k2.6', 'google/gemini-3-flash', 'alibaba/qwen3.8-27b', 'xai/grok-4-fast', 'microsoft/phi-4-multimodal-instruct', 'qwen3.6-27b', 'stepfun-ai/step-5-preview', 'anthropic/claude-fable-5', 'thinkingmachines/inkling', 'meta/llama-4-scout-17b-16e-instruct']);
 
 type ModelType = 'text' | 'image' | 'video' | 'tts' | 'stt';
 
@@ -37,7 +37,7 @@ type MemoryMessage = {
   timestamp: number;
 };
 
-const STREAM_CAPABLE_MODELS = new Set(['moonshotai/kimi-k3', 'openai/gpt-5-mini', 'aichiverse/aichixia-flash', 'alibaba/qwen3.8-27b', 'anthropic/claude-sonnet-4-6', 'mistralai/mistral-large-latest', 'minimaxai/minimax-m3', 'sensenova/sensenova-6.8-flash-lite', 'stepfun-ai/step-3.7-flash', 'nvidia/nemotron-3-ultra-550b-a55b', 'openai/gpt-oss-120b', 'deepseek/deepseek-v4.1-flash', 'google/gemma-4-31b', 'z-ai/glm-5.2', 'poolside/laguna-s-2.1', 'cohere/command-a', 'google/gemini-3.8-flash', 'meta/llama-3.3-70b', 'deepseek/deepseek-v4-pro', 'anthropic/claude-fable-5', 'alibaba/qwen3-coder-plus', 'xiaomi/mimo-v2.5-pro', 'thinkingmachines/inkling', 'meta/llama-4-scout-17b-16e-instruct', 'z-ai/glm-4.7-flash', 'openai/gpt-5.2', 'groq/compound', 'openai/gpt-5.3-codex-spark', 'nex-agi/nex-n2.5-pro', 'openai/gpt-6-astra']);
+const STREAM_CAPABLE_MODELS = new Set(['moonshotai/kimi-k3', 'openai/gpt-5-mini', 'aichiverse/aichixia-flash', 'alibaba/qwen3.8-27b', 'anthropic/claude-sonnet-4-6', 'mistralai/mistral-large-latest', 'minimaxai/minimax-m3', 'sensenova/sensenova-6.8-flash-lite', 'stepfun-ai/step-5-preview', 'nvidia/nemotron-3-ultra-550b-a55b', 'openai/gpt-oss-120b', 'deepseek/deepseek-v4.1-flash', 'google/gemma-4-31b', 'z-ai/glm-5.2', 'poolside/laguna-s-2.1', 'cohere/command-a', 'google/gemini-3.8-flash', 'meta/llama-3.3-70b', 'deepseek/deepseek-v4-pro', 'anthropic/claude-fable-5', 'alibaba/qwen3-coder-plus', 'xiaomi/mimo-v2.5-pro', 'thinkingmachines/inkling', 'meta/llama-4-scout-17b-16e-instruct', 'z-ai/glm-4.7-flash', 'openai/gpt-5.2', 'groq/compound', 'openai/gpt-5.3-codex-spark', 'nex-agi/nex-n2.5-pro', 'openai/gpt-6-astra']);
 
 const TEXT_MODELS: AnyModel[] = [
   { id: 'openai/gpt-5-mini', name: 'GPT-5 Mini', provider: 'OpenAI', logoSlug: 'openai', icon: RiOpenaiFill, color: 'from-emerald-500 to-green-600', pricing: 'Budget', context: '400K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
@@ -68,7 +68,7 @@ const TEXT_MODELS: AnyModel[] = [
   { id: 'groq/compound', name: 'Groq Compound', provider: 'Groq', logoSlug: 'groq', icon: GiPowerLightning, color: 'from-orange-600 to-red-600', pricing: 'Standard', context: '131K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'cohere/command-a', name: 'Cohere Command A', provider: 'Cohere', logoSlug: 'cohere', icon: GiClover, color: 'from-emerald-600 to-teal-600', pricing: 'Standard', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'xai/grok-4-fast', name: 'Grok 4 Fast', provider: 'xAI', logoSlug: 'xai', icon: FaXTwitter, color: 'from-zinc-700 to-slate-900', pricing: 'Premium', context: '2M', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
-  { id: 'stepfun-ai/step-3.7-flash', name: 'Step 3.7 Flash', provider: 'StepFun', logoSlug: 'stepfun', icon: DiBower, color: 'from-blue-500 to-blue-700', pricing: 'Standard', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
+  { id: 'stepfun-ai/step-5-preview', name: 'Step 5 Preview', provider: 'StepFun', logoSlug: 'stepfun', icon: DiBower, color: 'from-blue-500 to-blue-700', pricing: 'Standard', context: '1M', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'nvidia/nemotron-3-ultra-550b-a55b', name: 'Nemotron 3 Ultra 550B', provider: 'NVIDIA', logoSlug: 'nvidia', icon: SiNvidia, color: 'from-emerald-600 to-green-600', pricing: 'Premium', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions` },
   { id: 'poolside/laguna-s-2.1', name: 'Laguna S 2.1', provider: 'Poolside', logoSlug: 'poolside', icon: FiZap, color: 'from-sky-600 to-blue-700', pricing: 'Premium', context: '256K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
   { id: 'openai/gpt-5.2', name: 'GPT-5.2', provider: 'OpenAI', logoSlug: 'openai', icon: RiOpenaiFill, color: 'from-green-500 to-emerald-600', pricing: 'Standard', context: '400K', type: 'text', endpoint: `${base}/api/v1/chat/completions`, requiresPro: true },
