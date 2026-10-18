@@ -263,11 +263,11 @@ const MODELS = [
     tier: "pro",
   },
   {
-    id: "stepfun-ai/step-3.7-flash",
+    id: "stepfun-ai/step-5-preview",
     object: "model",
     created: 1748620000,
     owned_by: "stepfun-ai",
-    description: "StepFun Step 3.7 Flash — fast reasoning model",
+    description: "StepFun Step 5 Preview - reasoning model",
     context_window: 128000,
     capabilities: ["chat", "streaming"],
     tier: "free",
