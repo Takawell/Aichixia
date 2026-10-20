@@ -287,7 +287,7 @@ export default function AdminDashboard() {
         fetch('/api/console/admin?type=redemptions', { headers: { Authorization: `Bearer ${token}` } }),
         fetch('/api/console/admin?type=users', { headers: { Authorization: `Bearer ${token}` } }),
         fetch('/api/console/stats?type=usage&days=30&admin=true', { headers: { Authorization: `Bearer ${token}` } }),
-        fetch('/api/console/stats?type=logs&limit=40000&admin=true', { headers: { Authorization: `Bearer ${token}` } }),
+        fetch('/api/console/stats?type=logs&limit=60000&admin=true', { headers: { Authorization: `Bearer ${token}` } }),
       ]);
       const [promosData, redemptionsData, usersData, usageData, logsData] = await Promise.all([
         promosRes.json(), redemptionsRes.json(), usersRes.json(), usageRes.json(), logsRes.json(),
