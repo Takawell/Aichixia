@@ -1,436 +1,342 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import ThemeToggle from '@/components/ThemeToggle';
 import {
-  FaTerminal, FaShieldAlt, FaBars, FaTimes, FaDatabase,
-  FaEye, FaLock, FaUserCheck, FaGlobe, FaEnvelope,
-  FaCheck, FaBolt, FaChevronRight, FaArrowRight
+  FaTerminal,
+  FaShieldAlt,
+  FaDatabase,
+  FaEye,
+  FaLock,
+  FaUserCheck,
+  FaGlobe,
+  FaEnvelope,
+  FaChevronDown,
+  FaArrowUpRightFromSquare
 } from 'react-icons/fa';
 
-const LAST_UPDATED = 'March 2025';
+const LAST_UPDATED = 'October 2026';
 
 const SECTIONS = [
   {
-    id: 'collection',
-    num: '01',
+    id: 'information',
+    number: '01',
     icon: FaDatabase,
-    accent: 'text-blue-600 dark:text-blue-400',
-    accentBg: 'bg-blue-50 dark:bg-blue-950/20',
-    accentBorder: 'border-blue-200 dark:border-blue-900/40',
-    accentDot: 'bg-blue-500',
-    title: 'Information We Collect',
-    summary: 'What data we gather when you use Aichixia.',
+    title: 'Information We Process',
+    summary: 'Account details and technical usage information.',
     items: [
       {
-        heading: 'Account Data',
-        body: 'When you register, we collect your email address, display name, and optional avatar URL. This is stored securely and used solely to identify your account and personalize your experience on the platform.',
+        title: 'Account information',
+        body: 'When you create an Aichixia account, we may process information such as your email address, display name, and profile details you choose to provide. This information is used to operate and maintain your account.'
       },
       {
-        heading: 'API Usage Metadata',
-        body: 'We log metadata about your API requests — model used, endpoint, HTTP status, latency, token count, and IP address. This data powers rate limiting, billing, abuse prevention, and the activity dashboard.',
+        title: 'Usage and technical metadata',
+        body: 'We may process technical and usage metadata needed to operate the platform, such as the requested model, endpoint, response status, latency, token usage, timestamps, and security-related information. This information helps with service operation, usage limits, troubleshooting, and abuse prevention.'
       },
       {
-        heading: 'Technical Data',
-        body: 'We automatically collect browser user agent strings, request timestamps, and session tokens to debug issues and maintain the security and reliability of the platform.',
-      },
-    ],
+        title: 'API request and response content',
+        body: 'Aichixia does not store the content of API requests or responses—such as prompts and generated outputs—as application data. Technical logs and metadata are separate from request and response content; our exact technical-log retention practices are still being reviewed.'
+      }
+    ]
   },
   {
-    id: 'usage',
-    num: '02',
+    id: 'use',
+    number: '02',
     icon: FaEye,
-    accent: 'text-purple-600 dark:text-purple-400',
-    accentBg: 'bg-purple-50 dark:bg-purple-950/20',
-    accentBorder: 'border-purple-200 dark:border-purple-900/40',
-    accentDot: 'bg-purple-500',
-    title: 'How We Use Your Data',
-    summary: 'The purposes behind every data point we process.',
+    title: 'How We Use Information',
+    summary: 'Information is used to operate and protect Aichixia.',
     items: [
       {
-        heading: 'Service Operation',
-        body: 'Your data authenticates requests, enforces plan-based rate limits, populates your analytics dashboard, and maintains the integrity of the API console.',
+        title: 'Operate the service',
+        body: 'Account information and relevant technical metadata may be used to authenticate requests, operate the API platform, enforce applicable usage limits, display usage information, maintain reliability, and investigate technical issues.'
       },
       {
-        heading: 'Communication',
-        body: 'We use your email for critical service notifications and security alerts only. We do not send marketing emails without your explicit consent.',
+        title: 'Security and support',
+        body: 'Relevant information may be processed to detect abuse, protect the service, respond to support requests, and address security incidents.'
       },
       {
-        heading: 'Platform Improvement',
-        body: 'Aggregated, anonymized usage data helps us understand performance and improve our models and infrastructure. Individual data is never sold to third parties.',
-      },
-    ],
+        title: 'No model training by Aichixia',
+        body: 'Aichixia does not use API request or response content to train or improve AI models. This statement concerns Aichixia’s own use of content and does not by itself determine the practices of upstream providers.'
+      }
+    ]
   },
   {
-    id: 'storage',
-    num: '03',
-    icon: FaLock,
-    accent: 'text-emerald-600 dark:text-emerald-400',
-    accentBg: 'bg-emerald-50 dark:bg-emerald-950/20',
-    accentBorder: 'border-emerald-200 dark:border-emerald-900/40',
-    accentDot: 'bg-emerald-500',
-    title: 'Storage & Security',
-    summary: 'How we keep your data safe and for how long.',
+    id: 'providers',
+    number: '03',
+    icon: FaGlobe,
+    title: 'Upstream Providers and Data Sharing',
+    summary: 'Requests are forwarded to providers to generate model responses.',
     items: [
       {
-        heading: 'Infrastructure',
-        body: 'All data lives on Supabase infrastructure with PostgreSQL databases. Data is encrypted at rest and in transit using TLS 1.3 protocols.',
+        title: 'Upstream model providers',
+        body: 'When you make an API request, Aichixia forwards the relevant request content to the third-party upstream model provider serving the selected model so that the provider can process the request and return a response. The provider involved may vary depending on the model or route.'
       },
       {
-        heading: 'API Key Hashing',
-        body: 'API keys are hashed before storage. The full key is only shown once at creation and cannot be retrieved. We store only a short prefix for identification.',
+        title: 'Provider policies',
+        body: 'Upstream providers operate under their own data handling, retention, and model-training policies. These practices may differ by provider and service. We do not make a blanket guarantee that every provider follows the same policy; review the relevant provider’s terms and privacy information where available.'
       },
       {
-        heading: 'Retention Policy',
-        body: 'Request logs are kept for 90 days. Account data is retained for the lifetime of your account. Upon deletion, all personal data is purged within 30 days.',
+        title: 'Other disclosures',
+        body: 'Aichixia does not sell personal information. Information may be disclosed where necessary to protect the service, respond to valid legal requirements, or address security and abuse issues, subject to applicable law.'
+      }
+    ]
+  },
+  {
+    id: 'security',
+    number: '04',
+    icon: FaLock,
+    title: 'Storage and Security',
+    summary: 'How account information and technical records are handled.',
+    items: [
+      {
+        title: 'Request content',
+        body: 'Aichixia does not store API prompts or generated outputs as application data. Because requests are forwarded to upstream model providers, processing and any retention by those providers are governed by their respective policies.'
       },
-    ],
+      {
+        title: 'Technical logs and metadata',
+        body: 'Technical logs or usage metadata may be processed to maintain the service, enforce usage limits, and protect against abuse. We are reviewing the exact retention periods and deletion procedures for these records and do not currently publish a fixed retention period for them.'
+      },
+      {
+        title: 'Security measures',
+        body: 'We take reasonable steps to protect information handled by the platform. No online service or method of transmission can be guaranteed to be completely secure.'
+      }
+    ]
   },
   {
     id: 'rights',
-    num: '04',
+    number: '05',
     icon: FaUserCheck,
-    accent: 'text-yellow-600 dark:text-yellow-400',
-    accentBg: 'bg-yellow-50 dark:bg-yellow-950/20',
-    accentBorder: 'border-yellow-200 dark:border-yellow-900/40',
-    accentDot: 'bg-yellow-500',
-    title: 'Your Rights',
-    summary: 'Access, correct, or delete your data at any time.',
+    title: 'Your Choices and Requests',
+    summary: 'Contact us about account information or privacy concerns.',
     items: [
       {
-        heading: 'Access & Portability',
-        body: 'Request a full export of your account data through Settings. We provide it in machine-readable JSON format within 7 business days.',
+        title: 'Access, correction, and deletion',
+        body: 'You may contact us to ask about personal information associated with your account, request a correction, or request deletion where applicable. We may need to verify your identity before acting on a request.'
       },
       {
-        heading: 'Correction & Deletion',
-        body: 'Update your profile at any time from Settings. You may request complete account deletion, which permanently removes all associated data from our systems.',
+        title: 'Request content and provider records',
+        body: 'Because Aichixia does not store API request and response content as application data, we generally cannot retrieve or delete content that we do not hold. If an upstream provider retains information, requests concerning that provider’s records may need to be directed to the provider, subject to its policies and applicable law.'
       },
       {
-        heading: 'Right to Object',
-        body: 'You may object to any processing of your personal data. Contact us and we will address your concern promptly and transparently.',
-      },
-    ],
+        title: 'Contact',
+        body: 'For privacy questions or data-related requests, email contact@aichixia.xyz. We will review your request and respond as reasonably practicable.'
+      }
+    ]
   },
   {
-    id: 'sharing',
-    num: '05',
+    id: 'international',
+    number: '06',
     icon: FaGlobe,
-    accent: 'text-orange-600 dark:text-orange-400',
-    accentBg: 'bg-orange-50 dark:bg-orange-950/20',
-    accentBorder: 'border-orange-200 dark:border-orange-900/40',
-    accentDot: 'bg-orange-500',
-    title: 'Data Sharing',
-    summary: 'We never sell data. Period.',
+    title: 'International Processing',
+    summary: 'Processing locations depend on the infrastructure and model provider.',
     items: [
       {
-        heading: 'No Sale of Data',
-        body: 'We never sell, rent, or trade your personal information to third parties for commercial purposes. Your data is your data.',
+        title: 'Provider locations',
+        body: 'Because Aichixia routes requests to third-party model providers, request content may be processed in countries where the relevant provider operates. The location can vary by provider and model. Please review the applicable provider information for details.'
       },
       {
-        heading: 'Service Providers',
-        body: 'We use Supabase for databases and Vercel for hosting. These providers process data on our behalf under strict data processing agreements.',
-      },
-      {
-        heading: 'Legal Requirements',
-        body: 'We may disclose information if required by law or court order. We will notify affected users to the extent permitted by law.',
-      },
-    ],
+        title: 'Aichixia infrastructure',
+        body: 'The location of Aichixia’s own infrastructure and the countries in which the service is legally established should be confirmed through the relevant hosting and business records. Contact us if you need further information for a compliance assessment.'
+      }
+    ]
   },
+  {
+    id: 'changes',
+    number: '07',
+    icon: FaShieldAlt,
+    title: 'Changes to This Policy',
+    summary: 'We may update this policy as the service evolves.',
+    items: [
+      {
+        title: 'Updates',
+        body: 'We may update this Privacy Policy to reflect changes to Aichixia or our data-handling practices. The date at the top of this page indicates when this policy was last updated. Please review this page periodically.'
+      }
+    ]
+  }
 ];
 
 export default function PrivacyPage() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [expandedSection, setExpandedSection] = useState<string | null>('collection');
-  const [scrollY, setScrollY] = useState(0);
-  const [visible, setVisible] = useState<Record<string, boolean>>({});
-  const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
-
-  useEffect(() => {
-    const onScroll = () => setScrollY(window.scrollY);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  useEffect(() => {
-    const observers: IntersectionObserver[] = [];
-    Object.entries(sectionRefs.current).forEach(([id, el]) => {
-      if (!el) return;
-      const obs = new IntersectionObserver(
-        ([entry]) => { if (entry.isIntersecting) setVisible(prev => ({ ...prev, [id]: true })); },
-        { threshold: 0.08 }
-      );
-      obs.observe(el);
-      observers.push(obs);
-    });
-    return () => observers.forEach(o => o.disconnect());
-  }, []);
-
-  const setRef = (id: string) => (el: HTMLDivElement | null) => { sectionRefs.current[id] = el; };
+  const [openSection, setOpenSection] = useState<string | null>('information');
 
   return (
     <>
-      <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes fadeInUp {
-          from { opacity:0; transform:translateY(20px); }
-          to   { opacity:1; transform:translateY(0); }
-        }
-        @keyframes fadeInLeft {
-          from { opacity:0; transform:translateX(-12px); }
-          to   { opacity:1; transform:translateX(0); }
-        }
-        @keyframes progressGrow {
-          from { opacity:0; }
-          to   { opacity:1; }
-        }
-        @keyframes heroIn {
-          from { opacity:0; transform:translateY(24px) scale(0.98); }
-          to   { opacity:1; transform:translateY(0) scale(1); }
-        }
-        @keyframes orbitSpin { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
-        @keyframes glowPulse { 0%,100%{opacity:.3;} 50%{opacity:.7;} }
-        @keyframes expandDown {
-          from { opacity:0; transform:translateY(-6px); }
-          to   { opacity:1; transform:translateY(0); }
-        }
-        .prv-hero { animation: heroIn 0.55s cubic-bezier(0.22,1,0.36,1) both 0.05s; }
-        .prv-orbit { animation: orbitSpin 14s linear infinite; }
-        .prv-glow { animation: glowPulse 3s ease-in-out infinite; }
-        .prv-expand { animation: expandDown 0.3s cubic-bezier(0.22,1,0.36,1) both; }
-        .prv-fade {
-          opacity: 0; transform: translateY(18px);
-          transition: opacity 0.5s cubic-bezier(0.22,1,0.36,1), transform 0.5s cubic-bezier(0.22,1,0.36,1);
-        }
-        .prv-fade.visible { opacity:1; transform:translateY(0); }
-        .stat-card {
-          transition: transform 200ms cubic-bezier(0.34,1.56,0.64,1), box-shadow 200ms;
-        }
-        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.07); }
-        .dark .stat-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
-        .acc-icon {
-          transition: transform 280ms cubic-bezier(0.34,1.56,0.64,1);
-        }
-        .acc-chevron {
-          transition: transform 300ms cubic-bezier(0.34,1.56,0.64,1);
-        }
-        .acc-chevron.open { transform: rotate(90deg); }
-        .section-card {
-          transition: border-color 250ms, box-shadow 250ms;
-        }
-        .section-btn { transition: background 180ms; }
-        .section-btn:hover { background: rgba(0,0,0,0.02); }
-        .dark .section-btn:hover { background: rgba(255,255,255,0.03); }
-      `}} />
-
       <Head>
         <title>Privacy Policy — Aichixia</title>
-        <meta name="description" content="Aichixia Privacy Policy — how we collect, use, and protect your data." />
+        <meta
+          name="description"
+          content="Learn how Aichixia processes account information, API request content, technical metadata, and third-party model requests."
+        />
+        <meta name="robots" content="index,follow" />
       </Head>
 
-      <div
-        style={{
-          position: 'fixed', top: 0, left: 0, right: 0, height: 2, zIndex: 60,
-          background: 'linear-gradient(90deg, #3b82f6, #06b6d4, #a855f7)',
-          width: `${Math.min(scrollY / Math.max((typeof document !== 'undefined' ? document.documentElement.scrollHeight - window.innerHeight : 1), 1) * 100, 100)}%`,
-          transition: 'width 80ms linear',
-        }}
-      />
+      <main className="min-h-screen bg-white text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
+        <header className="sticky top-0 z-30 border-b border-zinc-200/80 bg-white/90 backdrop-blur-xl dark:border-zinc-800 dark:bg-zinc-950/90">
+          <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:px-6">
+            <Link href="/" className="flex min-w-0 items-center gap-2.5">
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-900 text-white dark:bg-white dark:text-zinc-950">
+                <FaTerminal className="h-3.5 w-3.5" />
+              </span>
+              <span className="text-sm font-semibold tracking-tight">Aichixia</span>
+              <span className="hidden border-l border-zinc-200 pl-2.5 text-xs text-zinc-500 dark:border-zinc-700 sm:inline">
+                Privacy
+              </span>
+            </Link>
 
-      <main className="min-h-screen bg-white dark:bg-black text-zinc-900 dark:text-white transition-colors duration-300">
-
-        <header className={`sticky top-0 z-50 border-b transition-all duration-300 ${
-          scrollY > 20
-            ? 'border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-black/80 backdrop-blur-xl shadow-sm'
-            : 'border-transparent bg-transparent'
-        }`}>
-          <div className="max-w-3xl mx-auto px-3 sm:px-4 lg:px-6">
-            <div className="flex items-center justify-between h-12 sm:h-14">
-              <Link href="/" className="flex items-center gap-1.5 group">
-                <FaTerminal className="w-4 h-4 text-blue-500 group-hover:text-cyan-500 transition-colors duration-200" />
-                <div>
-                  <h1 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white tracking-tight">Aichixia</h1>
-                  <p className="text-[9px] sm:text-[10px] text-zinc-500 dark:text-zinc-400 -mt-0.5">API Platform</p>
-                </div>
+            <nav className="flex items-center gap-2 sm:gap-4">
+              <Link href="/docs" className="text-sm text-zinc-600 transition hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-white">
+                Docs
               </Link>
-
-              <nav className="hidden md:flex items-center gap-0.5">
-                <Link href="/" className="px-3 py-1.5 text-xs sm:text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200">
-                  Home
-                </Link>
-                <Link href="/docs" className="px-3 py-1.5 text-xs sm:text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200">
-                  Docs
-                </Link>
-                <div className="w-px h-4 bg-zinc-200 dark:bg-zinc-800 mx-1" />
-                <Link href="/console" className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm shadow-blue-600/20 transition-all duration-200">
-                  Console
-                </Link>
-              </nav>
-
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <ThemeToggle />
-                <button
-                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                  className="md:hidden p-1.5 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
-                >
-                  {mobileMenuOpen ? <FaTimes className="w-4 h-4" /> : <FaBars className="w-4 h-4" />}
-                </button>
-              </div>
-            </div>
+              <Link href="/terms" className="hidden text-sm text-zinc-600 transition hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-white sm:inline">
+                Terms
+              </Link>
+              <ThemeToggle />
+            </nav>
           </div>
-
-          {mobileMenuOpen && (
-            <div className="md:hidden border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-black">
-              <nav className="flex flex-col p-2 space-y-1">
-                <Link href="/" onClick={() => setMobileMenuOpen(false)} className="px-3 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200">Home</Link>
-                <Link href="/docs" onClick={() => setMobileMenuOpen(false)} className="px-3 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200">Docs</Link>
-                <Link href="/console" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center px-3 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-all duration-200">Console</Link>
-              </nav>
-            </div>
-          )}
         </header>
 
-        <section className="relative overflow-hidden border-b border-zinc-200 dark:border-zinc-800 bg-gradient-to-br from-blue-50 via-white to-cyan-50 dark:from-blue-950/20 dark:via-black dark:to-cyan-950/20">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(59,130,246,0.06),transparent_70%)] dark:bg-[radial-gradient(ellipse_at_top,rgba(59,130,246,0.1),transparent_70%)]" />
-          <div className="max-w-3xl mx-auto px-3 sm:px-4 lg:px-6 py-10 sm:py-14">
-            <div className="text-center space-y-4 prv-hero">
-              <div className="flex justify-center mb-2">
-                <div className="relative">
-                  <div className="prv-glow absolute inset-0 -m-4 rounded-full bg-blue-400/10 dark:bg-blue-500/10 pointer-events-none" />
-                  <div className="prv-orbit absolute inset-0 -m-3 rounded-full border border-dashed border-blue-400/20 dark:border-blue-500/20 pointer-events-none" />
-                  <FaShieldAlt className="w-9 h-9 sm:w-10 sm:h-10 text-blue-500 dark:text-blue-400" />
-                </div>
+        <section className="border-b border-zinc-200 dark:border-zinc-800">
+          <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16">
+            <div className="max-w-2xl">
+              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-600 dark:border-zinc-800 dark:text-zinc-300">
+                <FaShieldAlt className="h-3 w-3" />
+                Last updated {LAST_UPDATED}
               </div>
-
-              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-100 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900">
-                <FaBolt className="w-3 h-3 text-blue-600 dark:text-blue-400" />
-                <span className="text-xs font-semibold text-blue-700 dark:text-blue-300">Updated {LAST_UPDATED}</span>
-              </div>
-
-              <h1 className="text-3xl sm:text-4xl font-black text-zinc-900 dark:text-white tracking-tight">
-                Privacy <span className="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">Policy</span>
+              <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+                Privacy Policy
               </h1>
-
-              <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400 max-w-lg mx-auto leading-relaxed">
-                How Aichixia collects, uses, and protects your data — transparent and plain language, no legalese.
+              <p className="mt-4 max-w-xl text-sm leading-6 text-zinc-600 dark:text-zinc-400 sm:text-base sm:leading-7">
+                This policy explains what information Aichixia processes, how API requests are handled, and what to know when requests are sent to third-party model providers.
               </p>
-
-              <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap pt-1">
-                {[
-                  { dot: 'bg-emerald-500', label: 'Data Never Sold' },
-                  { dot: 'bg-blue-500', label: 'TLS 1.3 Encrypted' },
-                  { dot: 'bg-purple-500', label: '90-Day Log Retention' },
-                ].map(b => (
-                  <div key={b.label} className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm">
-                    <div className={`w-1.5 h-1.5 rounded-full ${b.dot}`} />
-                    <span className="text-[10px] sm:text-xs font-medium text-zinc-500 dark:text-zinc-400">{b.label}</span>
-                  </div>
-                ))}
+              <div className="mt-6 flex flex-wrap gap-2">
+                <span className="inline-flex items-center gap-2 rounded-md border border-zinc-200 px-3 py-2 text-xs font-medium text-zinc-700 dark:border-zinc-800 dark:text-zinc-300">
+                  <FaLock className="h-3 w-3" />
+                  Prompts and outputs not stored by Aichixia
+                </span>
+                <span className="inline-flex items-center gap-2 rounded-md border border-zinc-200 px-3 py-2 text-xs font-medium text-zinc-700 dark:border-zinc-800 dark:text-zinc-300">
+                  <FaUserCheck className="h-3 w-3" />
+                  No Aichixia training on API content
+                </span>
               </div>
             </div>
           </div>
         </section>
 
-        <div className="max-w-3xl mx-auto px-3 sm:px-4 lg:px-6 py-8 sm:py-10">
-
-          <div
-            ref={setRef('stats')}
-            className={`prv-fade grid grid-cols-3 gap-2 sm:gap-3 mb-8 sm:mb-10 ${visible['stats'] ? 'visible' : ''}`}
-          >
-            {[
-              { value: 'Never', label: 'Data sold', color: 'text-emerald-600 dark:text-emerald-400' },
-              { value: 'TLS 1.3', label: 'Encryption', color: 'text-blue-600 dark:text-blue-400' },
-              { value: '90 days', label: 'Log retention', color: 'text-purple-600 dark:text-purple-400' },
-            ].map(s => (
-              <div key={s.label} className="stat-card p-3 sm:p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 text-center">
-                <p className={`text-base sm:text-xl font-black tracking-tight mb-1 ${s.color}`}>{s.value}</p>
-                <p className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 font-medium">{s.label}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="space-y-2 mb-8 sm:mb-10">
-            {SECTIONS.map((sec, idx) => {
-              const Icon = sec.icon;
-              const isOpen = expandedSection === sec.id;
-              return (
-                <div
-                  key={sec.id}
-                  ref={setRef(sec.id)}
-                  className={`prv-fade section-card rounded-xl border overflow-hidden bg-white dark:bg-zinc-950 ${
-                    isOpen ? 'border-zinc-300 dark:border-zinc-700 shadow-sm' : 'border-zinc-200 dark:border-zinc-800'
-                  } ${visible[sec.id] ? 'visible' : ''}`}
-                  style={{ transitionDelay: `${idx * 50}ms` }}
-                >
-                  <button
-                    className="section-btn w-full flex items-center gap-3 p-3.5 sm:p-4 text-left"
-                    onClick={() => setExpandedSection(isOpen ? null : sec.id)}
+        <div className="mx-auto grid max-w-5xl gap-8 px-4 py-8 sm:px-6 sm:py-10 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-12">
+          <aside className="hidden lg:block">
+            <div className="sticky top-20">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                On this page
+              </p>
+              <nav className="space-y-1">
+                {SECTIONS.map((section) => (
+                  <a
+                    key={section.id}
+                    href={`#${section.id}`}
+                    className="block rounded-md px-3 py-2 text-sm text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-950 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-white"
                   >
-                    <Icon
-                      className={`w-5 h-5 flex-shrink-0 ${sec.accent} transition-transform duration-300`}
-                      style={{ transform: isOpen ? 'scale(1.15) rotate(-4deg)' : 'scale(1)', transition: 'transform 280ms cubic-bezier(0.34,1.56,0.64,1)' }}
-                    />
-
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <span className={`text-[10px] font-bold ${sec.accent} opacity-60 tracking-widest`}>{sec.num}</span>
-                        <span className={`text-sm sm:text-base font-bold tracking-tight transition-colors duration-200 ${isOpen ? sec.accent : 'text-zinc-900 dark:text-white'}`}>
-                          {sec.title}
-                        </span>
-                      </div>
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-tight">{sec.summary}</p>
-                    </div>
-
-                    <FaChevronRight className={`acc-chevron w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500 flex-shrink-0 ${isOpen ? 'open' : ''}`} />
-                  </button>
-
-                  {isOpen && (
-                    <div className="prv-expand px-3.5 sm:px-4 pb-4">
-                      <div className="h-px bg-zinc-100 dark:bg-zinc-800 mb-3.5" />
-                      <div className="space-y-3.5">
-                        {sec.items.map((item, i) => (
-                          <div key={i} className="flex gap-3">
-                            <FaCheck className={`w-3 h-3 flex-shrink-0 mt-1 ${sec.accent}`} />
-                            <div>
-                              <p className={`text-xs font-bold mb-1 uppercase tracking-wider ${sec.accent}`}>{item.heading}</p>
-                              <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">{item.body}</p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          <div ref={setRef('contact')} className={`prv-fade ${visible['contact'] ? 'visible' : ''}`} style={{ transitionDelay: '80ms' }}>
-            <div className="p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 flex items-start gap-3 sm:gap-4 mb-6">
-              <FaEnvelope className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white mb-1">Privacy questions?</p>
-                <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                  Reach us at{' '}
-                  <a href="mailto:contact@aichixia.xyz" className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">
-                    contact@aichixia.xyz
+                    {section.number}. {section.title}
                   </a>
-                  {' '}— we respond within 48 hours on business days.
-                </p>
+                ))}
+              </nav>
+            </div>
+          </aside>
+
+          <div className="min-w-0">
+            <div className="mb-6 rounded-xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900/40 sm:p-5">
+              <div className="flex items-start gap-3">
+                <FaLock className="mt-0.5 h-4 w-4 shrink-0 text-zinc-700 dark:text-zinc-300" />
+                <div>
+                  <h2 className="text-sm font-semibold">API content and model training</h2>
+                  <p className="mt-1.5 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
+                    Aichixia does not store API prompts or generated responses as application data and does not use that content to train AI models. Requests are forwarded to the upstream provider serving the selected model, whose own data-handling policies may apply.
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div ref={setRef('footer')} className={`prv-fade pt-6 border-t border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-3 ${visible['footer'] ? 'visible' : ''}`} style={{ transitionDelay: '120ms' }}>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400">© {new Date().getFullYear()} Aichixia. All rights reserved.</p>
-            <div className="flex items-center gap-3 text-xs">
-              <Link href="/terms" className="flex items-center gap-1 font-semibold text-blue-600 dark:text-blue-400 hover:underline">
-                Terms of Service <FaArrowRight className="w-2.5 h-2.5" />
-              </Link>
-              <span className="text-zinc-300 dark:text-zinc-700">•</span>
-              <a href="mailto:contact@aichixia.xyz" className="text-zinc-500 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">Contact</a>
+            <div className="space-y-3">
+              {SECTIONS.map((section) => {
+                const Icon = section.icon;
+                const isOpen = openSection === section.id;
+
+                return (
+                  <section
+                    id={section.id}
+                    key={section.id}
+                    className="scroll-mt-20 overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950"
+                  >
+                    <button
+                      type="button"
+                      aria-expanded={isOpen}
+                      aria-controls={`${section.id}-content`}
+                      onClick={() => setOpenSection(isOpen ? null : section.id)}
+                      className="flex w-full items-center gap-3 px-4 py-4 text-left transition hover:bg-zinc-50 dark:hover:bg-zinc-900/50 sm:px-5"
+                    >
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zinc-100 text-zinc-700 dark:bg-zinc-900 dark:text-zinc-300">
+                        <Icon className="h-3.5 w-3.5" />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-sm font-semibold tracking-tight">
+                          <span className="mr-2 font-mono text-xs text-zinc-400">{section.number}</span>
+                          {section.title}
+                        </span>
+                        <span className="mt-1 block text-xs leading-5 text-zinc-500 dark:text-zinc-400">
+                          {section.summary}
+                        </span>
+                      </span>
+                      <FaChevronDown className={`h-3 w-3 shrink-0 text-zinc-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                    </button>
+
+                    {isOpen && (
+                      <div id={`${section.id}-content`} className="border-t border-zinc-100 px-4 py-4 dark:border-zinc-800 sm:px-5">
+                        <div className="space-y-5">
+                          {section.items.map((item) => (
+                            <div key={item.title}>
+                              <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                                {item.title}
+                              </h3>
+                              <p className="mt-1.5 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
+                                {item.body}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </section>
+                );
+              })}
             </div>
+
+            <section className="mt-8 rounded-xl border border-zinc-200 p-4 dark:border-zinc-800 sm:p-5">
+              <div className="flex items-start gap-3">
+                <FaEnvelope className="mt-0.5 h-4 w-4 shrink-0 text-zinc-600 dark:text-zinc-400" />
+                <div className="min-w-0">
+                  <h2 className="text-sm font-semibold">Privacy questions?</h2>
+                  <p className="mt-1.5 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
+                    Contact us at{' '}
+                    <a href="mailto:contact@aichixia.xyz" className="font-medium text-zinc-900 underline decoration-zinc-300 underline-offset-4 hover:decoration-zinc-900 dark:text-zinc-100 dark:decoration-zinc-600 dark:hover:decoration-white">
+                      contact@aichixia.xyz
+                    </a>
+                    {' '}for privacy questions or data-related requests.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <footer className="mt-8 flex flex-col gap-3 border-t border-zinc-200 pt-5 text-xs text-zinc-500 dark:border-zinc-800 sm:flex-row sm:items-center sm:justify-between">
+              <p>© {new Date().getFullYear()} Aichixia. All rights reserved.</p>
+              <div className="flex flex-wrap items-center gap-4">
+                <Link href="/terms" className="inline-flex items-center gap-1.5 transition hover:text-zinc-900 dark:hover:text-white">
+                  Terms of Service <FaArrowUpRightFromSquare className="h-2.5 w-2.5" />
+                </Link>
+                <a href="mailto:contact@aichixia.xyz" className="transition hover:text-zinc-900 dark:hover:text-white">
+                  Contact
+                </a>
+              </div>
+            </footer>
           </div>
         </div>
-
       </main>
     </>
   );
