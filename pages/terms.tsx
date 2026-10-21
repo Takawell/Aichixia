@@ -1,402 +1,483 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import ThemeToggle from '@/components/ThemeToggle';
-import {
-  FaTerminal, FaFileAlt, FaBars, FaTimes, FaCheck, FaTimes as FaX,
-  FaBolt, FaChevronRight, FaArrowRight, FaEnvelope, FaShieldAlt,
-  FaClock, FaUserCheck, FaBan, FaExclamationTriangle
-} from 'react-icons/fa';
+import { FaTerminal, FaBars, FaTimes, FaCheck, FaEnvelope, FaArrowRight } from 'react-icons/fa';
 
-const LAST_UPDATED = 'March 2025';
+const LAST_UPDATED = 'October 2026';
 
-const QUICK = [
-  { ok: true,  text: 'Build apps & products within plan limits' },
-  { ok: true,  text: 'Use for personal or commercial purposes' },
-  { ok: true,  text: 'Keep API keys secure and private' },
-  { ok: false, text: 'No illegal or abusive content generation' },
-  { ok: false, text: 'No sharing or reselling API keys' },
-  { ok: false, text: 'No circumventing rate limits' },
+const NAV = [
+  { href: '/', label: 'Home' },
+  { href: '/docs', label: 'Docs' },
+];
+
+const CAN = [
+  'Build apps and products within your plan limits',
+  'Use the API for personal or commercial purposes',
+  'Keep ownership of your content and outputs',
+];
+
+const CANNOT = [
+  'Generate illegal or abusive content',
+  'Share or resell your API keys',
+  'Circumvent rate limits or probe for vulnerabilities',
 ];
 
 const SECTIONS = [
   {
     id: 'acceptance',
-    num: '01',
-    icon: FaFileAlt,
-    accent: 'text-blue-600 dark:text-blue-400',
-    accentBg: 'bg-blue-50 dark:bg-blue-950/20',
-    accentBorder: 'border-blue-200 dark:border-blue-900/40',
-    title: 'Acceptance of Terms',
+    title: 'Acceptance of terms',
     summary: 'Using Aichixia means you agree to these terms.',
     items: [
-      { heading: 'Agreement', body: 'By accessing or using the Aichixia API platform, you agree to be bound by these Terms of Service. If you do not agree, you may not access or use the Service.' },
-      { heading: 'Eligibility', body: 'You must be at least 13 years of age to use this Service. By using it, you represent you meet this requirement and have the legal capacity to enter into these terms.' },
-      { heading: 'Updates', body: 'We may modify these terms at any time. Continued use after changes constitutes acceptance. We will notify you of material changes via email or in-console notice.' },
+      {
+        heading: 'Agreement',
+        body: 'By accessing or using the Aichixia API platform, you agree to be bound by these Terms of Service and our Privacy Policy. If you do not agree, you may not access or use the Service.',
+      },
+      {
+        heading: 'Eligibility',
+        body: 'You must be at least 13 years old to use the Service. By using it, you confirm that you meet this requirement and have the legal capacity to enter into these terms.',
+      },
+      {
+        heading: 'Updates',
+        body: 'We may modify these terms at any time. Continued use after a change means you accept it. We will notify you of material changes by email or an in-console notice.',
+      },
+    ],
+  },
+  {
+    id: 'accounts',
+    title: 'Accounts and API keys',
+    summary: 'You are responsible for your account and everything done with it.',
+    items: [
+      {
+        heading: 'Registration',
+        body: 'Provide accurate information when you sign up and keep it up to date. You may not create an account by impersonating another person or organization.',
+      },
+      {
+        heading: 'API keys',
+        body: 'Each API key is tied to your account and may not be shared. You are responsible for all activity under your keys. Revoke compromised keys immediately in the console.',
+      },
+      {
+        heading: 'Unauthorized access',
+        body: 'Notify us promptly if you suspect your account or keys have been accessed without permission. We are not liable for losses caused by credentials you failed to protect.',
+      },
     ],
   },
   {
     id: 'permitted',
-    num: '02',
-    icon: FaUserCheck,
-    accent: 'text-emerald-600 dark:text-emerald-400',
-    accentBg: 'bg-emerald-50 dark:bg-emerald-950/20',
-    accentBorder: 'border-emerald-200 dark:border-emerald-900/40',
-    title: 'Permitted Use',
+    title: 'Permitted use',
     summary: 'What you can build and do with the platform.',
     items: [
-      { heading: 'Allowed Uses', body: 'Build applications, automate workflows, conduct research, and create personal or commercial products — subject to applicable rate limits and plan restrictions.' },
-      { heading: 'API Keys', body: 'Each API key is tied to your account and may not be shared. You are responsible for all activity under your keys. Revoke compromised keys immediately via the console.' },
-      { heading: 'Fair Use', body: 'Usage must stay within your plan limits. Attempting to circumvent rate limits, reverse-engineer the API, or access other accounts is strictly prohibited.' },
+      {
+        heading: 'Allowed uses',
+        body: 'Build applications, automate workflows, conduct research, and create personal or commercial products, subject to applicable rate limits and plan restrictions.',
+      },
+      {
+        heading: 'Fair use',
+        body: 'Usage must stay within your plan limits. Circumventing rate limits, reverse-engineering the API, or accessing other accounts is prohibited.',
+      },
+      {
+        heading: 'Enforcement',
+        body: 'Because we don’t store your prompts or responses, we enforce these terms using request metadata, usage patterns, and abuse reports.',
+      },
     ],
   },
   {
     id: 'prohibited',
-    num: '03',
-    icon: FaBan,
-    accent: 'text-red-600 dark:text-red-400',
-    accentBg: 'bg-red-50 dark:bg-red-950/20',
-    accentBorder: 'border-red-200 dark:border-red-900/40',
-    title: 'Prohibited Activities',
-    summary: 'These actions result in immediate termination.',
+    title: 'Prohibited activities',
+    summary: 'These actions can lead to immediate termination.',
     items: [
-      { heading: 'Illegal Content', body: 'Do not use the Service to generate, distribute, or facilitate content that is unlawful, harmful, threatening, abusive, harassing, or defamatory under applicable law.' },
-      { heading: 'Security Violations', body: 'Probing or testing vulnerabilities, launching denial of service attacks, or attempting to gain unauthorized access to any part of the Service is forbidden.' },
-      { heading: 'Model Abuse', body: 'Using the API to generate malware, exploit code, CSAM, or content designed to facilitate real-world harm is prohibited and may be reported to authorities.' },
+      {
+        heading: 'Illegal content',
+        body: 'Do not use the Service to generate, distribute, or facilitate content that is unlawful, harmful, threatening, abusive, harassing, or defamatory under applicable law.',
+      },
+      {
+        heading: 'Security violations',
+        body: 'Probing for vulnerabilities, launching denial of service attacks, or attempting to gain unauthorized access to any part of the Service is forbidden.',
+      },
+      {
+        heading: 'Model abuse',
+        body: 'Using the API to generate malware, exploit code, child sexual abuse material, or content designed to facilitate real-world harm is prohibited and may be reported to authorities.',
+      },
+      {
+        heading: 'Key sharing and resale',
+        body: 'Do not sell, rent, share, or sublicense your API keys or access to the Service without our written permission.',
+      },
+    ],
+  },
+  {
+    id: 'content',
+    title: 'Your content and outputs',
+    summary: 'Who owns what, and who is responsible for it.',
+    items: [
+      {
+        heading: 'Ownership',
+        body: 'You keep all rights to the content you send to the API and the outputs you receive, subject to applicable law.',
+      },
+      {
+        heading: 'Your responsibility',
+        body: 'You are responsible for your content and for how you use outputs, including making sure you have the right to submit what you send.',
+      },
+      {
+        heading: 'Accuracy of outputs',
+        body: 'Outputs are generated by AI models and may be inaccurate, incomplete, or inappropriate. Review them before relying on them, especially for legal, medical, or financial decisions.',
+      },
+      {
+        heading: 'No content storage',
+        body: 'We don’t store your prompts or responses. The Privacy Policy explains the limited data we do collect.',
+      },
+    ],
+  },
+  {
+    id: 'ip',
+    title: 'Intellectual property',
+    summary: 'What belongs to Aichixia.',
+    items: [
+      {
+        heading: 'Our property',
+        body: 'The Service, including its software, design, documentation, and branding, belongs to Aichixia. These terms do not grant you ownership of any of it.',
+      },
+      {
+        heading: 'Feedback',
+        body: 'If you send us suggestions or feedback, we may use them to improve the Service without obligation or compensation to you.',
+      },
     ],
   },
   {
     id: 'availability',
-    num: '04',
-    icon: FaClock,
-    accent: 'text-yellow-600 dark:text-yellow-400',
-    accentBg: 'bg-yellow-50 dark:bg-yellow-950/20',
-    accentBorder: 'border-yellow-200 dark:border-yellow-900/40',
-    title: 'Service Availability',
+    title: 'Service availability',
     summary: 'Uptime, rate limits, and plan changes.',
     items: [
-      { heading: 'Uptime', body: 'We strive for high availability but do not guarantee uninterrupted access. The Service is provided "as is". Scheduled maintenance is communicated in advance.' },
-      { heading: 'Rate Limits', body: 'Your plan determines daily API request limits. Exceeding limits returns HTTP 429. Limits reset daily at midnight UTC.' },
-      { heading: 'Plan Changes', body: 'We reserve the right to modify pricing tiers or features. Active plan holders receive at least 14 days notice before any adverse changes.' },
+      {
+        heading: 'Uptime',
+        body: 'We strive for high availability but do not guarantee uninterrupted access. The Service is provided “as is”. Scheduled maintenance is announced in advance.',
+      },
+      {
+        heading: 'Rate limits',
+        body: 'Your plan sets your daily API request limit. Exceeding it returns HTTP 429. Limits reset daily at midnight UTC.',
+      },
+      {
+        heading: 'Plan changes',
+        body: 'We may change pricing tiers or features. Active plan holders receive at least 14 days’ notice before any adverse change.',
+      },
+      {
+        heading: 'Third-party services',
+        body: 'The Service relies on providers such as Supabase and Vercel. Outages or changes on their side may affect availability, and we are not responsible for failures outside our control.',
+      },
     ],
   },
   {
     id: 'liability',
-    num: '05',
-    icon: FaShieldAlt,
-    accent: 'text-purple-600 dark:text-purple-400',
-    accentBg: 'bg-purple-50 dark:bg-purple-950/20',
-    accentBorder: 'border-purple-200 dark:border-purple-900/40',
-    title: 'Liability & Warranties',
-    summary: 'Limitations on our legal responsibility.',
+    title: 'Liability and warranties',
+    summary: 'Limits on our legal responsibility.',
     items: [
-      { heading: 'Disclaimer', body: 'The Service is provided without warranties of any kind. We do not warrant that the Service will be error-free, secure, or meet your specific requirements.' },
-      { heading: 'Limitation of Liability', body: 'To the maximum extent permitted by law, Aichixia shall not be liable for any indirect, incidental, consequential, or punitive damages from your use of the Service.' },
-      { heading: 'Indemnification', body: 'You agree to indemnify Aichixia and its affiliates from claims, damages, or expenses arising from your violation of these Terms or use of the Service.' },
+      {
+        heading: 'Disclaimer',
+        body: 'The Service is provided without warranties of any kind. We do not warrant that it will be error-free, secure, or meet your specific requirements.',
+      },
+      {
+        heading: 'Limitation of liability',
+        body: 'To the maximum extent permitted by law, Aichixia is not liable for any indirect, incidental, consequential, or punitive damages arising from your use of the Service.',
+      },
+      {
+        heading: 'Indemnification',
+        body: 'You agree to indemnify Aichixia and its affiliates against claims, damages, or expenses arising from your violation of these terms or your use of the Service.',
+      },
     ],
   },
   {
     id: 'termination',
-    num: '06',
-    icon: FaExclamationTriangle,
-    accent: 'text-orange-600 dark:text-orange-400',
-    accentBg: 'bg-orange-50 dark:bg-orange-950/20',
-    accentBorder: 'border-orange-200 dark:border-orange-900/40',
     title: 'Termination',
     summary: 'How and when accounts can be closed.',
     items: [
-      { heading: 'By You', body: 'You may terminate your account at any time through Settings. Termination removes access to the Service but does not entitle you to any refund of prepaid fees.' },
-      { heading: 'By Us', body: 'We may suspend or terminate your account immediately for violations of these Terms. We may also close accounts for extended inactivity.' },
-      { heading: 'Effect of Termination', body: 'Upon termination, your right to use the Service ceases immediately. Sections on liability, indemnification, and dispute resolution survive termination.' },
+      {
+        heading: 'By you',
+        body: 'You may close your account at any time from Settings. Closing it removes access to the Service but does not entitle you to a refund of prepaid fees.',
+      },
+      {
+        heading: 'By us',
+        body: 'We may suspend or terminate your account immediately for violations of these terms. We may also close accounts after extended inactivity.',
+      },
+      {
+        heading: 'Effect of termination',
+        body: 'Your right to use the Service ends immediately. Sections on intellectual property, liability, indemnification, and disputes survive termination.',
+      },
+    ],
+  },
+  {
+    id: 'general',
+    title: 'Governing law and general',
+    summary: 'How disputes and the fine print are handled.',
+    items: [
+      {
+        heading: 'Governing law',
+        body: 'These terms are governed by applicable law. Disputes are resolved through binding arbitration where permitted.',
+      },
+      {
+        heading: 'Severability',
+        body: 'If any provision of these terms is found unenforceable, the remaining provisions stay in effect.',
+      },
+      {
+        heading: 'Entire agreement',
+        body: 'These terms and the Privacy Policy are the entire agreement between you and Aichixia regarding the Service.',
+      },
     ],
   },
 ];
 
+const focusRing =
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60';
+
+const navLink = `px-3 py-1.5 text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-colors duration-200 ${focusRing}`;
+
 export default function TermsPage() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [expandedSection, setExpandedSection] = useState<string | null>('acceptance');
-  const [scrollY, setScrollY] = useState(0);
-  const [visible, setVisible] = useState<Record<string, boolean>>({});
-  const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [active, setActive] = useState(SECTIONS[0].id);
 
   useEffect(() => {
-    const onScroll = () => setScrollY(window.scrollY);
+    const onScroll = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      setScrolled(window.scrollY > 8);
+      setProgress(max > 0 ? Math.min((window.scrollY / max) * 100, 100) : 0);
+    };
+    onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    window.addEventListener('resize', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
   }, []);
 
   useEffect(() => {
-    const observers: IntersectionObserver[] = [];
-    Object.entries(sectionRefs.current).forEach(([id, el]) => {
-      if (!el) return;
-      const obs = new IntersectionObserver(
-        ([entry]) => { if (entry.isIntersecting) setVisible(prev => ({ ...prev, [id]: true })); },
-        { threshold: 0.08 }
-      );
-      obs.observe(el);
-      observers.push(obs);
+    const observer = new IntersectionObserver(
+      entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) setActive(entry.target.id);
+        });
+      },
+      { rootMargin: '-20% 0px -70% 0px' }
+    );
+    SECTIONS.forEach(s => {
+      const el = document.getElementById(s.id);
+      if (el) observer.observe(el);
     });
-    return () => observers.forEach(o => o.disconnect());
+    return () => observer.disconnect();
   }, []);
-
-  const setRef = (id: string) => (el: HTMLDivElement | null) => { sectionRefs.current[id] = el; };
 
   return (
     <>
-      <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes fadeInUp {
-          from { opacity:0; transform:translateY(20px); }
-          to   { opacity:1; transform:translateY(0); }
-        }
-        @keyframes heroIn {
-          from { opacity:0; transform:translateY(24px) scale(0.98); }
-          to   { opacity:1; transform:translateY(0) scale(1); }
-        }
-        @keyframes orbitSpin { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
-        @keyframes glowPulse { 0%,100%{opacity:.3;} 50%{opacity:.7;} }
-        @keyframes expandDown {
-          from { opacity:0; transform:translateY(-6px); }
-          to   { opacity:1; transform:translateY(0); }
-        }
-        @keyframes quickIn {
-          from { opacity:0; transform:translateX(-8px); }
-          to   { opacity:1; transform:translateX(0); }
-        }
-        .trm-hero { animation: heroIn 0.55s cubic-bezier(0.22,1,0.36,1) both 0.05s; }
-        .trm-orbit { animation: orbitSpin 14s linear infinite; }
-        .trm-glow { animation: glowPulse 3s ease-in-out infinite; }
-        .trm-expand { animation: expandDown 0.3s cubic-bezier(0.22,1,0.36,1) both; }
-        .trm-fade {
-          opacity: 0; transform: translateY(18px);
-          transition: opacity 0.5s cubic-bezier(0.22,1,0.36,1), transform 0.5s cubic-bezier(0.22,1,0.36,1);
-        }
-        .trm-fade.visible { opacity:1; transform:translateY(0); }
-        .quick-item { animation: quickIn 0.4s cubic-bezier(0.22,1,0.36,1) both; }
-        .quick-item:nth-child(1){animation-delay:0.10s;}
-        .quick-item:nth-child(2){animation-delay:0.14s;}
-        .quick-item:nth-child(3){animation-delay:0.18s;}
-        .quick-item:nth-child(4){animation-delay:0.22s;}
-        .quick-item:nth-child(5){animation-delay:0.26s;}
-        .quick-item:nth-child(6){animation-delay:0.30s;}
-        .section-card { transition: border-color 250ms, box-shadow 250ms; }
-        .section-btn { transition: background 180ms; }
-        .section-btn:hover { background: rgba(0,0,0,0.02); }
-        .dark .section-btn:hover { background: rgba(255,255,255,0.03); }
-        .acc-chevron { transition: transform 300ms cubic-bezier(0.34,1.56,0.64,1); }
-        .acc-chevron.open { transform: rotate(90deg); }
-        .info-card { transition: transform 200ms cubic-bezier(0.34,1.56,0.64,1), box-shadow 200ms; }
-        .info-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.06); }
-        .dark .info-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
-      `}} />
-
-      <Head>
-        <title>Terms of Service — Aichixia</title>
-        <meta name="description" content="Aichixia Terms of Service — the rules and conditions for using our platform." />
-      </Head>
-
-      <div
-        style={{
-          position: 'fixed', top: 0, left: 0, right: 0, height: 2, zIndex: 60,
-          background: 'linear-gradient(90deg, #f59e0b, #fb923c, #ef4444)',
-          width: `${Math.min(scrollY / Math.max((typeof document !== 'undefined' ? document.documentElement.scrollHeight - window.innerHeight : 1), 1) * 100, 100)}%`,
-          transition: 'width 80ms linear',
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+            html { scroll-behavior: smooth; }
+            @keyframes trmIn {
+              from { opacity: 0; transform: translateY(8px); }
+              to { opacity: 1; transform: none; }
+            }
+            .trm-in { animation: trmIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+            @media (prefers-reduced-motion: reduce) {
+              html { scroll-behavior: auto; }
+              .trm-in { animation: none; }
+            }
+          `,
         }}
       />
 
-      <main className="min-h-screen bg-white dark:bg-black text-zinc-900 dark:text-white transition-colors duration-300">
+      <Head>
+        <title>Terms of Service | Aichixia</title>
+        <meta
+          name="description"
+          content="Aichixia Terms of Service. The rules and conditions for using our platform."
+        />
+      </Head>
 
-        <header className={`sticky top-0 z-50 border-b transition-all duration-300 ${
-          scrollY > 20
-            ? 'border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-black/80 backdrop-blur-xl shadow-sm'
-            : 'border-transparent bg-transparent'
-        }`}>
-          <div className="max-w-3xl mx-auto px-3 sm:px-4 lg:px-6">
-            <div className="flex items-center justify-between h-12 sm:h-14">
-              <Link href="/" className="flex items-center gap-1.5 group">
-                <FaTerminal className="w-4 h-4 text-blue-500 group-hover:text-cyan-500 transition-colors duration-200" />
-                <div>
-                  <h1 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white tracking-tight">Aichixia</h1>
-                  <p className="text-[9px] sm:text-[10px] text-zinc-500 dark:text-zinc-400 -mt-0.5">API Platform</p>
-                </div>
+      <div
+        className="fixed top-0 left-0 z-50 h-0.5 bg-blue-600 dark:bg-blue-500"
+        style={{ width: `${progress}%`, transition: 'width 80ms linear' }}
+      />
+
+      <main className="min-h-screen bg-white dark:bg-black text-zinc-900 dark:text-white">
+        <header
+          className={`sticky top-0 z-40 border-b transition-colors duration-200 ${
+            scrolled
+              ? 'border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-black/80 backdrop-blur-md'
+              : 'border-transparent bg-white dark:bg-black'
+          }`}
+        >
+          <div className="mx-auto max-w-4xl px-4 sm:px-6">
+            <div className="flex h-12 sm:h-14 items-center justify-between">
+              <Link href="/" className={`group flex items-center gap-2 rounded-lg ${focusRing}`}>
+                <FaTerminal className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                <span className="text-sm font-semibold tracking-tight">Aichixia</span>
+                <span className="hidden sm:inline text-xs text-zinc-500 dark:text-zinc-400">API Platform</span>
               </Link>
 
-              <nav className="hidden md:flex items-center gap-0.5">
-                <Link href="/" className="px-3 py-1.5 text-xs sm:text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200">Home</Link>
-                <Link href="/docs" className="px-3 py-1.5 text-xs sm:text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200">Docs</Link>
-                <div className="w-px h-4 bg-zinc-200 dark:bg-zinc-800 mx-1" />
-                <Link href="/console" className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm shadow-blue-600/20 transition-all duration-200">Console</Link>
+              <nav className="hidden md:flex items-center gap-1" aria-label="Main">
+                {NAV.map(n => (
+                  <Link key={n.href} href={n.href} className={navLink}>
+                    {n.label}
+                  </Link>
+                ))}
+                <Link
+                  href="/console"
+                  className={`ml-2 px-3 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors duration-200 ${focusRing}`}
+                >
+                  Console
+                </Link>
               </nav>
 
-              <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="flex items-center gap-1.5">
                 <ThemeToggle />
                 <button
-                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                  className="md:hidden p-1.5 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200"
+                  onClick={() => setMenuOpen(!menuOpen)}
+                  aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+                  aria-expanded={menuOpen}
+                  className={`md:hidden p-2 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-colors duration-200 ${focusRing}`}
                 >
-                  {mobileMenuOpen ? <FaTimes className="w-4 h-4" /> : <FaBars className="w-4 h-4" />}
+                  {menuOpen ? <FaTimes className="h-4 w-4" /> : <FaBars className="h-4 w-4" />}
                 </button>
               </div>
             </div>
           </div>
 
-          {mobileMenuOpen && (
+          {menuOpen && (
             <div className="md:hidden border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-black">
-              <nav className="flex flex-col p-2 space-y-1">
-                <Link href="/" onClick={() => setMobileMenuOpen(false)} className="px-3 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200">Home</Link>
-                <Link href="/docs" onClick={() => setMobileMenuOpen(false)} className="px-3 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200">Docs</Link>
-                <Link href="/console" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center px-3 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-all duration-200">Console</Link>
+              <nav className="mx-auto max-w-4xl flex flex-col gap-1 p-3" aria-label="Mobile">
+                {NAV.map(n => (
+                  <Link key={n.href} href={n.href} onClick={() => setMenuOpen(false)} className={navLink}>
+                    {n.label}
+                  </Link>
+                ))}
+                <Link
+                  href="/console"
+                  onClick={() => setMenuOpen(false)}
+                  className={`mt-1 px-3 py-2 text-center text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors duration-200 ${focusRing}`}
+                >
+                  Console
+                </Link>
               </nav>
             </div>
           )}
         </header>
 
-        <section className="relative overflow-hidden border-b border-zinc-200 dark:border-zinc-800 bg-gradient-to-br from-yellow-50 via-white to-orange-50 dark:from-yellow-950/20 dark:via-black dark:to-orange-950/20">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(245,158,11,0.06),transparent_70%)] dark:bg-[radial-gradient(ellipse_at_top,rgba(245,158,11,0.1),transparent_70%)]" />
-          <div className="max-w-3xl mx-auto px-3 sm:px-4 lg:px-6 py-10 sm:py-14">
-            <div className="text-center space-y-4 trm-hero">
-              <div className="flex justify-center mb-2">
-                <div className="relative">
-                  <div className="trm-glow absolute inset-0 -m-4 rounded-full bg-yellow-400/10 dark:bg-yellow-500/10 pointer-events-none" />
-                  <div className="trm-orbit absolute inset-0 -m-3 rounded-full border border-dashed border-yellow-400/20 dark:border-yellow-500/20 pointer-events-none" />
-                  <FaFileAlt className="w-9 h-9 sm:w-10 sm:h-10 text-yellow-500 dark:text-yellow-400" />
-                </div>
+        <section className="border-b border-zinc-200 dark:border-zinc-800">
+          <div className="trm-in mx-auto max-w-4xl px-4 sm:px-6 py-10 sm:py-14">
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">Last updated {LAST_UPDATED}</p>
+            <h1 className="mt-3 text-2xl sm:text-3xl font-semibold tracking-tight">Terms of Service</h1>
+            <p className="mt-3 max-w-xl text-sm sm:text-base leading-relaxed text-zinc-600 dark:text-zinc-400">
+              Simple, fair terms for using Aichixia. Know your rights and responsibilities.
+            </p>
+
+            <div className="mt-8 grid gap-px overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-200 dark:bg-zinc-800 sm:grid-cols-2">
+              <div className="bg-white dark:bg-black p-4 sm:p-5">
+                <p className="text-sm font-semibold">You can</p>
+                <ul className="mt-3 space-y-2.5">
+                  {CAN.map(text => (
+                    <li key={text} className="flex gap-2.5 text-sm leading-snug text-zinc-600 dark:text-zinc-400">
+                      <FaCheck className="mt-0.5 h-3 w-3 flex-shrink-0 text-emerald-600 dark:text-emerald-400" />
+                      {text}
+                    </li>
+                  ))}
+                </ul>
               </div>
-
-              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-yellow-100 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-900">
-                <FaBolt className="w-3 h-3 text-yellow-600 dark:text-yellow-400" />
-                <span className="text-xs font-semibold text-yellow-700 dark:text-yellow-300">Updated {LAST_UPDATED}</span>
+              <div className="bg-white dark:bg-black p-4 sm:p-5">
+                <p className="text-sm font-semibold">You can’t</p>
+                <ul className="mt-3 space-y-2.5">
+                  {CANNOT.map(text => (
+                    <li key={text} className="flex gap-2.5 text-sm leading-snug text-zinc-600 dark:text-zinc-400">
+                      <FaTimes className="mt-0.5 h-3 w-3 flex-shrink-0 text-red-600 dark:text-red-400" />
+                      {text}
+                    </li>
+                  ))}
+                </ul>
               </div>
-
-              <h1 className="text-3xl sm:text-4xl font-black text-zinc-900 dark:text-white tracking-tight">
-                Terms of <span className="bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent">Service</span>
-              </h1>
-
-              <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400 max-w-lg mx-auto leading-relaxed">
-                Simple, fair terms for using Aichixia. Know your rights and responsibilities clearly.
-              </p>
-
-
             </div>
           </div>
         </section>
 
-        <div className="max-w-3xl mx-auto px-3 sm:px-4 lg:px-6 py-8 sm:py-10">
-
-          <div ref={setRef('quick')} className={`trm-fade mb-8 sm:mb-10 ${visible['quick'] ? 'visible' : ''}`}>
-            <div className="p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse" />
-                <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest">Quick Summary</span>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5">
-                {QUICK.map((q, i) => (
-                  <div key={i} className="quick-item flex items-start gap-2.5">
-                    {q.ok
-                      ? <FaCheck className="w-3 h-3 flex-shrink-0 mt-0.5 text-emerald-600 dark:text-emerald-400" />
-                      : <FaX className="w-3 h-3 flex-shrink-0 mt-0.5 text-red-600 dark:text-red-400" />
-                    }
-                    <span className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-snug font-medium">{q.text}</span>
-                  </div>
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 py-10 sm:py-14 lg:grid lg:grid-cols-[170px_minmax(0,1fr)] lg:gap-14">
+          <aside className="hidden lg:block">
+            <nav className="sticky top-24" aria-label="On this page">
+              <p className="mb-3 text-xs font-medium text-zinc-500 dark:text-zinc-400">On this page</p>
+              <ul className="border-l border-zinc-200 dark:border-zinc-800">
+                {SECTIONS.map(s => (
+                  <li key={s.id}>
+                    <a
+                      href={`#${s.id}`}
+                      className={`block -ml-px border-l py-1.5 pl-3 text-[13px] leading-snug transition-colors duration-200 ${focusRing} ${
+                        active === s.id
+                          ? 'border-blue-600 dark:border-blue-400 font-medium text-zinc-900 dark:text-white'
+                          : 'border-transparent text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
+                      }`}
+                    >
+                      {s.title}
+                    </a>
+                  </li>
                 ))}
-              </div>
-            </div>
-          </div>
+              </ul>
+            </nav>
+          </aside>
 
-          <div className="space-y-2 mb-8 sm:mb-10">
-            {SECTIONS.map((sec, idx) => {
-              const Icon = sec.icon;
-              const isOpen = expandedSection === sec.id;
-              return (
-                <div
-                  key={sec.id}
-                  ref={setRef(sec.id)}
-                  className={`trm-fade section-card rounded-xl border overflow-hidden bg-white dark:bg-zinc-950 ${
-                    isOpen ? 'border-zinc-300 dark:border-zinc-700 shadow-sm' : 'border-zinc-200 dark:border-zinc-800'
-                  } ${visible[sec.id] ? 'visible' : ''}`}
-                  style={{ transitionDelay: `${idx * 45}ms` }}
-                >
-                  <button
-                    className="section-btn w-full flex items-center gap-3 p-3.5 sm:p-4 text-left"
-                    onClick={() => setExpandedSection(isOpen ? null : sec.id)}
-                  >
-                    <Icon
-                      className={`w-5 h-5 flex-shrink-0 ${sec.accent}`}
-                      style={{ transform: isOpen ? 'scale(1.15) rotate(-4deg)' : 'scale(1)', transition: 'transform 280ms cubic-bezier(0.34,1.56,0.64,1)' }}
-                    />
-
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <span className={`text-[10px] font-bold ${sec.accent} opacity-60 tracking-widest`}>{sec.num}</span>
-                        <span className={`text-sm sm:text-base font-bold tracking-tight transition-colors duration-200 ${isOpen ? sec.accent : 'text-zinc-900 dark:text-white'}`}>
-                          {sec.title}
-                        </span>
-                      </div>
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-tight">{sec.summary}</p>
+          <div className="min-w-0 space-y-12 sm:space-y-14">
+            {SECTIONS.map(sec => (
+              <section key={sec.id} id={sec.id} className="scroll-mt-24">
+                <h2 className="text-lg font-semibold tracking-tight">{sec.title}</h2>
+                <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{sec.summary}</p>
+                <dl className="mt-5 divide-y divide-zinc-200 dark:divide-zinc-800 border-y border-zinc-200 dark:border-zinc-800">
+                  {sec.items.map(item => (
+                    <div key={item.heading} className="py-4 sm:grid sm:grid-cols-[150px_minmax(0,1fr)] sm:gap-6">
+                      <dt className="text-sm font-medium">{item.heading}</dt>
+                      <dd className="mt-1 sm:mt-0 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+                        {item.body}
+                      </dd>
                     </div>
+                  ))}
+                </dl>
+              </section>
+            ))}
 
-                    <FaChevronRight className={`acc-chevron w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500 flex-shrink-0 ${isOpen ? 'open' : ''}`} />
-                  </button>
-
-                  {isOpen && (
-                    <div className="trm-expand px-3.5 sm:px-4 pb-4">
-                      <div className="h-px bg-zinc-100 dark:bg-zinc-800 mb-3.5" />
-                      <div className="space-y-3.5">
-                        {sec.items.map((item, i) => (
-                          <div key={i} className="flex gap-3">
-                            <FaCheck className={`w-3 h-3 flex-shrink-0 mt-1 ${sec.accent}`} />
-                            <div>
-                              <p className={`text-xs font-bold mb-1 uppercase tracking-wider ${sec.accent}`}>{item.heading}</p>
-                              <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">{item.body}</p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          <div ref={setRef('bottom')} className={`trm-fade space-y-3 ${visible['bottom'] ? 'visible' : ''}`} style={{ transitionDelay: '80ms' }}>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-              <div className="info-card p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
-                <div className="flex items-center gap-2 mb-2">
-                  <FaShieldAlt className="w-4 h-4 text-yellow-500 dark:text-yellow-400" />
-                  <p className="text-sm font-bold text-zinc-900 dark:text-white">Governing Law</p>
-                </div>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
-                  These terms are governed by applicable laws. Disputes resolved through binding arbitration where permitted.
-                </p>
-              </div>
-              <div className="info-card p-4 rounded-xl border border-blue-100 dark:border-blue-900/30 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20">
-                <div className="flex items-center gap-2 mb-2">
-                  <FaEnvelope className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                  <p className="text-sm font-bold text-zinc-900 dark:text-white">Legal Questions?</p>
-                </div>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
+            <section className="flex gap-3 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 sm:p-5">
+              <FaEnvelope className="mt-0.5 h-4 w-4 flex-shrink-0 text-zinc-500 dark:text-zinc-400" />
+              <div>
+                <p className="text-sm font-semibold">Legal questions?</p>
+                <p className="mt-1 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
                   Email{' '}
-                  <a href="mailto:contact@aichixia.xyz" className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">
+                  <a
+                    href="mailto:contact@aichixia.xyz"
+                    className={`rounded font-medium text-blue-600 dark:text-blue-400 hover:underline ${focusRing}`}
+                  >
                     contact@aichixia.xyz
                   </a>
-                  {' '}— we reply within 48 hours.
+                  . We reply within 48 hours on business days.
                 </p>
               </div>
-            </div>
-          </div>
-
-          <div ref={setRef('footer')} className={`trm-fade pt-6 border-t border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-3 ${visible['footer'] ? 'visible' : ''}`} style={{ transitionDelay: '120ms' }}>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400">© {new Date().getFullYear()} Aichixia. All rights reserved.</p>
-            <div className="flex items-center gap-3 text-xs">
-              <Link href="/privacy" className="flex items-center gap-1 font-semibold text-blue-600 dark:text-blue-400 hover:underline">
-                Privacy Policy <FaArrowRight className="w-2.5 h-2.5" />
-              </Link>
-              <span className="text-zinc-300 dark:text-zinc-700">•</span>
-              <a href="mailto:contact@aichixia.xyz" className="text-zinc-500 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">Contact</a>
-            </div>
+            </section>
           </div>
         </div>
 
+        <footer className="border-t border-zinc-200 dark:border-zinc-800">
+          <div className="mx-auto flex max-w-4xl flex-col items-center justify-between gap-3 px-4 sm:px-6 py-6 sm:flex-row">
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+              © {new Date().getFullYear()} Aichixia. All rights reserved.
+            </p>
+            <div className="flex items-center gap-4 text-xs">
+              <Link
+                href="/privacy"
+                className={`flex items-center gap-1 rounded font-medium text-blue-600 dark:text-blue-400 hover:underline ${focusRing}`}
+              >
+                Privacy Policy <FaArrowRight className="h-2.5 w-2.5" />
+              </Link>
+              <a
+                href="mailto:contact@aichixia.xyz"
+                className={`rounded text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors duration-200 ${focusRing}`}
+              >
+                Contact
+              </a>
+            </div>
+          </div>
+        </footer>
       </main>
     </>
   );
