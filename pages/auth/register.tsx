@@ -7,109 +7,8 @@ import ThemeToggle from '@/components/ThemeToggle';
 const A = '#0ea5e9';
 const A2 = '#6366f1';
 
-const BLACKLISTED_DOMAINS = [
-  'wshu.net','mailinator.com','tempmail.com','guerrillamail.com','throwam.com',
-  'sharklasers.com','guerrillamailblock.com','grr.la','guerrillamail.info',
-  'guerrillamail.biz','guerrillamail.de','guerrillamail.net','guerrillamail.org',
-  'spam4.me','trashmail.com','trashmail.me','trashmail.net','dispostable.com',
-  'yopmail.com','yopmail.fr','cool.fr.nf','jetable.fr.nf','nospam.ze.tc',
-  'nomail.xl.cx','mega.zik.dj','speed.1s.fr','courriel.fr.nf','moncourrier.fr.nf',
-  'monemail.fr.nf','monmail.fr.nf','fakeinbox.com','mailnull.com','spamgourmet.com',
-  'spamgourmet.net','spamgourmet.org','maildrop.cc','discard.email','spamhero.com',
-  'tempinbox.com','tempinbox.co.uk','throwam.net','getairmail.com','filzmail.com',
-  'spamfree24.org','spamfree24.de','spamfree24.eu','spamfree24.info','spamfree24.net',
-  'spamfree.eu','wegwerfmail.de','wegwerfmail.net','wegwerfmail.org',
-  'mailnesia.com','mailnull.com','spamgourmet.com','trashmail.io','trashmail.at',
-  'trashmail.xyz','trashmail.live','trashmail.win','trashmail.me','trashmail.com',
-  'tempmail.ninja','tempmail.plus','tempmail.email','tempmail.de','tempmail.net',
-  'temp-mail.org','temp-mail.io','temp-mail.ru','temp-mail.net','tempmailo.com',
-  'tmailinator.com','tmail.io','tmail.com','getnada.com','nada.email',
-  'inboxkitten.com','mohmal.com','throwam.com','throwam.net','throwam.me',
-  'throwam.org','throwam.xyz','throwaway.email','throw.email',
-  '10minutemail.com','10minutemail.net','10minutemail.org','10minutemail.de',
-  '10minutemail.co.za','10minutemail.ru','10minutemail.be','10minutemail.cf',
-  '10minemail.com','20minutemail.com','30minutemail.com','60minutemail.com',
-  'minutemail.com','minuteinbox.com','mintemail.com','minmail.org',
-  'fakeinbox.org','fakeinbox.net','fakeinbox.info','fakemailgenerator.com',
-  'fakemail.fr','fakemail.net','fakeemailgenerator.com','fakeemailer.com',
-  'mailbucket.org','mailcat.biz','mailcatch.com','mailchop.com','maildef.com',
-  'mailexpire.com','mailfall.com','mailfence.com','mailfs.com','mailguard.me',
-  'mailhazard.com','mailhazard.us','mailimate.com','mailin8r.com','mailinater.com',
-  'mailinator2.com','mailinator.net','mailinator.org','mailinator.gq','mailinator.co',
-  'mailinbox.co','mailinbox.net','mailink.net','mailismagic.com','mailjunk.cf',
-  'mailkor.xyz','mailme.ir','mailme.lv','mailme.gq','mailmetrash.com',
-  'mailmoat.com','mailnew.com','mailnull.net','mailnull.org','mailpick.biz',
-  'mailproxsy.com','mailquack.com','mailrock.biz','mailseal.de','mailshell.com',
-  'mailsiphon.com','mailslapping.com','mailslite.com','mailsmagic.com','mailsnull.com',
-  'mailspam.me','mailspam.xyz','mailspam.life','mailsru.com','mailsucker.net',
-  'mailsw.com','mailtag.com','mailtechx.com','mailtemp.info','mailtemp.net',
-  'mailtemp.org','mailtemporaire.com','mailtemporaire.fr','mailthunder.com',
-  'mailtome.de','mailtothis.com','mailtrash.net','mailtrix.net','mailtv.net',
-  'mailtv.tv','mailzilla.com','mailzilla.org','maizzle.com','makemetheking.com',
-  'manybrain.com','mbx.cc','mega.zik.dj','mezimages.net','mierdamail.com',
-  'minsmail.com','moburl.com','moncourrier.fr.nf','monemail.fr.nf','monmail.fr.nf',
-  'mvrht.com','mxfuel.com','my10minutemail.com','mymail-in.net','mymailoasis.com',
-  'mynetstore.de','mytemp.email','mytempemail.com','mytempmail.com',
-  'netzidiot.de','nice-4u.com','noblepioneer.com','nobugmail.com',
-  'noclickemail.com','nogmailspam.info','nomorespamemails.com','nonspam.eu',
-  'nonspammer.de','noref.in','notsharingmy.info','nowhere.org','nowmymail.com',
-  'nwldx.com','nwytg.net','objectmail.com','obobbo.com','odaymail.com',
-  'odnorazovoe.ru','one-time.email','oneoffemail.com','oneoffmail.com',
-  'onewaymail.com','online.ms','onqin.com','opentrash.com','ordinaryamerican.net',
-  'otherinbox.com','owlpic.com','pookmail.com','poste.io','postinbox.com',
-  'postpro.net','privy-mail.com','privy-mail.de','proxymail.eu','punkass.com',
-  'put2.net','qq.com','quickinbox.com','rcpt.at','realemail.net',
-  'receiveee.chickenkiller.com','recursor.net','regbypass.comsafe-mail.net',
-  'rklips.com','rmqkr.net','rtrtr.com','s0ny.net','safe-mail.net',
-  'safetymail.info','safetypost.de','sandboxmail.net','saynotospams.com',
-  'selfdestructingmail.com','sendspamhere.com','sharklasers.com','shiftmail.com',
-  'shitmail.me','shitmail.org','shitware.nl','skeefmail.com','slopsbox.com',
-  'slushmail.com','smapfree24.com','smapfree24.de','smapfree24.eu',
-  'smapfree24.info','smapfree24.org','smellfear.com','snakemail.com',
-  'sneakemail.com','sneakmail.de','snkmail.com','sofimail.com','sofort-mail.de',
-  'sogetthis.com','soodonims.com','spam.la','spamavert.com','spambox.info',
-  'spambox.irishspringrealty.com','spambox.us','spamcannon.com','spamcannon.net',
-  'spamcero.com','spamcon.org','spamcorptastic.com','spamcowboy.com',
-  'spamcowboy.net','spamcowboy.org','spamday.com','spamex.com',
-  'spamfree24.com','spamgoes.in','spamgourmet.net','spamgourmet.org',
-  'spamherelots.com','spamhereplease.com','spamhole.com','spamify.com',
-  'spaminator.de','spamkill.info','spaml.com','spaml.de','spammotel.com',
-  'spammy.host','spamoff.de','spamslicer.com','spamspot.com','spamstack.net',
-  'spamthis.co.uk','spamthisplease.com','spamtrail.com','spamtroll.net',
-  'speed.1s.fr','spoofmail.de','squizzy.de','squizzy.eu','squizzy.net',
-  'stinkefinger.net','stuffmail.de','super-auswahl.de','supergreatmail.com',
-  'supermailer.jp','superrito.com','superstachel.de','suremail.info',
-  'sweetxxx.de','tafmail.com','tagyourself.com','talkinator.com','tapchicoupon.com',
-  'tbwt.com','techemail.com','techgroup.me','teewars.org','teleworm.com',
-  'teleworm.us','temp-mail.com','temp.bartdevos.be','tempail.com','tempalias.com',
-  'tempe-mail.com','tempemails.net','tempinbox.co.uk','tempm.com','tempmail2.com',
-  'tempr.email','tempsky.com','tempthe.net','tempymail.com','thanksnospam.info',
-  'thc.st','thedoghousemail.com','thelimestones.com','thichanthit.com',
-  'throwamail.com','throwam.com','throwam.net','throwaway.email',
-  'throya.com','tilien.com','tmail.com','tmailinator.com','toiea.com',
-  'topranklist.de','torchmail.com','tradermail.info','trash-amil.com',
-  'trash-mail.at','trash-mail.cf','trash-mail.ga','trash-mail.ml',
-  'trash-me.com','trashdevil.com','trashdevil.de','trashemail.de',
-  'trashimail.de','trashmail.app','trashmail.at','trashmail.com',
-  'trashmail.gq','trashmail.io','trashmail.me','trashmail.net',
-  'trashmail.org','trashmail.xyz','trashmailer.com','trashpanda.cc',
-  'trashtigers.com','trbvm.com','trbvn.com','trbvo.com','trillianpro.com',
-  'trshcn.com','turual.com','twinmail.de','tyldd.com','uggsrock.com',
-  'umail.net','uroid.com','username.e4ward.com','venompen.com','veryrealemail.com',
-  'vidchart.com','viditag.com','viewcastmedia.com','viewcastmedia.net',
-  'viewcastmedia.org','viroleni.cu.cc','vkcode.ru','vomoto.com','vpn.st',
-  'vsimcard.com','vubby.com','walala.org','walkmail.net','watchfull.net',
-  'wbdet.com','webm4il.info','wegwerfmail.de','wegwerfmail.net','wegwerfmail.org',
-  'wetrainbayarea.com','wetrainbayarea.org','wilemail.com','willhackforfood.biz',
-  'willselfdestruct.com','wmail.cf','wolfsmail.tk','writeme.us','wronghead.com',
-  'wuzupmail.net','www.e4ward.com','www.mailinator.com','xagloo.com',
-  'xemaps.com','xents.com','xmaily.com','xoxy.net','xyzfree.net',
-  'yapped.net','yeah.net','yep.it','yogamaven.com','yopmail.com',
-  'yopmail.fr','yopmail.gq','you-spam.com','youmailr.com','ypmail.webredirect.org',
-  'yuurok.com','z1p.biz','za.com','zehnminuten.de','zehnminutenmail.de',
-  'zhouemail.510520.org','zippymail.info','zoemail.net','zoemail.org',
-  'zomg.info','zxcv.com','zxcvbnm.com','zzz.com', 'web-library.net',
-];
+const ALLOWED_DOMAIN = 'gmail.com';
+const ONLY_GMAIL_MESSAGE = 'For now, only Gmail.com is allowed to register.';
 
 const SUSPICIOUS_USERNAME_PATTERNS: RegExp[] = [
   /^test\d*$/i,
@@ -138,16 +37,7 @@ const SUSPICIOUS_USERNAME_PATTERNS: RegExp[] = [
   /^(.)\1{4,}/i,
 ];
 
-const SUSPICIOUS_DOMAIN_PATTERNS: RegExp[] = [
-  /^(temp|tmp|trash|spam|fake|junk|disposable|throwaway|burner|no-?reply|test)[.\-_]/i,
-  /[.\-_](temp|tmp|trash|spam|fake|junk|mail\d+)(\.|$)/i,
-  /\d{8,}/,
-  /^[a-z]{1,3}\d{4,}\./i,
-  /(mail|inbox|email)(er|inator|inator2|inator3)\./i,
-  /^(yop|zap|zed|bim|bam|boo|foo|bar|baz|qux)[a-z]{0,3}\./i,
-];
-
-function validateEmail(email: string): { valid: boolean; reason?: string } {
+function validateEmail(email: string): { valid: boolean; reason?: string; domainBlocked?: boolean } {
   const trimmed = email.trim().toLowerCase();
 
   if (!trimmed.includes('@') || trimmed.split('@').length !== 2) {
@@ -164,14 +54,8 @@ function validateEmail(email: string): { valid: boolean; reason?: string } {
     return { valid: false, reason: 'Invalid email domain.' };
   }
 
-  if (BLACKLISTED_DOMAINS.includes(domain)) {
-    return { valid: false, reason: 'This email domain is not allowed to register.' };
-  }
-
-  for (const pattern of SUSPICIOUS_DOMAIN_PATTERNS) {
-    if (pattern.test(domain)) {
-      return { valid: false, reason: 'Email domain detected as disposable or suspicious.' };
-    }
+  if (domain !== ALLOWED_DOMAIN) {
+    return { valid: false, reason: ONLY_GMAIL_MESSAGE, domainBlocked: true };
   }
 
   for (const pattern of SUSPICIOUS_USERNAME_PATTERNS) {
@@ -364,7 +248,17 @@ export default function Register() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [shaking, setShaking] = useState(false);
+  const [showDomainModal, setShowDomainModal] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!showDomainModal) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setShowDomainModal(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [showDomainModal]);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -381,7 +275,9 @@ export default function Register() {
     }
     const emailCheck = validateEmail(email);
     if (!emailCheck.valid) {
-      setError(emailCheck.reason ?? 'Invalid email.'); setLoading(false);
+      if (emailCheck.domainBlocked) setShowDomainModal(true);
+      else setError(emailCheck.reason ?? 'Invalid email.');
+      setLoading(false);
       setShaking(true); setTimeout(() => setShaking(false), 650);
       return;
     }
@@ -484,6 +380,56 @@ export default function Register() {
 
       <div className="page-wrap" style={{ background: dark ? '#05070d' : '#f4f8fc', transition: 'background 0.35s ease' }}>
         <div className="theme-toggle-fixed"><ThemeToggle /></div>
+
+        {showDomainModal && (
+          <div
+            onClick={() => setShowDomainModal(false)}
+            style={{
+              position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20,
+              background: dark ? 'rgba(2,6,14,0.7)' : 'rgba(15,23,42,0.4)',
+              backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)',
+            }}
+          >
+            <div
+              role="dialog"
+              aria-modal="true"
+              className="pop-in"
+              onClick={e => e.stopPropagation()}
+              style={{
+                width: '100%', maxWidth: 360, borderRadius: 20, padding: '28px 24px 22px', textAlign: 'center',
+                background: dark ? '#0a0e17' : '#ffffff',
+                border: `1px solid ${dark ? 'rgba(255,255,255,0.1)' : 'rgba(15,23,42,0.08)'}`,
+                boxShadow: dark ? '0 24px 70px rgba(0,0,0,0.6)' : '0 24px 70px rgba(15,23,42,0.2)',
+              }}
+            >
+              <div style={{
+                width: 46, height: 46, borderRadius: 14, margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: dark ? 'rgba(251,191,36,0.12)' : '#fffbeb',
+                border: `1px solid ${dark ? 'rgba(251,191,36,0.3)' : '#fde68a'}`,
+              }}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                  <line x1="12" y1="9" x2="12" y2="13" />
+                  <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
+              </div>
+              <h3 style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 18, fontWeight: 700, color: dark ? '#f1f5f9' : '#0f172a', marginBottom: 8, letterSpacing: '-0.01em' }}>
+                Registration restricted
+              </h3>
+              <p style={{ fontSize: 13.5, color: sub, lineHeight: 1.6, marginBottom: 20, fontWeight: 500 }}>
+                {ONLY_GMAIL_MESSAGE}
+              </p>
+              <button
+                type="button"
+                onClick={() => setShowDomainModal(false)}
+                className="primary-btn"
+                style={{ background: `linear-gradient(135deg,${A},${A2})`, boxShadow: '0 4px 16px rgba(14,165,233,0.28)', cursor: 'pointer' }}
+              >
+                Got it
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="geo-panel" style={{
           background: dark
@@ -618,7 +564,7 @@ export default function Register() {
             </div>
 
             <form onSubmit={handleRegister}>
-              <InputField type="email" label="Email" value={email} onChange={setEmail} placeholder="you@example.com" required isError={!!error} dark={dark} />
+              <InputField type="email" label="Email" value={email} onChange={setEmail} placeholder="you@gmail.com" required isError={!!error} dark={dark} />
 
               <InputField type={showPassword ? 'text' : 'password'} label="Password" value={password} onChange={setPassword} placeholder="Min. 6 characters" required isError={!!error} dark={dark}>
                 <button
