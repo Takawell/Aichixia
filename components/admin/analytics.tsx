@@ -35,6 +35,26 @@ type AnalyticsProps = {
   loading?: boolean;
 };
 
+const COMPACT_UNITS = ['', 'K', 'M', 'B'];
+
+function formatCompact(n: number) {
+  if (!isFinite(n)) return '0';
+  const sign = n < 0 ? '-' : '';
+  let abs = Math.abs(n);
+  let i = 0;
+  while (abs >= 1000 && i < COMPACT_UNITS.length - 1) {
+    abs /= 1000;
+    i++;
+  }
+  let text = abs.toFixed(i === 0 || abs >= 100 ? 0 : abs >= 10 ? 1 : 2);
+  if (parseFloat(text) >= 1000 && i < COMPACT_UNITS.length - 1) {
+    abs /= 1000;
+    i++;
+    text = abs.toFixed(2);
+  }
+  return `${sign}${parseFloat(text)}${COMPACT_UNITS[i]}`;
+}
+
 function useCountUp(target: number, duration = 1200) {
   const [value, setValue] = useState(0);
   const ref = useRef<number>(0);
@@ -59,16 +79,17 @@ type CustomTooltipProps = {
   active?: boolean;
   payload?: { value: number; name: string; color: string }[];
   label?: string;
+  compact?: boolean;
 };
 
-function ChartTooltip({ active, payload, label }: CustomTooltipProps) {
+function ChartTooltip({ active, payload, label, compact }: CustomTooltipProps) {
   if (!active || !payload?.length) return null;
   return (
     <div className="bg-white dark:bg-[#0a0e17] border border-slate-200 dark:border-white/[0.06] rounded-xl px-3 py-2 shadow-xl">
       <p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 mb-1">{label}</p>
       {payload.map((entry) => (
         <p key={entry.name} className="text-xs font-bold" style={{ color: entry.color }}>
-          {entry.value.toLocaleString()}
+          {compact ? formatCompact(entry.value) : entry.value.toLocaleString()}
         </p>
       ))}
     </div>
@@ -153,7 +174,7 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
     .map(d => ({
       date: new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
       requests: d.requests_count,
-      tokens: Math.round(d.tokens_used / 1000),
+      tokens: d.tokens_used,
       success: d.success_count,
       errors: d.error_count,
     }));
@@ -233,8 +254,8 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
           icon={FiCpu} label="Total Tokens"
           color="text-violet-600 dark:text-violet-400" lightIcon="text-violet-600" darkIcon="dark:text-violet-400"
           lightBg="bg-violet-50" darkBg="dark:bg-violet-900/20" lightBorder="border-violet-200" darkBorder="dark:border-violet-800"
-          glowClass="bg-violet-500" value={Math.round(stats.totalTokens / 1000)} delay={80}
-          format={(v) => `${v.toLocaleString()}K`}
+          glowClass="bg-violet-500" value={stats.totalTokens} delay={80}
+          format={formatCompact}
         />
         <StatCard
           icon={FiZap} label="Avg Latency"
@@ -261,7 +282,7 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
               </div>
               <div>
                 <h3 className="text-sm font-bold text-slate-800 dark:text-white">Usage Trends</h3>
-                <p className="text-[10px] text-slate-500 dark:text-slate-400">{chartType === 'requests' ? 'Requests over time' : 'Tokens (K) over time'}</p>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400">{chartType === 'requests' ? 'Requests over time' : 'Tokens over time'}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -312,8 +333,8 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="currentColor" className="text-slate-200 dark:text-slate-700" />
               <XAxis dataKey="date" tick={{ fontSize: 10, fill: 'currentColor' }} tickLine={false} axisLine={false} className="text-slate-500 dark:text-slate-400" />
-              <YAxis tick={{ fontSize: 10, fill: 'currentColor' }} tickLine={false} axisLine={false} className="text-slate-500 dark:text-slate-400" />
-              <Tooltip content={<ChartTooltip />} cursor={{ stroke: '#0ea5e9', strokeWidth: 1, strokeDasharray: '4 4' }} />
+              <YAxis tick={{ fontSize: 10, fill: 'currentColor' }} tickLine={false} axisLine={false} tickFormatter={chartType === 'tokens' ? formatCompact : undefined} className="text-slate-500 dark:text-slate-400" />
+              <Tooltip content={<ChartTooltip compact={chartType === 'tokens'} />} cursor={{ stroke: '#0ea5e9', strokeWidth: 1, strokeDasharray: '4 4' }} />
               <Area type="monotone" dataKey={chartType} stroke="#0ea5e9" fill="url(#ag-main)" strokeWidth={2} dot={false} activeDot={{ r: 4, fill: '#0ea5e9', strokeWidth: 2, stroke: '#fff' }} />
               {chartType === 'requests' && (
                 <Area type="monotone" dataKey="success" stroke="#10b981" fill="url(#ag-suc)" strokeWidth={1.5} dot={false} strokeDasharray="4 2" activeDot={{ r: 3, fill: '#10b981' }} />
