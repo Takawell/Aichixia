@@ -352,7 +352,7 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
             </div>
             <div>
               <h3 className="text-sm font-bold text-slate-800 dark:text-white">Popular Models</h3>
-              <p className="text-[10px] text-slate-500 dark:text-slate-400">By request count</p>
+              <p className="text-[10px] text-slate-500 dark:text-slate-400">By request count, with token usage</p>
             </div>
           </div>
           {modelData.length === 0 ? (
@@ -362,6 +362,8 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
               {modelData.map((m, i) => {
                 const max = modelData[0].count;
                 const pct = max > 0 ? (m.count / max) * 100 : 0;
+                const tokenShare = stats.totalTokens > 0 ? (m.tokens / stats.totalTokens) * 100 : 0;
+                const avgTokens = m.count > 0 ? m.tokens / m.count : 0;
                 return (
                   <div key={m.model}>
                     <div className="flex items-center justify-between mb-1">
@@ -371,6 +373,7 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
                       </div>
                       <span className="text-xs font-black tabular-nums" style={{ color: MODEL_COLORS[i % MODEL_COLORS.length] }}>
                         {m.count.toLocaleString()}
+                        <span className="ml-1 text-[9px] font-semibold text-slate-400 dark:text-slate-500">req</span>
                       </span>
                     </div>
                     <div className="h-1 bg-slate-100 dark:bg-white/[0.06] rounded-full overflow-hidden">
@@ -378,6 +381,12 @@ export default function Analytics({ dailyUsage, requestLogs, loading }: Analytic
                         className="h-full rounded-full transition-all duration-1000 ease-out"
                         style={{ width: `${pct}%`, background: MODEL_COLORS[i % MODEL_COLORS.length], transitionDelay: `${i * 80 + 600}ms` }}
                       />
+                    </div>
+                    <div className="flex items-center justify-between mt-1 pl-5 text-[10px] text-slate-500 dark:text-slate-400 tabular-nums">
+                      <span>
+                        <span className="font-bold text-slate-700 dark:text-slate-300">{formatCompact(m.tokens)}</span> tokens used
+                      </span>
+                      <span>{tokenShare.toFixed(1)}% of total · ~{formatCompact(avgTokens)}/req</span>
                     </div>
                   </div>
                 );
